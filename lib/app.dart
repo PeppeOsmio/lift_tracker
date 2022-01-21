@@ -13,36 +13,70 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  late int nextScreen;
-  late String currentPageName = "Workouts";
-  late Widget currentPage;
-  late Widget workoutList;
-  Widget? excercises;
-  Widget? history;
-  List<int> pageStack = [1];
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    workoutList = const WorkoutList();
-    currentPage = workoutList;
-    currentPageIndex = 1;
+  List<String> pageKeys = ["History", "Workouts", "Excercises"];
+  late String _currentPageName;
+  bool excercises = false;
+  bool history = false;
+  List<int> pageStack = [];
+
+  Widget _buildOffStage(int index){
+    switch (index) {
+      case 0:
+        
+          return Offstage(
+                offstage: _currentPageName != pageKeys[index],
+                child: const History()
+              );
+        
+        
+      case 1:
+        return Offstage(
+                offstage: _currentPageName != pageKeys[index],
+                child: const WorkoutList(),
+              );
+       
+      default:
+        
+          return Offstage(
+                offstage: _currentPageName != pageKeys[index],
+                child: const Excercises(),
+              );
+        
+    }
+  }
+
+  void _selectTab(int index){
+    
+    setState(() {
+      _currentPageName = pageKeys[index];
+      currentPageIndex = index;
+      pageStack.add(index);
+    });
   }
 
   @override
+  void initState() {
+    super.initState();
+    _currentPageName = pageKeys[1];
+    currentPageIndex = 1;
+    pageStack.add(1);
+  }
+
+  
+
+  @override
   Widget build(BuildContext context) {
-    print(pageStack);
     return Scaffold(
       appBar: AppBar(elevation: 0, backgroundColor: const Color.fromARGB(255, 31, 31, 31),
       automaticallyImplyLeading: false,
       title: Padding(
         padding: const EdgeInsets.only(left: 16, top: 16),
-        child: Text(currentPageName),
+        child: Text(_currentPageName),
       ),
       toolbarHeight: 79,
       actions: [Padding(
-        padding: EdgeInsets.only(right: 16, top: 16),
+        padding: const EdgeInsets.only(right: 16, top: 16),
         child: Container(
           height: 6,
           width: 60,
@@ -56,51 +90,32 @@ class _AppState extends State<App> {
         resizeToAvoidBottomInset: false,
         floatingActionButton: currentPageIndex==1 
         ? Container(
-          padding: EdgeInsets.all(18),
+          padding: const EdgeInsets.all(18),
           height: 65,
           width: 65,
           decoration: const BoxDecoration(
                 color: Colors.black, 
                 borderRadius: BorderRadius.all(Radius.circular(20))),
-          child: FittedBox(child: Icon(Icons.add_outlined, color: Colors.white,))
+          child: const FittedBox(child: Icon(Icons.add_outlined, color: Colors.white,))
         )
         : null,
-        /*Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
-              child: Container(
-                decoration: const BoxDecoration(
-                color: Colors.black, 
-                borderRadius: BorderRadius.all(Radius.circular(20))),
-                child: const ListTile(leading: Icon(Icons.search_outlined, color: Colors.white,), 
-                title: Text("Search", style: TextStyle(color: Colors.white, fontSize: 25),),),
-              ),
-            ),*/
       backgroundColor: const Color.fromARGB(255, 31, 31, 31),
-      body: WillPopScope(child: currentPage, onWillPop: ()async{
-        int index;
-        
+      body: WillPopScope(
+      child: Stack(children: [
+        history == false ? const SizedBox() : _buildOffStage(0),
+        _buildOffStage(1),
+        excercises == false ? const SizedBox() : _buildOffStage(2)
+
+      ]), 
+      
+      onWillPop: ()async{
         if(pageStack.length>1){
+          int index;
           pageStack.removeLast();
           index = pageStack.last;
-          switch (index) {
-          case 0:
-            currentPage = history!;
-            currentPageName = "History";
-            currentPageIndex = 0;
-            break;
-          case 1:
-            currentPage = workoutList;
-            currentPageName = "Workouts";
-            currentPageIndex = 1;
-            break;
-          case 2:
-            currentPage = excercises!;
-            currentPageName = "Excercises";
-            currentPageIndex = 2;
-            break;
-          default:
-            break;
-        }
+          _currentPageName = pageKeys[index];
+          currentPageIndex = index;
+          
         setState(() {
         });
         }
@@ -108,37 +123,21 @@ class _AppState extends State<App> {
       bottomNavigationBar: BottomNavBar(
             [NavBarItem("History", Icons.schedule, (){
               if(currentPageIndex != 0){
-                
-                setState(() {
-                  currentPageName = "History";
-                  history ??= const History();
-                  pageStack.add(0);
-                  currentPageIndex = 0;
-                });
+                history = true;
+                _selectTab(0);
               }
             }),
             NavBarItem("Workouts", Icons.add_outlined, (){
               if(currentPageIndex != 1){
                 
-                setState(() {
-                  currentPageName = "Workouts";
-                  currentPage = workoutList;
-                  pageStack.add(1);
-                  currentPageIndex = 1;
-                });
+                _selectTab(1);
               }
             }),
             NavBarItem("Excercises", Icons.fitness_center, (){
 
               if(currentPageIndex != 2){
-                
-                setState(() {
-                  currentPageName = "Excercises";
-                  excercises ??= const Excercises();
-                  currentPage = excercises!;
-                  pageStack.add(2);
-                  currentPageIndex = 2;
-                });
+                excercises = true;
+                _selectTab(2);
                 
                 }
               
@@ -147,7 +146,6 @@ class _AppState extends State<App> {
     );
   }
 }
-
 
 
 class BottomNavBar extends StatefulWidget {

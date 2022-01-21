@@ -7,6 +7,8 @@ class WorkoutList extends StatefulWidget {
   _WorkoutListState createState() => _WorkoutListState();
 }
 
+List<String> excercises = ["Chest press", "Flies","Bench press", "French press", "Bent-over row", "Pull-ups"];
+
 class _WorkoutListState extends State<WorkoutList> {
   @override
   Widget build(BuildContext context) {
@@ -39,28 +41,15 @@ class _WorkoutListState extends State<WorkoutList> {
             Expanded(
               child: ListView(
                 physics: const BouncingScrollPhysics(),
-                children: const [
+                children:  [
               
-              Padding(padding: EdgeInsets.all(16),
-              child: WorkoutCard("Petto", ["Chest press", "Flies","Bench press", "French press"])),
-              Padding(padding: EdgeInsets.all(16),
-              child: WorkoutCard("Petto",["Chest press", "Flies","Bench press", "French press"])),
-              Padding(padding:  EdgeInsets.all(16),
-              child: WorkoutCard("Petto", ["Chest press", "Flies","Bench press", "French press"])),
-              Padding(padding: EdgeInsets.all(16),
-              child: WorkoutCard("Petto", ["Chest press", "Flies","Bench press", "French press"])),
-              Padding(padding:  EdgeInsets.all(16),
-              child: WorkoutCard("Petto",["Chest press", "Flies","Bench press", "French press"])),
-              Padding(padding:  EdgeInsets.all(16),
-              child: WorkoutCard("Petto",["Chest press", "Flies","Bench press", "French press"])),
-              Padding(padding:  EdgeInsets.all(16),
-              child: WorkoutCard("Petto", ["Chest press", "Flies","Bench press", "French press"])),
-              Padding(padding:  EdgeInsets.all(16),
-              child: WorkoutCard("Petto", ["Chest press", "Flies","Bench press", "French press"])),
-              Padding(padding:  EdgeInsets.all(16),
-              child: WorkoutCard("Petto", ["Chest press", "Flies","Bench press", "French press"])),
-              Padding(padding:  EdgeInsets.all(16),
-              child: WorkoutCard("Petto", ["Chest press", "Flies","Bench press", "French press"])),
+              Padding(padding: const EdgeInsets.all(16),
+              child: WorkoutCard("Petto", excercises)),
+              Padding(padding: const EdgeInsets.all(16),
+              child: WorkoutCard("Gambe", excercises)),
+              Padding(padding: const EdgeInsets.all(16),
+              child: WorkoutCard("Petto", excercises)),
+              
                       ],),
             ),
           ],
@@ -86,8 +75,23 @@ class _WorkoutCardState extends State<WorkoutCard> {
   @override
   Widget build(BuildContext context) {
     List<Widget> exc = [];
-    for(int i=0;i<widget.excercises.length;i++){
-      exc.add(Text(widget.excercises[i], style: const TextStyle(fontSize: 15, color: Colors.white)));
+    int stop;
+    if(isOpen){
+      stop = excercises.length;
+    }else{
+      stop = 1;
+    }
+    for(int i=0;i<stop;i++){
+      exc.add(Padding(
+        padding: const EdgeInsets.only(top: 6, bottom: 6),
+        child: Text(widget.excercises[i], style: const TextStyle(fontSize: 15, color: Colors.white)),
+      ));
+    }
+    if(!isOpen){
+      exc.add(const Padding(
+        padding: EdgeInsets.only(top: 6, bottom: 6),
+        child: Text("...", style: TextStyle(fontSize: 15, color: Colors.white)),
+      ));
     }
     return GestureDetector(
       onTap: (){
@@ -108,14 +112,22 @@ class _WorkoutCardState extends State<WorkoutCard> {
               children: [
               Padding(
                 padding: const EdgeInsets.all(0),
-                child: Text(widget.workoutName, style: const TextStyle(fontSize: 25, color: Colors.white)),
+                child: Row(children: [
+                  Text(widget.workoutName, style: const TextStyle(fontSize: 24, color: Colors.white)),
+                  const Spacer(),
+                  isOpen ? const Icon(Icons.expand_less_outlined, color: Colors.white,)
+                         : const Icon(Icons.expand_more_outlined, color: Colors.white,)
+                ],),
               ),
-              isOpen 
-              ? Padding(
+              Padding(
                 padding: const EdgeInsets.only(top: 24),
-                child: Column(children: exc,),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: exc),
+                ),
               )
-              : const SizedBox(height: 0)
             ],),
           ),
         ),
