@@ -1,0 +1,16 @@
+InkWell(
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+          onTap: (){
+            var route = MaterialPageRoute(builder: (context) => const NewWorkout());
+            Navigator.push(context, route);
+          },
+          child: Container(
+            padding: const EdgeInsets.all(18),
+            height: 65,
+            width: 65,
+            decoration: const BoxDecoration(
+                  color: Colors.black, 
+                  borderRadius: BorderRadius.all(Radius.circular(20))),
+            child: const FittedBox(child: Icon(Icons.add_outlined, color: Colors.white,))
+          ),
+        )

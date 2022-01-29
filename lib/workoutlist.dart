@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:lift_tracker/data/excercise.dart';
+import 'package:lift_tracker/data/workout.dart';
+import 'package:lift_tracker/data/excercise.dart';
 
 class WorkoutList extends StatefulWidget {
   const WorkoutList({ Key? key }) : super(key: key);
@@ -7,9 +10,15 @@ class WorkoutList extends StatefulWidget {
   _WorkoutListState createState() => _WorkoutListState();
 }
 
-List<String> excercises = ["Chest press", "Flies","Bench press", "French press", "Bent-over row", "Pull-ups"];
-
 class _WorkoutListState extends State<WorkoutList> {
+
+  List<Excercise> excercises = [
+    Excercise("Bench press", 5, 5, type: "slow eccentric"),
+    Excercise("French Press", 4, 8),
+    Excercise("Lat machine", 5, 5),
+    Excercise("Bent-over row", 5, 10)
+  ];
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -44,13 +53,12 @@ class _WorkoutListState extends State<WorkoutList> {
                 children:  [
               
               Padding(padding: const EdgeInsets.all(16),
-              child: WorkoutCard("Petto", excercises)),
+              child: WorkoutCard(Workout("Petto", excercises))),
               Padding(padding: const EdgeInsets.all(16),
-              child: WorkoutCard("Gambe", excercises)),
+              child: WorkoutCard(Workout("Gambe", excercises))),
               Padding(padding: const EdgeInsets.all(16),
-              child: WorkoutCard("Petto", excercises)),
-              
-                      ],),
+              child: WorkoutCard(Workout("Dorso", excercises))),
+              ],),
             ),
           ],
         ),
@@ -59,10 +67,9 @@ class _WorkoutListState extends State<WorkoutList> {
 }
 
 class WorkoutCard extends StatefulWidget {
- const WorkoutCard(this.workoutName, this.excercises, {Key? key}) : super(key: key);
+ const WorkoutCard(this.workout, {Key? key}) : super(key: key);
 
-  final String workoutName;
-  final List<String> excercises;
+  final Workout workout;
 
   @override
   _WorkoutCardState createState() => _WorkoutCardState();
@@ -74,6 +81,7 @@ class _WorkoutCardState extends State<WorkoutCard> {
 
   @override
   Widget build(BuildContext context) {
+    var excercises = widget.workout.excercises;
     List<Widget> exc = [];
     int stop;
     if(isOpen){
@@ -82,9 +90,28 @@ class _WorkoutCardState extends State<WorkoutCard> {
       stop = 1;
     }
     for(int i=0;i<stop;i++){
+      String name = excercises[i].name;
+      if(excercises[i].type != null){
+        name += " (${excercises[i].type!})";
+        }
       exc.add(Padding(
         padding: const EdgeInsets.only(top: 6, bottom: 6),
-        child: Text(widget.excercises[i], style: const TextStyle(fontSize: 15, color: Colors.white)),
+        child: Row( 
+          children: [
+            Expanded(
+              flex: 5,
+              child: Text(name, 
+              style: const TextStyle(fontSize: 15, color: Colors.white)),
+            ),
+            Expanded(
+              flex: 3,
+              child: Text(excercises[i].sets.toString() + 
+              "  ×  " + excercises[i].reps.toString(), 
+              style: const TextStyle(fontSize: 15, color: Colors.white)),
+            ),
+          ],
+        )
+        //Text(widget.excercises[i], style: const TextStyle(fontSize: 15, color: Colors.white)),
       ));
     }
     if(!isOpen){
@@ -100,8 +127,10 @@ class _WorkoutCardState extends State<WorkoutCard> {
       },
       child: Container(
         decoration: const BoxDecoration(
-          color: Color.fromARGB(255, 50, 50, 50), 
-          borderRadius: BorderRadius.all(Radius.circular(20))),
+          color: const Color.fromARGB(255, 31, 31, 31), 
+          borderRadius: const BorderRadius.all(Radius.circular(20)),
+          //border: Border.all(color: const Color.fromARGB(255, 50, 50, 50))
+          ),
         child: AnimatedSize(
           curve: Curves.linear,
           duration: const Duration(milliseconds: 100),
@@ -113,7 +142,7 @@ class _WorkoutCardState extends State<WorkoutCard> {
               Padding(
                 padding: const EdgeInsets.all(0),
                 child: Row(children: [
-                  Text(widget.workoutName, style: const TextStyle(fontSize: 24, color: Colors.white)),
+                  Text(widget.workout.name, style: const TextStyle(fontSize: 24, color: Colors.white)),
                   const Spacer(),
                   isOpen ? const Icon(Icons.expand_less_outlined, color: Colors.white,)
                          : const Icon(Icons.expand_more_outlined, color: Colors.white,)

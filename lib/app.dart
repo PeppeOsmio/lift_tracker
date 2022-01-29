@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lift_tracker/history.dart';
 import 'workoutlist.dart';
 import 'excercises.dart';
+import 'newworkout.dart';
 
 int currentPageIndex = 1;
 
@@ -68,7 +69,7 @@ class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(elevation: 0, backgroundColor: const Color.fromARGB(255, 31, 31, 31),
+      appBar: AppBar(elevation: 0, backgroundColor: const Color.fromARGB(255, 20, 20, 20),
       automaticallyImplyLeading: false,
       title: Padding(
         padding: const EdgeInsets.only(left: 16, top: 16),
@@ -82,7 +83,7 @@ class _AppState extends State<App> {
           width: 60,
           padding: const EdgeInsets.all(18),
           decoration: const BoxDecoration(
-                color: Color.fromARGB(255, 50, 50, 50), 
+                color: Color.fromARGB(255, 31, 31, 31), 
                 borderRadius: BorderRadius.all(Radius.circular(20))),
           child: const FittedBox(child: Icon(Icons.person))),
       )],
@@ -90,16 +91,19 @@ class _AppState extends State<App> {
         resizeToAvoidBottomInset: false,
         floatingActionButton: currentPageIndex==1 
         ? Container(
-          padding: const EdgeInsets.all(18),
           height: 65,
           width: 65,
-          decoration: const BoxDecoration(
-                color: Colors.black, 
-                borderRadius: BorderRadius.all(Radius.circular(20))),
-          child: const FittedBox(child: Icon(Icons.add_outlined, color: Colors.white,))
+          child: FloatingActionButton(onPressed: (){
+            var route = MaterialPageRoute(builder: (context) => const NewWorkout());
+            Navigator.push(context, route);       
+          },
+          backgroundColor: Colors.black,
+          elevation: 0,
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20))),
+          child: const FittedBox(child: Icon(Icons.add_outlined),),),
         )
         : null,
-      backgroundColor: const Color.fromARGB(255, 31, 31, 31),
+      backgroundColor: const Color.fromARGB(255, 20, 20, 20),
       body: WillPopScope(
       child: Stack(children: [
         history == false ? const SizedBox() : _buildOffStage(0),
@@ -195,7 +199,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
           },
           child: AnimatedContainer(
           curve: Curves.decelerate,
-          duration: const Duration(milliseconds: 500),
+          duration: const Duration(milliseconds: 350),
           decoration: dec,
           child: item,
         )),
