@@ -90,7 +90,7 @@ class _AppState extends State<App> {
       ),
         resizeToAvoidBottomInset: false,
         floatingActionButton: currentPageIndex==1 
-        ? Container(
+        ? SizedBox(
           height: 65,
           width: 65,
           child: FloatingActionButton(onPressed: (){
