@@ -2,6 +2,7 @@ import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/data/excercise.dart';
 
 class NewWorkout extends StatefulWidget {
@@ -12,24 +13,25 @@ class NewWorkout extends StatefulWidget {
 }
 
 class _NewWorkoutState extends State<NewWorkout> {
-  List<ExcerciseListItem> exerciseList = [];
+  List<ExcerciseListItem> excerciseWidgets = [];
   List<Excercise> data = [];
+  TextEditingController workoutName = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    exerciseList.add(ExcerciseListItem(1));
+    excerciseWidgets.add(ExcerciseListItem(1));
   }
 
   @override
   Widget build(BuildContext context) {
     List<Widget> temp = [];
 
-    for (int i = 0; i < exerciseList.length; i++) {
+    for (int i = 0; i < excerciseWidgets.length; i++) {
       temp.add(Stack(
         children: [
           Positioned(top: 0, right: 0, child: deleteExcerciseButton(i)),
-          exerciseList[i]
+          excerciseWidgets[i]
         ],
       ));
     }
@@ -76,7 +78,23 @@ class _NewWorkoutState extends State<NewWorkout> {
                             radius: 17.5,
                             borderRadius: BorderRadius.circular(10),
                             onTap: () {
-                              Navigator.pop(context);
+                              List<Excercise> excercises = [];
+                              for (int i = 0;
+                                  i < excerciseWidgets.length;
+                                  i++) {
+                                var excerciseWidget = excerciseWidgets[i];
+                                excercises.add(Excercise(
+                                    i,
+                                    excerciseWidget.name,
+                                    int.parse(excerciseWidget.sets),
+                                    int.parse(excerciseWidget.reps)));
+                                print(excerciseWidget.name);
+                              }
+                              CustomDatabase.instance
+                                  .createWorkout(workoutName.text, excercises)
+                                  .then((value) {
+                                Navigator.pop(context);
+                              });
                             },
                             child: const Icon(Icons.check_outlined))),
                   )
@@ -105,12 +123,14 @@ class _NewWorkoutState extends State<NewWorkout> {
                       decoration: const BoxDecoration(
                           color: Color.fromARGB(255, 31, 31, 31),
                           borderRadius: BorderRadius.all(Radius.circular(10))),
-                      child: const TextField(
-                        decoration: InputDecoration(
+                      child: TextField(
+                        controller: workoutName,
+                        decoration: const InputDecoration(
                             hintStyle: TextStyle(color: Colors.grey),
                             hintText: "Chest, Legs...",
                             border: InputBorder.none),
-                        style: TextStyle(color: Colors.white, fontSize: 16),
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 16),
                       ),
                     ),
                   ),
@@ -133,11 +153,11 @@ class _NewWorkoutState extends State<NewWorkout> {
                 radius: 17.5,
                 borderRadius: BorderRadius.circular(10),
                 onTap: () {
-                  if (exerciseList.length > 1) {
+                  if (excerciseWidgets.length > 1) {
                     setState(() {
-                      exerciseList.removeAt(num);
-                      for (int i = 0; i < exerciseList.length; i++) {
-                        exerciseList[i].exNumber = i + 1;
+                      excerciseWidgets.removeAt(num);
+                      for (int i = 0; i < excerciseWidgets.length; i++) {
+                        excerciseWidgets[i].exNumber = i + 1;
                       }
                     });
                   }
@@ -155,11 +175,13 @@ class _NewWorkoutState extends State<NewWorkout> {
             width: 65,
             child: FloatingActionButton(
               onPressed: () {
-                var excerciseElement = exerciseList[exerciseList.length - 1];
+                var excerciseElement =
+                    excerciseWidgets[excerciseWidgets.length - 1];
                 if (excerciseElement.name != "" &&
                     excerciseElement.sets != "" &&
                     excerciseElement.reps != "") {
-                  exerciseList.add(ExcerciseListItem(exerciseList.length + 1));
+                  excerciseWidgets
+                      .add(ExcerciseListItem(excerciseWidgets.length + 1));
                   setState(() {});
                 }
               },
@@ -202,24 +224,7 @@ class _ExcerciseListItemState extends State<ExcerciseListItem> {
           children: [
             Text("Excercise ${widget.excerciseNumber}",
                 style: const TextStyle(fontSize: 20, color: Colors.white)),
-            Spacer(),
-            /*Material(
-              color: Colors.red, //const Color.fromARGB(255, 31, 31, 31),
-              borderRadius: BorderRadius.circular(17.5),
-              child: SizedBox(
-                  child: InkWell(
-                      radius: 17.5,
-                      borderRadius: BorderRadius.circular(10),
-                      onTap: () {
-                        setState(() {
-                          
-                        });
-                      },
-                      child: const Icon(
-                        Icons.remove_outlined,
-                        color: Colors.white,
-                      ))),
-            )*/
+            const Spacer(),
           ],
         ),
         const SizedBox(height: 24),

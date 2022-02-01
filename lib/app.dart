@@ -85,27 +85,6 @@ class _AppState extends State<App> {
         ],
       ),
       resizeToAvoidBottomInset: false,
-      floatingActionButton: currentPageIndex == 1
-          ? SizedBox(
-              height: 65,
-              width: 65,
-              child: FloatingActionButton(
-                onPressed: () {
-                  var route = MaterialPageRoute(
-                      builder: (context) => const NewWorkout());
-                  Navigator.push(context, route);
-                },
-                heroTag: "0",
-                backgroundColor: Colors.black,
-                elevation: 0,
-                shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(20))),
-                child: const FittedBox(
-                  child: Icon(Icons.add_outlined),
-                ),
-              ),
-            )
-          : null,
       backgroundColor: const Color.fromARGB(255, 20, 20, 20),
       body: WillPopScope(
         child: Stack(children: [

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/data/excercise.dart';
 import 'package:lift_tracker/data/workout.dart';
-import 'package:lift_tracker/data/excercise.dart';
+import 'package:lift_tracker/data/database.dart';
+import 'package:lift_tracker/newworkout.dart';
 
 class WorkoutList extends StatefulWidget {
   const WorkoutList({Key? key}) : super(key: key);
@@ -11,62 +13,96 @@ class WorkoutList extends StatefulWidget {
 }
 
 class _WorkoutListState extends State<WorkoutList> {
-  List<Excercise> excercises = [
-    Excercise(1, "Bench press", 5, 5, type: "slow eccentric"),
-    Excercise(2, "French Press", 4, 8),
-    Excercise(3, "Lat machine", 5, 5),
-    Excercise(4, "Bent-over row", 5, 10)
-  ];
+  List<Workout> workouts = [];
+
+  @override
+  void initState() {
+    super.initState();
+    CustomDatabase.instance.readWorkouts().then((value) {
+      setState(() {
+        workouts.addAll(value);
+      });
+    });
+  }
+
+  Widget buildFAB() {
+    return SizedBox(
+      height: 65,
+      width: 65,
+      child: FloatingActionButton(
+        onPressed: () async {
+          var route =
+              MaterialPageRoute(builder: (context) => const NewWorkout());
+          await Navigator.push(context, route).then((value) {
+            CustomDatabase.instance.readWorkouts().then((value) {
+              setState(() {
+                workouts.clear();
+                workouts.addAll(value);
+              });
+            });
+          });
+        },
+        heroTag: "0",
+        backgroundColor: Colors.black,
+        elevation: 0,
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20))),
+        child: const FittedBox(
+          child: Icon(Icons.add_outlined),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
-            child: Container(
-              padding: const EdgeInsets.only(left: 16, right: 16),
-              width: MediaQuery.of(context).size.width,
-              decoration: const BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.all(Radius.circular(20))),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Padding(
-                    padding: EdgeInsets.only(right: 16),
-                    child: Icon(
-                      Icons.search_outlined,
-                      color: Colors.white,
+    return Stack(
+      children: [
+        Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
+              child: Container(
+                padding: const EdgeInsets.only(left: 16, right: 16),
+                width: MediaQuery.of(context).size.width,
+                decoration: const BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.all(Radius.circular(20))),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Padding(
+                      padding: EdgeInsets.only(right: 16),
+                      child: Icon(
+                        Icons.search_outlined,
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
-                  Expanded(
-                      child: TextField(
-                    decoration: InputDecoration(border: InputBorder.none),
-                    style: TextStyle(color: Colors.white, fontSize: 25),
-                  )),
-                ],
+                    Expanded(
+                        child: TextField(
+                      decoration: InputDecoration(border: InputBorder.none),
+                      style: TextStyle(color: Colors.white, fontSize: 25),
+                    )),
+                  ],
+                ),
               ),
             ),
-          ),
-          Expanded(
-            child: ListView(
-              children: [
-                Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: WorkoutCard(Workout(1, "Petto", excercises))),
-                Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: WorkoutCard(Workout(2, "Gambe", excercises))),
-                Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: WorkoutCard(Workout(3, "Dorso", excercises))),
-              ],
-            ),
-          ),
-        ],
-      ),
+            Expanded(
+                child: ListView.separated(
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: WorkoutCard(workouts[index]),
+                      );
+                    },
+                    separatorBuilder: (context, index) {
+                      return const SizedBox();
+                    },
+                    itemCount: workouts.length)),
+          ],
+        ),
+        Positioned(bottom: 16, right: 16, child: buildFAB()),
+      ],
     );
   }
 }
@@ -92,6 +128,9 @@ class _WorkoutCardState extends State<WorkoutCard> {
       stop = excercises.length;
     } else {
       stop = 1;
+    }
+    if (excercises.isEmpty) {
+      stop = 0;
     }
     for (int i = 0; i < stop; i++) {
       String name = excercises[i].name;

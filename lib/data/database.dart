@@ -41,7 +41,7 @@ class CustomDatabase {
       reps INTEGER NOT NULL,
       fk_workoutId INTEGER NOT NULL,
       FOREIGN KEY (fk_workoutId) REFERENCES workout(id)
-    ):
+    );
     ''';
     await db.execute(sql);
   }
@@ -51,28 +51,30 @@ class CustomDatabase {
     final db = await instance.database;
     final queryWorkouts = await db.query('workout', columns: ['id', 'name']);
     for (int i = 0; i < queryWorkouts.length; i++) {
+      int id = queryWorkouts[i]['id'] as int;
+      String name = queryWorkouts[i]['name'] as String;
       List<Excercise> excerciseList = [];
-      final queryExcercise =
-          await db.query('excercise', columns: ['id', 'name', 'sets', 'reps']);
+      final queryExcercise = await db.query('excercise',
+          columns: ['id', 'name', 'sets', 'reps'],
+          where: "fk_workoutId=?",
+          whereArgs: [id]);
       for (int j = 0; j < queryExcercise.length; j++) {
-        int id = queryExcercise[j]['id'] as int;
-        String name = queryExcercise[j]['name'] as String;
+        int exid = queryExcercise[j]['id'] as int;
+        String exname = queryExcercise[j]['name'] as String;
         int sets = queryExcercise[j]['sets'] as int;
         int reps = queryExcercise[j]['reps'] as int;
 
-        excerciseList.add(Excercise(id, name, sets, reps));
+        excerciseList.add(Excercise(exid, exname, sets, reps));
       }
-      int id = queryWorkouts[i]['id'] as int;
-      String name = queryWorkouts[i]['name'] as String;
       workoutList.add(Workout(id, name, excerciseList));
     }
-
+    for (int i = 0; i < workoutList.length; i++) {}
     return workoutList;
   }
 
   Future createWorkout(String name, List<Excercise> excercises) async {
     final db = await instance.database;
-    final id = db.insert('workout', {"name": name});
+    final id = await db.insert('workout', {"name": name});
     for (int i = 0; i < excercises.length; i++) {
       var excercise = excercises[i];
       db.insert('excercise', {
