@@ -1,14 +1,9 @@
-
-
 import 'package:lift_tracker/data/excercise.dart';
 
-class Workout{
-
+class Workout {
   List<Excercise> excercises;
   String name;
+  int id;
 
-
-  Workout(this.name, this.excercises);
-
+  Workout(this.id, this.name, this.excercises);
 }
-

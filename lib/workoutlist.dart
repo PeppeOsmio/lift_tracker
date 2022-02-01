@@ -12,10 +12,10 @@ class WorkoutList extends StatefulWidget {
 
 class _WorkoutListState extends State<WorkoutList> {
   List<Excercise> excercises = [
-    Excercise("Bench press", 5, 5, type: "slow eccentric"),
-    Excercise("French Press", 4, 8),
-    Excercise("Lat machine", 5, 5),
-    Excercise("Bent-over row", 5, 10)
+    Excercise(1, "Bench press", 5, 5, type: "slow eccentric"),
+    Excercise(2, "French Press", 4, 8),
+    Excercise(3, "Lat machine", 5, 5),
+    Excercise(4, "Bent-over row", 5, 10)
   ];
 
   @override
@@ -55,13 +55,13 @@ class _WorkoutListState extends State<WorkoutList> {
               children: [
                 Padding(
                     padding: const EdgeInsets.all(16),
-                    child: WorkoutCard(Workout("Petto", excercises))),
+                    child: WorkoutCard(Workout(1, "Petto", excercises))),
                 Padding(
                     padding: const EdgeInsets.all(16),
-                    child: WorkoutCard(Workout("Gambe", excercises))),
+                    child: WorkoutCard(Workout(2, "Gambe", excercises))),
                 Padding(
                     padding: const EdgeInsets.all(16),
-                    child: WorkoutCard(Workout("Dorso", excercises))),
+                    child: WorkoutCard(Workout(3, "Dorso", excercises))),
               ],
             ),
           ),
