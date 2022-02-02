@@ -46,6 +46,12 @@ class CustomDatabase {
     await db.execute(sql);
   }
 
+  Future removeWorkout(int id) async {
+    final db = await instance.database;
+    await db.delete("excercise", where: "fk_workoutId=?", whereArgs: [id]);
+    await db.delete("workout", where: "id=?", whereArgs: [id]);
+  }
+
   Future<List<Workout>> readWorkouts() async {
     List<Workout> workoutList = [];
     final db = await instance.database;

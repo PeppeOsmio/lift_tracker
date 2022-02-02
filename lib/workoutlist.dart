@@ -5,6 +5,8 @@ import 'package:lift_tracker/data/workout.dart';
 import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/newworkout.dart';
 import 'package:lift_tracker/ui/colors.dart';
+import 'package:lift_tracker/ui/widgets.dart';
+import 'package:sqflite/sqflite.dart';
 
 class WorkoutList extends StatefulWidget {
   const WorkoutList({Key? key}) : super(key: key);
@@ -15,6 +17,7 @@ class WorkoutList extends StatefulWidget {
 
 class _WorkoutListState extends State<WorkoutList> {
   List<Workout> workouts = [];
+  bool isButtonPressed = false;
 
   @override
   void initState() {
@@ -93,7 +96,24 @@ class _WorkoutListState extends State<WorkoutList> {
                     itemBuilder: (context, index) {
                       return Padding(
                         padding: const EdgeInsets.all(16.0),
-                        child: WorkoutCard(workouts[index]),
+                        child: WorkoutCard(workouts[index], () async {
+                          if (!isButtonPressed) {
+                            isButtonPressed = true;
+                            await CustomDatabase.instance
+                                .removeWorkout(workouts[index].id);
+                            CustomDatabase.instance
+                                .readWorkouts()
+                                .then((value) {
+                              setState(() {
+                                workouts.clear();
+                                workouts.addAll(value);
+                              });
+                            });
+                            setState(() {});
+                            isButtonPressed = false;
+                          }
+                          return;
+                        }),
                       );
                     },
                     separatorBuilder: (context, index) {
@@ -109,9 +129,10 @@ class _WorkoutListState extends State<WorkoutList> {
 }
 
 class WorkoutCard extends StatefulWidget {
-  const WorkoutCard(this.workout, {Key? key}) : super(key: key);
+  const WorkoutCard(this.workout, this.onRemove, {Key? key}) : super(key: key);
 
   final Workout workout;
+  final VoidCallback onRemove;
 
   @override
   _WorkoutCardState createState() => _WorkoutCardState();
@@ -119,6 +140,8 @@ class WorkoutCard extends StatefulWidget {
 
 class _WorkoutCardState extends State<WorkoutCard> {
   bool isOpen = false;
+  bool isLongPressed = false;
+  bool isButtonPressed = false;
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +189,13 @@ class _WorkoutCardState extends State<WorkoutCard> {
     }
     return GestureDetector(
       onTap: () {
-        isOpen = !isOpen;
+        if (!isLongPressed) {
+          isOpen = !isOpen;
+          setState(() {});
+        }
+      },
+      onLongPress: () {
+        isLongPressed = !isLongPressed;
         setState(() {});
       },
       child: Container(
@@ -183,25 +212,51 @@ class _WorkoutCardState extends State<WorkoutCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(0),
-                  child: Row(
-                    children: [
-                      Text(widget.workout.name,
-                          style: const TextStyle(
-                              fontSize: 24, color: Colors.white)),
-                      const Spacer(),
-                      isOpen
-                          ? const Icon(
-                              Icons.expand_less_outlined,
-                              color: Colors.white,
-                            )
-                          : const Icon(
-                              Icons.expand_more_outlined,
-                              color: Colors.white,
-                            )
-                    ],
-                  ),
+                isLongPressed
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(bottom: 16, right: 16),
+                            child: MySmallMaterialButton(
+                                () => widget.onRemove.call(),
+                                Colors.red,
+                                const Icon(Icons.remove_outlined)),
+                          ),
+                          Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: GestureDetector(
+                                onTap: () {
+                                  isLongPressed = false;
+                                  setState(() {});
+                                },
+                                child: const Icon(
+                                  Icons.cancel_outlined,
+                                  color: Colors.lightGreen,
+                                  size: 26,
+                                ),
+                              )),
+                        ],
+                      )
+                    : const SizedBox(),
+                Row(
+                  children: [
+                    Text(widget.workout.name,
+                        style:
+                            const TextStyle(fontSize: 24, color: Colors.white)),
+                    const Spacer(),
+                    isOpen
+                        ? const Icon(
+                            Icons.expand_less_outlined,
+                            color: Colors.white,
+                          )
+                        : const Icon(
+                            Icons.expand_more_outlined,
+                            color: Colors.white,
+                          )
+                  ],
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 24),
