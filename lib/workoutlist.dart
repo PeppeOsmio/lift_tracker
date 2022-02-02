@@ -4,6 +4,7 @@ import 'package:lift_tracker/data/excercise.dart';
 import 'package:lift_tracker/data/workout.dart';
 import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/newworkout.dart';
+import 'package:lift_tracker/ui/colors.dart';
 
 class WorkoutList extends StatefulWidget {
   const WorkoutList({Key? key}) : super(key: key);
@@ -47,8 +48,8 @@ class _WorkoutListState extends State<WorkoutList> {
         elevation: 0,
         shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(20))),
-        child: const FittedBox(
-          child: Icon(Icons.add_outlined),
+        child: FittedBox(
+          child: Icon(Icons.add_outlined, color: Palette.orange),
         ),
       ),
     );
@@ -155,9 +156,7 @@ class _WorkoutCardState extends State<WorkoutCard> {
                     style: const TextStyle(fontSize: 15, color: Colors.white)),
               ),
             ],
-          )
-          //Text(widget.excercises[i], style: const TextStyle(fontSize: 15, color: Colors.white)),
-          ));
+          )));
     }
     if (!isOpen) {
       exc.add(const Padding(
@@ -171,8 +170,8 @@ class _WorkoutCardState extends State<WorkoutCard> {
         setState(() {});
       },
       child: Container(
-        decoration: const BoxDecoration(
-          color: const Color.fromARGB(255, 31, 31, 31),
+        decoration: BoxDecoration(
+          color: Palette.elementsDark,
           borderRadius: const BorderRadius.all(Radius.circular(20)),
           //border: Border.all(color: const Color.fromARGB(255, 50, 50, 50))
         ),

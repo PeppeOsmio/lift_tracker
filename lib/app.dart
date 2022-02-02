@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:lift_tracker/history.dart';
+import 'package:lift_tracker/ui/colors.dart';
 import 'workoutlist.dart';
 import 'excercises.dart';
-import 'newworkout.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 int currentPageIndex = 1;
 
@@ -20,6 +21,7 @@ class _AppState extends State<App> {
   bool excercises = false;
   bool history = false;
   List<int> pageStack = [];
+  DateTime? backPressedTime;
 
   Widget _buildOffStage(int index) {
     switch (index) {
@@ -63,11 +65,52 @@ class _AppState extends State<App> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: const Color.fromARGB(255, 20, 20, 20),
+        backgroundColor: Palette.backgroundDark,
         automaticallyImplyLeading: false,
-        title: Padding(
-          padding: const EdgeInsets.only(left: 16, top: 16),
-          child: Text(_currentPageName),
+        title: Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: IconButton(
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (ctx) {
+                          return AlertDialog(
+                            backgroundColor: Palette.backgroundDark,
+                            titleTextStyle: const TextStyle(
+                                color: Colors.white, fontSize: 20),
+                            title: const Text("Exit?"),
+                            actions: [
+                              ElevatedButton(
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(
+                                              Palette.elementsDark)),
+                                  onPressed: () {
+                                    SystemNavigator.pop();
+                                  },
+                                  child: const Text("Yes")),
+                              ElevatedButton(
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(
+                                              Palette.elementsDark)),
+                                  onPressed: () {
+                                    Navigator.pop(ctx);
+                                  },
+                                  child: const Text("Cancel"))
+                            ],
+                          );
+                        });
+                  },
+                  icon: const Icon(Icons.logout_outlined)),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 16, top: 16),
+              child: Text(_currentPageName),
+            ),
+          ],
         ),
         toolbarHeight: 79,
         actions: [
@@ -77,15 +120,15 @@ class _AppState extends State<App> {
                 height: 6,
                 width: 60,
                 padding: const EdgeInsets.all(18),
-                decoration: const BoxDecoration(
-                    color: Color.fromARGB(255, 31, 31, 31),
-                    borderRadius: BorderRadius.all(Radius.circular(20))),
+                decoration: BoxDecoration(
+                    color: Palette.elementsDark,
+                    borderRadius: const BorderRadius.all(Radius.circular(20))),
                 child: const FittedBox(child: Icon(Icons.person))),
           )
         ],
       ),
       resizeToAvoidBottomInset: false,
-      backgroundColor: const Color.fromARGB(255, 20, 20, 20),
+      backgroundColor: Palette.backgroundDark,
       body: WillPopScope(
         child: Stack(children: [
           history == false ? const SizedBox() : _buildOffStage(0),
@@ -101,8 +144,21 @@ class _AppState extends State<App> {
             currentPageIndex = index;
 
             setState(() {});
+            return false;
           }
-          return false;
+          if (backPressedTime == null) {
+            backPressedTime = DateTime.now();
+            Fluttertoast.cancel();
+            Fluttertoast.showToast(msg: "Press back again to quit");
+            return false;
+          } else if (DateTime.now().difference(backPressedTime!) >
+              const Duration(milliseconds: 2000)) {
+            backPressedTime = DateTime.now();
+            Fluttertoast.cancel();
+            Fluttertoast.showToast(msg: "Press back again to quit");
+            return false;
+          }
+          return true;
         },
       ),
       bottomNavigationBar: BottomNavBar(
@@ -150,7 +206,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
     for (int i = 0; i < widget.bottomNavItems.length; i++) {
       if (i == currentPageIndex) {
         dec = const BoxDecoration(
-          color: Color.fromARGB(255, 31, 31, 31),
+          color: Color.fromARGB(200, 80, 36, 12),
           borderRadius: BorderRadius.all(Radius.circular(20)),
         );
       } else {

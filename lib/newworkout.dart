@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/data/excercise.dart';
+import 'package:lift_tracker/ui/colors.dart';
 
 class NewWorkout extends StatefulWidget {
   const NewWorkout({Key? key}) : super(key: key);
@@ -38,17 +39,17 @@ class _NewWorkoutState extends State<NewWorkout> {
     return Material(
       child: Scaffold(
           resizeToAvoidBottomInset: true,
-          backgroundColor: const Color.fromARGB(255, 20, 20, 20),
+          backgroundColor: Palette.backgroundDark,
           appBar: AppBar(
             elevation: 0,
-            backgroundColor: const Color.fromARGB(255, 20, 20, 20),
+            backgroundColor: Palette.backgroundDark,
             automaticallyImplyLeading: false,
             title: Padding(
               padding: const EdgeInsets.only(top: 16),
               child: Row(
                 children: [
                   Material(
-                    color: const Color.fromARGB(255, 31, 31, 31),
+                    color: Palette.elementsDark,
                     borderRadius: BorderRadius.circular(10),
                     child: SizedBox(
                         height: 35,
@@ -59,7 +60,10 @@ class _NewWorkoutState extends State<NewWorkout> {
                             onTap: () {
                               Navigator.pop(context);
                             },
-                            child: const Icon(Icons.chevron_left_outlined))),
+                            child: const Icon(
+                              Icons.chevron_left_outlined,
+                              color: Colors.redAccent,
+                            ))),
                   ),
                   const Padding(
                     padding: EdgeInsets.only(left: 24),
@@ -78,6 +82,9 @@ class _NewWorkoutState extends State<NewWorkout> {
                             radius: 17.5,
                             borderRadius: BorderRadius.circular(10),
                             onTap: () {
+                              if (workoutName.text.isEmpty) {
+                                return;
+                              }
                               List<Excercise> excercises = [];
                               for (int i = 0;
                                   i < excerciseWidgets.length;
@@ -88,7 +95,6 @@ class _NewWorkoutState extends State<NewWorkout> {
                                     excerciseWidget.name,
                                     int.parse(excerciseWidget.sets),
                                     int.parse(excerciseWidget.reps)));
-                                print(excerciseWidget.name);
                               }
                               CustomDatabase.instance
                                   .createWorkout(workoutName.text, excercises)
@@ -96,7 +102,10 @@ class _NewWorkoutState extends State<NewWorkout> {
                                 Navigator.pop(context);
                               });
                             },
-                            child: const Icon(Icons.check_outlined))),
+                            child: const Icon(
+                              Icons.check_outlined,
+                              color: Colors.green,
+                            ))),
                   )
                 ],
               ),
