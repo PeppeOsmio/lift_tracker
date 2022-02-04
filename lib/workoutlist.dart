@@ -1,12 +1,14 @@
+import 'dart:io';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:lift_tracker/data/database.dart';
-import 'package:lift_tracker/data/excercise.dart';
 import 'package:lift_tracker/data/workout.dart';
-import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/newworkout.dart';
 import 'package:lift_tracker/ui/colors.dart';
 import 'package:lift_tracker/ui/widgets.dart';
-import 'package:sqflite/sqflite.dart';
+
+List<GlobalKey> cardKeys = [];
 
 class WorkoutList extends StatefulWidget {
   const WorkoutList({Key? key}) : super(key: key);
@@ -16,17 +18,14 @@ class WorkoutList extends StatefulWidget {
 }
 
 class _WorkoutListState extends State<WorkoutList> {
-  List<Workout> workouts = [];
+  late Future<List<Workout>> workoutsFuture;
   bool isButtonPressed = false;
+  List<Size> cardSized = [];
 
   @override
   void initState() {
     super.initState();
-    CustomDatabase.instance.readWorkouts().then((value) {
-      setState(() {
-        workouts.addAll(value);
-      });
-    });
+    workoutsFuture = CustomDatabase.instance.readWorkouts();
   }
 
   Widget buildFAB() {
@@ -40,8 +39,7 @@ class _WorkoutListState extends State<WorkoutList> {
           await Navigator.push(context, route).then((value) {
             CustomDatabase.instance.readWorkouts().then((value) {
               setState(() {
-                workouts.clear();
-                workouts.addAll(value);
+                workoutsFuture = CustomDatabase.instance.readWorkouts();
               });
             });
           });
@@ -91,48 +89,180 @@ class _WorkoutListState extends State<WorkoutList> {
                 ),
               ),
             ),
-            Expanded(
-                child: ListView.separated(
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: WorkoutCard(workouts[index], () async {
-                          if (!isButtonPressed) {
-                            isButtonPressed = true;
-                            await CustomDatabase.instance
-                                .removeWorkout(workouts[index].id);
-                            CustomDatabase.instance
-                                .readWorkouts()
-                                .then((value) {
-                              setState(() {
-                                workouts.clear();
-                                workouts.addAll(value);
-                              });
-                            });
-                            setState(() {});
-                            isButtonPressed = false;
-                          }
-                          return;
-                        }),
-                      );
-                    },
-                    separatorBuilder: (context, index) {
-                      return const SizedBox();
-                    },
-                    itemCount: workouts.length)),
+            FutureBuilder(
+              future: workoutsFuture,
+              builder: (context, ss) {
+                if (ss.hasData) {
+                  var workouts = ss.data! as List<Workout>;
+                  List<Widget> columnContent = [];
+                  for (int i = 0; i < workouts.length; i++) {
+                    cardKeys.add(GlobalKey());
+                    columnContent.add(Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: WorkoutCard(workouts[i], () {
+                        WorkoutCard workoutCard =
+                            WorkoutCard(workouts[i], () {}, true);
+                        Navigator.push(context,
+                            blurredMenuBuilder(workoutCard, cardKeys[i]));
+                      }, false, key: cardKeys[i]),
+                    ));
+                  }
+                  return Expanded(
+                      child: SingleChildScrollView(
+                          child: Column(
+                    children: columnContent,
+                  )));
+                } else {
+                  return const SizedBox();
+                }
+              },
+            ),
           ],
         ),
         Positioned(bottom: 16, right: 16, child: buildFAB()),
       ],
     );
   }
+
+  PageRouteBuilder blurredMenuBuilder(WorkoutCard workoutCard, GlobalKey key) {
+    return PageRouteBuilder(
+        opaque: false,
+        pageBuilder: (context, a1, a2) {
+          var box = key.currentContext!.findRenderObject() as RenderBox;
+          var dy = box.localToGlobal(Offset.zero).dy;
+          bool showButtons = false;
+          Future.delayed(Duration(microseconds: 5000), () {
+            showButtons = true;
+            setState(() {});
+          });
+
+          return Scaffold(
+            backgroundColor: Colors.transparent,
+            body: SizedBox(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: Container(color: Colors.transparent),
+                    ),
+                  ),
+                  Positioned(
+                    right: 16,
+                    bottom: MediaQuery.of(context).size.height - dy,
+                    child: AnimatedEntry(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8, right: 8),
+                            child: GestureDetector(
+                              onTap: () async {
+                                if (!isButtonPressed) {
+                                  isButtonPressed = true;
+                                  await CustomDatabase.instance
+                                      .removeWorkout(workoutCard.workout.id);
+                                  workoutsFuture =
+                                      CustomDatabase.instance.readWorkouts();
+                                  Navigator.pop(context);
+                                  setState(() {});
+                                  isButtonPressed = false;
+                                }
+                                return;
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.red.withAlpha(25),
+                                    border: Border.all(
+                                        color: Palette.backgroundDark),
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: Container(
+                                  width: 70,
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                      color: Colors.red.withAlpha(25),
+                                      border:
+                                          Border.all(color: Colors.redAccent),
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: const Center(
+                                    child: Text(
+                                      "Delete",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      color: Palette.backgroundDark,
+                                      border: Border.all(
+                                          color: Palette.backgroundDark),
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: Container(
+                                    width: 70,
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                        color: Colors.green.withAlpha(25),
+                                        border: Border.all(color: Colors.green),
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    child: const Center(
+                                      child: Text(
+                                        "Cancel",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: dy,
+                    width: MediaQuery.of(context).size.width,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 16, right: 16),
+                      child: Center(child: workoutCard),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+  }
 }
 
 class WorkoutCard extends StatefulWidget {
-  const WorkoutCard(this.workout, this.onRemove, {Key? key}) : super(key: key);
+  const WorkoutCard(this.workout, this.onLongPress, this.removeMode, {Key? key})
+      : super(key: key);
 
   final Workout workout;
-  final VoidCallback onRemove;
+  final VoidCallback onLongPress;
+  final bool removeMode;
+
+  WorkoutCard copy(bool removeMode) {
+    var workout = this.workout;
+    var onLongPress = this.onLongPress;
+    return WorkoutCard(workout, onLongPress, removeMode);
+  }
 
   @override
   _WorkoutCardState createState() => _WorkoutCardState();
@@ -140,8 +270,20 @@ class WorkoutCard extends StatefulWidget {
 
 class _WorkoutCardState extends State<WorkoutCard> {
   bool isOpen = false;
-  bool isLongPressed = false;
   bool isButtonPressed = false;
+  late bool _removeMode;
+
+  @override
+  void initState() {
+    super.initState();
+    _removeMode = widget.removeMode;
+    if (widget.removeMode == true) {
+      Future.delayed(const Duration(seconds: 0), () {
+        isOpen = true;
+        setState(() {});
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -153,8 +295,8 @@ class _WorkoutCardState extends State<WorkoutCard> {
     } else {
       stop = 1;
     }
-    if (excercises.isEmpty) {
-      stop = 0;
+    if (excercises.length <= 2) {
+      stop = excercises.length;
     }
     for (int i = 0; i < stop; i++) {
       String name = excercises[i].name;
@@ -181,96 +323,126 @@ class _WorkoutCardState extends State<WorkoutCard> {
             ],
           )));
     }
-    if (!isOpen) {
+    if (!isOpen && excercises.length > 2) {
       exc.add(const Padding(
         padding: EdgeInsets.only(top: 6, bottom: 6),
         child: Text("...", style: TextStyle(fontSize: 15, color: Colors.white)),
       ));
     }
-    return GestureDetector(
-      onTap: () {
-        if (!isLongPressed) {
-          isOpen = !isOpen;
-          setState(() {});
-        }
-      },
-      onLongPress: () {
-        isLongPressed = !isLongPressed;
-        setState(() {});
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Palette.elementsDark,
-          borderRadius: const BorderRadius.all(Radius.circular(20)),
-          //border: Border.all(color: const Color.fromARGB(255, 50, 50, 50))
-        ),
-        child: AnimatedSize(
-          curve: Curves.linear,
-          duration: const Duration(milliseconds: 100),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                isLongPressed
-                    ? Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Padding(
-                            padding:
-                                const EdgeInsets.only(bottom: 16, right: 16),
-                            child: MySmallMaterialButton(
-                                () => widget.onRemove.call(),
-                                Colors.red,
-                                const Icon(Icons.remove_outlined)),
-                          ),
-                          Padding(
-                              padding: const EdgeInsets.only(bottom: 16),
-                              child: GestureDetector(
-                                onTap: () {
-                                  isLongPressed = false;
-                                  setState(() {});
-                                },
-                                child: const Icon(
-                                  Icons.cancel_outlined,
-                                  color: Colors.lightGreen,
-                                  size: 26,
-                                ),
-                              )),
-                        ],
-                      )
-                    : const SizedBox(),
-                Row(
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 100),
+      child: Column(
+        children: [
+          /*Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.max,
                   children: [
-                    Text(widget.workout.name,
-                        style:
-                            const TextStyle(fontSize: 24, color: Colors.white)),
-                    const Spacer(),
-                    isOpen
-                        ? const Icon(
-                            Icons.expand_less_outlined,
-                            color: Colors.white,
-                          )
-                        : const Icon(
-                            Icons.expand_more_outlined,
-                            color: Colors.white,
-                          )
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8, right: 8),
+                      child: GestureDetector(
+                        onTap: () async {
+                          //widget.onRemove.call();
+                        },
+                        child: Container(
+                          height: 34,
+                          width: 70,
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                              color: Colors.red.withAlpha(25),
+                              border: Border.all(color: Colors.redAccent),
+                              borderRadius: BorderRadius.circular(10)),
+                          child: const Center(
+                            child: Text(
+                              "Delete",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: GestureDetector(
+                          onTap: () {
+                            _removeMode = false;
+                            isOpen = false;
+                            setState(() {});
+                          },
+                          child: Container(
+                            height: 34,
+                            width: 70,
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                                color: Colors.green.withAlpha(25),
+                                border: Border.all(color: Colors.green),
+                                borderRadius: BorderRadius.circular(10)),
+                            child: const Center(
+                              child: Text(
+                                "Cancel",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        )),
                   ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 24),
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 8),
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: exc),
+                )*/
+          GestureDetector(
+            onTap: () {
+              if (!_removeMode) {
+                isOpen = !isOpen;
+                setState(() {});
+              }
+            },
+            onLongPress: () {
+              widget.onLongPress.call();
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                color: Palette.elementsDark,
+                borderRadius: const BorderRadius.all(Radius.circular(20)),
+                //border: Border.all(color: const Color.fromARGB(255, 50, 50, 50))
+              ),
+              child: AnimatedSize(
+                curve: Curves.linear,
+                duration: const Duration(milliseconds: 100),
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(widget.workout.name,
+                              style: const TextStyle(
+                                  fontSize: 24, color: Colors.white)),
+                          const Spacer(),
+                          isOpen || _removeMode
+                              ? const Icon(
+                                  Icons.expand_less_outlined,
+                                  color: Colors.white,
+                                )
+                              : const Icon(
+                                  Icons.expand_more_outlined,
+                                  color: Colors.white,
+                                )
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 24),
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: exc),
+                        ),
+                      )
+                    ],
                   ),
-                )
-              ],
+                ),
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

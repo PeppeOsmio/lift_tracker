@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lift_tracker/data/database.dart';
@@ -90,11 +88,16 @@ class _NewWorkoutState extends State<NewWorkout> {
                                   i < excerciseWidgets.length;
                                   i++) {
                                 var excerciseWidget = excerciseWidgets[i];
+                                String name = excerciseWidget.name;
+                                String sets = excerciseWidget.sets;
+                                String reps = excerciseWidget.reps;
+                                if (name.isEmpty ||
+                                    sets.isEmpty ||
+                                    reps.isEmpty) {
+                                  return;
+                                }
                                 excercises.add(Excercise(
-                                    i,
-                                    excerciseWidget.name,
-                                    int.parse(excerciseWidget.sets),
-                                    int.parse(excerciseWidget.reps)));
+                                    i, name, int.parse(sets), int.parse(reps)));
                               }
                               CustomDatabase.instance
                                   .createWorkout(workoutName.text, excercises)
@@ -158,23 +161,22 @@ class _NewWorkoutState extends State<NewWorkout> {
         color: Colors.red, //const Color.fromARGB(255, 31, 31, 31),
         borderRadius: BorderRadius.circular(17.5),
         child: SizedBox(
-            child: InkWell(
-                radius: 17.5,
-                borderRadius: BorderRadius.circular(10),
-                onTap: () {
-                  if (excerciseWidgets.length > 1) {
-                    setState(() {
-                      excerciseWidgets.removeAt(num);
-                      for (int i = 0; i < excerciseWidgets.length; i++) {
-                        excerciseWidgets[i].exNumber = i + 1;
-                      }
-                    });
-                  }
-                },
-                child: const Icon(
-                  Icons.remove_outlined,
-                  color: Colors.white,
-                ))));
+            child: GestureDetector(
+          onTap: () {
+            if (excerciseWidgets.length > 1) {
+              setState(() {
+                excerciseWidgets.removeAt(num);
+                for (int i = 0; i < excerciseWidgets.length; i++) {
+                  excerciseWidgets[i].exNumber = i + 1;
+                }
+              });
+            }
+          },
+          child: const Icon(
+            Icons.remove_outlined,
+            color: Colors.white,
+          ),
+        )));
   }
 
   Widget addExcerciseButton() {
