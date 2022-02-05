@@ -29,7 +29,7 @@ class _AnimatedEntryState extends State<AnimatedEntry> {
         duration: const Duration(milliseconds: 100),
         child: animationEnded
             ? widget.child
-            : SizedBox(
+            : const SizedBox(
                 height: 0,
               ));
   }

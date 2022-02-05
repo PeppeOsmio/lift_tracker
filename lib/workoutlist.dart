@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -99,12 +98,17 @@ class _WorkoutListState extends State<WorkoutList> {
                     cardKeys.add(GlobalKey());
                     columnContent.add(Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child: WorkoutCard(workouts[i], () {
-                        WorkoutCard workoutCard =
-                            WorkoutCard(workouts[i], () {}, true);
+                      child: WorkoutCard(workouts[i], (startAsClosed) {
+                        WorkoutCard workoutCard = WorkoutCard(
+                          workouts[i],
+                          (startAsClosed) {},
+                          true,
+                          startAsClosed,
+                          key: GlobalKey(),
+                        );
                         Navigator.push(context,
                             blurredMenuBuilder(workoutCard, cardKeys[i]));
-                      }, false, key: cardKeys[i]),
+                      }, false, false, key: cardKeys[i]),
                     ));
                   }
                   return Expanded(
@@ -130,11 +134,6 @@ class _WorkoutListState extends State<WorkoutList> {
         pageBuilder: (context, a1, a2) {
           var box = key.currentContext!.findRenderObject() as RenderBox;
           var dy = box.localToGlobal(Offset.zero).dy;
-          bool showButtons = false;
-          Future.delayed(Duration(microseconds: 5000), () {
-            showButtons = true;
-            setState(() {});
-          });
 
           return Scaffold(
             backgroundColor: Colors.transparent,
@@ -251,18 +250,15 @@ class _WorkoutListState extends State<WorkoutList> {
 }
 
 class WorkoutCard extends StatefulWidget {
-  const WorkoutCard(this.workout, this.onLongPress, this.removeMode, {Key? key})
+  const WorkoutCard(
+      this.workout, this.onLongPress, this.removeMode, this.startAsClosed,
+      {Key? key})
       : super(key: key);
 
   final Workout workout;
-  final VoidCallback onLongPress;
+  final void Function(bool) onLongPress;
   final bool removeMode;
-
-  WorkoutCard copy(bool removeMode) {
-    var workout = this.workout;
-    var onLongPress = this.onLongPress;
-    return WorkoutCard(workout, onLongPress, removeMode);
-  }
+  final bool startAsClosed;
 
   @override
   _WorkoutCardState createState() => _WorkoutCardState();
@@ -277,11 +273,13 @@ class _WorkoutCardState extends State<WorkoutCard> {
   void initState() {
     super.initState();
     _removeMode = widget.removeMode;
-    if (widget.removeMode == true) {
+    if (widget.removeMode == true && widget.startAsClosed) {
       Future.delayed(const Duration(seconds: 0), () {
         isOpen = true;
         setState(() {});
       });
+    } else if (_removeMode) {
+      isOpen = true;
     }
   }
 
@@ -394,7 +392,12 @@ class _WorkoutCardState extends State<WorkoutCard> {
               }
             },
             onLongPress: () {
-              widget.onLongPress.call();
+              widget.onLongPress.call(!isOpen);
+              if (!isOpen) {
+                setState(() {
+                  isOpen = true;
+                });
+              }
             },
             child: Container(
               decoration: BoxDecoration(
