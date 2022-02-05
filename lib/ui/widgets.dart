@@ -2,6 +2,64 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+class AnimatedBlur extends StatefulWidget {
+  const AnimatedBlur({Key? key}) : super(key: key);
+
+  @override
+  _AnimatedBlurState createState() => _AnimatedBlurState();
+}
+
+class _AnimatedBlurState extends State<AnimatedBlur>
+    with SingleTickerProviderStateMixin {
+  late AnimationController animationController;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    animationController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 200));
+    Future.delayed(const Duration(seconds: 0), () {
+      animate();
+    });
+  }
+
+  @override
+  void dispose() {
+    animationController.dispose();
+    super.dispose();
+  }
+
+  void animate() {
+    if (animationController.isCompleted) {
+      animationController.reverse();
+    } else {
+      animationController.forward();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () async {
+        animate();
+        return true;
+      },
+      child: AnimatedBuilder(
+        child: Container(color: Colors.transparent),
+        animation: animationController,
+        builder: (context, child) {
+          var value = animationController.value;
+          return BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: value * 10, sigmaY: value * 10),
+            child: child,
+          );
+        },
+      ),
+    );
+  }
+}
+
 class AnimatedEntry extends StatefulWidget {
   const AnimatedEntry({required this.child, Key? key}) : super(key: key);
   final Widget child;
@@ -10,77 +68,44 @@ class AnimatedEntry extends StatefulWidget {
   _AnimatedEntryState createState() => _AnimatedEntryState();
 }
 
-class _AnimatedEntryState extends State<AnimatedEntry> {
+class _AnimatedEntryState extends State<AnimatedEntry>
+    with SingleTickerProviderStateMixin {
   bool animationEnded = false;
+  late AnimationController animationController;
 
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(seconds: 0), () {
-      setState(() {
-        animationEnded = true;
-      });
-    });
+    animationController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 200));
+    animate();
+  }
+
+  void animate() {
+    if (animationController.isCompleted || animationController.isAnimating) {
+      animationController.reverse();
+    } else {
+      animationController.forward();
+    }
+  }
+
+  @override
+  void dispose() {
+    animationController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSize(
-        duration: const Duration(milliseconds: 100),
-        child: animationEnded
-            ? widget.child
-            : const SizedBox(
-                height: 0,
-              ));
-  }
-}
-
-class HighlitedMenu extends StatefulWidget {
-  const HighlitedMenu(this.child, this.onRemove, this.onCancel, {Key? key})
-      : super(key: key);
-  final StatefulWidget child;
-  final VoidCallback onCancel;
-  final VoidCallback onRemove;
-
-  @override
-  _HighlitedMenuState createState() => _HighlitedMenuState();
-}
-
-class _HighlitedMenuState extends State<HighlitedMenu> {
-  @override
-  Widget build(BuildContext context) {
-    widget.child.key;
-    return GestureDetector(
-      child: widget.child,
-      onLongPress: () {
-        Navigator.push(
-            context,
-            PageRouteBuilder(
-                opaque: false,
-                pageBuilder: (context, a1, a2) {
-                  print(widget.child.key);
-                  return SafeArea(
-                    child: Scaffold(
-                      backgroundColor: Colors.transparent,
-                      body: Stack(
-                        alignment: AlignmentDirectional.center,
-                        fit: StackFit.expand,
-                        children: [
-                          BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
-                            child: Container(color: Colors.transparent),
-                          ),
-                          Positioned(
-                              child: Padding(
-                            padding: const EdgeInsets.only(left: 16, right: 16),
-                            child: Center(child: widget.child),
-                          )),
-                        ],
-                      ),
-                    ),
-                  );
-                }));
+    return WillPopScope(
+      onWillPop: () async {
+        animate();
+        return true;
       },
+      child: SizeTransition(
+          sizeFactor: animationController,
+          axis: Axis.vertical,
+          child: widget.child),
     );
   }
 }
