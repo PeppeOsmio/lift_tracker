@@ -3,7 +3,10 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class AnimatedBlur extends StatefulWidget {
-  const AnimatedBlur({Key? key}) : super(key: key);
+  const AnimatedBlur({required this.duration, required this.delay, Key? key})
+      : super(key: key);
+  final Duration duration;
+  final Duration delay;
 
   @override
   _AnimatedBlurState createState() => _AnimatedBlurState();
@@ -17,9 +20,9 @@ class _AnimatedBlurState extends State<AnimatedBlur>
   void initState() {
     // TODO: implement initState
     super.initState();
-    animationController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 200));
-    Future.delayed(const Duration(seconds: 0), () {
+    animationController =
+        AnimationController(vsync: this, duration: widget.duration);
+    Future.delayed(widget.delay, () {
       animate();
     });
   }
@@ -61,8 +64,15 @@ class _AnimatedBlurState extends State<AnimatedBlur>
 }
 
 class AnimatedEntry extends StatefulWidget {
-  const AnimatedEntry({required this.child, Key? key}) : super(key: key);
+  const AnimatedEntry(
+      {required this.child,
+      required this.duration,
+      required this.delay,
+      Key? key})
+      : super(key: key);
   final Widget child;
+  final Duration duration;
+  final Duration delay;
 
   @override
   _AnimatedEntryState createState() => _AnimatedEntryState();
@@ -76,9 +86,9 @@ class _AnimatedEntryState extends State<AnimatedEntry>
   @override
   void initState() {
     super.initState();
-    animationController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 200));
-    animate();
+    animationController =
+        AnimationController(vsync: this, duration: widget.duration);
+    Future.delayed(widget.delay, () => animate());
   }
 
   void animate() {

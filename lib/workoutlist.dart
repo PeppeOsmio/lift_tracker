@@ -7,6 +7,8 @@ import 'package:lift_tracker/newworkout.dart';
 import 'package:lift_tracker/ui/colors.dart';
 import 'package:lift_tracker/ui/widgets.dart';
 
+import 'data/excercise.dart';
+
 class WorkoutList extends StatefulWidget {
   const WorkoutList({Key? key}) : super(key: key);
 
@@ -24,6 +26,16 @@ class _WorkoutListState extends State<WorkoutList> {
   void initState() {
     super.initState();
     workoutsFuture = CustomDatabase.instance.readWorkouts();
+    List<Excercise> debug = [];
+
+    for (int i = 0; i < 10; i++) {
+      debug.add(Excercise(i, "debug$i", i, i));
+    }
+    CustomDatabase.instance.createWorkout("Debug", debug).then((value) {
+      setState(() {
+        workoutsFuture = CustomDatabase.instance.readWorkouts();
+      });
+    });
   }
 
   Widget buildFAB() {
@@ -146,11 +158,15 @@ class _WorkoutListState extends State<WorkoutList> {
                       onTap: () {
                         Navigator.maybePop(context);
                       },
-                      child: const AnimatedBlur()),
+                      child: const AnimatedBlur(
+                          duration: Duration(milliseconds: 000),
+                          delay: Duration(milliseconds: 0))),
                   Positioned(
                     right: 16,
                     bottom: MediaQuery.of(context).size.height - dy,
                     child: AnimatedEntry(
+                      duration: const Duration(milliseconds: 100),
+                      delay: const Duration(milliseconds: 200),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         mainAxisSize: MainAxisSize.max,
@@ -331,67 +347,64 @@ class _WorkoutCardState extends State<WorkoutCard> {
         }
         return true;
       },
-      child: AnimatedSize(
-        duration: const Duration(milliseconds: 100),
-        child: Column(
-          children: [
-            GestureDetector(
-              onTap: () {
-                if (!_removeMode) {
-                  isOpen = !isOpen;
-                  setState(() {});
-                }
-              },
-              onLongPress: () {
-                widget.onLongPress.call(!isOpen);
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Palette.elementsDark,
-                  borderRadius: const BorderRadius.all(Radius.circular(20)),
-                  //border: Border.all(color: const Color.fromARGB(255, 50, 50, 50))
-                ),
-                child: AnimatedSize(
-                  curve: Curves.linear,
-                  duration: const Duration(milliseconds: 100),
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(widget.workout.name,
-                                style: const TextStyle(
-                                    fontSize: 24, color: Colors.white)),
-                            const Spacer(),
-                            isOpen || _removeMode
-                                ? const Icon(
-                                    Icons.expand_less_outlined,
-                                    color: Colors.white,
-                                  )
-                                : const Icon(
-                                    Icons.expand_more_outlined,
-                                    color: Colors.white,
-                                  )
-                          ],
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 24),
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 8),
-                            child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: exc),
-                          ),
-                        )
-                      ],
-                    ),
+      child: GestureDetector(
+        onTap: () {
+          if (!_removeMode) {
+            isOpen = !isOpen;
+            setState(() {});
+          }
+        },
+        onLongPress: () {
+          widget.onLongPress.call(!isOpen);
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            color: Palette.elementsDark,
+            borderRadius: const BorderRadius.all(Radius.circular(20)),
+          ),
+          child: AnimatedSize(
+            curve: Curves.decelerate,
+            duration: Duration(
+                milliseconds:
+                    100 + (widget.workout.excercises.length - 2) * 40),
+            reverseDuration: Duration(
+                milliseconds:
+                    100 + (widget.workout.excercises.length - 2) * 40),
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(widget.workout.name,
+                          style: const TextStyle(
+                              fontSize: 24, color: Colors.white)),
+                      const Spacer(),
+                      isOpen || _removeMode
+                          ? const Icon(
+                              Icons.expand_less_outlined,
+                              color: Colors.white,
+                            )
+                          : const Icon(
+                              Icons.expand_more_outlined,
+                              color: Colors.white,
+                            )
+                    ],
                   ),
-                ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 24),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: exc),
+                    ),
+                  )
+                ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
