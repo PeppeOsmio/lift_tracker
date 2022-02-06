@@ -22,6 +22,7 @@ class _AppState extends State<App> {
   bool history = false;
   List<int> pageStack = [];
   DateTime? backPressedTime;
+  late GlobalKey navBarKey;
 
   Widget _buildOffStage(int index) {
     switch (index) {
@@ -33,7 +34,9 @@ class _AppState extends State<App> {
       case 1:
         return Offstage(
           offstage: _currentPageName != pageKeys[index],
-          child: const WorkoutList(),
+          child: WorkoutList(
+            navBarKey: navBarKey,
+          ),
         );
 
       default:
@@ -58,6 +61,7 @@ class _AppState extends State<App> {
     _currentPageName = pageKeys[1];
     currentPageIndex = 1;
     pageStack.add(1);
+    navBarKey = GlobalKey();
   }
 
   @override
@@ -181,6 +185,7 @@ class _AppState extends State<App> {
             }
           })
         ],
+        key: navBarKey,
       ),
     );
   }

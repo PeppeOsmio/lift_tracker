@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -10,7 +11,8 @@ import 'package:lift_tracker/ui/widgets.dart';
 import 'data/excercise.dart';
 
 class WorkoutList extends StatefulWidget {
-  const WorkoutList({Key? key}) : super(key: key);
+  const WorkoutList({required this.navBarKey, Key? key}) : super(key: key);
+  final GlobalKey navBarKey;
 
   @override
   _WorkoutListState createState() => _WorkoutListState();
@@ -21,10 +23,16 @@ class _WorkoutListState extends State<WorkoutList> {
   bool isButtonPressed = false;
   List<Size> cardSized = [];
   List<GlobalKey> cardKeys = [];
+  double navBarOffset = 0;
 
   @override
   void initState() {
     super.initState();
+    Future.delayed(const Duration(seconds: 0), () {
+      RenderBox box =
+          widget.navBarKey.currentContext!.findRenderObject() as RenderBox;
+      navBarOffset = box.size.height;
+    });
     workoutsFuture = CustomDatabase.instance.readWorkouts();
     List<Excercise> debug = [];
 
@@ -109,7 +117,7 @@ class _WorkoutListState extends State<WorkoutList> {
                     cardKeys.add(GlobalKey());
                     columnContent.add(Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child: WorkoutCard(workouts[i], (startAsClosed) {
+                      child: WorkoutCard(workouts[i], (startAsClosed) async {
                         WorkoutCard workoutCard = WorkoutCard(
                           workouts[i],
                           (startAsClosed) {},
@@ -151,17 +159,141 @@ class _WorkoutListState extends State<WorkoutList> {
             body: SizedBox(
               height: MediaQuery.of(context).size.height,
               width: MediaQuery.of(context).size.width,
-              child: Stack(
+              child:
+                  //outer stack for blurry background
+                  Stack(
                 fit: StackFit.expand,
                 children: [
+                  const AnimatedBlur(
+                      duration: Duration(milliseconds: 200),
+                      delay: Duration(milliseconds: 0)),
                   GestureDetector(
-                      onTap: () {
-                        Navigator.maybePop(context);
-                      },
-                      child: const AnimatedBlur(
-                          duration: Duration(milliseconds: 000),
-                          delay: Duration(milliseconds: 0))),
-                  Positioned(
+                    onTap: () {
+                      Navigator.maybePop(context);
+                    },
+                    //ScrollView to use ensureVisible on workoutCard
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Stack(
+                            fit: StackFit.loose,
+                            children: [
+                              //this container gives dy pixels of height to this stack
+                              //which pushes the WorkoutCard dy pixels down
+                              Container(height: dy),
+                              Positioned(
+                                right: 16,
+                                bottom: 0,
+                                child: AnimatedEntry(
+                                  duration: const Duration(milliseconds: 100),
+                                  delay: const Duration(milliseconds: 200),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    mainAxisSize: MainAxisSize.max,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                            bottom: 8, right: 8),
+                                        child: GestureDetector(
+                                          onTap: () async {
+                                            if (!isButtonPressed) {
+                                              isButtonPressed = true;
+                                              await CustomDatabase.instance
+                                                  .removeWorkout(
+                                                      workoutCard.workout.id);
+                                              workoutsFuture = CustomDatabase
+                                                  .instance
+                                                  .readWorkouts();
+                                              Navigator.maybePop(context);
+                                              setState(() {});
+                                              isButtonPressed = false;
+                                            }
+                                            return;
+                                          },
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                                color: Colors.red.withAlpha(25),
+                                                border: Border.all(
+                                                    color:
+                                                        Palette.backgroundDark),
+                                                borderRadius:
+                                                    BorderRadius.circular(10)),
+                                            child: Container(
+                                              width: 70,
+                                              padding: const EdgeInsets.all(8),
+                                              decoration: BoxDecoration(
+                                                  color:
+                                                      Colors.red.withAlpha(25),
+                                                  border: Border.all(
+                                                      color: Colors.redAccent),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10)),
+                                              child: const Center(
+                                                child: Text(
+                                                  "Delete",
+                                                  style: TextStyle(
+                                                      color: Colors.white),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                          padding:
+                                              const EdgeInsets.only(bottom: 8),
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              Navigator.maybePop(context);
+                                            },
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                  color: Palette.backgroundDark,
+                                                  border: Border.all(
+                                                      color: Palette
+                                                          .backgroundDark),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10)),
+                                              child: Container(
+                                                width: 70,
+                                                padding:
+                                                    const EdgeInsets.all(8),
+                                                decoration: BoxDecoration(
+                                                    color: Colors.green
+                                                        .withAlpha(25),
+                                                    border: Border.all(
+                                                        color: Colors.green),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
+                                                child: const Center(
+                                                  child: Text(
+                                                    "Cancel",
+                                                    style: TextStyle(
+                                                        color: Colors.white),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          )),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 16, right: 16),
+                            child: Center(child: workoutCard),
+                          )
+                        ],
+                      ),
+                    ),
+                  )
+                  /*Positioned(
                     right: 16,
                     bottom: MediaQuery.of(context).size.height - dy,
                     child: AnimatedEntry(
@@ -172,7 +304,8 @@ class _WorkoutListState extends State<WorkoutList> {
                         mainAxisSize: MainAxisSize.max,
                         children: [
                           Padding(
-                            padding: const EdgeInsets.only(bottom: 8, right: 8),
+                            padding:
+                                const EdgeInsets.only(bottom: 8, right: 8),
                             child: GestureDetector(
                               onTap: () async {
                                 if (!isButtonPressed) {
@@ -200,7 +333,8 @@ class _WorkoutListState extends State<WorkoutList> {
                                       color: Colors.red.withAlpha(25),
                                       border:
                                           Border.all(color: Colors.redAccent),
-                                      borderRadius: BorderRadius.circular(10)),
+                                      borderRadius:
+                                          BorderRadius.circular(10)),
                                   child: const Center(
                                     child: Text(
                                       "Delete",
@@ -222,13 +356,15 @@ class _WorkoutListState extends State<WorkoutList> {
                                       color: Palette.backgroundDark,
                                       border: Border.all(
                                           color: Palette.backgroundDark),
-                                      borderRadius: BorderRadius.circular(10)),
+                                      borderRadius:
+                                          BorderRadius.circular(10)),
                                   child: Container(
                                     width: 70,
                                     padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
                                         color: Colors.green.withAlpha(25),
-                                        border: Border.all(color: Colors.green),
+                                        border:
+                                            Border.all(color: Colors.green),
                                         borderRadius:
                                             BorderRadius.circular(10)),
                                     child: const Center(
@@ -251,7 +387,7 @@ class _WorkoutListState extends State<WorkoutList> {
                       padding: const EdgeInsets.only(left: 16, right: 16),
                       child: Center(child: workoutCard),
                     ),
-                  ),
+                  ),*/
                 ],
               ),
             ),
@@ -279,17 +415,25 @@ class _WorkoutCardState extends State<WorkoutCard> {
   bool isOpen = false;
   bool isButtonPressed = false;
   late bool _removeMode;
+  late Duration expandDuration;
 
   @override
   void initState() {
     super.initState();
+    expandDuration = Duration(
+        milliseconds: 100 + (widget.workout.excercises.length - 2) * 40);
     _removeMode = widget.removeMode;
-    if (widget.removeMode == true && widget.startAsClosed) {
+    if (_removeMode == true && widget.startAsClosed) {
       Future.delayed(const Duration(seconds: 0), () {
         isOpen = true;
         setState(() {});
+        Future.delayed(expandDuration, () {
+          Scrollable.ensureVisible(context,
+              duration: const Duration(milliseconds: 200));
+        });
       });
     } else if (_removeMode) {
+      //without the setState
       isOpen = true;
     }
   }
@@ -364,12 +508,8 @@ class _WorkoutCardState extends State<WorkoutCard> {
           ),
           child: AnimatedSize(
             curve: Curves.decelerate,
-            duration: Duration(
-                milliseconds:
-                    100 + (widget.workout.excercises.length - 2) * 40),
-            reverseDuration: Duration(
-                milliseconds:
-                    100 + (widget.workout.excercises.length - 2) * 40),
+            duration: expandDuration,
+            reverseDuration: expandDuration,
             child: Padding(
               padding: const EdgeInsets.all(24.0),
               child: Column(
