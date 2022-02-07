@@ -1,12 +1,14 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/data/workout.dart';
 import 'package:lift_tracker/newworkout.dart';
 import 'package:lift_tracker/ui/colors.dart';
 import 'package:lift_tracker/ui/widgets.dart';
+import 'package:lift_tracker/ui/workoutcard.dart';
 
 import 'data/excercise.dart';
 
@@ -62,7 +64,7 @@ class _WorkoutListState extends State<WorkoutList> {
             });
           });
         },
-        heroTag: "0",
+        heroTag: "-1",
         backgroundColor: Colors.black,
         elevation: 0,
         shape: const RoundedRectangleBorder(
@@ -123,10 +125,9 @@ class _WorkoutListState extends State<WorkoutList> {
                           (startAsClosed) {},
                           true,
                           startAsClosed,
-                          key: GlobalKey(),
                         );
                         Navigator.push(context,
-                            blurredMenuBuilder(workoutCard, cardKeys[i]));
+                            blurredMenuBuilder(workoutCard, cardKeys[i], i));
                       }, false, false, key: cardKeys[i]),
                     ));
                   }
@@ -147,406 +148,32 @@ class _WorkoutListState extends State<WorkoutList> {
     );
   }
 
-  PageRouteBuilder blurredMenuBuilder(WorkoutCard workoutCard, GlobalKey key) {
+  PageRouteBuilder blurredMenuBuilder(
+      WorkoutCard workoutCard, GlobalKey key, int tag) {
     return PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 200),
         opaque: false,
         pageBuilder: (context, a1, a2) {
-          var box = key.currentContext!.findRenderObject() as RenderBox;
-          var dy = box.localToGlobal(Offset.zero).dy;
-
-          return Scaffold(
-            backgroundColor: Colors.transparent,
-            body: SizedBox(
-              height: MediaQuery.of(context).size.height,
-              width: MediaQuery.of(context).size.width,
-              child:
-                  //outer stack for blurry background
-                  Stack(
-                fit: StackFit.expand,
-                children: [
-                  const AnimatedBlur(
-                      duration: Duration(milliseconds: 200),
-                      delay: Duration(milliseconds: 0)),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.maybePop(context);
-                    },
-                    //ScrollView to use ensureVisible on workoutCard
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Stack(
-                            fit: StackFit.loose,
-                            children: [
-                              //this container gives dy pixels of height to this stack
-                              //which pushes the WorkoutCard dy pixels down
-                              Container(height: dy),
-                              Positioned(
-                                right: 16,
-                                bottom: 0,
-                                child: AnimatedEntry(
-                                  duration: const Duration(milliseconds: 100),
-                                  delay: const Duration(milliseconds: 200),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    mainAxisSize: MainAxisSize.max,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                            bottom: 8, right: 8),
-                                        child: GestureDetector(
-                                          onTap: () async {
-                                            if (!isButtonPressed) {
-                                              isButtonPressed = true;
-                                              await CustomDatabase.instance
-                                                  .removeWorkout(
-                                                      workoutCard.workout.id);
-                                              workoutsFuture = CustomDatabase
-                                                  .instance
-                                                  .readWorkouts();
-                                              Navigator.maybePop(context);
-                                              setState(() {});
-                                              isButtonPressed = false;
-                                            }
-                                            return;
-                                          },
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                                color: Colors.red.withAlpha(25),
-                                                border: Border.all(
-                                                    color:
-                                                        Palette.backgroundDark),
-                                                borderRadius:
-                                                    BorderRadius.circular(10)),
-                                            child: Container(
-                                              width: 70,
-                                              padding: const EdgeInsets.all(8),
-                                              decoration: BoxDecoration(
-                                                  color:
-                                                      Colors.red.withAlpha(25),
-                                                  border: Border.all(
-                                                      color: Colors.redAccent),
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10)),
-                                              child: const Center(
-                                                child: Text(
-                                                  "Delete",
-                                                  style: TextStyle(
-                                                      color: Colors.white),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Padding(
-                                          padding:
-                                              const EdgeInsets.only(bottom: 8),
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              Navigator.maybePop(context);
-                                            },
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                  color: Palette.backgroundDark,
-                                                  border: Border.all(
-                                                      color: Palette
-                                                          .backgroundDark),
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10)),
-                                              child: Container(
-                                                width: 70,
-                                                padding:
-                                                    const EdgeInsets.all(8),
-                                                decoration: BoxDecoration(
-                                                    color: Colors.green
-                                                        .withAlpha(25),
-                                                    border: Border.all(
-                                                        color: Colors.green),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10)),
-                                                child: const Center(
-                                                  child: Text(
-                                                    "Cancel",
-                                                    style: TextStyle(
-                                                        color: Colors.white),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          )),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 16, right: 16),
-                            child: Center(child: workoutCard),
-                          )
-                        ],
-                      ),
-                    ),
-                  )
-                  /*Positioned(
-                    right: 16,
-                    bottom: MediaQuery.of(context).size.height - dy,
-                    child: AnimatedEntry(
-                      duration: const Duration(milliseconds: 100),
-                      delay: const Duration(milliseconds: 200),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Padding(
-                            padding:
-                                const EdgeInsets.only(bottom: 8, right: 8),
-                            child: GestureDetector(
-                              onTap: () async {
-                                if (!isButtonPressed) {
-                                  isButtonPressed = true;
-                                  await CustomDatabase.instance
-                                      .removeWorkout(workoutCard.workout.id);
-                                  workoutsFuture =
-                                      CustomDatabase.instance.readWorkouts();
-                                  Navigator.maybePop(context);
-                                  setState(() {});
-                                  isButtonPressed = false;
-                                }
-                                return;
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.red.withAlpha(25),
-                                    border: Border.all(
-                                        color: Palette.backgroundDark),
-                                    borderRadius: BorderRadius.circular(10)),
-                                child: Container(
-                                  width: 70,
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                      color: Colors.red.withAlpha(25),
-                                      border:
-                                          Border.all(color: Colors.redAccent),
-                                      borderRadius:
-                                          BorderRadius.circular(10)),
-                                  child: const Center(
-                                    child: Text(
-                                      "Delete",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: GestureDetector(
-                                onTap: () {
-                                  Navigator.maybePop(context);
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      color: Palette.backgroundDark,
-                                      border: Border.all(
-                                          color: Palette.backgroundDark),
-                                      borderRadius:
-                                          BorderRadius.circular(10)),
-                                  child: Container(
-                                    width: 70,
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                        color: Colors.green.withAlpha(25),
-                                        border:
-                                            Border.all(color: Colors.green),
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                    child: const Center(
-                                      child: Text(
-                                        "Cancel",
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              )),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: dy,
-                    width: MediaQuery.of(context).size.width,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 16, right: 16),
-                      child: Center(child: workoutCard),
-                    ),
-                  ),*/
-                ],
-              ),
-            ),
-          );
+          return MenuWorkoutCard(
+              positionedAnimationDuration: const Duration(milliseconds: 200),
+              workoutCardKey: key,
+              workoutCard: workoutCard,
+              heroTag: tag,
+              deleteOnPressed: () async {
+                if (!isButtonPressed) {
+                  isButtonPressed = true;
+                  await CustomDatabase.instance
+                      .removeWorkout(workoutCard.workout.id);
+                  workoutsFuture = CustomDatabase.instance.readWorkouts();
+                  Navigator.maybePop(context);
+                  setState(() {});
+                  isButtonPressed = false;
+                }
+                return;
+              },
+              cancelOnPressed: () {
+                Navigator.maybePop(context);
+              });
         });
-  }
-}
-
-class WorkoutCard extends StatefulWidget {
-  const WorkoutCard(
-      this.workout, this.onLongPress, this.removeMode, this.startAsClosed,
-      {Key? key})
-      : super(key: key);
-
-  final Workout workout;
-  final void Function(bool) onLongPress;
-  final bool removeMode;
-  final bool startAsClosed;
-
-  @override
-  _WorkoutCardState createState() => _WorkoutCardState();
-}
-
-class _WorkoutCardState extends State<WorkoutCard> {
-  bool isOpen = false;
-  bool isButtonPressed = false;
-  late bool _removeMode;
-  late Duration expandDuration;
-
-  @override
-  void initState() {
-    super.initState();
-    expandDuration = Duration(
-        milliseconds: 100 + (widget.workout.excercises.length - 2) * 40);
-    _removeMode = widget.removeMode;
-    if (_removeMode == true && widget.startAsClosed) {
-      Future.delayed(const Duration(seconds: 0), () {
-        isOpen = true;
-        setState(() {});
-        Future.delayed(expandDuration, () {
-          Scrollable.ensureVisible(context,
-              duration: const Duration(milliseconds: 200));
-        });
-      });
-    } else if (_removeMode) {
-      //without the setState
-      isOpen = true;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    var excercises = widget.workout.excercises;
-    List<Widget> exc = [];
-    int stop;
-    if (isOpen) {
-      stop = excercises.length;
-    } else {
-      stop = 1;
-    }
-    if (excercises.length <= 2) {
-      stop = excercises.length;
-    }
-    for (int i = 0; i < stop; i++) {
-      String name = excercises[i].name;
-      if (excercises[i].type != null) {
-        name += " (${excercises[i].type!})";
-      }
-      exc.add(Padding(
-          padding: const EdgeInsets.only(top: 6, bottom: 6),
-          child: Row(
-            children: [
-              Expanded(
-                flex: 5,
-                child: Text(name,
-                    style: const TextStyle(fontSize: 15, color: Colors.white)),
-              ),
-              Expanded(
-                flex: 3,
-                child: Text(
-                    excercises[i].sets.toString() +
-                        "  ×  " +
-                        excercises[i].reps.toString(),
-                    style: const TextStyle(fontSize: 15, color: Colors.white)),
-              ),
-            ],
-          )));
-    }
-    if (!isOpen && excercises.length > 2) {
-      exc.add(const Padding(
-        padding: EdgeInsets.only(top: 6, bottom: 6),
-        child: Text("...", style: TextStyle(fontSize: 15, color: Colors.white)),
-      ));
-    }
-    return WillPopScope(
-      onWillPop: () async {
-        if (widget.startAsClosed) {
-          setState(() {
-            isOpen = false;
-          });
-        }
-        return true;
-      },
-      child: GestureDetector(
-        onTap: () {
-          if (!_removeMode) {
-            isOpen = !isOpen;
-            setState(() {});
-          }
-        },
-        onLongPress: () {
-          widget.onLongPress.call(!isOpen);
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            color: Palette.elementsDark,
-            borderRadius: const BorderRadius.all(Radius.circular(20)),
-          ),
-          child: AnimatedSize(
-            curve: Curves.decelerate,
-            duration: expandDuration,
-            reverseDuration: expandDuration,
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(widget.workout.name,
-                          style: const TextStyle(
-                              fontSize: 24, color: Colors.white)),
-                      const Spacer(),
-                      isOpen || _removeMode
-                          ? const Icon(
-                              Icons.expand_less_outlined,
-                              color: Colors.white,
-                            )
-                          : const Icon(
-                              Icons.expand_more_outlined,
-                              color: Colors.white,
-                            )
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 24),
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: exc),
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }

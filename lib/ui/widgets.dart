@@ -1,6 +1,184 @@
 import 'dart:ui';
-
+import 'package:curved_animation_controller/curved_animation_controller.dart';
 import 'package:flutter/material.dart';
+import 'workoutcard.dart';
+import 'colors.dart';
+
+class MenuWorkoutCard extends StatefulWidget {
+  const MenuWorkoutCard(
+      {required this.positionedAnimationDuration,
+      required this.workoutCardKey,
+      required this.workoutCard,
+      required this.heroTag,
+      required this.deleteOnPressed,
+      required this.cancelOnPressed,
+      Key? key})
+      : super(key: key);
+  final WorkoutCard workoutCard;
+  final int heroTag;
+  final void Function() deleteOnPressed;
+  final void Function() cancelOnPressed;
+  final Duration positionedAnimationDuration;
+  final GlobalKey workoutCardKey;
+
+  @override
+  _MenuWorkoutCardState createState() => _MenuWorkoutCardState();
+}
+
+class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
+  double originalHeight = 0;
+  double startingY = 0;
+  double screenWidth = 0;
+  double screenHeight = 0;
+  double finalCardY = 0;
+  double cardY = 0;
+  bool firstTimeBuilding = true;
+
+  @override
+  void initState() {
+    super.initState();
+    originalHeight = getCardRenderBox().size.height;
+    Future.delayed(widget.workoutCard.expandDuration * 0.5, () {
+      if (widget.workoutCard.startAsClosed) {
+        finalCardY = (screenHeight -
+                originalHeight -
+                (widget.workoutCard.workout.excercises.length - 2) * 30) /
+            2;
+      } else {
+        finalCardY = (screenHeight - originalHeight) / 2;
+      }
+      setState(() {
+        cardY = finalCardY;
+      });
+    });
+  }
+
+  RenderBox getCardRenderBox() {
+    return widget.workoutCardKey.currentContext!.findRenderObject()
+        as RenderBox;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (firstTimeBuilding) {
+      firstTimeBuilding = false;
+      screenWidth = MediaQuery.of(context).size.width;
+      screenHeight = MediaQuery.of(context).size.height;
+      startingY = getCardRenderBox().localToGlobal(Offset.zero).dy;
+      cardY = startingY;
+    }
+    return WillPopScope(
+      onWillPop: () async {
+        setState(() {
+          cardY = startingY;
+        });
+        return true;
+      },
+      child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: SizedBox(
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            child: GestureDetector(
+                onTap: () {
+                  Navigator.maybePop(context);
+                },
+                child: Stack(
+                  children: [
+                    const AnimatedBlur(
+                      duration: Duration(milliseconds: 200),
+                      delay: Duration(seconds: 0),
+                    ),
+                    AnimatedPositioned(
+                      duration: const Duration(milliseconds: 200),
+                      width: MediaQuery.of(context).size.width,
+                      top: cardY,
+                      child: Material(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 16, right: 16),
+                            child: widget.workoutCard,
+                          ),
+                          type: MaterialType.transparency),
+                    ),
+                    AnimatedPositioned(
+                      duration: const Duration(milliseconds: 100),
+                      right: 16,
+                      bottom: MediaQuery.of(context).size.height - cardY,
+                      child: AnimatedEntry(
+                        duration: const Duration(milliseconds: 50),
+                        delay: widget.workoutCard.expandDuration,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(bottom: 8, right: 8),
+                              child: GestureDetector(
+                                onTap: widget.deleteOnPressed,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      color: Colors.red.withAlpha(25),
+                                      border: Border.all(
+                                          color: Palette.backgroundDark),
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: Container(
+                                    width: 70,
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                        color: Colors.red.withAlpha(25),
+                                        border:
+                                            Border.all(color: Colors.redAccent),
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    child: const Center(
+                                      child: Text(
+                                        "Delete",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: GestureDetector(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        color: Palette.backgroundDark,
+                                        border: Border.all(
+                                            color: Palette.backgroundDark),
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    child: Container(
+                                      width: 70,
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                          color: Colors.green.withAlpha(25),
+                                          border:
+                                              Border.all(color: Colors.green),
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      child: const Center(
+                                        child: Text(
+                                          "Cancel",
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                )),
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
+                )),
+          )),
+    );
+  }
+}
 
 class AnimatedBlur extends StatefulWidget {
   const AnimatedBlur({required this.duration, required this.delay, Key? key})
@@ -14,14 +192,13 @@ class AnimatedBlur extends StatefulWidget {
 
 class _AnimatedBlurState extends State<AnimatedBlur>
     with SingleTickerProviderStateMixin {
-  late AnimationController animationController;
+  late CurvedAnimationController animationController;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    animationController =
-        AnimationController(vsync: this, duration: widget.duration);
+    animationController = CurvedAnimationController(
+        vsync: this, duration: widget.duration, curve: Curves.decelerate);
     Future.delayed(widget.delay, () {
       animate();
     });
@@ -86,8 +263,10 @@ class _AnimatedEntryState extends State<AnimatedEntry>
   @override
   void initState() {
     super.initState();
-    animationController =
-        AnimationController(vsync: this, duration: widget.duration);
+    animationController = AnimationController(
+      vsync: this,
+      duration: widget.duration,
+    );
     Future.delayed(widget.delay, () => animate());
   }
 
@@ -112,38 +291,8 @@ class _AnimatedEntryState extends State<AnimatedEntry>
         animate();
         return true;
       },
-      child: SizeTransition(
-          sizeFactor: animationController,
-          axis: Axis.vertical,
-          child: widget.child),
+      child: ScaleTransition(scale: animationController, child: widget.child),
     );
-  }
-}
-
-class MySmallMaterialButton extends StatefulWidget {
-  const MySmallMaterialButton(this.onPressed, this.backgroundColor, this.child,
-      {Key? key})
-      : super(key: key);
-  final VoidCallback onPressed;
-  final Color backgroundColor;
-  final Widget child;
-
-  @override
-  _MySmallMaterialButtonState createState() => _MySmallMaterialButtonState();
-}
-
-class _MySmallMaterialButtonState extends State<MySmallMaterialButton> {
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-        color: widget.backgroundColor,
-        borderRadius: BorderRadius.circular(10),
-        child: SizedBox(
-            height: 20,
-            width: 20,
-            child: GestureDetector(
-                onTap: () => widget.onPressed.call(),
-                child: FittedBox(child: widget.child))));
   }
 }
 
