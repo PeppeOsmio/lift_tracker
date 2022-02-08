@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/history.dart';
 import 'package:lift_tracker/ui/colors.dart';
 import 'workoutlist.dart';
@@ -77,6 +78,7 @@ class _AppState extends State<App> {
               padding: const EdgeInsets.only(top: 16),
               child: IconButton(
                   onPressed: () {
+                    CustomDatabase.instance.clearWorkouts();
                     showDialog(
                         context: context,
                         builder: (ctx) {

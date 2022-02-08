@@ -4,17 +4,14 @@ import 'package:lift_tracker/data/workout.dart';
 import 'colors.dart';
 
 class WorkoutCard extends StatefulWidget {
-  const WorkoutCard(
-      this.workout, this.onLongPress, this.removeMode, this.startAsClosed,
-      {Key? key})
+  const WorkoutCard(this.workout, this.onLongPress, this.removeMode, {Key? key})
       : super(key: key);
 
   final Workout workout;
   final void Function(bool) onLongPress;
   final bool removeMode;
-  final bool startAsClosed;
   Duration get expandDuration =>
-      Duration(milliseconds: 100 + (workout.excercises.length - 2) * 40);
+      Duration(milliseconds: 100 + (workout.excercises.length - 5) * 40);
 
   @override
   _WorkoutCardState createState() => _WorkoutCardState();
@@ -30,20 +27,13 @@ class _WorkoutCardState extends State<WorkoutCard> {
   void initState() {
     super.initState();
     expandDuration = Duration(
-        milliseconds: 100 + (widget.workout.excercises.length - 2) * 40);
+        milliseconds: 100 + (widget.workout.excercises.length - 5) * 20);
     _removeMode = widget.removeMode;
-    if (_removeMode == true && widget.startAsClosed) {
+    if (_removeMode == true) {
       Future.delayed(const Duration(seconds: 0), () {
         isOpen = true;
         setState(() {});
-        Future.delayed(expandDuration, () {
-          Scrollable.ensureVisible(context,
-              alignment: 1, duration: const Duration(milliseconds: 200));
-        });
       });
-    } else if (_removeMode) {
-      //without the setState
-      isOpen = true;
     }
   }
 
@@ -55,9 +45,9 @@ class _WorkoutCardState extends State<WorkoutCard> {
     if (isOpen) {
       stop = excercises.length;
     } else {
-      stop = 1;
+      stop = 4;
     }
-    if (excercises.length <= 2) {
+    if (excercises.length <= 5) {
       stop = excercises.length;
     }
     for (int i = 0; i < stop; i++) {
@@ -93,7 +83,7 @@ class _WorkoutCardState extends State<WorkoutCard> {
     }
     return WillPopScope(
       onWillPop: () async {
-        if (_removeMode && widget.startAsClosed) {
+        if (_removeMode) {
           setState(() {
             isOpen = false;
           });
@@ -102,12 +92,6 @@ class _WorkoutCardState extends State<WorkoutCard> {
       },
       child: GestureDetector(
         onTap: () {
-          if (!_removeMode) {
-            isOpen = !isOpen;
-            setState(() {});
-          }
-        },
-        onLongPress: () {
           widget.onLongPress.call(!isOpen);
         },
         child: Container(

@@ -44,6 +44,37 @@ class CustomDatabase {
     );
     ''';
     await db.execute(sql);
+
+    sql = '''
+    CREATE TABLE workout_record(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      day DATE NOT NULL,
+      FOREIGN KEY fk_workoutId REFERENCES workout(id)
+    )
+    ''';
+
+    sql = '''
+    CREATE TABLE excercise_record(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      fk_workout_recordId INTEGER NOT NULL,
+      fk_excerciseId,
+      FOREIGN KEY (fk_workout_recordId) REFERENCES workout_record(id),
+      FOREIGN KEY (fk_excerciseId) REFERENCES excercise(id)
+    );
+    ''';
+    await db.execute(sql);
+
+    sql = '''
+    CREATE TABLE excercise_set(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      set_number INTEGER NOT NULL,
+      reps INTEGER NOT NULL,
+      weight DOUBLE(5,2) NOT NULL,
+      fk_excerciserecordId INTEGER NOT NULL,
+      FOREIGN KEY (fk_excerciserecordId) REFERENCES excercise_record(id)
+    );
+    ''';
+    await db.execute(sql);
   }
 
   Future removeWorkout(int id) async {
@@ -90,6 +121,12 @@ class CustomDatabase {
         "fk_workoutId": id
       });
     }
+  }
+
+  Future clearWorkouts() async {
+    final db = await instance.database;
+    await db.delete('excercise');
+    await db.delete('workout');
   }
 
   Future close() async {

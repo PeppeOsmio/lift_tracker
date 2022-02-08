@@ -38,15 +38,11 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
   void initState() {
     super.initState();
     originalHeight = getCardRenderBox().size.height;
-    Future.delayed(widget.workoutCard.expandDuration * 0.5, () {
-      if (widget.workoutCard.startAsClosed) {
-        finalCardY = (screenHeight -
-                originalHeight -
-                (widget.workoutCard.workout.excercises.length - 2) * 30) /
-            2;
-      } else {
-        finalCardY = (screenHeight - originalHeight) / 2;
-      }
+    Future.delayed(Duration.zero, () {
+      finalCardY = (screenHeight -
+              originalHeight -
+              (widget.workoutCard.workout.excercises.length - 2) * 30) /
+          2;
       setState(() {
         cardY = finalCardY;
       });
@@ -90,6 +86,7 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                       delay: Duration(seconds: 0),
                     ),
                     AnimatedPositioned(
+                      curve: Curves.decelerate,
                       duration: const Duration(milliseconds: 200),
                       width: MediaQuery.of(context).size.width,
                       top: cardY,
@@ -102,11 +99,12 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                     ),
                     AnimatedPositioned(
                       duration: const Duration(milliseconds: 100),
+                      curve: Curves.decelerate,
                       right: 16,
                       bottom: MediaQuery.of(context).size.height - cardY,
                       child: AnimatedEntry(
                         duration: const Duration(milliseconds: 50),
-                        delay: widget.workoutCard.expandDuration,
+                        delay: widget.workoutCard.expandDuration * 0.5,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           mainAxisSize: MainAxisSize.max,
@@ -152,7 +150,6 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                                         borderRadius:
                                             BorderRadius.circular(10)),
                                     child: Container(
-                                      width: 70,
                                       padding: const EdgeInsets.all(8),
                                       decoration: BoxDecoration(
                                           color: Colors.green.withAlpha(25),
@@ -162,7 +159,7 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                                               BorderRadius.circular(10)),
                                       child: const Center(
                                         child: Text(
-                                          "Cancel",
+                                          "Start this workout",
                                           style: TextStyle(color: Colors.white),
                                         ),
                                       ),

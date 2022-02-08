@@ -124,11 +124,10 @@ class _WorkoutListState extends State<WorkoutList> {
                           workouts[i],
                           (startAsClosed) {},
                           true,
-                          startAsClosed,
                         );
                         Navigator.push(context,
                             blurredMenuBuilder(workoutCard, cardKeys[i], i));
-                      }, false, false, key: cardKeys[i]),
+                      }, false, key: cardKeys[i]),
                     ));
                   }
                   return Expanded(
