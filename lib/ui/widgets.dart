@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:curved_animation_controller/curved_animation_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:lift_tracker/newsession.dart';
 import 'workoutcard.dart';
 import 'colors.dart';
 
@@ -33,6 +34,7 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
   double finalCardY = 0;
   double cardY = 0;
   bool firstTimeBuilding = true;
+  double opacity = 1;
 
   @override
   void initState() {
@@ -41,7 +43,7 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
     Future.delayed(Duration.zero, () {
       finalCardY = (screenHeight -
               originalHeight -
-              (widget.workoutCard.workout.excercises.length - 2) * 30) /
+              (widget.workoutCard.workout.excercises.length - 5) * 30) /
           2;
       setState(() {
         cardY = finalCardY;
@@ -65,8 +67,15 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
     }
     return WillPopScope(
       onWillPop: () async {
+        //move the card to the original position
         setState(() {
           cardY = startingY;
+        });
+        //after the card is in the original position fade it away
+        Future.delayed(const Duration(milliseconds: 200), () {
+          setState(() {
+            opacity = 0;
+          });
         });
         return true;
       },
@@ -90,12 +99,18 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                       duration: const Duration(milliseconds: 200),
                       width: MediaQuery.of(context).size.width,
                       top: cardY,
-                      child: Material(
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 16, right: 16),
-                            child: widget.workoutCard,
-                          ),
-                          type: MaterialType.transparency),
+                      child: AnimatedOpacity(
+                        curve: Curves.decelerate,
+                        duration: const Duration(milliseconds: 400),
+                        opacity: opacity,
+                        child: Material(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 16, right: 16),
+                              child: widget.workoutCard,
+                            ),
+                            type: MaterialType.transparency),
+                      ),
                     ),
                     AnimatedPositioned(
                       duration: const Duration(milliseconds: 100),
@@ -142,6 +157,14 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                             Padding(
                                 padding: const EdgeInsets.only(bottom: 8),
                                 child: GestureDetector(
+                                  onTap: () {
+                                    Route route =
+                                        MaterialPageRoute(builder: (context) {
+                                      return NewSession(
+                                          widget.workoutCard.workout);
+                                    });
+                                    Navigator.push(context, route);
+                                  },
                                   child: Container(
                                     decoration: BoxDecoration(
                                         color: Palette.backgroundDark,

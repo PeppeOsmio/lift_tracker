@@ -70,6 +70,7 @@ class CustomDatabase {
       set_number INTEGER NOT NULL,
       reps INTEGER NOT NULL,
       weight DOUBLE(5,2) NOT NULL,
+      rpe INTEGER NOT NULL,
       fk_excerciserecordId INTEGER NOT NULL,
       FOREIGN KEY (fk_excerciserecordId) REFERENCES excercise_record(id)
     );

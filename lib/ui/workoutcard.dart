@@ -92,6 +92,7 @@ class _WorkoutCardState extends State<WorkoutCard> {
       },
       child: GestureDetector(
         onTap: () {
+          if (_removeMode) {}
           widget.onLongPress.call(!isOpen);
         },
         child: Container(
@@ -116,13 +117,22 @@ class _WorkoutCardState extends State<WorkoutCard> {
                             style: const TextStyle(
                                 fontSize: 24, color: Colors.white)),
                         const Spacer(),
-                        isOpen || _removeMode
-                            ? const Icon(
-                                Icons.expand_less_outlined,
-                                color: Colors.white,
+                        _removeMode
+                            ? InkWell(
+                                borderRadius: BorderRadius.circular(20),
+                                radius: 20,
+                                onTap: () => Navigator.maybePop(context),
+                                child: Icon(
+                                  isOpen
+                                      ? Icons.expand_less_outlined
+                                      : Icons.expand_more_outlined,
+                                  color: Colors.white,
+                                ),
                               )
-                            : const Icon(
-                                Icons.expand_more_outlined,
+                            : Icon(
+                                isOpen
+                                    ? Icons.expand_less_outlined
+                                    : Icons.expand_more_outlined,
                                 color: Colors.white,
                               )
                       ],
