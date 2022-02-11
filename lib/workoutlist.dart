@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:lift_tracker/data/constants.dart';
 import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/data/workout.dart';
 import 'package:lift_tracker/newworkout.dart';
@@ -36,16 +37,16 @@ class _WorkoutListState extends State<WorkoutList> {
       navBarOffset = box.size.height;
     });
     workoutsFuture = CustomDatabase.instance.readWorkouts();
-    List<Excercise> debug = [];
+    /*List<Excercise> debug = [];
 
     for (int i = 0; i < 10; i++) {
-      debug.add(Excercise(i, "debug$i", i, i));
+      debug.add(Excercise(i, "debug$i", 4, 10));
     }
     CustomDatabase.instance.createWorkout("Debug", debug).then((value) {
       setState(() {
         workoutsFuture = CustomDatabase.instance.readWorkouts();
       });
-    });
+    });*/
   }
 
   Widget buildFAB() {
@@ -56,7 +57,12 @@ class _WorkoutListState extends State<WorkoutList> {
         onPressed: () async {
           var route =
               MaterialPageRoute(builder: (context) => const NewWorkout());
+          Constants.pageIndex = 3;
+          Constants.pageStack.add(3);
           await Navigator.push(context, route).then((value) {
+            Constants.pageIndex = 1;
+            Constants.pageStack.add(1);
+            print(Constants.pageStack);
             CustomDatabase.instance.readWorkouts().then((value) {
               setState(() {
                 workoutsFuture = CustomDatabase.instance.readWorkouts();
@@ -125,8 +131,14 @@ class _WorkoutListState extends State<WorkoutList> {
                           (startAsClosed) {},
                           true,
                         );
-                        Navigator.push(context,
-                            blurredMenuBuilder(workoutCard, cardKeys[i], i));
+                        Constants.pageIndex = 3;
+                        Constants.pageStack.add(3);
+                        await Navigator.push(context,
+                                blurredMenuBuilder(workoutCard, cardKeys[i], i))
+                            .then((value) {
+                          Constants.pageIndex = 1;
+                          Constants.pageStack.add(1);
+                        });
                       }, false, key: cardKeys[i]),
                     ));
                   }

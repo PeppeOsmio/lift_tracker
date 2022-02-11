@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:lift_tracker/data/constants.dart';
+import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/data/excercise.dart';
 import 'package:lift_tracker/data/excerciserecord.dart';
 import 'package:lift_tracker/data/workout.dart';
@@ -14,56 +16,84 @@ class History extends StatefulWidget {
 }
 
 class _HistoryState extends State<History> {
+  late Future<List<WorkoutRecord>> workoutRecords;
+
+  @override
+  void initState() {
+    super.initState();
+    workoutRecords = CustomDatabase.instance.readWorkoutRecords();
+    workoutRecords.then((value) {
+      setState(() {});
+    });
+    Future.delayed(const Duration(seconds: 2), () {
+      name = "Push 2";
+    });
+  }
+
+  String name = "Push 1";
+
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
-            child: Container(
-              padding: const EdgeInsets.only(left: 16, right: 16),
-              width: MediaQuery.of(context).size.width,
-              decoration: const BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.all(Radius.circular(20))),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Padding(
-                    padding: EdgeInsets.only(right: 16),
-                    child: Icon(
-                      Icons.search_outlined,
-                      color: Colors.white,
+    return WillPopScope(
+      onWillPop: () async {
+        if (Constants.pageStack.length > 1 &&
+            Constants.pageStack[Constants.pageStack.length - 2] == 3 &&
+            Constants.pageStack.last == 1) {
+          workoutRecords = CustomDatabase.instance.readWorkoutRecords();
+          workoutRecords.then((value) {
+            print("Reloading");
+            setState(() {});
+          });
+          ;
+        }
+        return true;
+      },
+      child: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
+              child: Container(
+                padding: const EdgeInsets.only(left: 16, right: 16),
+                width: MediaQuery.of(context).size.width,
+                decoration: const BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.all(Radius.circular(20))),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Padding(
+                      padding: EdgeInsets.only(right: 16),
+                      child: Icon(
+                        Icons.search_outlined,
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
-                  Expanded(
-                      child: TextField(
-                    decoration: InputDecoration(border: InputBorder.none),
-                    style: TextStyle(color: Colors.white, fontSize: 25),
-                  )),
-                ],
+                    Expanded(
+                        child: TextField(
+                      decoration: InputDecoration(border: InputBorder.none),
+                      style: TextStyle(color: Colors.white, fontSize: 25),
+                    )),
+                  ],
+                ),
               ),
             ),
-          ),
-          Expanded(
-            child: ListView(children: [
-              Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: WorkoutRecordCard(
-                      WorkoutRecord(
-                          DateTime.parse("2022-02-02"),
-                          Workout(0, "Push 1", [Excercise(0, "Panca", 4, 10)]),
-                          [
-                            ExcerciseRecord(Excercise(0, "Panca", 4, 10), [
-                              {"reps": 10, "weight": 69}
-                            ])
-                          ]),
-                      () {},
-                      false)),
-            ]),
-          ),
-        ],
+            Expanded(
+              child: ListView(children: [
+                Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: WorkoutRecordCard(
+                        WorkoutRecord(DateTime.parse("2022-02-02"), name, [
+                          ExcerciseRecord("Panca", [
+                            {"reps": 10, "weight": 69}
+                          ])
+                        ]),
+                        () {},
+                        false)),
+              ]),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -171,7 +201,7 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
                     ),
                     Row(
                       children: [
-                        Text(widget.workoutRecord.workout.name,
+                        Text(widget.workoutRecord.workoutName,
                             style: const TextStyle(
                                 fontSize: 24, color: Colors.white)),
                         const Spacer(),

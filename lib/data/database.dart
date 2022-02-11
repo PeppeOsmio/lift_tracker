@@ -1,3 +1,6 @@
+import 'package:lift_tracker/data/excerciserecord.dart';
+import 'package:lift_tracker/data/excerciseset.dart';
+import 'package:lift_tracker/data/workoutrecord.dart';
 import 'package:sqflite/sqflite.dart';
 import 'excercise.dart';
 import 'workout.dart';
@@ -49,17 +52,16 @@ class CustomDatabase {
     CREATE TABLE workout_record(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       day DATE NOT NULL,
-      FOREIGN KEY fk_workoutId REFERENCES workout(id)
-    )
+      workout_name VARCHAR(33) NOT NULL
+    );
     ''';
+    await db.execute(sql);
 
     sql = '''
     CREATE TABLE excercise_record(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       fk_workout_recordId INTEGER NOT NULL,
-      fk_excerciseId,
-      FOREIGN KEY (fk_workout_recordId) REFERENCES workout_record(id),
-      FOREIGN KEY (fk_excerciseId) REFERENCES excercise(id)
+      excercise_name VARCHAR(33) NOT NULL
     );
     ''';
     await db.execute(sql);
@@ -71,11 +73,108 @@ class CustomDatabase {
       reps INTEGER NOT NULL,
       weight DOUBLE(5,2) NOT NULL,
       rpe INTEGER NOT NULL,
-      fk_excerciserecordId INTEGER NOT NULL,
-      FOREIGN KEY (fk_excerciserecordId) REFERENCES excercise_record(id)
+      fk_excercise_recordId INTEGER NOT NULL,
+      FOREIGN KEY (fk_excercise_recordId) REFERENCES excercise_record(id)
     );
     ''';
     await db.execute(sql);
+  }
+
+  Future<List<WorkoutRecord>> readWorkoutRecords() async {
+    final db = await instance.database;
+
+    List<WorkoutRecord> workoutRecords = [];
+
+    //we get all the workout records
+    List<Map<String, Object?>> queryWorkoutRecords = await db
+        .query('workout_record', columns: ['id', 'day', 'workout_name']);
+
+    //we get all the excercise records
+    for (int i = 0; i < queryWorkoutRecords.length; i++) {
+      List<ExcerciseRecord> excerciseRecords = [];
+      int workoutRecordId = queryWorkoutRecords[i]['id'] as int;
+      List<Map<String, Object?>> queryExcerciseRecords = await db.query(
+          'excercise_record',
+          columns: ['id', 'excercise_name'],
+          where: "fk_workout_recordId=?",
+          whereArgs: [workoutRecordId]);
+      int excerciseId = queryExcerciseRecords[i]['fk_excerciseId'] as int;
+
+      //we get all the excercise sets
+      for (int j = 0; j < queryExcerciseRecords.length; j++) {
+        int excerciseRecordId = queryExcerciseRecords[j]['id'] as int;
+        List<Map<String, Object?>> queryExcerciseSets = await db.query(
+            'excercise_set',
+            columns: ['id', 'reps', 'weight', 'rpe'],
+            where: "fk_excercise_recordId=?",
+            whereArgs: [excerciseRecordId],
+            orderBy: "set_number");
+        //we get the information about every excercise set
+        List<Map<String, dynamic>> repsWeightRpeMap = [];
+        for (int k = 0; k < queryExcerciseSets.length; k++) {
+          int reps = queryExcerciseSets[k]['reps'] as int;
+          double weight = queryExcerciseSets[k]['reps'] as double;
+          int rpe = queryExcerciseSets[k]['rpe'] as int;
+          Map<String, dynamic> value = {
+            "reps": reps,
+            "weight": weight,
+            "rpe": rpe
+          };
+          repsWeightRpeMap.add(value);
+        }
+        //we create the excercise record and add it to the list
+        String excerciseName =
+            queryExcerciseRecords[j]['excercise_name'] as String;
+        ExcerciseRecord excerciseRecord =
+            ExcerciseRecord(excerciseName, repsWeightRpeMap);
+        excerciseRecords.add(excerciseRecord);
+      }
+      //we get the information about the workout
+      String workoutName = queryWorkoutRecords[i]['workout_name'] as String;
+      String dayString = queryWorkoutRecords[i]['day'] as String;
+      DateTime day = DateTime.parse(dayString);
+      workoutRecords.add(WorkoutRecord(day, workoutName, excerciseRecords));
+    }
+    return workoutRecords;
+  }
+
+  Future addWorkoutRecord(WorkoutRecord workoutRecord) async {
+    final db = await instance.database;
+
+    DateTime now = DateTime.now();
+    String day = "${now.year}-${now.month}-${now.day}";
+    Map<String, Object> values = {
+      "day": day,
+      "workout_name": workoutRecord.workoutName
+    };
+    int workoutRecordId = await db.insert('workout_record', values);
+    values.clear();
+
+    for (int i = 0; i < workoutRecord.excerciseRecords.length; i++) {
+      ExcerciseRecord excerciseRecord = workoutRecord.excerciseRecords[i];
+
+      values = {
+        "fk_workout_recordId": workoutRecordId,
+        "excercise_name": workoutRecord.excerciseRecords[i].excerciseName
+      };
+      int excerciseRecordId = await db.insert('excercise_record', values);
+      values.clear();
+
+      for (int j = 0; j < excerciseRecord.reps_weight_rpe.length; j++) {
+        var repsWeightRpe = excerciseRecord.reps_weight_rpe[j];
+        int reps = repsWeightRpe["reps"] as int;
+        double weight = repsWeightRpe["weight"] as double;
+        int rpe = repsWeightRpe["rpe"] as int;
+        values = {
+          "set_number": i,
+          "reps": reps,
+          "weight": weight,
+          "rpe": rpe,
+          "fk_excerciseRecordId": excerciseRecordId
+        };
+        await db.insert('excercise_set', values);
+      }
+    }
   }
 
   Future removeWorkout(int id) async {
@@ -106,7 +205,6 @@ class CustomDatabase {
       }
       workoutList.add(Workout(id, name, excerciseList));
     }
-    for (int i = 0; i < workoutList.length; i++) {}
     return workoutList;
   }
 
@@ -132,6 +230,7 @@ class CustomDatabase {
 
   Future close() async {
     final db = await instance.database;
+    _database = null;
     db.close();
   }
 }

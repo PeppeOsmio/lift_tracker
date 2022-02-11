@@ -75,7 +75,7 @@ class _WorkoutCardState extends State<WorkoutCard> {
             ],
           )));
     }
-    if (!isOpen && excercises.length > 2) {
+    if (!isOpen && excercises.length > 5) {
       exc.add(const Padding(
         padding: EdgeInsets.only(top: 6, bottom: 6),
         child: Text("...", style: TextStyle(fontSize: 15, color: Colors.white)),

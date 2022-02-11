@@ -1,6 +1,6 @@
 class ExcerciseSet {
-  ExcerciseSet(this.setNumber, this.reps, this.weight);
-  final int setNumber;
+  ExcerciseSet(this.reps, this.weight, this.rpe);
   final int reps;
   final double weight;
+  final int rpe;
 }

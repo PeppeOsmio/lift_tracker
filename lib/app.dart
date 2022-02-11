@@ -3,11 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/history.dart';
 import 'package:lift_tracker/ui/colors.dart';
+import 'data/constants.dart';
 import 'workoutlist.dart';
 import 'excercises.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-int currentPageIndex = 1;
+late Widget workoutList;
+Widget? history;
+Widget? excercises;
 
 class App extends StatefulWidget {
   const App({Key? key}) : super(key: key);
@@ -19,40 +22,30 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   List<String> pageKeys = ["History", "Workouts", "Excercises"];
   late String _currentPageName;
-  bool excercises = false;
-  bool history = false;
-  List<int> pageStack = [];
   DateTime? backPressedTime;
   late GlobalKey navBarKey;
 
-  Widget _buildOffStage(int index) {
+  Widget _buildOffStage(int index, Widget child) {
     switch (index) {
       case 0:
         return Offstage(
-            offstage: _currentPageName != pageKeys[index],
-            child: const History());
+            offstage: _currentPageName != pageKeys[index], child: child);
 
       case 1:
         return Offstage(
-          offstage: _currentPageName != pageKeys[index],
-          child: WorkoutList(
-            navBarKey: navBarKey,
-          ),
-        );
+            offstage: _currentPageName != pageKeys[index], child: child);
 
       default:
         return Offstage(
-          offstage: _currentPageName != pageKeys[index],
-          child: const Excercises(),
-        );
+            offstage: _currentPageName != pageKeys[index], child: child);
     }
   }
 
   void _selectTab(int index) {
     setState(() {
       _currentPageName = pageKeys[index];
-      currentPageIndex = index;
-      pageStack.add(index);
+      Constants.pageIndex = index;
+      Constants.pageStack.add(index);
     });
   }
 
@@ -60,9 +53,10 @@ class _AppState extends State<App> {
   void initState() {
     super.initState();
     _currentPageName = pageKeys[1];
-    currentPageIndex = 1;
-    pageStack.add(1);
+    Constants.pageIndex = 1;
+    Constants.pageStack.add(1);
     navBarKey = GlobalKey();
+    workoutList = _buildOffStage(1, WorkoutList(navBarKey: navBarKey));
   }
 
   @override
@@ -137,17 +131,17 @@ class _AppState extends State<App> {
       backgroundColor: Palette.backgroundDark,
       body: WillPopScope(
         child: Stack(children: [
-          history == false ? const SizedBox() : _buildOffStage(0),
-          _buildOffStage(1),
-          excercises == false ? const SizedBox() : _buildOffStage(2)
+          history == null ? const SizedBox() : _buildOffStage(0, history!),
+          workoutList,
+          excercises == null ? const SizedBox() : _buildOffStage(2, excercises!)
         ]),
         onWillPop: () async {
-          if (pageStack.length > 1) {
+          if (Constants.pageStack.length > 1) {
             int index;
-            pageStack.removeLast();
-            index = pageStack.last;
+            Constants.pageStack.removeLast();
+            index = Constants.pageStack.last;
             _currentPageName = pageKeys[index];
-            currentPageIndex = index;
+            Constants.pageIndex = index;
 
             setState(() {});
             return false;
@@ -170,19 +164,25 @@ class _AppState extends State<App> {
       bottomNavigationBar: BottomNavBar(
         [
           NavBarItem("History", Icons.schedule, () {
-            if (currentPageIndex != 0) {
-              history = true;
+            if (Constants.pageIndex != 0) {
+              if (Constants.didUpdateHistory) {
+                setState(() {
+                  history = const History();
+                  return;
+                });
+              }
+              history ??= const History();
               _selectTab(0);
             }
           }),
           NavBarItem("Workouts", Icons.add_outlined, () {
-            if (currentPageIndex != 1) {
+            if (Constants.pageIndex != 1) {
               _selectTab(1);
             }
           }),
           NavBarItem("Excercises", Icons.fitness_center, () {
-            if (currentPageIndex != 2) {
-              excercises = true;
+            if (Constants.pageIndex != 2) {
+              excercises ??= const Excercises();
               _selectTab(2);
             }
           })
@@ -211,7 +211,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
     List<Widget> list = [];
     BoxDecoration? dec;
     for (int i = 0; i < widget.bottomNavItems.length; i++) {
-      if (i == currentPageIndex) {
+      if (i == Constants.pageIndex) {
         dec = const BoxDecoration(
           color: Color.fromARGB(200, 80, 36, 12),
           borderRadius: BorderRadius.all(Radius.circular(20)),
@@ -227,7 +227,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
         padding: const EdgeInsets.only(left: 4, right: 4, top: 6, bottom: 6),
         child: GestureDetector(
             onTap: () {
-              if (currentPageIndex == i) {
+              if (Constants.pageIndex == i) {
                 return;
               } else {
                 item.onPressed.call();
