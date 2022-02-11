@@ -57,12 +57,8 @@ class _WorkoutListState extends State<WorkoutList> {
         onPressed: () async {
           var route =
               MaterialPageRoute(builder: (context) => const NewWorkout());
-          Constants.pageIndex = 3;
-          Constants.pageStack.add(3);
           await Navigator.push(context, route).then((value) {
-            Constants.pageIndex = 1;
-            Constants.pageStack.add(1);
-            print(Constants.pageStack);
+            Constants.didUpdateHistory = true;
             CustomDatabase.instance.readWorkouts().then((value) {
               setState(() {
                 workoutsFuture = CustomDatabase.instance.readWorkouts();
@@ -131,13 +127,10 @@ class _WorkoutListState extends State<WorkoutList> {
                           (startAsClosed) {},
                           true,
                         );
-                        Constants.pageIndex = 3;
-                        Constants.pageStack.add(3);
                         await Navigator.push(context,
                                 blurredMenuBuilder(workoutCard, cardKeys[i], i))
                             .then((value) {
-                          Constants.pageIndex = 1;
-                          Constants.pageStack.add(1);
+                          Constants.didUpdateHistory = true;
                         });
                       }, false, key: cardKeys[i]),
                     ));

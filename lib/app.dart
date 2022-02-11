@@ -8,10 +8,6 @@ import 'workoutlist.dart';
 import 'excercises.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-late Widget workoutList;
-Widget? history;
-Widget? excercises;
-
 class App extends StatefulWidget {
   const App({Key? key}) : super(key: key);
 
@@ -24,6 +20,9 @@ class _AppState extends State<App> {
   late String _currentPageName;
   DateTime? backPressedTime;
   late GlobalKey navBarKey;
+  late Widget workoutList;
+  Widget? history;
+  Widget? excercises;
 
   Widget _buildOffStage(int index, Widget child) {
     switch (index) {
@@ -56,7 +55,7 @@ class _AppState extends State<App> {
     Constants.pageIndex = 1;
     Constants.pageStack.add(1);
     navBarKey = GlobalKey();
-    workoutList = _buildOffStage(1, WorkoutList(navBarKey: navBarKey));
+    workoutList = WorkoutList(navBarKey: navBarKey);
   }
 
   @override
@@ -132,7 +131,7 @@ class _AppState extends State<App> {
       body: WillPopScope(
         child: Stack(children: [
           history == null ? const SizedBox() : _buildOffStage(0, history!),
-          workoutList,
+          _buildOffStage(1, workoutList),
           excercises == null ? const SizedBox() : _buildOffStage(2, excercises!)
         ]),
         onWillPop: () async {
@@ -165,11 +164,12 @@ class _AppState extends State<App> {
         [
           NavBarItem("History", Icons.schedule, () {
             if (Constants.pageIndex != 0) {
+              //if something notified that the history was updated
+              //we rebuild it in order to reload the content of the history
               if (Constants.didUpdateHistory) {
-                setState(() {
-                  history = const History();
-                  return;
-                });
+                history = History(key: GlobalKey());
+                _selectTab(0);
+                return;
               }
               history ??= const History();
               _selectTab(0);
