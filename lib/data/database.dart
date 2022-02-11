@@ -98,7 +98,6 @@ class CustomDatabase {
           columns: ['id', 'excercise_name'],
           where: "fk_workout_recordId=?",
           whereArgs: [workoutRecordId]);
-      int excerciseId = queryExcerciseRecords[i]['fk_excerciseId'] as int;
 
       //we get all the excercise sets
       for (int j = 0; j < queryExcerciseRecords.length; j++) {
@@ -113,7 +112,7 @@ class CustomDatabase {
         List<Map<String, dynamic>> repsWeightRpeMap = [];
         for (int k = 0; k < queryExcerciseSets.length; k++) {
           int reps = queryExcerciseSets[k]['reps'] as int;
-          double weight = queryExcerciseSets[k]['reps'] as double;
+          double weight = queryExcerciseSets[k]['weight'] as double;
           int rpe = queryExcerciseSets[k]['rpe'] as int;
           Map<String, dynamic> value = {
             "reps": reps,
@@ -132,6 +131,9 @@ class CustomDatabase {
       //we get the information about the workout
       String workoutName = queryWorkoutRecords[i]['workout_name'] as String;
       String dayString = queryWorkoutRecords[i]['day'] as String;
+      if (dayString.length == 9) {
+        dayString = dayString.substring(0, 5) + "0" + dayString.substring(5, 9);
+      }
       DateTime day = DateTime.parse(dayString);
       workoutRecords.add(WorkoutRecord(day, workoutName, excerciseRecords));
     }
@@ -170,7 +172,7 @@ class CustomDatabase {
           "reps": reps,
           "weight": weight,
           "rpe": rpe,
-          "fk_excerciseRecordId": excerciseRecordId
+          "fk_excercise_recordId": excerciseRecordId
         };
         await db.insert('excercise_set', values);
       }

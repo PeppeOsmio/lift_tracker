@@ -1,9 +1,12 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:lift_tracker/data/constants.dart';
 import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/data/excercise.dart';
 import 'package:lift_tracker/data/excerciserecord.dart';
 import 'package:lift_tracker/data/workout.dart';
+import 'package:lift_tracker/session.dart';
 import 'package:lift_tracker/ui/colors.dart';
 
 import 'data/workoutrecord.dart';
@@ -25,10 +28,7 @@ class _HistoryState extends State<History> {
     workoutRecords.then((value) {
       setState(() {});
     });
-    print("Init state");
   }
-
-  String name = "Push 1";
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +72,13 @@ class _HistoryState extends State<History> {
                       itemBuilder: (context, i) {
                         return Padding(
                             padding: const EdgeInsets.all(16),
-                            child: WorkoutRecordCard(records[i], () {}, false));
+                            child: WorkoutRecordCard(records[i], () {
+                              MaterialPageRoute route =
+                                  MaterialPageRoute(builder: (context) {
+                                return Session(records[i]);
+                              });
+                              Navigator.push(context, route);
+                            }, false));
                       },
                       separatorBuilder: (context, i) {
                         return const SizedBox();
@@ -80,8 +86,7 @@ class _HistoryState extends State<History> {
                       itemCount: records.length),
                 );
               }
-              return const Expanded(
-                  child: Center(child: CircularProgressIndicator.adaptive()));
+              return const SizedBox();
             },
           ),
         ],
@@ -130,87 +135,81 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
   Widget build(BuildContext context) {
     var excercises = widget.workoutRecord.excerciseRecords;
     List<Widget> exc = [];
-    int stop;
-    if (isOpen) {
-      stop = excercises.length;
-    } else {
-      stop = 1;
-    }
-    if (excercises.length <= 2) {
-      stop = excercises.length;
-    }
 
-    return WillPopScope(
-      onWillPop: () async {
-        if (_removeMode) {
-          setState(() {
-            isOpen = false;
-          });
-        }
-        return true;
-      },
-      child: GestureDetector(
-        onTap: () {
-          widget.onPressed.call();
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            color: Palette.elementsDark,
-            borderRadius: const BorderRadius.all(Radius.circular(20)),
-          ),
-          child: AnimatedSize(
-            curve: Curves.decelerate,
-            duration: expandDuration,
-            reverseDuration: expandDuration,
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Material(
-                color: Colors.transparent,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: Row(children: [
-                        Icon(
-                          Icons.calendar_today_outlined,
-                          color: Palette.orange,
-                        ),
-                        const SizedBox(width: 16),
-                        const Text(
-                          "Wednesday, Februrary 2",
-                          style: TextStyle(color: Colors.white, fontSize: 20),
-                        ),
-                        const Spacer(),
-                        Icon(
-                          isOpen
-                              ? Icons.expand_less_outlined
-                              : Icons.expand_more_outlined,
-                          color: Colors.white,
-                        )
-                      ]),
-                    ),
-                    Row(
-                      children: [
-                        Text(widget.workoutRecord.workoutName,
-                            style: const TextStyle(
-                                fontSize: 24, color: Colors.white)),
-                        const Spacer(),
-                      ],
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 24),
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 8),
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: exc),
-                      ),
-                    )
-                  ],
-                ),
-              ),
+    for (int i = 0; i < excercises.length; i++) {
+      exc.add(Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 5,
+              child: Text(
+                  "${excercises[i].reps_weight_rpe.length}" +
+                      "  ×  " +
+                      excercises[i].excerciseName,
+                  style: const TextStyle(fontSize: 15, color: Colors.white)),
             ),
+          ],
+        ),
+      ));
+    }
+    return GestureDetector(
+      onTap: () {
+        widget.onPressed.call();
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Palette.elementsDark,
+          borderRadius: const BorderRadius.all(Radius.circular(20)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Material(
+            color: Colors.transparent,
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Row(children: [
+                  Icon(
+                    Icons.calendar_today_outlined,
+                    color: Palette.orange,
+                  ),
+                  const SizedBox(width: 16),
+                  Text(
+                    widget.workoutRecord.day.day.toString() +
+                        " - " +
+                        widget.workoutRecord.day.month.toString() +
+                        " - " +
+                        widget.workoutRecord.day.year.toString(),
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                  const Spacer(),
+                  Icon(
+                    isOpen
+                        ? Icons.expand_less_outlined
+                        : Icons.expand_more_outlined,
+                    color: Colors.white,
+                  )
+                ]),
+              ),
+              Row(
+                children: [
+                  Text(widget.workoutRecord.workoutName,
+                      style:
+                          const TextStyle(fontSize: 24, color: Colors.white)),
+                  const Spacer(),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 24),
+                child: Padding(
+                    padding: const EdgeInsets.only(left: 8),
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: exc)),
+              ),
+            ]),
           ),
         ),
       ),

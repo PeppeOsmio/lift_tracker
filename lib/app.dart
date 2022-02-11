@@ -60,6 +60,7 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
+    Constants.screenSize ??= MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -71,7 +72,6 @@ class _AppState extends State<App> {
               padding: const EdgeInsets.only(top: 16),
               child: IconButton(
                   onPressed: () {
-                    CustomDatabase.instance.clearWorkouts();
                     showDialog(
                         context: context,
                         builder: (ctx) {

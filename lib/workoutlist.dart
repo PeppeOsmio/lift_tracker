@@ -39,10 +39,10 @@ class _WorkoutListState extends State<WorkoutList> {
     workoutsFuture = CustomDatabase.instance.readWorkouts();
     /*List<Excercise> debug = [];
 
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 6; i++) {
       debug.add(Excercise(i, "debug$i", 4, 10));
     }
-    CustomDatabase.instance.createWorkout("Debug", debug).then((value) {
+    CustomDatabase.instance.createWorkout("Push 1", debug).then((value) {
       setState(() {
         workoutsFuture = CustomDatabase.instance.readWorkouts();
       });
@@ -58,7 +58,6 @@ class _WorkoutListState extends State<WorkoutList> {
           var route =
               MaterialPageRoute(builder: (context) => const NewWorkout());
           await Navigator.push(context, route).then((value) {
-            Constants.didUpdateHistory = true;
             CustomDatabase.instance.readWorkouts().then((value) {
               setState(() {
                 workoutsFuture = CustomDatabase.instance.readWorkouts();
@@ -129,9 +128,7 @@ class _WorkoutListState extends State<WorkoutList> {
                         );
                         await Navigator.push(context,
                                 blurredMenuBuilder(workoutCard, cardKeys[i], i))
-                            .then((value) {
-                          Constants.didUpdateHistory = true;
-                        });
+                            .then((value) {});
                       }, false, key: cardKeys[i]),
                     ));
                   }

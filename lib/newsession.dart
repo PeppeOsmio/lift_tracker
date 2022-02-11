@@ -53,80 +53,104 @@ class _NewSessionState extends State<NewSession> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-          resizeToAvoidBottomInset: true,
-          backgroundColor: Palette.backgroundDark,
-          appBar: AppBar(
-            elevation: 0,
+      home: SafeArea(
+        child: Scaffold(
+            resizeToAvoidBottomInset: true,
             backgroundColor: Palette.backgroundDark,
-            automaticallyImplyLeading: false,
-            title: Padding(
-              padding: const EdgeInsets.only(top: 16),
-              child: Row(
+            body: SizedBox(
+              height: Constants.screenSize!.height,
+              child: Column(
                 children: [
-                  Material(
-                    color: Palette.elementsDark,
-                    borderRadius: BorderRadius.circular(10),
-                    child: SizedBox(
-                        height: 35,
-                        width: 35,
-                        child: InkWell(
-                            radius: 17.5,
-                            borderRadius: BorderRadius.circular(10),
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Icon(
-                              Icons.chevron_left_outlined,
-                              color: Colors.redAccent,
-                            ))),
-                  ),
                   Padding(
-                    padding: const EdgeInsets.only(left: 24),
-                    child: Text(
-                      widget.workout.name + " session",
+                    padding:
+                        const EdgeInsets.only(top: 16, left: 16, right: 16),
+                    child: Row(
+                      children: [
+                        Material(
+                          color: Palette.elementsDark,
+                          borderRadius: BorderRadius.circular(10),
+                          child: SizedBox(
+                              height: 35,
+                              width: 35,
+                              child: InkWell(
+                                  radius: 17.5,
+                                  borderRadius: BorderRadius.circular(10),
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Icon(
+                                    Icons.chevron_left_outlined,
+                                    color: Colors.redAccent,
+                                  ))),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 24),
+                            child: Text(
+                              "New " + widget.workout.name + " session",
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                          ),
+                        ),
+                        //const Spacer(),
+                        Material(
+                          color: Palette.elementsDark,
+                          borderRadius: BorderRadius.circular(10),
+                          child: SizedBox(
+                              height: 35,
+                              width: 35,
+                              child: InkWell(
+                                  radius: 17.5,
+                                  borderRadius: BorderRadius.circular(10),
+                                  onTap: () async {
+                                    WorkoutRecord? workoutRecord =
+                                        getWorkoutRecord();
+                                    if (workoutRecord == null) {
+                                      return;
+                                    }
+                                    await CustomDatabase.instance
+                                        .addWorkoutRecord(workoutRecord);
+
+                                    Constants.didUpdateHistory = true;
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Icon(
+                                    Icons.check_outlined,
+                                    color: Colors.green,
+                                  ))),
+                        ),
+                      ],
                     ),
                   ),
-                  const Spacer(),
-                  Material(
-                    color: Palette.elementsDark,
-                    borderRadius: BorderRadius.circular(10),
-                    child: SizedBox(
-                        height: 35,
-                        width: 35,
-                        child: InkWell(
-                            radius: 17.5,
-                            borderRadius: BorderRadius.circular(10),
-                            onTap: () {
-                              Constants.didUpdateHistory = true;
-                              Navigator.pop(context);
-                            },
-                            child: const Icon(
-                              Icons.check_outlined,
-                              color: Colors.green,
-                            ))),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                          top: 8, left: 0, right: 0, bottom: 0),
+                      child: ListView(
+                        children: items,
+                      ),
+                    ),
                   ),
                 ],
               ),
-            ),
-          ),
-          body: Padding(
-            padding:
-                const EdgeInsets.only(top: 8, left: 0, right: 0, bottom: 0),
-            child: ListView(
-              children: items,
-            ),
-          )),
+            )),
+      ),
     );
   }
 
-  WorkoutRecord getWorkoutRecord() {
-    List<ExcerciseRecord> records = [];
+  WorkoutRecord? getWorkoutRecord() {
+    List<ExcerciseRecord> worecords = [];
     for (int i = 0; i < widget.workout.excercises.length; i++) {
-      records.add(ExcerciseRecord(
-          widget.workout.excercises[i].name, records[i].reps_weight_rpe));
+      ExcerciseRecord? excerciseRecord = records[i].excerciseRecord;
+      if (excerciseRecord == null) {
+        return null;
+      }
+      worecords.add(records[i].excerciseRecord!);
     }
-    return WorkoutRecord(DateTime.now(), widget.workout.name, records);
+    return WorkoutRecord(DateTime.now(), widget.workout.name, worecords);
   }
 }
 
@@ -145,92 +169,90 @@ class SetRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-    return Column(
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: Container(
+                padding: const EdgeInsets.only(left: 8),
+                width: (width - 32) / 10,
+                child: Text(
+                  "$rowIndex",
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                )),
+          ),
+          Expanded(
+            child: Padding(
               padding: const EdgeInsets.only(right: 8),
               child: Container(
-                  padding: const EdgeInsets.only(left: 8),
-                  width: (width - 32) / 10,
-                  child: Text(
-                    "$rowIndex",
+                  padding: const EdgeInsets.only(left: 16, right: 16),
+                  width: (width - 32) / 4,
+                  decoration: const BoxDecoration(
+                      color: Color.fromARGB(255, 31, 31, 31),
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                  child: TextFormField(
+                    controller: repsController,
                     style: const TextStyle(color: Colors.white, fontSize: 16),
+                    decoration: const InputDecoration(
+                      hintStyle: TextStyle(color: Colors.grey),
+                      hintText: "Reps",
+                      border: InputBorder.none,
+                    ),
                   )),
             ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: Container(
-                    padding: const EdgeInsets.only(left: 16, right: 16),
-                    width: (width - 32) / 4,
-                    decoration: const BoxDecoration(
-                        color: Color.fromARGB(255, 31, 31, 31),
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
-                    child: TextFormField(
-                      controller: repsController,
-                      style: const TextStyle(color: Colors.white, fontSize: 16),
-                      decoration: const InputDecoration(
-                        hintStyle: TextStyle(color: Colors.grey),
-                        hintText: "Reps",
-                        border: InputBorder.none,
-                      ),
-                    )),
-              ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 8, right: 8),
+              child: Container(
+                  padding: const EdgeInsets.only(left: 16, right: 16),
+                  width: (width - 32) / 4,
+                  decoration: const BoxDecoration(
+                      color: Color.fromARGB(255, 31, 31, 31),
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                  child: TextFormField(
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
+                    ],
+                    controller: weightController,
+                    keyboardType: TextInputType.number,
+                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                    decoration: const InputDecoration(
+                      hintStyle: TextStyle(color: Colors.grey),
+                      hintText: "Weight",
+                      border: InputBorder.none,
+                    ),
+                  )),
             ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 8, right: 8),
-                child: Container(
-                    padding: const EdgeInsets.only(left: 16, right: 16),
-                    width: (width - 32) / 4,
-                    decoration: const BoxDecoration(
-                        color: Color.fromARGB(255, 31, 31, 31),
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
-                    child: TextFormField(
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 8, right: 8),
+              child: Container(
+                  padding: const EdgeInsets.only(left: 16, right: 16),
+                  width: (width - 32) / 4,
+                  decoration: const BoxDecoration(
+                      color: Color.fromARGB(255, 31, 31, 31),
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                  child: TextFormField(
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
                       ],
-                      controller: weightController,
+                      controller: rpeController,
                       keyboardType: TextInputType.number,
-                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                      style: const TextStyle(color: Colors.white),
                       decoration: const InputDecoration(
                         hintStyle: TextStyle(color: Colors.grey),
-                        hintText: "Weight",
+                        hintText: "Rpe",
                         border: InputBorder.none,
-                      ),
-                    )),
-              ),
+                      ))),
             ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 8, right: 8),
-                child: Container(
-                    padding: const EdgeInsets.only(left: 16, right: 16),
-                    width: (width - 32) / 4,
-                    decoration: const BoxDecoration(
-                        color: Color.fromARGB(255, 31, 31, 31),
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
-                    child: TextFormField(
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
-                        ],
-                        controller: rpeController,
-                        keyboardType: TextInputType.number,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: const InputDecoration(
-                          hintStyle: TextStyle(color: Colors.grey),
-                          hintText: "Rpe",
-                          border: InputBorder.none,
-                        ))),
-              ),
-            )
-          ],
-        ),
-        const SizedBox(height: 24),
-      ],
+          )
+        ],
+      ),
     );
   }
 }
@@ -246,13 +268,19 @@ class ExcerciseRecordItem extends StatefulWidget {
   final List<TextEditingController> repsControllers;
   final List<TextEditingController> weightControllers;
   final List<TextEditingController> rpeControllers;
-  ExcerciseRecord get excerciseRecord {
+  ExcerciseRecord? get excerciseRecord {
     List<Map<String, dynamic>> listMap = [];
     for (int i = 0; i < excercise.sets; i++) {
+      String reps = repsControllers[i].text;
+      String weight = weightControllers[i].text;
+      String rpe = rpeControllers[i].text;
+      if (reps.isEmpty || weight.isEmpty || rpe.isEmpty) {
+        return null;
+      }
       listMap.add({
-        "reps": int.parse(repsControllers[i].text),
-        "weight": double.parse(weightControllers[i].text),
-        "rpe": int.parse(rpeControllers[i].text)
+        "reps": int.parse(reps),
+        "weight": double.parse(weight),
+        "rpe": int.parse(rpe)
       });
     }
     return ExcerciseRecord(excercise.name, listMap);
