@@ -80,6 +80,29 @@ class CustomDatabase {
     await db.execute(sql);
   }
 
+  Future removeWorkoutRecord(int workoutRecordId) async {
+    final db = await instance.database;
+    List<Map<String, Object?>> query = await db.query('excercise_record',
+        columns: ['id'],
+        where: "fk_workout_recordId=?",
+        whereArgs: [workoutRecordId]);
+    List<int> excerciseRecordIds = [];
+    print(query);
+    for (int i = 0; i < query.length; i++) {
+      excerciseRecordIds.add(query[i]['id'] as int);
+    }
+    for (int i = 0; i < excerciseRecordIds.length; i++) {
+      await db.delete('excercise_set',
+          where: "fk_excercise_recordId=?", whereArgs: [excerciseRecordIds[i]]);
+    }
+    for (int i = 0; i < query.length; i++) {
+      await db.delete('excercise_record',
+          where: "fk_workout_recordId=?", whereArgs: [workoutRecordId]);
+    }
+    await db
+        .delete('workout_record', where: "id=?", whereArgs: [workoutRecordId]);
+  }
+
   Future<List<WorkoutRecord>> readWorkoutRecords() async {
     final db = await instance.database;
 
@@ -135,7 +158,8 @@ class CustomDatabase {
         dayString = dayString.substring(0, 5) + "0" + dayString.substring(5, 9);
       }
       DateTime day = DateTime.parse(dayString);
-      workoutRecords.add(WorkoutRecord(day, workoutName, excerciseRecords));
+      workoutRecords.add(
+          WorkoutRecord(workoutRecordId, day, workoutName, excerciseRecords));
     }
     return workoutRecords;
   }

@@ -40,6 +40,13 @@ class _AppState extends State<App> {
     }
   }
 
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    Constants.screenSize ??= MediaQuery.of(context).size;
+  }
+
   void _selectTab(int index) {
     setState(() {
       _currentPageName = pageKeys[index];

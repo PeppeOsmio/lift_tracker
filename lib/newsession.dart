@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lift_tracker/app.dart';
 import 'package:lift_tracker/data/constants.dart';
 import 'package:lift_tracker/data/database.dart';
@@ -58,7 +59,7 @@ class _NewSessionState extends State<NewSession> {
             resizeToAvoidBottomInset: true,
             backgroundColor: Palette.backgroundDark,
             body: SizedBox(
-              height: Constants.screenSize!.height,
+              height: MediaQuery.of(context).size.height,
               child: Column(
                 children: [
                   Padding(
@@ -144,17 +145,24 @@ class _NewSessionState extends State<NewSession> {
   WorkoutRecord? getWorkoutRecord() {
     List<ExcerciseRecord> worecords = [];
     for (int i = 0; i < widget.workout.excercises.length; i++) {
-      ExcerciseRecord? excerciseRecord = records[i].excerciseRecord;
+      ExcerciseRecord? excerciseRecord;
+      try {
+        excerciseRecord = records[i].excerciseRecord;
+      } catch (e) {
+        Fluttertoast.showToast(
+            msg: "Typo in ${widget.workout.excercises[i].name}'s weight");
+        return null;
+      }
       if (excerciseRecord == null) {
         return null;
       }
       worecords.add(records[i].excerciseRecord!);
     }
-    return WorkoutRecord(DateTime.now(), widget.workout.name, worecords);
+    return WorkoutRecord(0, DateTime.now(), widget.workout.name, worecords);
   }
 }
 
-class SetRow extends StatelessWidget {
+class SetRow extends StatefulWidget {
   const SetRow(this.rowIndex,
       {required this.repsController,
       required this.weightController,
@@ -166,6 +174,11 @@ class SetRow extends StatelessWidget {
   final TextEditingController weightController;
   final TextEditingController rpeController;
 
+  @override
+  State<SetRow> createState() => _SetRowState();
+}
+
+class _SetRowState extends State<SetRow> {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
@@ -180,7 +193,7 @@ class SetRow extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 8),
                 width: (width - 32) / 10,
                 child: Text(
-                  "$rowIndex",
+                  "${widget.rowIndex}",
                   style: const TextStyle(color: Colors.white, fontSize: 16),
                 )),
           ),
@@ -194,7 +207,11 @@ class SetRow extends StatelessWidget {
                       color: Color.fromARGB(255, 31, 31, 31),
                       borderRadius: BorderRadius.all(Radius.circular(10))),
                   child: TextFormField(
-                    controller: repsController,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
+                    ],
+                    keyboardType: TextInputType.number,
+                    controller: widget.repsController,
                     style: const TextStyle(color: Colors.white, fontSize: 16),
                     decoration: const InputDecoration(
                       hintStyle: TextStyle(color: Colors.grey),
@@ -215,9 +232,9 @@ class SetRow extends StatelessWidget {
                       borderRadius: BorderRadius.all(Radius.circular(10))),
                   child: TextFormField(
                     inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))
                     ],
-                    controller: weightController,
+                    controller: widget.weightController,
                     keyboardType: TextInputType.number,
                     style: const TextStyle(color: Colors.white, fontSize: 16),
                     decoration: const InputDecoration(
@@ -241,7 +258,7 @@ class SetRow extends StatelessWidget {
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
                       ],
-                      controller: rpeController,
+                      controller: widget.rpeController,
                       keyboardType: TextInputType.number,
                       style: const TextStyle(color: Colors.white),
                       decoration: const InputDecoration(

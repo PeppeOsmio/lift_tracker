@@ -8,6 +8,7 @@ import 'package:lift_tracker/data/excerciserecord.dart';
 import 'package:lift_tracker/data/workout.dart';
 import 'package:lift_tracker/session.dart';
 import 'package:lift_tracker/ui/colors.dart';
+import 'package:lift_tracker/ui/widgets.dart';
 
 import 'data/workoutrecord.dart';
 
@@ -67,23 +68,41 @@ class _HistoryState extends State<History> {
             builder: (context, ss) {
               if (ss.hasData) {
                 List<WorkoutRecord> records = ss.data! as List<WorkoutRecord>;
+                int length = records.length;
                 return Expanded(
                   child: ListView.separated(
                       itemBuilder: (context, i) {
+                        WorkoutRecordCard workoutRecordCard = WorkoutRecordCard(
+                            records[length - 1 - i], () {}, false);
+                        GlobalKey key = GlobalKey();
                         return Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: WorkoutRecordCard(records[i], () {
-                              MaterialPageRoute route =
-                                  MaterialPageRoute(builder: (context) {
-                                return Session(records[i]);
-                              });
-                              Navigator.push(context, route);
-                            }, false));
+                          padding: const EdgeInsets.all(16),
+                          child: WorkoutRecordCard(
+                              records[length - 1 - i],
+                              () {
+                                MaterialPageRoute route =
+                                    MaterialPageRoute(builder: (context) {
+                                  return Session(records[length - 1 - i]);
+                                });
+                                Navigator.push(context, route);
+                              },
+                              false,
+                              onLongPress: () {
+                                Navigator.push(
+                                        context,
+                                        blurredMenuBuilder(
+                                            workoutRecordCard, key, i))
+                                    .then((value) {
+                                  setState(() {});
+                                });
+                              }),
+                          key: key,
+                        );
                       },
                       separatorBuilder: (context, i) {
                         return const SizedBox();
                       },
-                      itemCount: records.length),
+                      itemCount: length),
                 );
               }
               return const SizedBox();
@@ -93,13 +112,36 @@ class _HistoryState extends State<History> {
       ),
     );
   }
+
+  PageRouteBuilder blurredMenuBuilder(
+      WorkoutRecordCard workoutRecordCard, GlobalKey key, int tag) {
+    return PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 200),
+        opaque: false,
+        pageBuilder: (context, a1, a2) {
+          return MenuWorkoutRecordCard(
+              positionedAnimationDuration: const Duration(milliseconds: 200),
+              workoutCardKey: key,
+              workoutRecordCard: workoutRecordCard,
+              heroTag: tag,
+              deleteOnPressed: () async {
+                await CustomDatabase.instance
+                    .removeWorkoutRecord(workoutRecordCard.workoutRecord.id);
+                workoutRecords = CustomDatabase.instance.readWorkoutRecords();
+                Navigator.maybePop(context);
+              },
+              cancelOnPressed: () {
+                Navigator.maybePop(context);
+              });
+        });
+  }
 }
 
 class WorkoutRecordCard extends StatefulWidget {
   const WorkoutRecordCard(this.workoutRecord, this.onPressed, this.removeMode,
-      {Key? key})
+      {Key? key, this.onLongPress})
       : super(key: key);
-
+  final Function? onLongPress;
   final WorkoutRecord workoutRecord;
   final void Function() onPressed;
   final bool removeMode;
@@ -111,7 +153,6 @@ class WorkoutRecordCard extends StatefulWidget {
 }
 
 class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
-  bool isOpen = false;
   bool isButtonPressed = false;
   late bool _removeMode;
   late Duration expandDuration;
@@ -122,13 +163,6 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
     expandDuration = Duration(
         milliseconds:
             100 + (widget.workoutRecord.excerciseRecords.length - 5) * 20);
-    _removeMode = widget.removeMode;
-    if (_removeMode == true) {
-      Future.delayed(Duration.zero, () {
-        isOpen = true;
-        setState(() {});
-      });
-    }
   }
 
   @override
@@ -156,6 +190,11 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
     return GestureDetector(
       onTap: () {
         widget.onPressed.call();
+      },
+      onLongPress: () {
+        if (widget.onLongPress != null) {
+          widget.onLongPress!.call();
+        }
       },
       child: Container(
         decoration: BoxDecoration(
@@ -185,10 +224,8 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
                     style: TextStyle(color: Colors.white, fontSize: 20),
                   ),
                   const Spacer(),
-                  Icon(
-                    isOpen
-                        ? Icons.expand_less_outlined
-                        : Icons.expand_more_outlined,
+                  const Icon(
+                    Icons.expand_more_outlined,
                     color: Colors.white,
                   )
                 ]),

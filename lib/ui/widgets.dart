@@ -2,8 +2,166 @@ import 'dart:ui';
 import 'package:curved_animation_controller/curved_animation_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:lift_tracker/newsession.dart';
+import '../history.dart';
 import 'workoutcard.dart';
 import 'colors.dart';
+
+class MenuWorkoutRecordCard extends StatefulWidget {
+  const MenuWorkoutRecordCard(
+      {required this.positionedAnimationDuration,
+      required this.workoutCardKey,
+      required this.workoutRecordCard,
+      required this.heroTag,
+      required this.deleteOnPressed,
+      required this.cancelOnPressed,
+      Key? key})
+      : super(key: key);
+  final WorkoutRecordCard workoutRecordCard;
+  final int heroTag;
+  final void Function() deleteOnPressed;
+  final void Function() cancelOnPressed;
+  final Duration positionedAnimationDuration;
+  final GlobalKey workoutCardKey;
+
+  @override
+  _MenuWorkoutRecordCardState createState() => _MenuWorkoutRecordCardState();
+}
+
+class _MenuWorkoutRecordCardState extends State<MenuWorkoutRecordCard> {
+  double originalHeight = 0;
+  double startingY = 0;
+  double screenWidth = 0;
+  double screenHeight = 0;
+  double finalCardY = 0;
+  double cardY = 0;
+  bool firstTimeBuilding = true;
+  double opacity = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    originalHeight = getCardRenderBox().size.height;
+    Future.delayed(Duration.zero, () {
+      finalCardY = (screenHeight - originalHeight) / 2;
+      setState(() {
+        cardY = finalCardY;
+      });
+    });
+  }
+
+  RenderBox getCardRenderBox() {
+    return widget.workoutCardKey.currentContext!.findRenderObject()
+        as RenderBox;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (firstTimeBuilding) {
+      firstTimeBuilding = false;
+      screenWidth = MediaQuery.of(context).size.width;
+      screenHeight = MediaQuery.of(context).size.height;
+      startingY = getCardRenderBox().localToGlobal(Offset.zero).dy;
+      cardY = startingY;
+    }
+    return WillPopScope(
+      onWillPop: () async {
+        //move the card to the original position
+        setState(() {
+          cardY = startingY;
+        });
+        //after the card is in the original position fade it away
+        Future.delayed(const Duration(milliseconds: 200), () {
+          setState(() {
+            opacity = 0;
+          });
+        });
+        return true;
+      },
+      child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: SizedBox(
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            child: GestureDetector(
+                onTap: () {
+                  Navigator.maybePop(context);
+                },
+                child: Stack(
+                  children: [
+                    const AnimatedBlur(
+                      duration: Duration(milliseconds: 200),
+                      delay: Duration(seconds: 0),
+                    ),
+                    AnimatedPositioned(
+                      curve: Curves.decelerate,
+                      duration: const Duration(milliseconds: 200),
+                      width: MediaQuery.of(context).size.width,
+                      top: cardY,
+                      child: AnimatedOpacity(
+                        curve: Curves.decelerate,
+                        duration: const Duration(milliseconds: 400),
+                        opacity: opacity,
+                        child: Material(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 16, right: 16),
+                              child: widget.workoutRecordCard,
+                            ),
+                            type: MaterialType.transparency),
+                      ),
+                    ),
+                    AnimatedPositioned(
+                      duration: const Duration(milliseconds: 100),
+                      curve: Curves.decelerate,
+                      right: 16,
+                      bottom: MediaQuery.of(context).size.height - cardY,
+                      child: AnimatedEntry(
+                        duration: const Duration(milliseconds: 50),
+                        delay: widget.workoutRecordCard.expandDuration * 0.5,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(bottom: 8, right: 8),
+                              child: GestureDetector(
+                                onTap: widget.deleteOnPressed,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      color: Colors.red.withAlpha(25),
+                                      border: Border.all(
+                                          color: Palette.backgroundDark),
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: Container(
+                                    width: 70,
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                        color: Colors.red.withAlpha(25),
+                                        border:
+                                            Border.all(color: Colors.redAccent),
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    child: const Center(
+                                      child: Text(
+                                        "Delete",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
+                )),
+          )),
+    );
+  }
+}
 
 class MenuWorkoutCard extends StatefulWidget {
   const MenuWorkoutCard(
@@ -163,7 +321,7 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                                       return NewSession(
                                           widget.workoutCard.workout);
                                     });
-                                    Navigator.push(context, route);
+                                    Navigator.pushReplacement(context, route);
                                   },
                                   child: Container(
                                     decoration: BoxDecoration(
