@@ -3,7 +3,14 @@ class Excercise {
   String name;
   int reps;
   int sets;
+  double? weightRecord;
   String? type;
 
-  Excercise(this.id, this.name, this.sets, this.reps, {this.type});
+  Excercise(
+      {required this.id,
+      required this.name,
+      required this.sets,
+      required this.reps,
+      this.weightRecord,
+      this.type});
 }

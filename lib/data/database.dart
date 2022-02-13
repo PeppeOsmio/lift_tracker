@@ -42,6 +42,7 @@ class CustomDatabase {
       name VARCHAR(33) NOT NULL,
       sets INTEGER NOT NULL,
       reps INTEGER NOT NULL,
+      weight_record DOUBLE(5,2) NOT NULL,
       fk_workoutId INTEGER NOT NULL,
       FOREIGN KEY (fk_workoutId) REFERENCES workout(id)
     );
@@ -164,6 +165,11 @@ class CustomDatabase {
     return workoutRecords;
   }
 
+  Future setWeightRecord(int excerciseId, double weightRecord) async {
+    final db = await instance.database;
+    await db.update('excercise', {"weight_record": weightRecord});
+  }
+
   Future addWorkoutRecord(WorkoutRecord workoutRecord) async {
     final db = await instance.database;
 
@@ -218,7 +224,7 @@ class CustomDatabase {
       String name = queryWorkouts[i]['name'] as String;
       List<Excercise> excerciseList = [];
       final queryExcercise = await db.query('excercise',
-          columns: ['id', 'name', 'sets', 'reps'],
+          columns: ['id', 'name', 'sets', 'reps', 'weight_record'],
           where: "fk_workoutId=?",
           whereArgs: [id]);
       for (int j = 0; j < queryExcercise.length; j++) {
@@ -226,8 +232,17 @@ class CustomDatabase {
         String exname = queryExcercise[j]['name'] as String;
         int sets = queryExcercise[j]['sets'] as int;
         int reps = queryExcercise[j]['reps'] as int;
+        double? weightRecord;
+        if (queryExcercise[j]['weight_record'] != null) {
+          weightRecord = queryExcercise[j]['weight_record'] as double;
+        }
 
-        excerciseList.add(Excercise(exid, exname, sets, reps));
+        excerciseList.add(Excercise(
+            id: exid,
+            name: exname,
+            sets: sets,
+            reps: reps,
+            weightRecord: weightRecord ?? null));
       }
       workoutList.add(Workout(id, name, excerciseList));
     }

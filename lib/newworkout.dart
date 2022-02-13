@@ -98,8 +98,11 @@ class _NewWorkoutState extends State<NewWorkout> {
                                       reps.isEmpty) {
                                     return;
                                   }
-                                  excercises.add(Excercise(i, name,
-                                      int.parse(sets), int.parse(reps)));
+                                  excercises.add(Excercise(
+                                      id: i,
+                                      name: name,
+                                      sets: int.parse(sets),
+                                      reps: int.parse(reps)));
                                 }
                                 CustomDatabase.instance
                                     .createWorkout(workoutName.text, excercises)

@@ -350,7 +350,7 @@ class _ExcerciseRecordItemState extends State<ExcerciseRecordItem> {
           weightController: widget.weightControllers[i],
           rpeController: widget.rpeControllers[i]));
     }
-    temp.add(buildAddSetButton());
+    //temp.add(buildAddSetButton());
     //temp.add(const SizedBox(height: 24));
     Column tempColumn = Column(children: temp);
     return SizedBox(
@@ -373,10 +373,10 @@ class _ExcerciseRecordItemState extends State<ExcerciseRecordItem> {
               SizedBox(
                 width: (width - 32) / 10 + 8,
                 child: const Padding(
-                    padding: const EdgeInsets.only(top: 24, bottom: 24),
+                    padding: EdgeInsets.only(top: 24, bottom: 24),
                     child: Text(
                       "Set",
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: Colors.white),
                     )),
               ),
               SizedBox(
@@ -388,11 +388,13 @@ class _ExcerciseRecordItemState extends State<ExcerciseRecordItem> {
                       style: const TextStyle(color: Colors.white),
                     )),
               ),
-              const Padding(
-                  padding: EdgeInsets.only(top: 24, bottom: 24, left: 8),
+              Padding(
+                  padding: const EdgeInsets.only(top: 24, bottom: 24, left: 8),
                   child: Text(
-                    "Weight record: N/A",
-                    style: TextStyle(color: Colors.white),
+                    widget.excercise.weightRecord != null
+                        ? "Best weight: ${widget.excercise.weightRecord} kg"
+                        : "",
+                    style: const TextStyle(color: Colors.white),
                   )),
             ],
           ),
