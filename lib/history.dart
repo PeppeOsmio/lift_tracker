@@ -72,30 +72,26 @@ class _HistoryState extends State<History> {
                 return Expanded(
                   child: ListView.separated(
                       itemBuilder: (context, i) {
-                        WorkoutRecordCard workoutRecordCard = WorkoutRecordCard(
-                            records[length - 1 - i], () {}, false);
+                        WorkoutRecordCard workoutRecordCard =
+                            WorkoutRecordCard(records[length - 1 - i], () {});
                         GlobalKey key = GlobalKey();
                         return Padding(
                           padding: const EdgeInsets.all(16),
-                          child: WorkoutRecordCard(
-                              records[length - 1 - i],
-                              () {
-                                MaterialPageRoute route =
-                                    MaterialPageRoute(builder: (context) {
-                                  return Session(records[length - 1 - i]);
-                                });
-                                Navigator.push(context, route);
-                              },
-                              false,
-                              onLongPress: () {
-                                Navigator.push(
-                                        context,
-                                        blurredMenuBuilder(
-                                            workoutRecordCard, key, i))
-                                    .then((value) {
-                                  setState(() {});
-                                });
-                              }),
+                          child: WorkoutRecordCard(records[length - 1 - i], () {
+                            MaterialPageRoute route =
+                                MaterialPageRoute(builder: (context) {
+                              return Session(records[length - 1 - i]);
+                            });
+                            Navigator.push(context, route);
+                          }, onLongPress: () {
+                            Navigator.push(
+                                    context,
+                                    blurredMenuBuilder(
+                                        workoutRecordCard, key, i))
+                                .then((value) {
+                              setState(() {});
+                            });
+                          }),
                           key: key,
                         );
                       },
@@ -138,13 +134,12 @@ class _HistoryState extends State<History> {
 }
 
 class WorkoutRecordCard extends StatefulWidget {
-  const WorkoutRecordCard(this.workoutRecord, this.onPressed, this.removeMode,
+  const WorkoutRecordCard(this.workoutRecord, this.onPressed,
       {Key? key, this.onLongPress})
       : super(key: key);
   final Function? onLongPress;
   final WorkoutRecord workoutRecord;
   final void Function() onPressed;
-  final bool removeMode;
   Duration get expandDuration => Duration(
       milliseconds: 100 + (workoutRecord.excerciseRecords.length - 5) * 40);
 
@@ -154,7 +149,6 @@ class WorkoutRecordCard extends StatefulWidget {
 
 class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
   bool isButtonPressed = false;
-  late bool _removeMode;
   late Duration expandDuration;
 
   @override
@@ -178,8 +172,7 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
             Expanded(
               flex: 5,
               child: Text(
-                  "${excercises[i].reps_weight_rpe.length}" +
-                      "  ×  " +
+                  "${excercises[i].reps_weight_rpe.length}  ×  " +
                       excercises[i].excerciseName,
                   style: const TextStyle(fontSize: 15, color: Colors.white)),
             ),
@@ -221,7 +214,7 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
                         widget.workoutRecord.day.month.toString() +
                         " - " +
                         widget.workoutRecord.day.year.toString(),
-                    style: TextStyle(color: Colors.white, fontSize: 20),
+                    style: const TextStyle(color: Colors.white, fontSize: 20),
                   ),
                   const Spacer(),
                   const Icon(
