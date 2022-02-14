@@ -42,7 +42,7 @@ class CustomDatabase {
       name VARCHAR(33) NOT NULL,
       sets INTEGER NOT NULL,
       reps INTEGER NOT NULL,
-      weight_record DOUBLE(5,2) NOT NULL,
+      weight_record DOUBLE(5,2),
       fk_workoutId INTEGER NOT NULL,
       FOREIGN KEY (fk_workoutId) REFERENCES workout(id)
     );
