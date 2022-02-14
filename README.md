@@ -11,5 +11,5 @@ will be added in the future with pre-made excercises and workout schedules.
 
 ## Install
 
-You can compile the code for yourself by cloning this project if you have the Flutter SDK installed on your machine.
+You can compile the code by yourself by cloning this project if you have the Flutter SDK installed on your machine.
 If you don't want to compile it, there's a pre-built apk file for Android. 
