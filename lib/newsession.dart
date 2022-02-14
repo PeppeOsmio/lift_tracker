@@ -150,9 +150,9 @@ class _NewSessionState extends State<NewSession> {
         for (int j = 0; j < reps_weight_rpe.length; j++) {
           double currentWeight = reps_weight_rpe[j]['weight'];
           if (currentWeight > previousWeightRecord) {
-            print(currentWeight);
-            CustomDatabase.instance
+            await CustomDatabase.instance
                 .setWeightRecord(excercise.id, currentWeight);
+            Constants.didSetWeightRecord = true;
             j = reps_weight_rpe.length; //quit the loop
           }
         }
@@ -162,8 +162,8 @@ class _NewSessionState extends State<NewSession> {
           maxWeight = reps_weight_rpe[j]['weight'];
           maxWeight = max(maxWeight, reps_weight_rpe[j + 1]['weight']);
         }
-        print(maxWeight);
-        CustomDatabase.instance.setWeightRecord(excercise.id, maxWeight);
+        await CustomDatabase.instance.setWeightRecord(excercise.id, maxWeight);
+        Constants.didSetWeightRecord = true;
       }
     }
     Constants.didUpdateHistory = true;

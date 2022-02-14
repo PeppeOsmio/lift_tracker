@@ -100,7 +100,7 @@ class ExcerciseRecordCard extends StatelessWidget {
   const ExcerciseRecordCard(this.excerciseRecord, {Key? key}) : super(key: key);
   final ExcerciseRecord excerciseRecord;
 
-  TableRow buildSetRow(int index) {
+  TableRow buildSetRow(int index, BuildContext context) {
     String weight = excerciseRecord.reps_weight_rpe[index]['weight'].toString();
     int k = weight.indexOf(".");
     for (int i = k + 1; i < weight.length; i++) {
@@ -112,7 +112,7 @@ class ExcerciseRecordCard extends StatelessWidget {
     }
     String reps = excerciseRecord.reps_weight_rpe[index]['reps'].toString();
     String rpe = excerciseRecord.reps_weight_rpe[index]['rpe'].toString();
-    double width = Constants.screenSize!.width;
+    double width = MediaQuery.of(context).size.width;
     return TableRow(children: [
       Padding(
         padding: const EdgeInsets.only(right: 8),
@@ -193,7 +193,7 @@ class ExcerciseRecordCard extends StatelessWidget {
     setRows.add(topRow);
 
     for (int i = 0; i < excerciseRecord.reps_weight_rpe.length; i++) {
-      setRows.add(buildSetRow(i));
+      setRows.add(buildSetRow(i, context));
     }
 
     //double width = MediaQuery.of(context).size.width;

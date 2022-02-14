@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
@@ -36,33 +37,38 @@ class _WorkoutListState extends State<WorkoutList> {
           widget.navBarKey.currentContext!.findRenderObject() as RenderBox;
       navBarOffset = box.size.height;
     });
-    workoutsFuture = CustomDatabase.instance.readWorkouts();
-    /*Future.delayed(Duration.zero, () {
-      List<Excercise> excercises = [
-        Excercise(id: 0, name: "Panca inclinata manubri", sets: 4, reps: 10),
-        Excercise(id: 1, name: "Croci ai cavi alti", sets: 4, reps: 10),
-        Excercise(id: 2, name: "Shoulder press", sets: 3, reps: 12),
-        Excercise(id: 3, name: "Alzate laterali cavi", sets: 5, reps: 12),
-        Excercise(id: 4, name: "Pushdown corda", sets: 4, reps: 12),
-        Excercise(id: 5, name: "French press cavi", sets: 4, reps: 12)
-      ];
-      CustomDatabase.instance.createWorkout("Push", excercises).then((value) {
-        setState(() {});
-        excercises.clear();
-        excercises = [
-          Excercise(id: 0, name: "Lat machine", sets: 4, reps: 10),
-          Excercise(id: 1, name: "Pulley basso", sets: 4, reps: 10),
-          Excercise(id: 2, name: "Hyperextension", sets: 3, reps: 20),
-          Excercise(id: 3, name: "Alzate laterali 90", sets: 5, reps: 12),
-          Excercise(id: 4, name: "Curl manubri", sets: 3, reps: 12),
-          Excercise(id: 5, name: "Curl martello", sets: 3, reps: 12),
-          Excercise(id: 6, name: "Curl panca inclinata", sets: 3, reps: 12)
+    if (Constants.firstAppRun) {
+      Constants.firstAppRun = false;
+      Future.delayed(Duration.zero, () {
+        List<Excercise> excercises = [
+          Excercise(id: 0, name: "Panca inclinata manubri", sets: 4, reps: 10),
+          Excercise(id: 1, name: "Croci ai cavi alti", sets: 4, reps: 10),
+          Excercise(id: 2, name: "Shoulder press", sets: 3, reps: 12),
+          Excercise(id: 3, name: "Alzate laterali cavi", sets: 5, reps: 12),
+          Excercise(id: 4, name: "Pushdown corda", sets: 4, reps: 12),
+          Excercise(id: 5, name: "French press cavi", sets: 4, reps: 12)
         ];
-        CustomDatabase.instance.createWorkout("Pull", excercises).then((value) {
+        CustomDatabase.instance.createWorkout("Push", excercises).then((value) {
           setState(() {});
+          excercises.clear();
+          excercises = [
+            Excercise(id: 0, name: "Lat machine", sets: 4, reps: 10),
+            Excercise(id: 1, name: "Pulley basso", sets: 4, reps: 10),
+            Excercise(id: 2, name: "Hyperextension", sets: 3, reps: 20),
+            Excercise(id: 3, name: "Alzate laterali 90", sets: 5, reps: 12),
+            Excercise(id: 4, name: "Curl manubri", sets: 3, reps: 12),
+            Excercise(id: 5, name: "Curl martello", sets: 3, reps: 12),
+            Excercise(id: 6, name: "Curl panca inclinata", sets: 3, reps: 12)
+          ];
+          CustomDatabase.instance
+              .createWorkout("Pull", excercises)
+              .then((value) {
+            setState(() {});
+          });
         });
       });
-    });*/
+    }
+    workoutsFuture = CustomDatabase.instance.readWorkouts();
   }
 
   Widget buildFAB() {
@@ -137,6 +143,13 @@ class _WorkoutListState extends State<WorkoutList> {
                     columnContent.add(Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: WorkoutCard(workouts[i], (startAsClosed) async {
+                        if (Constants.didSetWeightRecord) {
+                          Constants.didSetWeightRecord = false;
+                          workoutsFuture =
+                              CustomDatabase.instance.readWorkouts();
+                          workouts = await workoutsFuture;
+                          setState(() {});
+                        }
                         WorkoutCard workoutCard = WorkoutCard(
                           workouts[i],
                           (startAsClosed) {},
