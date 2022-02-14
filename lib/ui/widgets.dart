@@ -222,7 +222,6 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
       screenWidth = MediaQuery.of(context).size.width;
       screenHeight = MediaQuery.of(context).size.height;
       startingY = getCardRenderBox().localToGlobal(Offset.zero).dy;
-      print("Starting y: $startingY");
       cardY = startingY;
     }
     return WillPopScope(

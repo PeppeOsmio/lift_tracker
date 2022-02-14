@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -106,18 +108,7 @@ class _NewSessionState extends State<NewSession> {
                               child: InkWell(
                                   radius: 17.5,
                                   borderRadius: BorderRadius.circular(10),
-                                  onTap: () async {
-                                    WorkoutRecord? workoutRecord =
-                                        getWorkoutRecord();
-                                    if (workoutRecord == null) {
-                                      return;
-                                    }
-                                    await CustomDatabase.instance
-                                        .addWorkoutRecord(workoutRecord);
-
-                                    Constants.didUpdateHistory = true;
-                                    Navigator.pop(context);
-                                  },
+                                  onTap: createWorkoutSession,
                                   child: const Icon(
                                     Icons.check_outlined,
                                     color: Colors.green,
@@ -140,6 +131,43 @@ class _NewSessionState extends State<NewSession> {
             )),
       ),
     );
+  }
+
+  Future createWorkoutSession() async {
+    WorkoutRecord? workoutRecord = getWorkoutRecord();
+    if (workoutRecord == null) {
+      print("did nothing");
+      return;
+    }
+    await CustomDatabase.instance.addWorkoutRecord(workoutRecord);
+    Workout workout = widget.workout;
+    for (int i = 0; i < workout.excercises.length; i++) {
+      Excercise excercise = workout.excercises[i];
+      double? previousWeightRecord =
+          await CustomDatabase.instance.getWeightRecord(excercise.id);
+      var reps_weight_rpe = workoutRecord.excerciseRecords[i].reps_weight_rpe;
+      if (previousWeightRecord != null) {
+        for (int j = 0; j < reps_weight_rpe.length; j++) {
+          double currentWeight = reps_weight_rpe[j]['weight'];
+          if (currentWeight > previousWeightRecord) {
+            print(currentWeight);
+            CustomDatabase.instance
+                .setWeightRecord(excercise.id, currentWeight);
+            j = reps_weight_rpe.length; //quit the loop
+          }
+        }
+      } else {
+        double maxWeight = 0;
+        for (int j = 0; j < reps_weight_rpe.length - 1; j++) {
+          maxWeight = reps_weight_rpe[j]['weight'];
+          maxWeight = max(maxWeight, reps_weight_rpe[j + 1]['weight']);
+        }
+        print(maxWeight);
+        CustomDatabase.instance.setWeightRecord(excercise.id, maxWeight);
+      }
+    }
+    Constants.didUpdateHistory = true;
+    Navigator.pop(context);
   }
 
   WorkoutRecord? getWorkoutRecord() {
@@ -239,7 +267,7 @@ class _SetRowState extends State<SetRow> {
                     style: const TextStyle(color: Colors.white, fontSize: 16),
                     decoration: const InputDecoration(
                       hintStyle: TextStyle(color: Colors.grey),
-                      hintText: "Weight",
+                      hintText: "Kg",
                       border: InputBorder.none,
                     ),
                   )),
