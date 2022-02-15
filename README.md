@@ -1,7 +1,7 @@
 # Lift Tracker
 
 A simple mobile app for iOS and Android to create workout schedules and track your workout sessions.
-Made with the Flutter framwork.
+Made with the Flutter framework.
 
 ## Getting Started
 
