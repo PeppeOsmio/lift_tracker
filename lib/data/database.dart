@@ -85,7 +85,8 @@ class CustomDatabase {
 
   Future editWorkout(Workout workout) async {
     final db = await instance.database;
-    await db.update('workout', {'name': workout.name});
+    await db.update('workout', {'name': workout.name},
+        where: 'id=?', whereArgs: [workout.id]);
     await db
         .delete('excercise', where: 'fk_workoutId=?', whereArgs: [workout.id]);
     for (int i = 0; i < workout.excercises.length; i++) {
