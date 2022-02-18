@@ -100,6 +100,13 @@ class _EditWorkoutState extends State<EditWorkout> {
                                   String name = excerciseWidget.name;
                                   String sets = excerciseWidget.sets;
                                   String reps = excerciseWidget.reps;
+                                  double? weightRecord;
+                                  if (excerciseWidget.initialExcercise !=
+                                      null) {
+                                    weightRecord = excerciseWidget
+                                        .initialExcercise!.weightRecord;
+                                  }
+
                                   if (name.isEmpty ||
                                       sets.isEmpty ||
                                       reps.isEmpty) {
@@ -109,7 +116,8 @@ class _EditWorkoutState extends State<EditWorkout> {
                                       id: i,
                                       name: name,
                                       sets: int.parse(sets),
-                                      reps: int.parse(reps)));
+                                      reps: int.parse(reps),
+                                      weightRecord: weightRecord));
                                 }
                                 CustomDatabase.instance
                                     .editWorkout(Workout(widget.workout.id,

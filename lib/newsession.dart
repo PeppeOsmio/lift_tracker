@@ -141,29 +141,33 @@ class _NewSessionState extends State<NewSession> {
     Workout workout = widget.workout;
     for (int i = 0; i < workout.excercises.length; i++) {
       Excercise excercise = workout.excercises[i];
-      double? previousWeightRecord =
-          await CustomDatabase.instance.getWeightRecord(excercise.id);
+      double? previousWeightRecord = excercise.weightRecord;
       var reps_weight_rpe = workoutRecord.excerciseRecords[i].reps_weight_rpe;
-      if (previousWeightRecord != null) {
-        for (int j = 0; j < reps_weight_rpe.length; j++) {
-          double currentWeight = reps_weight_rpe[j]['weight'];
-          if (currentWeight > previousWeightRecord) {
-            await CustomDatabase.instance
-                .setWeightRecord(excercise.id, currentWeight);
-            Constants.didSetWeightRecord = true;
-            j = reps_weight_rpe.length; //quit the loop
-          }
+      double currentMaxWeight = 0;
+
+      //if there's only one set its weight is already the max weight among all sets
+      if (reps_weight_rpe.length > 1) {
+        for (int j = 0; j < reps_weight_rpe.length - 1; j++) {
+          currentMaxWeight = reps_weight_rpe[j]['weight'];
+          currentMaxWeight =
+              max(currentMaxWeight, reps_weight_rpe[j + 1]['weight']);
         }
       } else {
-        double maxWeight = 0;
-        for (int j = 0; j < reps_weight_rpe.length - 1; j++) {
-          maxWeight = reps_weight_rpe[j]['weight'];
-          maxWeight = max(maxWeight, reps_weight_rpe[j + 1]['weight']);
+        currentMaxWeight = reps_weight_rpe[0]['weight'];
+      }
+      if (previousWeightRecord != null) {
+        if (currentMaxWeight > previousWeightRecord) {
+          await CustomDatabase.instance
+              .setWeightRecord(excercise.id, currentMaxWeight);
+          Constants.didSetWeightRecord = true;
         }
-        await CustomDatabase.instance.setWeightRecord(excercise.id, maxWeight);
+      } else {
+        await CustomDatabase.instance
+            .setWeightRecord(excercise.id, currentMaxWeight);
         Constants.didSetWeightRecord = true;
       }
     }
+
     Constants.didUpdateHistory = true;
     Navigator.pop(context);
   }

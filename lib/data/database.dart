@@ -199,7 +199,8 @@ class CustomDatabase {
 
   Future setWeightRecord(int excerciseId, double weightRecord) async {
     final db = await instance.database;
-    await db.update('excercise', {"weight_record": weightRecord});
+    await db.update('excercise', {"weight_record": weightRecord},
+        where: 'id=?', whereArgs: [excerciseId]);
   }
 
   Future addWorkoutRecord(WorkoutRecord workoutRecord) async {
