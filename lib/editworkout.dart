@@ -1,40 +1,46 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lift_tracker/data/constants.dart';
 import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/data/excercise.dart';
+import 'package:lift_tracker/data/workout.dart';
 import 'package:lift_tracker/ui/colors.dart';
 import 'package:lift_tracker/ui/excerciselistitem.dart';
 
-class NewWorkout extends StatefulWidget {
-  const NewWorkout({Key? key}) : super(key: key);
+class EditWorkout extends StatefulWidget {
+  const EditWorkout(this.workout, {Key? key}) : super(key: key);
+  final Workout workout;
 
   @override
-  _NewWorkoutState createState() => _NewWorkoutState();
+  _EditWorkoutState createState() => _EditWorkoutState();
 }
 
-class _NewWorkoutState extends State<NewWorkout> {
+class _EditWorkoutState extends State<EditWorkout> {
   List<ExcerciseListItem> excerciseWidgets = [];
   List<Excercise> data = [];
   TextEditingController workoutName = TextEditingController();
+  List<Excercise> initialExcercises = [];
 
   @override
   void initState() {
     super.initState();
-    excerciseWidgets.add(ExcerciseListItem(
-      1,
-      onDelete: (index) => onDelete(index),
-      onMoveDown: (index) => onMoveDown(index),
-      onMoveUp: (index) => onMoveUp(index),
-    ));
+    initialExcercises.addAll(widget.workout.excercises);
+    workoutName.text = widget.workout.name;
+    for (int i = 0; i < widget.workout.excercises.length; i++) {
+      excerciseWidgets.add(ExcerciseListItem(
+        i + 1,
+        onDelete: (index) => onDelete(index),
+        initialExcercise: initialExcercises[i],
+        onMoveDown: onMoveDown,
+        onMoveUp: onMoveUp,
+      ));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> temp = [];
-
-    for (int i = 0; i < excerciseWidgets.length; i++) {
-      temp.add(excerciseWidgets[i]);
-    }
     return MaterialApp(
       home: Hero(
         tag: "-2",
@@ -69,7 +75,7 @@ class _NewWorkoutState extends State<NewWorkout> {
                     const Padding(
                       padding: EdgeInsets.only(left: 24),
                       child: Text(
-                        "New workout",
+                        "Edit workout",
                       ),
                     ),
                     const Spacer(),
@@ -106,10 +112,13 @@ class _NewWorkoutState extends State<NewWorkout> {
                                       reps: int.parse(reps)));
                                 }
                                 CustomDatabase.instance
-                                    .createWorkout(workoutName.text, excercises)
+                                    .editWorkout(Workout(widget.workout.id,
+                                        workoutName.text, excercises))
                                     .then((value) {
                                   Navigator.pop(context);
+                                  Navigator.maybePop(context);
                                 });
+                                Constants.didUpdateWorkout = true;
                               },
                               child: const Icon(
                                 Icons.check_outlined,
@@ -154,7 +163,9 @@ class _NewWorkoutState extends State<NewWorkout> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    Column(mainAxisSize: MainAxisSize.min, children: temp),
+                    Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: excerciseWidgets),
                     addExcerciseButton()
                   ],
                 ),
@@ -217,8 +228,8 @@ class _NewWorkoutState extends State<NewWorkout> {
                   excerciseWidgets.add(ExcerciseListItem(
                     excerciseWidgets.length + 1,
                     onDelete: (index) => onDelete(index),
-                    onMoveDown: (index) => onMoveDown(index),
-                    onMoveUp: (index) => onMoveUp(index),
+                    onMoveDown: onMoveDown,
+                    onMoveUp: onMoveUp,
                   ));
                   setState(() {});
                 }

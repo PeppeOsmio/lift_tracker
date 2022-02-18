@@ -98,7 +98,6 @@ class _NewSessionState extends State<NewSession> {
                             ),
                           ),
                         ),
-                        //const Spacer(),
                         Material(
                           color: Palette.elementsDark,
                           borderRadius: BorderRadius.circular(10),
@@ -136,7 +135,6 @@ class _NewSessionState extends State<NewSession> {
   Future createWorkoutSession() async {
     WorkoutRecord? workoutRecord = getWorkoutRecord();
     if (workoutRecord == null) {
-      print("did nothing");
       return;
     }
     await CustomDatabase.instance.addWorkoutRecord(workoutRecord);
@@ -209,28 +207,31 @@ class SetRow extends StatefulWidget {
 class _SetRowState extends State<SetRow> {
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.only(
+        bottom: 24,
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: Container(
-                padding: const EdgeInsets.only(left: 8),
-                width: (width - 32) / 10,
-                child: Text(
-                  "${widget.rowIndex}",
-                  style: const TextStyle(color: Colors.white, fontSize: 16),
-                )),
+          Expanded(
+            flex: 2,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Container(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: Text(
+                    "${widget.rowIndex}",
+                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                  )),
+            ),
           ),
           Expanded(
+            flex: 5,
             child: Padding(
               padding: const EdgeInsets.only(right: 8),
               child: Container(
                   padding: const EdgeInsets.only(left: 16, right: 16),
-                  width: (width - 32) / 4,
                   decoration: const BoxDecoration(
                       color: Color.fromARGB(255, 31, 31, 31),
                       borderRadius: BorderRadius.all(Radius.circular(10))),
@@ -250,11 +251,11 @@ class _SetRowState extends State<SetRow> {
             ),
           ),
           Expanded(
+            flex: 5,
             child: Padding(
               padding: const EdgeInsets.only(left: 8, right: 8),
               child: Container(
                   padding: const EdgeInsets.only(left: 16, right: 16),
-                  width: (width - 32) / 4,
                   decoration: const BoxDecoration(
                       color: Color.fromARGB(255, 31, 31, 31),
                       borderRadius: BorderRadius.all(Radius.circular(10))),
@@ -274,11 +275,11 @@ class _SetRowState extends State<SetRow> {
             ),
           ),
           Expanded(
+            flex: 5,
             child: Padding(
               padding: const EdgeInsets.only(left: 8, right: 8),
               child: Container(
                   padding: const EdgeInsets.only(left: 16, right: 16),
-                  width: (width - 32) / 4,
                   decoration: const BoxDecoration(
                       color: Color.fromARGB(255, 31, 31, 31),
                       borderRadius: BorderRadius.all(Radius.circular(10))),
@@ -398,17 +399,17 @@ class _ExcerciseRecordItemState extends State<ExcerciseRecordItem> {
           Row(
             mainAxisSize: MainAxisSize.max,
             children: [
-              SizedBox(
-                width: (width - 32) / 10 + 8,
-                child: const Padding(
+              const Expanded(
+                flex: 2,
+                child: Padding(
                     padding: EdgeInsets.only(top: 24, bottom: 24),
                     child: Text(
                       "Set",
                       style: TextStyle(color: Colors.white),
                     )),
               ),
-              SizedBox(
-                width: (width - 32) / 4 + 8,
+              Expanded(
+                flex: 5,
                 child: Padding(
                     padding: const EdgeInsets.only(top: 24, bottom: 24),
                     child: Text(
@@ -416,14 +417,18 @@ class _ExcerciseRecordItemState extends State<ExcerciseRecordItem> {
                       style: const TextStyle(color: Colors.white),
                     )),
               ),
-              Padding(
-                  padding: const EdgeInsets.only(top: 24, bottom: 24, left: 8),
-                  child: Text(
-                    widget.excercise.weightRecord != null
-                        ? "Best weight: ${widget.excercise.weightRecord} kg"
-                        : "",
-                    style: const TextStyle(color: Colors.white),
-                  )),
+              Expanded(
+                flex: 10,
+                child: Padding(
+                    padding:
+                        const EdgeInsets.only(top: 24, bottom: 24, left: 8),
+                    child: Text(
+                      widget.excercise.weightRecord != null
+                          ? "Best weight: ${widget.excercise.weightRecord} kg"
+                          : "",
+                      style: const TextStyle(color: Colors.white),
+                    )),
+              ),
             ],
           ),
           tempColumn

@@ -83,6 +83,27 @@ class CustomDatabase {
     await db.execute(sql);
   }
 
+  Future editWorkout(Workout workout) async {
+    final db = await instance.database;
+    await db.update('workout', {'name': workout.name});
+    await db
+        .delete('excercise', where: 'fk_workoutId=?', whereArgs: [workout.id]);
+    for (int i = 0; i < workout.excercises.length; i++) {
+      Excercise excercise = workout.excercises[i];
+      String name = excercise.name;
+      int reps = excercise.reps;
+      int sets = excercise.sets;
+      double? weightRecord = excercise.weightRecord;
+      await db.insert('excercise', {
+        'name': name,
+        'reps': reps,
+        'sets': sets,
+        'weight_record': weightRecord,
+        'fk_workoutId': workout.id
+      });
+    }
+  }
+
   Future removeWorkoutRecord(int workoutRecordId) async {
     final db = await instance.database;
     List<Map<String, Object?>> query = await db.query('excercise_record',
@@ -90,7 +111,6 @@ class CustomDatabase {
         where: "fk_workout_recordId=?",
         whereArgs: [workoutRecordId]);
     List<int> excerciseRecordIds = [];
-    print(query);
     for (int i = 0; i < query.length; i++) {
       excerciseRecordIds.add(query[i]['id'] as int);
     }
@@ -243,10 +263,7 @@ class CustomDatabase {
         String exname = queryExcercise[j]['name'] as String;
         int sets = queryExcercise[j]['sets'] as int;
         int reps = queryExcercise[j]['reps'] as int;
-        double? weightRecord;
-        if (queryExcercise[j]['weight_record'] != null) {
-          weightRecord = queryExcercise[j]['weight_record'] as double?;
-        }
+        double? weightRecord = queryExcercise[j]['weight_record'] as double?;
 
         excerciseList.add(Excercise(
             id: exid,
@@ -255,7 +272,6 @@ class CustomDatabase {
             reps: reps,
             weightRecord: weightRecord));
       }
-      print(excerciseList[0].weightRecord);
       workoutList.add(Workout(id, name, excerciseList));
     }
     return workoutList;

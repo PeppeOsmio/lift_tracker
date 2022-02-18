@@ -1,10 +1,65 @@
 import 'dart:ui';
 import 'package:curved_animation_controller/curved_animation_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:lift_tracker/editworkout.dart';
 import 'package:lift_tracker/newsession.dart';
 import '../history.dart';
 import 'workoutcard.dart';
 import 'colors.dart';
+
+class ProfileMenu extends StatefulWidget {
+  const ProfileMenu(this.buttonKey, {Key? key}) : super(key: key);
+  final GlobalKey buttonKey;
+
+  @override
+  ProfileMenuState createState() => ProfileMenuState();
+}
+
+class ProfileMenuState extends State<ProfileMenu> {
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+        onWillPop: () async {
+          return true;
+        },
+        child: Stack(children: [
+          const AnimatedBlur(
+              duration: Duration(milliseconds: 200), delay: Duration.zero),
+          GestureDetector(
+            onTap: () {
+              Navigator.maybePop(context);
+            },
+            child: Scaffold(
+              appBar: AppBar(
+                  elevation: 0,
+                  shadowColor: Colors.transparent,
+                  toolbarHeight: 79,
+                  automaticallyImplyLeading: false,
+                  backgroundColor: Colors.transparent,
+                  actions: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 16, top: 16),
+                      child: Container(
+                          height: 6,
+                          width: 60,
+                          padding: const EdgeInsets.all(18),
+                          decoration: BoxDecoration(
+                              color: Palette.elementsDark,
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(20))),
+                          child: const FittedBox(child: Icon(Icons.person))),
+                    )
+                  ]),
+              backgroundColor: Colors.transparent,
+            ),
+          ),
+        ]));
+  }
+
+  RenderBox getButtonRenderBox(GlobalKey key) {
+    return key.currentContext!.findRenderObject() as RenderBox;
+  }
+}
 
 class MenuWorkoutRecordCard extends StatefulWidget {
   const MenuWorkoutRecordCard(
@@ -61,7 +116,6 @@ class _MenuWorkoutRecordCardState extends State<MenuWorkoutRecordCard> {
       screenWidth = MediaQuery.of(context).size.width;
       screenHeight = MediaQuery.of(context).size.height;
       startingY = getCardRenderBox().localToGlobal(Offset.zero).dy + 16;
-      print("Starting y: $startingY");
       cardY = startingY;
     }
     return WillPopScope(
@@ -79,86 +133,83 @@ class _MenuWorkoutRecordCardState extends State<MenuWorkoutRecordCard> {
         return true;
       },
       child: Scaffold(
-          backgroundColor: Colors.transparent,
+          backgroundColor: Colors.black.withAlpha(100),
           body: SizedBox(
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
-            child: GestureDetector(
-                onTap: () {
-                  Navigator.maybePop(context);
-                },
-                child: Stack(
-                  children: [
-                    const AnimatedBlur(
-                      duration: Duration(milliseconds: 200),
-                      delay: Duration(seconds: 0),
-                    ),
-                    AnimatedPositioned(
-                      curve: Curves.decelerate,
-                      duration: const Duration(milliseconds: 200),
-                      width: MediaQuery.of(context).size.width,
-                      top: cardY,
-                      child: AnimatedOpacity(
-                        curve: Curves.decelerate,
-                        duration: const Duration(milliseconds: 400),
-                        opacity: opacity,
-                        child: Material(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 16, right: 16),
-                              child: widget.workoutRecordCard,
-                            ),
-                            type: MaterialType.transparency),
-                      ),
-                    ),
-                    AnimatedPositioned(
-                      duration: const Duration(milliseconds: 100),
-                      curve: Curves.decelerate,
-                      right: 16,
-                      bottom: MediaQuery.of(context).size.height - cardY,
-                      child: AnimatedEntry(
-                        duration: const Duration(milliseconds: 50),
-                        delay: widget.workoutRecordCard.expandDuration * 0.5,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(bottom: 8, right: 8),
-                              child: GestureDetector(
-                                onTap: widget.deleteOnPressed,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      color: Colors.red.withAlpha(25),
-                                      border: Border.all(
-                                          color: Palette.backgroundDark),
-                                      borderRadius: BorderRadius.circular(10)),
-                                  child: Container(
-                                    width: 70,
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                        color: Colors.red.withAlpha(25),
-                                        border:
-                                            Border.all(color: Colors.redAccent),
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                    child: const Center(
-                                      child: Text(
-                                        "Delete",
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                    ),
+            child: Stack(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.maybePop(context);
+                  },
+                  child: const AnimatedBlur(
+                    duration: Duration(milliseconds: 200),
+                    delay: Duration(seconds: 0),
+                  ),
+                ),
+                AnimatedPositioned(
+                  curve: Curves.decelerate,
+                  duration: const Duration(milliseconds: 200),
+                  width: MediaQuery.of(context).size.width,
+                  top: cardY,
+                  child: AnimatedOpacity(
+                    curve: Curves.decelerate,
+                    duration: const Duration(milliseconds: 400),
+                    opacity: opacity,
+                    child: Material(
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 16, right: 16),
+                          child: widget.workoutRecordCard,
+                        ),
+                        type: MaterialType.transparency),
+                  ),
+                ),
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 100),
+                  curve: Curves.decelerate,
+                  right: 16,
+                  bottom: MediaQuery.of(context).size.height - cardY,
+                  child: AnimatedEntry(
+                    duration: const Duration(milliseconds: 50),
+                    delay: widget.workoutRecordCard.expandDuration * 0.5,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: GestureDetector(
+                            onTap: widget.deleteOnPressed,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.red.withAlpha(25),
+                                  border:
+                                      Border.all(color: Palette.backgroundDark),
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: Container(
+                                width: 70,
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                    color: Colors.red.withAlpha(25),
+                                    border: Border.all(color: Colors.redAccent),
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: const Center(
+                                  child: Text(
+                                    "Delete",
+                                    style: TextStyle(color: Colors.white),
                                   ),
                                 ),
                               ),
                             ),
-                          ],
+                          ),
                         ),
-                      ),
-                    )
-                  ],
-                )),
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            ),
           )),
     );
   }
@@ -314,6 +365,41 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                               ),
                             ),
                             Padding(
+                              padding:
+                                  const EdgeInsets.only(bottom: 8, right: 8),
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) {
+                                    return EditWorkout(
+                                        widget.workoutCard.workout);
+                                  }));
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      color: Colors.amber.withAlpha(25),
+                                      border: Border.all(
+                                          color: Palette.backgroundDark),
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                        color: Colors.amber.withAlpha(25),
+                                        border: Border.all(
+                                            color: Colors.amberAccent),
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    child: const Center(
+                                      child: Text(
+                                        "Edit workout",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Padding(
                                 padding: const EdgeInsets.only(bottom: 8),
                                 child: GestureDetector(
                                   onTap: () {
@@ -405,13 +491,14 @@ class _AnimatedBlurState extends State<AnimatedBlur>
         return true;
       },
       child: AnimatedBuilder(
-        child: Container(color: Colors.transparent),
+        child: const SizedBox(),
         animation: animationController,
         builder: (context, child) {
           var value = animationController.value;
           return BackdropFilter(
             filter: ImageFilter.blur(sigmaX: value * 10, sigmaY: value * 10),
-            child: child,
+            child:
+                Container(color: Colors.black.withAlpha((value * 100).round())),
           );
         },
       ),
@@ -470,7 +557,8 @@ class _AnimatedEntryState extends State<AnimatedEntry>
         animate();
         return true;
       },
-      child: ScaleTransition(scale: animationController, child: widget.child),
+      child:
+          SizeTransition(sizeFactor: animationController, child: widget.child),
     );
   }
 }

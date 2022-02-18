@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/history.dart';
 import 'package:lift_tracker/ui/colors.dart';
+import 'package:lift_tracker/ui/widgets.dart';
 import 'data/constants.dart';
 import 'workoutlist.dart';
 import 'excercises.dart';
@@ -72,34 +73,45 @@ class _AppState extends State<App> {
               child: IconButton(
                   onPressed: () {
                     showDialog(
+                        barrierColor: Colors.transparent,
                         context: context,
                         builder: (ctx) {
-                          return AlertDialog(
-                            backgroundColor: Palette.backgroundDark,
-                            titleTextStyle: const TextStyle(
-                                color: Colors.white, fontSize: 20),
-                            title: const Text("Exit?"),
-                            actions: [
-                              ElevatedButton(
-                                  style: ButtonStyle(
-                                      backgroundColor:
-                                          MaterialStateProperty.all(
-                                              Palette.elementsDark)),
-                                  onPressed: () {
-                                    SystemNavigator.pop();
-                                  },
-                                  child: const Text("Yes")),
-                              ElevatedButton(
-                                  style: ButtonStyle(
-                                      backgroundColor:
-                                          MaterialStateProperty.all(
-                                              Palette.elementsDark)),
-                                  onPressed: () {
-                                    Navigator.pop(ctx);
-                                  },
-                                  child: const Text("Cancel"))
-                            ],
-                          );
+                          return Stack(children: [
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.maybePop(context);
+                              },
+                              child: const AnimatedBlur(
+                                  duration: Duration(milliseconds: 200),
+                                  delay: Duration.zero),
+                            ),
+                            AlertDialog(
+                              backgroundColor: Palette.backgroundDark,
+                              titleTextStyle: const TextStyle(
+                                  color: Colors.white, fontSize: 20),
+                              title: const Text("Exit?"),
+                              actions: [
+                                ElevatedButton(
+                                    style: ButtonStyle(
+                                        backgroundColor:
+                                            MaterialStateProperty.all(
+                                                Palette.elementsDark)),
+                                    onPressed: () {
+                                      SystemNavigator.pop();
+                                    },
+                                    child: const Text("Yes")),
+                                ElevatedButton(
+                                    style: ButtonStyle(
+                                        backgroundColor:
+                                            MaterialStateProperty.all(
+                                                Palette.elementsDark)),
+                                    onPressed: () {
+                                      Navigator.maybePop(ctx);
+                                    },
+                                    child: const Text("Cancel"))
+                              ],
+                            ),
+                          ]);
                         });
                   },
                   icon: const Icon(Icons.logout_outlined)),
@@ -111,19 +123,7 @@ class _AppState extends State<App> {
           ],
         ),
         toolbarHeight: 79,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16, top: 16),
-            child: Container(
-                height: 6,
-                width: 60,
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                    color: Palette.elementsDark,
-                    borderRadius: const BorderRadius.all(Radius.circular(20))),
-                child: const FittedBox(child: Icon(Icons.person))),
-          )
-        ],
+        actions: [buildProfileButton(GlobalKey())],
       ),
       resizeToAvoidBottomInset: false,
       backgroundColor: Palette.backgroundDark,
@@ -187,6 +187,32 @@ class _AppState extends State<App> {
           })
         ],
         key: navBarKey,
+      ),
+    );
+  }
+
+  Widget buildProfileButton(GlobalKey key) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+            context,
+            PageRouteBuilder(
+                opaque: false,
+                pageBuilder: (context, _, __) {
+                  return ProfileMenu(key);
+                }));
+      },
+      child: Padding(
+        key: key,
+        padding: const EdgeInsets.only(right: 16, top: 16),
+        child: Container(
+            height: 6,
+            width: 60,
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+                color: Palette.elementsDark,
+                borderRadius: const BorderRadius.all(Radius.circular(20))),
+            child: const FittedBox(child: Icon(Icons.person))),
       ),
     );
   }

@@ -146,25 +146,27 @@ class _WorkoutListState extends State<WorkoutList> {
                   for (int i = 0; i < workouts.length; i++) {
                     cardKeys.add(GlobalKey());
                     columnContent.add(Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: WorkoutCard(workouts[i], (startAsClosed) async {
-                        if (Constants.didSetWeightRecord) {
-                          Constants.didSetWeightRecord = false;
+                        padding: const EdgeInsets.all(16.0),
+                        child: WorkoutCard(workouts[i], (startAsClosed) async {
+                          if (Constants.didSetWeightRecord) {
+                            Constants.didSetWeightRecord = false;
+                            workoutsFuture =
+                                CustomDatabase.instance.readWorkouts();
+                            workouts = await workoutsFuture;
+                            setState(() {});
+                          }
+                          WorkoutCard workoutCard = WorkoutCard(
+                            workouts[i],
+                            (startAsClosed) {},
+                            true,
+                          );
+                          await Navigator.push(context,
+                              blurredMenuBuilder(workoutCard, cardKeys[i], i));
                           workoutsFuture =
                               CustomDatabase.instance.readWorkouts();
                           workouts = await workoutsFuture;
                           setState(() {});
-                        }
-                        WorkoutCard workoutCard = WorkoutCard(
-                          workouts[i],
-                          (startAsClosed) {},
-                          true,
-                        );
-                        await Navigator.push(context,
-                                blurredMenuBuilder(workoutCard, cardKeys[i], i))
-                            .then((value) {});
-                      }, false, key: cardKeys[i]),
-                    ));
+                        }, false, key: cardKeys[i])));
                   }
                   return Expanded(
                       child: SingleChildScrollView(

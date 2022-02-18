@@ -3,5 +3,6 @@ class Constants {
   static List<int> pageStack = [];
   static bool didUpdateHistory = false;
   static bool didSetWeightRecord = false;
+  static bool didUpdateWorkout = false;
   static bool firstAppRun = false;
 }
