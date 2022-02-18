@@ -1,16 +1,15 @@
-# lift_tracker
+# Lift Tracker
 
-A new Flutter project.
+A simple mobile app for iOS and Android to create workout schedules and track your workout sessions.
+Made with the Flutter framework.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+Tap on the "+" button to create a workout schedule. Once created, tap on that schedule to start a workout session
+and track your lifts (reps, weight, RPE). View all your past sessions in the history tab. An excercise database
+will be added in the future with pre-made excercises and workout schedules.
 
-A few resources to get you started if this is your first Flutter project:
+## Install
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+You can compile the code by yourself by cloning this project if you have the Flutter SDK installed on your machine.
+If you don't want to compile it, there's a pre-built APK file for Android. 
