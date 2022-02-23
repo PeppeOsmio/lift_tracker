@@ -45,101 +45,136 @@ class _ExcerciseListItemState extends State<ExcerciseListItem> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text("Excercise ${widget.excerciseNumber}",
-                style: const TextStyle(fontSize: 20, color: Colors.white)),
-            const Spacer(),
-            excerciseButton(
-                onTap: () {
-                  if (widget.onMoveUp != null) {
-                    widget.onMoveUp!.call(widget.excerciseNumber - 1);
-                  }
-                },
-                color: Palette.elementsDark,
-                icon: Icons.expand_less_outlined),
-            const SizedBox(width: 16),
-            excerciseButton(
-                onTap: () {
-                  if (widget.onMoveDown != null) {
-                    widget.onMoveDown!.call(widget.excerciseNumber - 1);
-                  }
-                },
-                color: Palette.elementsDark,
-                icon: Icons.expand_more_outlined),
-            const SizedBox(width: 16),
-            excerciseButton(
-                onTap: () => widget.onDelete(widget.excerciseNumber - 1),
-                color: Colors.red,
-                icon: Icons.remove_outlined)
-          ],
-        ),
-        const SizedBox(height: 24),
-        Container(
-            padding: const EdgeInsets.only(left: 16, right: 16),
-            width: MediaQuery.of(context).size.width,
-            decoration: const BoxDecoration(
-                color: Color.fromARGB(255, 31, 31, 31),
-                borderRadius: BorderRadius.all(Radius.circular(10))),
-            child: TextFormField(
-              controller: widget.nameController,
-              style: const TextStyle(color: Colors.white, fontSize: 16),
-              decoration: const InputDecoration(
-                hintStyle: TextStyle(color: Colors.grey),
-                hintText: "Excercise name",
-                border: InputBorder.none,
-              ),
-            )),
-        const SizedBox(height: 24),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-                padding: const EdgeInsets.only(left: 16, right: 16),
-                width: MediaQuery.of(context).size.width / 2 - 32,
-                decoration: const BoxDecoration(
-                    color: Color.fromARGB(255, 31, 31, 31),
-                    borderRadius: BorderRadius.all(Radius.circular(10))),
-                child: TextFormField(
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Expanded(
+            flex: 6,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                          padding: const EdgeInsets.only(left: 16, right: 16),
+                          //width: MediaQuery.of(context).size.width,
+                          decoration: const BoxDecoration(
+                              color: Color.fromARGB(255, 31, 31, 31),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10))),
+                          child: TextFormField(
+                            controller: widget.nameController,
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 16),
+                            decoration: const InputDecoration(
+                              hintStyle: TextStyle(color: Colors.grey),
+                              hintText: "Excercise name",
+                              border: InputBorder.none,
+                            ),
+                          )),
+                    ),
                   ],
-                  controller: widget.setsController,
-                  keyboardType: TextInputType.number,
-                  style: const TextStyle(color: Colors.white, fontSize: 16),
-                  decoration: const InputDecoration(
-                    hintStyle: TextStyle(color: Colors.grey),
-                    hintText: "Sets",
-                    border: InputBorder.none,
-                  ),
-                )),
-            const Spacer(),
-            Container(
-                padding: const EdgeInsets.only(left: 16, right: 16),
-                width: MediaQuery.of(context).size.width / 2 - 32,
-                decoration: const BoxDecoration(
-                    color: Color.fromARGB(255, 31, 31, 31),
-                    borderRadius: BorderRadius.all(Radius.circular(10))),
-                child: TextFormField(
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
-                    ],
-                    controller: widget.repsController,
-                    keyboardType: TextInputType.number,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: const InputDecoration(
-                      hintStyle: TextStyle(color: Colors.grey),
-                      hintText: "Reps",
-                      border: InputBorder.none,
-                    )))
-          ],
-        ),
-        const SizedBox(height: 24),
-      ],
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Expanded(
+                      child: Container(
+                          padding: const EdgeInsets.only(left: 16, right: 16),
+                          //width: MediaQuery.of(context).size.width / 2 - 32,
+                          decoration: const BoxDecoration(
+                              color: Color.fromARGB(255, 31, 31, 31),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10))),
+                          child: TextFormField(
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                  RegExp(r'[0-9]'))
+                            ],
+                            controller: widget.setsController,
+                            keyboardType: TextInputType.number,
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 16),
+                            decoration: const InputDecoration(
+                              hintStyle: TextStyle(color: Colors.grey),
+                              hintText: "Sets",
+                              border: InputBorder.none,
+                            ),
+                          )),
+                    ),
+                    const SizedBox(width: 16),
+                    Text(
+                      "×",
+                      style: TextStyle(color: Colors.white, fontSize: 24),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Container(
+                          padding: const EdgeInsets.only(left: 16, right: 16),
+                          //width: MediaQuery.of(context).size.width / 2 - 32,
+                          decoration: const BoxDecoration(
+                              color: Color.fromARGB(255, 31, 31, 31),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10))),
+                          child: TextFormField(
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                    RegExp(r'[0-9]'))
+                              ],
+                              controller: widget.repsController,
+                              keyboardType: TextInputType.number,
+                              style: const TextStyle(color: Colors.white),
+                              decoration: const InputDecoration(
+                                hintStyle: TextStyle(color: Colors.grey),
+                                hintText: "Reps",
+                                border: InputBorder.none,
+                              ))),
+                    )
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+              flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    excerciseButton(
+                        onTap: () {
+                          if (widget.onMoveUp != null) {
+                            widget.onMoveUp!.call(widget.excerciseNumber - 1);
+                          }
+                        },
+                        color: Palette.elementsDark,
+                        icon: Icons.expand_less_outlined),
+                    const SizedBox(height: 16),
+                    excerciseButton(
+                        onTap: () {
+                          if (widget.onMoveDown != null) {
+                            widget.onMoveDown!.call(widget.excerciseNumber - 1);
+                          }
+                        },
+                        color: Palette.elementsDark,
+                        icon: Icons.expand_more_outlined),
+                    const SizedBox(height: 16),
+                    excerciseButton(
+                        onTap: () =>
+                            widget.onDelete(widget.excerciseNumber - 1),
+                        color: Colors.red,
+                        icon: Icons.remove_outlined),
+                  ],
+                ),
+              ))
+        ],
+      ),
     );
   }
 

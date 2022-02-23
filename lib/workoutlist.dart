@@ -130,6 +130,7 @@ class _WorkoutListState extends State<WorkoutList> {
                     ),
                     Expanded(
                         child: TextField(
+                      readOnly: true,
                       decoration: InputDecoration(border: InputBorder.none),
                       style: TextStyle(color: Colors.white, fontSize: 25),
                     )),

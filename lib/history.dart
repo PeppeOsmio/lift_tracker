@@ -56,6 +56,7 @@ class _HistoryState extends State<History> {
                   ),
                   Expanded(
                       child: TextField(
+                    readOnly: true,
                     decoration: InputDecoration(border: InputBorder.none),
                     style: TextStyle(color: Colors.white, fontSize: 25),
                   )),

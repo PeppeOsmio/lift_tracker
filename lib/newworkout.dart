@@ -31,9 +31,12 @@ class _NewWorkoutState extends State<NewWorkout> {
   @override
   Widget build(BuildContext context) {
     List<Widget> temp = [];
-
     for (int i = 0; i < excerciseWidgets.length; i++) {
-      temp.add(excerciseWidgets[i]);
+      temp.add(Padding(
+        padding:
+            EdgeInsets.only(bottom: i == excerciseWidgets.length - 1 ? 0 : 24),
+        child: excerciseWidgets[i],
+      ));
     }
     return MaterialApp(
       home: Hero(
@@ -123,8 +126,7 @@ class _NewWorkoutState extends State<NewWorkout> {
             ),
             body: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.only(
-                    top: 48, left: 24, right: 24, bottom: 24),
+                padding: const EdgeInsets.only(top: 48, left: 24, bottom: 24),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,7 +136,8 @@ class _NewWorkoutState extends State<NewWorkout> {
                       style: TextStyle(fontSize: 20, color: Colors.white),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(top: 24, bottom: 24),
+                      padding:
+                          const EdgeInsets.only(top: 24, bottom: 24, right: 48),
                       child: Container(
                         padding: const EdgeInsets.only(left: 16, right: 16),
                         width: MediaQuery.of(context).size.width,

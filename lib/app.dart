@@ -180,6 +180,7 @@ class _AppState extends State<App> {
             }
           }),
           NavBarItem("Excercises", Icons.fitness_center, () {
+            return;
             if (Constants.pageIndex != 2) {
               excercises ??= const Excercises();
               _selectTab(2);

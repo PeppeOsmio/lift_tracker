@@ -41,144 +41,157 @@ class _EditWorkoutState extends State<EditWorkout> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Hero(
-        tag: "-2",
-        child: Scaffold(
-            resizeToAvoidBottomInset: true,
-            backgroundColor: Palette.backgroundDark,
-            appBar: AppBar(
-              elevation: 0,
+    List<Widget> temp = [];
+    for (int i = 0; i < excerciseWidgets.length; i++) {
+      temp.add(Padding(
+        padding:
+            EdgeInsets.only(bottom: i == excerciseWidgets.length - 1 ? 0 : 24),
+        child: excerciseWidgets[i],
+      ));
+    }
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pop(context);
+        Navigator.maybePop(context);
+        return false;
+      },
+      child: MaterialApp(
+        home: Hero(
+          tag: "-2",
+          child: Scaffold(
+              resizeToAvoidBottomInset: true,
               backgroundColor: Palette.backgroundDark,
-              automaticallyImplyLeading: false,
-              title: Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: Row(
-                  children: [
-                    Material(
-                      color: Palette.elementsDark,
-                      borderRadius: BorderRadius.circular(10),
-                      child: SizedBox(
-                          height: 35,
-                          width: 35,
-                          child: InkWell(
-                              radius: 17.5,
-                              borderRadius: BorderRadius.circular(10),
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                              child: const Icon(
-                                Icons.chevron_left_outlined,
-                                color: Colors.redAccent,
-                              ))),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.only(left: 24),
-                      child: Text(
-                        "Edit workout",
-                      ),
-                    ),
-                    const Spacer(),
-                    Material(
-                      color: const Color.fromARGB(255, 31, 31, 31),
-                      borderRadius: BorderRadius.circular(10),
-                      child: SizedBox(
-                          height: 35,
-                          width: 35,
-                          child: InkWell(
-                              radius: 17.5,
-                              borderRadius: BorderRadius.circular(10),
-                              onTap: () {
-                                if (workoutName.text.isEmpty) {
-                                  return;
-                                }
-                                List<Excercise> excercises = [];
-                                for (int i = 0;
-                                    i < excerciseWidgets.length;
-                                    i++) {
-                                  var excerciseWidget = excerciseWidgets[i];
-                                  String name = excerciseWidget.name;
-                                  String sets = excerciseWidget.sets;
-                                  String reps = excerciseWidget.reps;
-                                  double? weightRecord;
-                                  if (excerciseWidget.initialExcercise !=
-                                      null) {
-                                    weightRecord = excerciseWidget
-                                        .initialExcercise!.weightRecord;
-                                  }
-
-                                  if (name.isEmpty ||
-                                      sets.isEmpty ||
-                                      reps.isEmpty) {
-                                    return;
-                                  }
-                                  excercises.add(Excercise(
-                                      id: i,
-                                      name: name,
-                                      sets: int.parse(sets),
-                                      reps: int.parse(reps),
-                                      weightRecord: weightRecord));
-                                }
-                                CustomDatabase.instance
-                                    .editWorkout(Workout(widget.workout.id,
-                                        workoutName.text, excercises))
-                                    .then((value) {
-                                  Navigator.pop(context);
+              appBar: AppBar(
+                elevation: 0,
+                backgroundColor: Palette.backgroundDark,
+                automaticallyImplyLeading: false,
+                title: Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: Row(
+                    children: [
+                      Material(
+                        color: Palette.elementsDark,
+                        borderRadius: BorderRadius.circular(10),
+                        child: SizedBox(
+                            height: 35,
+                            width: 35,
+                            child: InkWell(
+                                radius: 17.5,
+                                borderRadius: BorderRadius.circular(10),
+                                onTap: () {
                                   Navigator.maybePop(context);
-                                });
-                                Constants.didUpdateWorkout = true;
-                              },
-                              child: const Icon(
-                                Icons.check_outlined,
-                                color: Colors.green,
-                              ))),
-                    )
-                  ],
-                ),
-              ),
-              toolbarHeight: 79,
-            ),
-            body: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.only(
-                    top: 48, left: 24, right: 24, bottom: 24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Workout name",
-                      style: TextStyle(fontSize: 20, color: Colors.white),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 24, bottom: 24),
-                      child: Container(
-                        padding: const EdgeInsets.only(left: 16, right: 16),
-                        width: MediaQuery.of(context).size.width,
-                        decoration: const BoxDecoration(
-                            color: Color.fromARGB(255, 31, 31, 31),
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(10))),
-                        child: TextField(
-                          controller: workoutName,
-                          decoration: const InputDecoration(
-                              hintStyle: TextStyle(color: Colors.grey),
-                              hintText: "Chest, Legs...",
-                              border: InputBorder.none),
-                          style: const TextStyle(
-                              color: Colors.white, fontSize: 16),
+                                },
+                                child: const Icon(
+                                  Icons.chevron_left_outlined,
+                                  color: Colors.redAccent,
+                                ))),
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.only(left: 24),
+                        child: Text(
+                          "Edit workout",
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 24),
-                    Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: excerciseWidgets),
-                    addExcerciseButton()
-                  ],
+                      const Spacer(),
+                      Material(
+                        color: const Color.fromARGB(255, 31, 31, 31),
+                        borderRadius: BorderRadius.circular(10),
+                        child: SizedBox(
+                            height: 35,
+                            width: 35,
+                            child: InkWell(
+                                radius: 17.5,
+                                borderRadius: BorderRadius.circular(10),
+                                onTap: () {
+                                  if (workoutName.text.isEmpty) {
+                                    return;
+                                  }
+                                  List<Excercise> excercises = [];
+                                  for (int i = 0;
+                                      i < excerciseWidgets.length;
+                                      i++) {
+                                    var excerciseWidget = excerciseWidgets[i];
+                                    String name = excerciseWidget.name;
+                                    String sets = excerciseWidget.sets;
+                                    String reps = excerciseWidget.reps;
+                                    double? weightRecord;
+                                    if (excerciseWidget.initialExcercise !=
+                                        null) {
+                                      weightRecord = excerciseWidget
+                                          .initialExcercise!.weightRecord;
+                                    }
+
+                                    if (name.isEmpty ||
+                                        sets.isEmpty ||
+                                        reps.isEmpty) {
+                                      return;
+                                    }
+                                    excercises.add(Excercise(
+                                        id: i,
+                                        name: name,
+                                        sets: int.parse(sets),
+                                        reps: int.parse(reps),
+                                        weightRecord: weightRecord));
+                                  }
+                                  CustomDatabase.instance
+                                      .editWorkout(Workout(widget.workout.id,
+                                          workoutName.text, excercises))
+                                      .then((value) {
+                                    Navigator.pop(context);
+                                    Navigator.maybePop(context);
+                                  });
+                                  Constants.didUpdateWorkout = true;
+                                },
+                                child: const Icon(
+                                  Icons.check_outlined,
+                                  color: Colors.green,
+                                ))),
+                      )
+                    ],
+                  ),
                 ),
+                toolbarHeight: 79,
               ),
-            )),
+              body: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 48, left: 24, bottom: 24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Workout name",
+                        style: TextStyle(fontSize: 20, color: Colors.white),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            top: 24, bottom: 24, right: 48),
+                        child: Container(
+                          padding: const EdgeInsets.only(left: 16, right: 16),
+                          width: MediaQuery.of(context).size.width,
+                          decoration: const BoxDecoration(
+                              color: Color.fromARGB(255, 31, 31, 31),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10))),
+                          child: TextField(
+                            controller: workoutName,
+                            decoration: const InputDecoration(
+                                hintStyle: TextStyle(color: Colors.grey),
+                                hintText: "Chest, Legs...",
+                                border: InputBorder.none),
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 16),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Column(mainAxisSize: MainAxisSize.min, children: temp),
+                      addExcerciseButton()
+                    ],
+                  ),
+                ),
+              )),
+        ),
       ),
     );
   }
