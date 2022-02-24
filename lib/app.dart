@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/history.dart';
 import 'package:lift_tracker/ui/colors.dart';
 import 'package:lift_tracker/ui/widgets.dart';
@@ -123,7 +122,7 @@ class _AppState extends State<App> {
           ],
         ),
         toolbarHeight: 79,
-        actions: [buildProfileButton(GlobalKey())],
+        actions: [BlurredProfileMenu()],
       ),
       resizeToAvoidBottomInset: false,
       backgroundColor: Palette.backgroundDark,
@@ -188,32 +187,6 @@ class _AppState extends State<App> {
           })
         ],
         key: navBarKey,
-      ),
-    );
-  }
-
-  Widget buildProfileButton(GlobalKey key) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-            context,
-            PageRouteBuilder(
-                opaque: false,
-                pageBuilder: (context, _, __) {
-                  return ProfileMenu(key);
-                }));
-      },
-      child: Padding(
-        key: key,
-        padding: const EdgeInsets.only(right: 16, top: 16),
-        child: Container(
-            height: 6,
-            width: 60,
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-                color: Palette.elementsDark,
-                borderRadius: const BorderRadius.all(Radius.circular(20))),
-            child: const FittedBox(child: Icon(Icons.person))),
       ),
     );
   }

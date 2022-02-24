@@ -7,53 +7,151 @@ import '../history.dart';
 import 'workoutcard.dart';
 import 'colors.dart';
 
-class ProfileMenu extends StatefulWidget {
-  const ProfileMenu(this.buttonKey, {Key? key}) : super(key: key);
-  final GlobalKey buttonKey;
+class BlurredProfileMenu extends StatefulWidget {
+  const BlurredProfileMenu({Key? key}) : super(key: key);
 
   @override
-  ProfileMenuState createState() => ProfileMenuState();
+  BlurredProfileMenuState createState() => BlurredProfileMenuState();
 }
 
-class ProfileMenuState extends State<ProfileMenu> {
+class BlurredProfileMenuState extends State<BlurredProfileMenu> {
+  GlobalKey containerKey = GlobalKey();
+  bool _isOpen = false;
+
+  Offset getOffset(GlobalKey key) {
+    RenderBox renderBox = key.currentContext!.findRenderObject() as RenderBox;
+    double dy = renderBox.localToGlobal(Offset.zero).dy;
+    double dx = renderBox.localToGlobal(Offset.zero).dx;
+    return Offset(dx, dy);
+  }
+
+  Size getSize(GlobalKey key) {
+    RenderBox renderBox = key.currentContext!.findRenderObject() as RenderBox;
+    return renderBox.size;
+  }
+
+  Widget button(bool isOpen) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 16, top: 16),
+      child: Container(
+          height: 6,
+          width: 60,
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+              color: Palette.elementsDark,
+              borderRadius: const BorderRadius.all(Radius.circular(20))),
+          child: FittedBox(
+              child: Icon(
+            isOpen ? Icons.more_horiz : Icons.person,
+            color: Colors.white,
+          ))),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-        onWillPop: () async {
-          return true;
-        },
-        child: Stack(children: [
-          const AnimatedBlur(
-              duration: Duration(milliseconds: 200), delay: Duration.zero),
-          GestureDetector(
-            onTap: () {
-              Navigator.maybePop(context);
-            },
-            child: Scaffold(
-              appBar: AppBar(
-                  elevation: 0,
-                  shadowColor: Colors.transparent,
-                  toolbarHeight: 79,
-                  automaticallyImplyLeading: false,
-                  backgroundColor: Colors.transparent,
-                  actions: [
-                    Padding(
-                      padding: const EdgeInsets.only(right: 16, top: 16),
-                      child: Container(
-                          height: 6,
-                          width: 60,
-                          padding: const EdgeInsets.all(18),
-                          decoration: BoxDecoration(
-                              color: Palette.elementsDark,
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(20))),
-                          child: const FittedBox(child: Icon(Icons.person))),
-                    )
-                  ]),
-              backgroundColor: Colors.transparent,
-            ),
-          ),
-        ]));
+    return GestureDetector(
+      child: SizedBox(key: containerKey, child: button(false)),
+      onTap: () {
+        PageRouteBuilder pageRouteBuilder = PageRouteBuilder(
+            opaque: false,
+            pageBuilder: (context, _, __) {
+              Offset offset = getOffset(containerKey);
+              Size size = getSize(containerKey);
+              TextStyle style = TextStyle(color: Colors.white, fontSize: 18);
+              return Material(
+                type: MaterialType.transparency,
+                child: WillPopScope(
+                    onWillPop: () async {
+                      return true;
+                    },
+                    child: Stack(children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.maybePop(context);
+                        },
+                        child: const AnimatedBlur(
+                            duration: Duration(milliseconds: 200),
+                            delay: Duration.zero),
+                      ),
+                      Positioned(
+                          top: offset.dy,
+                          left: offset.dx,
+                          child:
+                              //with align and sizedbox we can force the widget to
+                              //have a specific size
+                              Align(
+                            alignment: Alignment.center,
+                            child: SizedBox(
+                                width: size.width,
+                                height: size.height,
+                                child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.maybePop(context);
+                                    },
+                                    child: button(true))),
+                          )),
+                      Positioned(
+                          top: offset.dy + size.height + 16,
+                          right: 16,
+                          child: AnimatedEntry(
+                            duration: const Duration(milliseconds: 75),
+                            delay: Duration.zero,
+                            child: Container(
+                              width: 150,
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Navigator.maybePop(context);
+                                  },
+                                  child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        buildMenuElement(
+                                            "Me", Icons.person, style),
+                                        SizedBox(
+                                          height: 16,
+                                        ),
+                                        buildMenuElement(
+                                            "Settings", Icons.settings, style),
+                                        SizedBox(
+                                          height: 16,
+                                        ),
+                                        buildMenuElement(
+                                            "Help", Icons.help, style)
+                                      ]),
+                                ),
+                              ),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: Palette.elementsDark.withAlpha(90)),
+                            ),
+                          ))
+                    ])),
+              );
+            });
+        Navigator.push(context, pageRouteBuilder);
+      },
+    );
+  }
+
+  Widget buildMenuElement(String text, IconData icon, TextStyle style) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Text(
+          text,
+          style: style,
+        ),
+        Spacer(),
+        Icon(
+          icon,
+          color: Colors.white,
+        )
+      ],
+    );
   }
 
   RenderBox getButtonRenderBox(GlobalKey key) {
@@ -179,31 +277,13 @@ class _MenuWorkoutRecordCardState extends State<MenuWorkoutRecordCard> {
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(bottom: 8),
-                          child: GestureDetector(
-                            onTap: widget.deleteOnPressed,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.red.withAlpha(25),
-                                  border:
-                                      Border.all(color: Palette.backgroundDark),
-                                  borderRadius: BorderRadius.circular(10)),
-                              child: Container(
-                                width: 70,
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                    color: Colors.red.withAlpha(25),
-                                    border: Border.all(color: Colors.redAccent),
-                                    borderRadius: BorderRadius.circular(10)),
-                                child: const Center(
-                                  child: Text(
-                                    "Delete",
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+                          child: CardMenuButton(
+                              onPressed: widget.deleteOnPressed,
+                              text: "Delete",
+                              borderColor: Colors.red,
+                              backgroundColor: Colors.red.withAlpha(25),
+                              width: 70),
+                        )
                       ],
                     ),
                   ),
@@ -211,6 +291,49 @@ class _MenuWorkoutRecordCardState extends State<MenuWorkoutRecordCard> {
               ],
             ),
           )),
+    );
+  }
+}
+
+class CardMenuButton extends StatelessWidget {
+  const CardMenuButton(
+      {required this.onPressed,
+      required this.text,
+      required this.borderColor,
+      required this.backgroundColor,
+      this.width,
+      Key? key})
+      : super(key: key);
+  final Function onPressed;
+  final String text;
+  final Color borderColor;
+  final Color backgroundColor;
+  final double? width;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => onPressed(),
+      child: Container(
+        decoration: BoxDecoration(
+            color: backgroundColor,
+            border: Border.all(color: Palette.backgroundDark),
+            borderRadius: BorderRadius.circular(10)),
+        child: Container(
+          width: width,
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+              color: backgroundColor,
+              border: Border.all(color: borderColor),
+              borderRadius: BorderRadius.circular(10)),
+          child: Center(
+            child: Text(
+              text,
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -337,72 +460,35 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                             Padding(
                               padding:
                                   const EdgeInsets.only(bottom: 8, right: 8),
-                              child: GestureDetector(
-                                onTap: widget.deleteOnPressed,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      color: Colors.red.withAlpha(25),
-                                      border: Border.all(
-                                          color: Palette.backgroundDark),
-                                      borderRadius: BorderRadius.circular(10)),
-                                  child: Container(
-                                    width: 70,
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                        color: Colors.red.withAlpha(25),
-                                        border:
-                                            Border.all(color: Colors.redAccent),
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                    child: const Center(
-                                      child: Text(
-                                        "Delete",
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                              child: CardMenuButton(
+                                onPressed: () {
+                                  widget.deleteOnPressed;
+                                },
+                                text: "Delete",
+                                borderColor: Colors.red,
+                                backgroundColor: Colors.red.withAlpha(25),
+                                width: 70,
                               ),
                             ),
                             Padding(
                               padding:
                                   const EdgeInsets.only(bottom: 8, right: 8),
-                              child: GestureDetector(
-                                onTap: () {
-                                  Navigator.push(context,
-                                      MaterialPageRoute(builder: (context) {
-                                    return EditWorkout(
-                                        widget.workoutCard.workout);
-                                  }));
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      color: Colors.amber.withAlpha(25),
-                                      border: Border.all(
-                                          color: Palette.backgroundDark),
-                                      borderRadius: BorderRadius.circular(10)),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                        color: Colors.amber.withAlpha(25),
-                                        border: Border.all(
-                                            color: Colors.amberAccent),
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                    child: const Center(
-                                      child: Text(
-                                        "Edit workout",
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
+                              child: CardMenuButton(
+                                  onPressed: () {
+                                    Navigator.push(context,
+                                        MaterialPageRoute(builder: (context) {
+                                      return EditWorkout(
+                                          widget.workoutCard.workout);
+                                    }));
+                                  },
+                                  text: "Edit workout",
+                                  borderColor: Colors.amber,
+                                  backgroundColor: Colors.amber.withAlpha(25)),
                             ),
                             Padding(
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: GestureDetector(
-                                  onTap: () {
+                              padding: EdgeInsets.only(bottom: 8),
+                              child: CardMenuButton(
+                                  onPressed: () {
                                     Route route =
                                         MaterialPageRoute(builder: (context) {
                                       return NewSession(
@@ -410,30 +496,10 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                                     });
                                     Navigator.pushReplacement(context, route);
                                   },
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        color: Palette.backgroundDark,
-                                        border: Border.all(
-                                            color: Palette.backgroundDark),
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                    child: Container(
-                                      padding: const EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                          color: Colors.green.withAlpha(25),
-                                          border:
-                                              Border.all(color: Colors.green),
-                                          borderRadius:
-                                              BorderRadius.circular(10)),
-                                      child: const Center(
-                                        child: Text(
-                                          "Start this workout",
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                )),
+                                  text: "Start workout",
+                                  borderColor: Colors.green,
+                                  backgroundColor: Colors.green.withAlpha(25)),
+                            ),
                           ],
                         ),
                       ),
