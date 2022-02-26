@@ -16,7 +16,6 @@ class BlurredProfileMenu extends StatefulWidget {
 
 class BlurredProfileMenuState extends State<BlurredProfileMenu> {
   GlobalKey containerKey = GlobalKey();
-  bool _isOpen = false;
 
   Offset getOffset(GlobalKey key) {
     RenderBox renderBox = key.currentContext!.findRenderObject() as RenderBox;
@@ -152,10 +151,6 @@ class BlurredProfileMenuState extends State<BlurredProfileMenu> {
         )
       ],
     );
-  }
-
-  RenderBox getButtonRenderBox(GlobalKey key) {
-    return key.currentContext!.findRenderObject() as RenderBox;
   }
 }
 
@@ -462,7 +457,7 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                                   const EdgeInsets.only(bottom: 8, right: 8),
                               child: CardMenuButton(
                                 onPressed: () {
-                                  widget.deleteOnPressed;
+                                  widget.deleteOnPressed();
                                 },
                                 text: "Delete",
                                 borderColor: Colors.red,
@@ -562,7 +557,7 @@ class _AnimatedBlurState extends State<AnimatedBlur>
         builder: (context, child) {
           var value = animationController.value;
           return BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: value * 10, sigmaY: value * 10),
+            filter: ImageFilter.blur(sigmaX: value * 5, sigmaY: value * 5),
             child:
                 Container(color: Colors.black.withAlpha((value * 100).round())),
           );

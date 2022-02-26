@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttericon/font_awesome5_icons.dart';
 import 'package:lift_tracker/app.dart';
 import 'package:lift_tracker/data/constants.dart';
 import 'package:lift_tracker/data/database.dart';
@@ -112,6 +113,7 @@ class ExcerciseRecordCard extends StatelessWidget {
     }
     String reps = excerciseRecord.reps_weight_rpe[index]['reps'].toString();
     String rpe = excerciseRecord.reps_weight_rpe[index]['rpe'].toString();
+    int hasRecord = excerciseRecord.reps_weight_rpe[index]['hasRecord'];
     double width = MediaQuery.of(context).size.width;
     return TableRow(children: [
       Padding(
@@ -135,11 +137,26 @@ class ExcerciseRecordCard extends StatelessWidget {
       ),
       Padding(
         padding: const EdgeInsets.only(left: 8, right: 8),
-        child: Center(
-          child: Text(
-            weight + " kg",
-            style: const TextStyle(color: Colors.white, fontSize: 16),
-          ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            hasRecord == 1
+                ? Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: Icon(FontAwesome5.trophy,
+                        color: Colors.green, size: 14),
+                  )
+                : SizedBox(),
+            Flexible(
+              child: Padding(
+                padding: EdgeInsets.only(right: hasRecord == 1 ? 22 : 0),
+                child: Text(
+                  weight,
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
       Padding(
@@ -176,7 +193,7 @@ class ExcerciseRecordCard extends StatelessWidget {
           padding: EdgeInsets.only(top: 24, bottom: 12),
           child: Center(
             child: Text(
-              "Weight",
+              "Weight (kg)",
               style: TextStyle(color: Colors.white),
             ),
           )),
@@ -216,6 +233,12 @@ class ExcerciseRecordCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 32, right: 32),
             child: Table(
+              columnWidths: {
+                0: FlexColumnWidth(3),
+                1: FlexColumnWidth(3),
+                2: FlexColumnWidth(4),
+                3: FlexColumnWidth(3)
+              },
               children: setRows,
             ),
           )

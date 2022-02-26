@@ -198,15 +198,14 @@ class _WorkoutListState extends State<WorkoutList> {
               workoutCard: workoutCard,
               heroTag: tag,
               deleteOnPressed: () async {
-                if (!isButtonPressed) {
-                  isButtonPressed = true;
-                  await CustomDatabase.instance
-                      .removeWorkout(workoutCard.workout.id);
-                  workoutsFuture = CustomDatabase.instance.readWorkouts();
-                  Navigator.maybePop(context);
-                  setState(() {});
-                  isButtonPressed = false;
-                }
+                isButtonPressed = true;
+                await CustomDatabase.instance
+                    .removeWorkout(workoutCard.workout.id);
+                workoutsFuture = CustomDatabase.instance.readWorkouts();
+                Navigator.maybePop(context);
+                setState(() {});
+                isButtonPressed = false;
+
                 return;
               },
               cancelOnPressed: () {

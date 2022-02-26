@@ -137,14 +137,42 @@ class _NewSessionState extends State<NewSession> {
     if (workoutRecord == null) {
       return;
     }
-    await CustomDatabase.instance.addWorkoutRecord(workoutRecord);
+    // delete all excercise records with empty sets
+    // and track their indexes
+    List<int> indexes = [];
+    workoutRecord.excerciseRecords.removeWhere((element) {
+      if (element.reps_weight_rpe.isEmpty) {
+        indexes.add(workoutRecord.excerciseRecords.indexOf(element));
+        return true;
+      }
+      return false;
+    });
+
+    // if every excercise record has been deleted, the session is not valid
+    // and will not be saved
+    if (workoutRecord.excerciseRecords.isEmpty) {
+      Fluttertoast.showToast(msg: "Session canceled");
+      Navigator.maybePop(context);
+      return;
+    }
+
+    // if the session has valid excercise records, save it
     Workout workout = widget.workout;
-    for (int i = 0; i < workout.excercises.length; i++) {
-      Excercise excercise = workout.excercises[i];
+    // from the workout schedule, delete all the excercises that were
+    // not excecuted in this session
+    List<Excercise> tempExcercises = workout.excercises;
+    for (int i = 0; i < indexes.length; i++) {
+      tempExcercises.removeAt(i);
+    }
+
+    // check if there were weight records in this session
+    // among all the excercises that were excecuted
+    for (int i = 0; i < tempExcercises.length; i++) {
+      Excercise excercise = tempExcercises[i];
       double? previousWeightRecord = excercise.weightRecord;
       var reps_weight_rpe = workoutRecord.excerciseRecords[i].reps_weight_rpe;
       double currentMaxWeight = 0;
-
+      int setRecordIndex = -1;
       //if there's only one set its weight is already the max weight among all sets
       if (reps_weight_rpe.length > 1) {
         for (int j = 0; j < reps_weight_rpe.length - 1; j++) {
@@ -157,17 +185,30 @@ class _NewSessionState extends State<NewSession> {
       }
       if (previousWeightRecord != null) {
         if (currentMaxWeight > previousWeightRecord) {
+          // if this weight is a record, mark the first set with this weight
+          // as record
+          setRecordIndex = workoutRecord.excerciseRecords[i].reps_weight_rpe
+              .indexWhere((element) => element['weight'] == currentMaxWeight);
+          workoutRecord.excerciseRecords[i].reps_weight_rpe[setRecordIndex]
+              ['hasRecord'] = 1;
           await CustomDatabase.instance
               .setWeightRecord(excercise.id, currentMaxWeight);
           Constants.didSetWeightRecord = true;
         }
       } else {
+        // if this weight is a record, mark the first set with this weight
+        // as record
+        setRecordIndex = workoutRecord.excerciseRecords[i].reps_weight_rpe
+            .indexWhere((element) => element['weight'] == currentMaxWeight);
+        workoutRecord.excerciseRecords[i].reps_weight_rpe[setRecordIndex]
+            ['hasRecord'] = 1;
         await CustomDatabase.instance
             .setWeightRecord(excercise.id, currentMaxWeight);
         Constants.didSetWeightRecord = true;
       }
     }
-
+    // save this workout session on the database
+    await CustomDatabase.instance.addWorkoutRecord(workoutRecord);
     Constants.didUpdateHistory = true;
     Navigator.pop(context);
   }
@@ -327,11 +368,14 @@ class ExcerciseRecordItem extends StatefulWidget {
       if (reps.isEmpty || weight.isEmpty || rpe.isEmpty) {
         return null;
       }
-      listMap.add({
-        "reps": int.parse(reps),
-        "weight": double.parse(weight),
-        "rpe": int.parse(rpe)
-      });
+      if (reps != "0") {
+        listMap.add({
+          "reps": int.parse(reps),
+          "weight": double.parse(weight),
+          "rpe": int.parse(rpe),
+          "hasRecord": 0
+        });
+      }
     }
     return ExcerciseRecord(excercise.name, listMap);
   }

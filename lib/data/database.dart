@@ -1,6 +1,5 @@
 import 'package:lift_tracker/data/constants.dart';
 import 'package:lift_tracker/data/excerciserecord.dart';
-import 'package:lift_tracker/data/excerciseset.dart';
 import 'package:lift_tracker/data/workoutrecord.dart';
 import 'package:sqflite/sqflite.dart';
 import 'excercise.dart';
@@ -77,6 +76,7 @@ class CustomDatabase {
       weight DOUBLE(5,2) NOT NULL,
       rpe INTEGER NOT NULL,
       fk_excercise_recordId INTEGER NOT NULL,
+      record BIT NOT NULL,
       FOREIGN KEY (fk_excercise_recordId) REFERENCES excercise_record(id)
     );
     ''';
@@ -130,6 +130,20 @@ class CustomDatabase {
   Future<List<WorkoutRecord>> readWorkoutRecords() async {
     final db = await instance.database;
 
+    var query = await db.rawQuery("PRAGMA table_info(excercise_set);");
+    bool containsHasRecord = false;
+    for (int i = 0; i < query.length; i++) {
+      var column = query[i];
+      if (column['name'] == 'record') {
+        containsHasRecord = true;
+        i = query.length;
+      }
+    }
+    if (!containsHasRecord) {
+      await db.execute(
+          "ALTER TABLE excercise_set ADD COLUMN record BIT NOT NULL DEFAULT 0;");
+    }
+
     List<WorkoutRecord> workoutRecords = [];
 
     //we get all the workout records
@@ -151,7 +165,7 @@ class CustomDatabase {
         int excerciseRecordId = queryExcerciseRecords[j]['id'] as int;
         List<Map<String, Object?>> queryExcerciseSets = await db.query(
             'excercise_set',
-            columns: ['id', 'reps', 'weight', 'rpe'],
+            columns: ['id', 'reps', 'weight', 'rpe', 'record'],
             where: "fk_excercise_recordId=?",
             whereArgs: [excerciseRecordId],
             orderBy: "set_number");
@@ -161,10 +175,12 @@ class CustomDatabase {
           int reps = queryExcerciseSets[k]['reps'] as int;
           double weight = queryExcerciseSets[k]['weight'] as double;
           int rpe = queryExcerciseSets[k]['rpe'] as int;
+          int hasRecord = queryExcerciseSets[k]['record'] as int;
           Map<String, dynamic> value = {
             "reps": reps,
             "weight": weight,
-            "rpe": rpe
+            "rpe": rpe,
+            "hasRecord": hasRecord
           };
           repsWeightRpeMap.add(value);
         }
@@ -230,11 +246,13 @@ class CustomDatabase {
         int reps = repsWeightRpe["reps"] as int;
         double weight = repsWeightRpe["weight"] as double;
         int rpe = repsWeightRpe["rpe"] as int;
+        int hasRecord = repsWeightRpe["hasRecord"] as int;
         values = {
           "set_number": i,
           "reps": reps,
           "weight": weight,
           "rpe": rpe,
+          "record": hasRecord,
           "fk_excercise_recordId": excerciseRecordId
         };
         await db.insert('excercise_set', values);
