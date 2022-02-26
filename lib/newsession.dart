@@ -155,8 +155,6 @@ class _NewSessionState extends State<NewSession> {
       Navigator.maybePop(context);
       return;
     }
-
-    // if the session has valid excercise records, save it
     Workout workout = widget.workout;
     // from the workout schedule, delete all the excercises that were
     // not excecuted in this session
@@ -171,18 +169,14 @@ class _NewSessionState extends State<NewSession> {
       Excercise excercise = tempExcercises[i];
       double? previousWeightRecord = excercise.weightRecord;
       var reps_weight_rpe = workoutRecord.excerciseRecords[i].reps_weight_rpe;
-      double currentMaxWeight = 0;
+      double currentMaxWeight = reps_weight_rpe[0]['weight'];
       int setRecordIndex = -1;
       //if there's only one set its weight is already the max weight among all sets
-      if (reps_weight_rpe.length > 1) {
         for (int j = 0; j < reps_weight_rpe.length - 1; j++) {
-          currentMaxWeight = reps_weight_rpe[j]['weight'];
           currentMaxWeight =
               max(currentMaxWeight, reps_weight_rpe[j + 1]['weight']);
+              print("currentMaxWeight: $currentMaxWeight");
         }
-      } else {
-        currentMaxWeight = reps_weight_rpe[0]['weight'];
-      }
       if (previousWeightRecord != null) {
         if (currentMaxWeight > previousWeightRecord) {
           // if this weight is a record, mark the first set with this weight
