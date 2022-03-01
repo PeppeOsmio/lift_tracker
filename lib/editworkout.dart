@@ -8,6 +8,7 @@ import 'package:lift_tracker/data/excercise.dart';
 import 'package:lift_tracker/data/workout.dart';
 import 'package:lift_tracker/ui/colors.dart';
 import 'package:lift_tracker/ui/excerciselistitem.dart';
+import 'package:lift_tracker/ui/widgets.dart';
 
 class EditWorkout extends StatefulWidget {
   const EditWorkout(this.workout, {Key? key}) : super(key: key);
@@ -55,145 +56,105 @@ class _EditWorkoutState extends State<EditWorkout> {
         Navigator.maybePop(context);
         return false;
       },
-      child: MaterialApp(
-        home: Hero(
-          tag: "-2",
-          child: Scaffold(
+      child: SafeArea(
+        child: Scaffold(
               resizeToAvoidBottomInset: true,
               backgroundColor: Palette.backgroundDark,
-              appBar: AppBar(
-                elevation: 0,
-                backgroundColor: Palette.backgroundDark,
-                automaticallyImplyLeading: false,
-                title: Padding(
-                  padding: const EdgeInsets.only(top: 16),
-                  child: Row(
-                    children: [
-                      Material(
-                        color: Palette.elementsDark,
-                        borderRadius: BorderRadius.circular(10),
-                        child: SizedBox(
-                            height: 35,
-                            width: 35,
-                            child: InkWell(
-                                radius: 17.5,
-                                borderRadius: BorderRadius.circular(10),
-                                onTap: () {
-                                  Navigator.maybePop(context);
-                                },
-                                child: const Icon(
-                                  Icons.chevron_left_outlined,
-                                  color: Colors.redAccent,
-                                ))),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.only(left: 24),
-                        child: Text(
-                          "Edit workout",
-                        ),
-                      ),
-                      const Spacer(),
-                      Material(
-                        color: const Color.fromARGB(255, 31, 31, 31),
-                        borderRadius: BorderRadius.circular(10),
-                        child: SizedBox(
-                            height: 35,
-                            width: 35,
-                            child: InkWell(
-                                radius: 17.5,
-                                borderRadius: BorderRadius.circular(10),
-                                onTap: () {
-                                  if (workoutName.text.isEmpty) {
-                                    return;
-                                  }
-                                  List<Excercise> excercises = [];
-                                  for (int i = 0;
-                                      i < excerciseWidgets.length;
-                                      i++) {
-                                    var excerciseWidget = excerciseWidgets[i];
-                                    String name = excerciseWidget.name;
-                                    String sets = excerciseWidget.sets;
-                                    String reps = excerciseWidget.reps;
-                                    double? weightRecord;
-                                    if (excerciseWidget.initialExcercise !=
-                                        null) {
-                                      weightRecord = excerciseWidget
-                                          .initialExcercise!.weightRecord;
-                                    }
-
-                                    if (name.isEmpty ||
-                                        sets.isEmpty ||
-                                        reps.isEmpty) {
-                                      return;
-                                    }
-                                    excercises.add(Excercise(
-                                        id: i,
-                                        name: name,
-                                        sets: int.parse(sets),
-                                        reps: int.parse(reps),
-                                        weightRecord: weightRecord));
-                                  }
-                                  CustomDatabase.instance
-                                      .editWorkout(Workout(widget.workout.id,
-                                          workoutName.text, excercises))
-                                      .then((value) {
-                                    Navigator.pop(context);
-                                    Navigator.maybePop(context);
-                                  });
-                                  Constants.didUpdateWorkout = true;
-                                },
-                                child: const Icon(
-                                  Icons.check_outlined,
-                                  color: Colors.green,
-                                ))),
-                      )
-                    ],
-                  ),
-                ),
-                toolbarHeight: 79,
-              ),
-              body: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 48, left: 24, bottom: 24),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Workout name",
-                        style: TextStyle(fontSize: 20, color: Colors.white),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            top: 24, bottom: 24, right: 48),
-                        child: Container(
-                          padding: const EdgeInsets.only(left: 16, right: 16),
-                          width: MediaQuery.of(context).size.width,
-                          decoration: const BoxDecoration(
-                              color: Color.fromARGB(255, 31, 31, 31),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10))),
-                          child: TextField(
-                            controller: workoutName,
-                            decoration: const InputDecoration(
-                                hintStyle: TextStyle(color: Colors.grey),
-                                hintText: "Chest, Legs...",
-                                border: InputBorder.none),
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 16),
+              body: Column(
+                children: [
+                  CustomAppBar(middleText: "Edit workout", onBack: (){
+                    Navigator.pop(context);
+                    Navigator.maybePop(context);
+                  }, onSubmit: ()=>editWorkout(), backButton: true, submitButton: true),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 40, left: 24, bottom: 24),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "Workout name",
+                                style: TextStyle(fontSize: 20, color: Colors.white),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    top: 24, bottom: 24, right: 48),
+                                child: Container(
+                                  padding: const EdgeInsets.only(left: 16, right: 16),
+                                  width: MediaQuery.of(context).size.width,
+                                  decoration: const BoxDecoration(
+                                      color: Color.fromARGB(255, 31, 31, 31),
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(10))),
+                                  child: TextField(
+                                    controller: workoutName,
+                                    decoration: const InputDecoration(
+                                        hintStyle: TextStyle(color: Colors.grey),
+                                        hintText: "Chest, Legs...",
+                                        border: InputBorder.none),
+                                    style: const TextStyle(
+                                        color: Colors.white, fontSize: 16),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              Column(mainAxisSize: MainAxisSize.min, children: temp),
+                              addExcerciseButton()
+                            ],
                           ),
                         ),
                       ),
-                      const SizedBox(height: 24),
-                      Column(mainAxisSize: MainAxisSize.min, children: temp),
-                      addExcerciseButton()
-                    ],
+                    ),
                   ),
-                ),
+                ],
               )),
-        ),
       ),
     );
+  }
+
+  void editWorkout(){
+    if (workoutName.text.isEmpty) {
+                                  return;
+                                }
+                                List<Excercise> excercises = [];
+                                for (int i = 0;
+                                    i < excerciseWidgets.length;
+                                    i++) {
+                                  var excerciseWidget = excerciseWidgets[i];
+                                  String name = excerciseWidget.name;
+                                  String sets = excerciseWidget.sets;
+                                  String reps = excerciseWidget.reps;
+                                  double? weightRecord;
+                                  if (excerciseWidget.initialExcercise !=
+                                      null) {
+                                    weightRecord = excerciseWidget
+                                        .initialExcercise!.weightRecord;
+                                  }
+
+                                  if (name.isEmpty ||
+                                      sets.isEmpty ||
+                                      reps.isEmpty) {
+                                    return;
+                                  }
+                                  excercises.add(Excercise(
+                                      id: i,
+                                      name: name,
+                                      sets: int.parse(sets),
+                                      reps: int.parse(reps),
+                                      weightRecord: weightRecord));
+                                }
+                                CustomDatabase.instance
+                                    .editWorkout(Workout(widget.workout.id,
+                                        workoutName.text, excercises))
+                                    .then((value) {
+                                  Navigator.pop(context);
+                                  Navigator.maybePop(context);
+                                });
+                                Constants.didUpdateWorkout = true;
   }
 
   void onDelete(index) {

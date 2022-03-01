@@ -19,7 +19,6 @@ class _AppState extends State<App> {
   List<String> pageKeys = ["History", "Workouts", "Excercises"];
   late String _currentPageName;
   DateTime? backPressedTime;
-  late GlobalKey navBarKey;
   late Widget workoutList;
   Widget? history;
   Widget? excercises;
@@ -54,8 +53,7 @@ class _AppState extends State<App> {
     _currentPageName = pageKeys[1];
     Constants.pageIndex = 1;
     Constants.pageStack.add(1);
-    navBarKey = GlobalKey();
-    workoutList = WorkoutList(navBarKey: navBarKey);
+    workoutList = WorkoutList();
   }
 
   @override
@@ -71,6 +69,7 @@ class _AppState extends State<App> {
               padding: const EdgeInsets.only(top: 16),
               child: IconButton(
                   onPressed: () {
+                    Constants.unfocusTextFields(context);
                     showDialog(
                         barrierColor: Colors.transparent,
                         context: context,
@@ -186,7 +185,6 @@ class _AppState extends State<App> {
             }
           })
         ],
-        key: navBarKey,
       ),
     );
   }

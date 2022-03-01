@@ -1,17 +1,15 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:lift_tracker/app.dart';
 import 'package:lift_tracker/data/constants.dart';
 import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/data/excercise.dart';
 import 'package:lift_tracker/data/excerciserecord.dart';
 import 'package:lift_tracker/data/workout.dart';
 import 'package:lift_tracker/data/workoutrecord.dart';
-import 'package:lift_tracker/history.dart';
 import 'package:lift_tracker/ui/colors.dart';
+import 'package:lift_tracker/ui/widgets.dart';
 
 class NewSession extends StatefulWidget {
   const NewSession(this.workout, {Key? key}) : super(key: key);
@@ -55,79 +53,39 @@ class _NewSessionState extends State<NewSession> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: SafeArea(
-        child: Scaffold(
-            resizeToAvoidBottomInset: true,
-            backgroundColor: Palette.backgroundDark,
-            body: SizedBox(
-              height: MediaQuery.of(context).size.height,
-              child: Column(
-                children: [
-                  Padding(
-                    padding:
-                        const EdgeInsets.only(top: 16, left: 16, right: 16),
-                    child: Row(
-                      children: [
-                        Material(
-                          color: Palette.elementsDark,
-                          borderRadius: BorderRadius.circular(10),
-                          child: SizedBox(
-                              height: 35,
-                              width: 35,
-                              child: InkWell(
-                                  radius: 17.5,
-                                  borderRadius: BorderRadius.circular(10),
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Icon(
-                                    Icons.chevron_left_outlined,
-                                    color: Colors.redAccent,
-                                  ))),
+    return GestureDetector(
+      onTap: (){
+        var currentFocus = FocusScope.of(context);
+        if(!currentFocus.hasPrimaryFocus){
+          currentFocus.unfocus();
+        }
+      },
+      child: MaterialApp(
+        home: SafeArea(
+          child: Scaffold(
+              resizeToAvoidBottomInset: true,
+              backgroundColor: Palette.backgroundDark,
+              body: SizedBox(
+                height: MediaQuery.of(context).size.height,
+                child: Column(
+                  children: [
+                    CustomAppBar(middleText: "New ${widget.workout.name} session", 
+                    onBack: ()=>Navigator.pop(context), 
+                    onSubmit: ()=>createWorkoutSession(), 
+                    backButton: true, submitButton: true),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            top: 8, left: 0, right: 0, bottom: 0),
+                        child: ListView(
+                          children: items,
                         ),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 24),
-                            child: Text(
-                              "New " + widget.workout.name + " session",
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w500),
-                            ),
-                          ),
-                        ),
-                        Material(
-                          color: Palette.elementsDark,
-                          borderRadius: BorderRadius.circular(10),
-                          child: SizedBox(
-                              height: 35,
-                              width: 35,
-                              child: InkWell(
-                                  radius: 17.5,
-                                  borderRadius: BorderRadius.circular(10),
-                                  onTap: createWorkoutSession,
-                                  child: const Icon(
-                                    Icons.check_outlined,
-                                    color: Colors.green,
-                                  ))),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                          top: 8, left: 0, right: 0, bottom: 0),
-                      child: ListView(
-                        children: items,
                       ),
                     ),
-                  ),
-                ],
-              ),
-            )),
+                  ],
+                ),
+              )),
+        ),
       ),
     );
   }
@@ -326,6 +284,16 @@ class _SetRowState extends State<SetRow> {
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
                       ],
+                      onEditingComplete: (){
+                        String text = widget.rpeController.text;
+                        if(text != "" && int.parse(text)>10){
+                          widget.rpeController.text = "10";
+                        }
+                        var currentFocus = FocusScope.of(context);
+                        if(!currentFocus.hasPrimaryFocus){
+                          currentFocus.unfocus();
+                        }
+                      },
                       controller: widget.rpeController,
                       keyboardType: TextInputType.number,
                       style: const TextStyle(color: Colors.white),

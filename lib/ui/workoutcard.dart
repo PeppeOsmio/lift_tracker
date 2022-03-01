@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lift_tracker/data/workout.dart';
 
+import '../data/constants.dart';
 import 'colors.dart';
 
 class WorkoutCard extends StatefulWidget {
@@ -92,6 +93,7 @@ class _WorkoutCardState extends State<WorkoutCard> {
       },
       child: GestureDetector(
         onTap: () {
+          Constants.unfocusTextFields(context);
           if (_removeMode) {}
           widget.onLongPress.call(!isOpen);
         },

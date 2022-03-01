@@ -3,9 +3,86 @@ import 'package:curved_animation_controller/curved_animation_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:lift_tracker/editworkout.dart';
 import 'package:lift_tracker/newsession.dart';
+import '../data/constants.dart';
 import '../history.dart';
 import 'workoutcard.dart';
 import 'colors.dart';
+
+class CustomAppBar extends StatelessWidget {
+  const CustomAppBar(
+      {required this.middleText,
+      required this.onBack,
+      required this.onSubmit,
+      required this.backButton,
+      required this.submitButton,
+      Key? key})
+      : super(key: key);
+  final bool backButton;
+  final bool submitButton;
+  final String middleText;
+  final Function onBack;
+  final Function onSubmit;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
+      child: Row(
+        children: [
+          backButton
+              ? Material(
+                  color: Palette.elementsDark,
+                  borderRadius: BorderRadius.circular(10),
+                  child: SizedBox(
+                      height: 35,
+                      width: 35,
+                      child: InkWell(
+                          borderRadius: BorderRadius.circular(10),
+                          onTap: () {
+                            onBack();
+                          },
+                          child: const Icon(
+                            Icons.chevron_left_outlined,
+                            color: Colors.redAccent,
+                          ))),
+                )
+              : SizedBox(),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 24),
+              child: Text(
+                middleText,
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500),
+              ),
+            ),
+          ),
+          submitButton
+              ? Material(
+                  color: Palette.elementsDark,
+                  borderRadius: BorderRadius.circular(10),
+                  child: SizedBox(
+                      height: 35,
+                      width: 35,
+                      child: InkWell(
+                          onTap: () {
+                            onSubmit();
+                          },
+                          borderRadius: BorderRadius.circular(10),
+                          //onTap: createWorkoutSession,
+                          child: const Icon(
+                            Icons.check_outlined,
+                            color: Colors.green,
+                          ))),
+                )
+              : SizedBox()
+        ],
+      ),
+    );
+  }
+}
 
 class BlurredProfileMenu extends StatefulWidget {
   const BlurredProfileMenu({Key? key}) : super(key: key);
@@ -16,6 +93,7 @@ class BlurredProfileMenu extends StatefulWidget {
 
 class BlurredProfileMenuState extends State<BlurredProfileMenu> {
   GlobalKey containerKey = GlobalKey();
+  double menuOpacity = 0;
 
   Offset getOffset(GlobalKey key) {
     RenderBox renderBox = key.currentContext!.findRenderObject() as RenderBox;
@@ -48,16 +126,21 @@ class BlurredProfileMenuState extends State<BlurredProfileMenu> {
   }
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       child: SizedBox(key: containerKey, child: button(false)),
       onTap: () {
+        Constants.unfocusTextFields(context);
         PageRouteBuilder pageRouteBuilder = PageRouteBuilder(
             opaque: false,
             pageBuilder: (context, _, __) {
               Offset offset = getOffset(containerKey);
               Size size = getSize(containerKey);
-              TextStyle style = TextStyle(color: Colors.white, fontSize: 18);
               return Material(
                 type: MaterialType.transparency,
                 child: WillPopScope(
@@ -93,46 +176,78 @@ class BlurredProfileMenuState extends State<BlurredProfileMenu> {
                       Positioned(
                           top: offset.dy + size.height + 16,
                           right: 16,
-                          child: AnimatedEntry(
-                            duration: const Duration(milliseconds: 75),
-                            delay: Duration.zero,
-                            child: Container(
-                              width: 150,
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    Navigator.maybePop(context);
-                                  },
-                                  child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        buildMenuElement(
-                                            "Me", Icons.person, style),
-                                        SizedBox(
-                                          height: 16,
-                                        ),
-                                        buildMenuElement(
-                                            "Settings", Icons.settings, style),
-                                        SizedBox(
-                                          height: 16,
-                                        ),
-                                        buildMenuElement(
-                                            "Help", Icons.help, style)
-                                      ]),
-                                ),
-                              ),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: Palette.elementsDark.withAlpha(90)),
-                            ),
-                          ))
+                          child: AnimatedMenu())
                     ])),
               );
             });
         Navigator.push(context, pageRouteBuilder);
       },
+    );
+  }
+}
+
+class AnimatedMenu extends StatefulWidget {
+  const AnimatedMenu({Key? key}) : super(key: key);
+
+  @override
+  _AnimatedMenuState createState() => _AnimatedMenuState();
+}
+
+class _AnimatedMenuState extends State<AnimatedMenu> {
+  double menuOpacity = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration.zero, () {
+      setState(() {
+        menuOpacity = 1;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    TextStyle style = TextStyle(color: Colors.white, fontSize: 18);
+    return WillPopScope(
+      onWillPop: () async {
+        setState(() {
+          menuOpacity = 0;
+        });
+        return true;
+      },
+      child: AnimatedOpacity(
+        curve: Curves.decelerate,
+        duration: const Duration(milliseconds: 200),
+        opacity: menuOpacity,
+        child: Container(
+          width: 150,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.maybePop(context);
+              },
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildMenuElement("Me", Icons.person, style),
+                    SizedBox(
+                      height: 16,
+                    ),
+                    buildMenuElement("Settings", Icons.settings, style),
+                    SizedBox(
+                      height: 16,
+                    ),
+                    buildMenuElement("Help", Icons.help, style)
+                  ]),
+            ),
+          ),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: Palette.elementsDark.withAlpha(90)),
+        ),
+      ),
     );
   }
 
@@ -214,19 +329,14 @@ class _MenuWorkoutRecordCardState extends State<MenuWorkoutRecordCard> {
     return WillPopScope(
       onWillPop: () async {
         //move the card to the original position
-        setState(() {
-          cardY = startingY;
-        });
         //after the card is in the original position fade it away
-        Future.delayed(const Duration(milliseconds: 200), () {
-          setState(() {
-            opacity = 0;
-          });
+        setState(() {
+          opacity = 0;
         });
         return true;
       },
       child: Scaffold(
-          backgroundColor: Colors.black.withAlpha(100),
+          backgroundColor: Colors.transparent,
           body: SizedBox(
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
@@ -248,7 +358,7 @@ class _MenuWorkoutRecordCardState extends State<MenuWorkoutRecordCard> {
                   top: cardY,
                   child: AnimatedOpacity(
                     curve: Curves.decelerate,
-                    duration: const Duration(milliseconds: 400),
+                    duration: const Duration(milliseconds: 200),
                     opacity: opacity,
                     child: Material(
                         child: Padding(
@@ -396,14 +506,9 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
     return WillPopScope(
       onWillPop: () async {
         //move the card to the original position
-        setState(() {
-          cardY = startingY;
-        });
         //after the card is in the original position fade it away
-        Future.delayed(const Duration(milliseconds: 200), () {
-          setState(() {
-            opacity = 0;
-          });
+        setState(() {
+          opacity = 0;
         });
         return true;
       },
@@ -429,7 +534,7 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                       top: cardY,
                       child: AnimatedOpacity(
                         curve: Curves.decelerate,
-                        duration: const Duration(milliseconds: 400),
+                        duration: const Duration(milliseconds: 200),
                         opacity: opacity,
                         child: Material(
                             child: Padding(
