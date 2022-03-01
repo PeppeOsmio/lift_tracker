@@ -194,14 +194,40 @@ class CustomDatabase {
       //we get the information about the workout
       String workoutName = queryWorkoutRecords[i]['workout_name'] as String;
       String dayString = queryWorkoutRecords[i]['day'] as String;
-      if (dayString.length == 9) {
-        dayString = dayString.substring(0, 5) + "0" + dayString.substring(5, 9);
-      }
-      DateTime day = DateTime.parse(dayString);
+      DateTime day = DateTime.parse(sqlToDartDate(dayString));
       workoutRecords.add(
           WorkoutRecord(workoutRecordId, day, workoutName, excerciseRecords));
     }
     return workoutRecords;
+  }
+
+  String sqlToDartDate(String sqlDate) {
+    String year = "";
+    String month = "";
+    String day = "";
+    int j;
+    for (j = 0; sqlDate[j] != "-"; j++) {
+      year += sqlDate[j];
+    }
+    for (j = j + 1; sqlDate[j] != "-"; j++) {
+      month += sqlDate[j];
+    }
+    for (j = j + 1; j < sqlDate.length; j++) {
+      day += sqlDate[j];
+    }
+    String dartDate = "";
+    dartDate += year + "-";
+    if (month.length < 2) {
+      dartDate += "0" + month + "-";
+    } else {
+      dartDate += month + "-";
+    }
+    if (day.length < 2) {
+      dartDate += "0" + day;
+    } else {
+      dartDate += day;
+    }
+    return dartDate;
   }
 
   Future<double?> getWeightRecord(int excerciseId) async {

@@ -42,19 +42,26 @@ class _NewWorkoutState extends State<NewWorkout> {
       ));
     }
     return SafeArea(
-            child: GestureDetector(
-              onTap: (){
-                Constants.unfocusTextFields(context);
-              },
-              child: Scaffold(
-              resizeToAvoidBottomInset: true,
-              backgroundColor: Palette.backgroundDark,
-              body: Column(
-                children: [
-                  CustomAppBar(middleText: "New workout", onBack: ()=>Navigator.pop(context), onSubmit: ()=>createWorkout(), backButton: true, submitButton: true),
-                  SingleChildScrollView(
+      child: GestureDetector(
+        onTap: () {
+          Constants.unfocusTextFields(context);
+        },
+        child: Scaffold(
+            resizeToAvoidBottomInset: true,
+            backgroundColor: Palette.backgroundDark,
+            body: Column(
+              children: [
+                CustomAppBar(
+                    middleText: "New workout",
+                    onBack: () => Navigator.pop(context),
+                    onSubmit: () => createWorkout(),
+                    backButton: true,
+                    submitButton: true),
+                Expanded(
+                  child: SingleChildScrollView(
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 48, left: 24, bottom: 24),
+                      padding:
+                          const EdgeInsets.only(top: 48, left: 24, bottom: 24),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,10 +71,11 @@ class _NewWorkoutState extends State<NewWorkout> {
                             style: TextStyle(fontSize: 20, color: Colors.white),
                           ),
                           Padding(
-                            padding:
-                                const EdgeInsets.only(top: 24, bottom: 24, right: 48),
+                            padding: const EdgeInsets.only(
+                                top: 24, bottom: 24, right: 48),
                             child: Container(
-                              padding: const EdgeInsets.only(left: 16, right: 16),
+                              padding:
+                                  const EdgeInsets.only(left: 16, right: 16),
                               width: MediaQuery.of(context).size.width,
                               decoration: const BoxDecoration(
                                   color: Color.fromARGB(255, 31, 31, 31),
@@ -85,46 +93,41 @@ class _NewWorkoutState extends State<NewWorkout> {
                             ),
                           ),
                           const SizedBox(height: 24),
-                          Column(mainAxisSize: MainAxisSize.min, children: temp),
+                          Column(
+                              mainAxisSize: MainAxisSize.min, children: temp),
                           addExcerciseButton()
                         ],
                       ),
                     ),
                   ),
-                ],
-              )),
-            ),
-      );
+                ),
+              ],
+            )),
+      ),
+    );
   }
 
-  void createWorkout(){
+  void createWorkout() {
     if (workoutName.text.isEmpty) {
-                                  return;
-                                }
-                                List<Excercise> excercises = [];
-                                for (int i = 0;
-                                    i < excerciseWidgets.length;
-                                    i++) {
-                                  var excerciseWidget = excerciseWidgets[i];
-                                  String name = excerciseWidget.name;
-                                  String sets = excerciseWidget.sets;
-                                  String reps = excerciseWidget.reps;
-                                  if (name.isEmpty ||
-                                      sets.isEmpty ||
-                                      reps.isEmpty) {
-                                    return;
-                                  }
-                                  excercises.add(Excercise(
-                                      id: i,
-                                      name: name,
-                                      sets: int.parse(sets),
-                                      reps: int.parse(reps)));
-                                }
-                                CustomDatabase.instance
-                                    .createWorkout(workoutName.text, excercises)
-                                    .then((value) {
-                                  Navigator.pop(context);
-                                });
+      return;
+    }
+    List<Excercise> excercises = [];
+    for (int i = 0; i < excerciseWidgets.length; i++) {
+      var excerciseWidget = excerciseWidgets[i];
+      String name = excerciseWidget.name;
+      String sets = excerciseWidget.sets;
+      String reps = excerciseWidget.reps;
+      if (name.isEmpty || sets.isEmpty || reps.isEmpty) {
+        return;
+      }
+      excercises.add(Excercise(
+          id: i, name: name, sets: int.parse(sets), reps: int.parse(reps)));
+    }
+    CustomDatabase.instance
+        .createWorkout(workoutName.text, excercises)
+        .then((value) {
+      Navigator.pop(context);
+    });
   }
 
   void onDelete(index) {

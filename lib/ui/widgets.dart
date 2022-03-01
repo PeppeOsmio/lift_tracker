@@ -508,6 +508,7 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
         //move the card to the original position
         //after the card is in the original position fade it away
         setState(() {
+          cardY = startingY;
           opacity = 0;
         });
         return true;
