@@ -20,9 +20,28 @@ class Session extends StatefulWidget {
 }
 
 class _SessionState extends State<Session> {
+  int totalVolume = 0;
+  int recordNumber = 0;
+
   @override
   void initState() {
     super.initState();
+    for (int i = 0; i < widget.workoutRecord.excerciseRecords.length; i++) {
+      var excerciseRecord = widget.workoutRecord.excerciseRecords[i];
+      bool hasRecord = false;
+      for (int j = 0; j < excerciseRecord.reps_weight_rpe.length; j++) {
+        var set = excerciseRecord.reps_weight_rpe;
+        double volume = (set[j]['reps'] * set[j]['weight']);
+        totalVolume += volume.round();
+
+        if (set[j]['hasRecord'] == 1) {
+          hasRecord = true;
+        }
+      }
+      if (hasRecord) {
+        recordNumber++;
+      }
+    }
   }
 
   @override
@@ -73,25 +92,94 @@ class _SessionState extends State<Session> {
               ),
             ),
             Expanded(
-              child: ListView.separated(
-                  itemBuilder: (context, index) {
-                    int length = widget.workoutRecord.excerciseRecords.length;
-                    return Padding(
-                      padding: EdgeInsets.only(
-                          top: 24, bottom: index == length - 1 ? 24 : 0),
-                      child: ExcerciseRecordCard(
-                          widget.workoutRecord.excerciseRecords[index]),
-                    );
-                  },
-                  separatorBuilder: (context, index) {
-                    return const SizedBox(height: 0);
-                  },
-                  itemCount: widget.workoutRecord.excerciseRecords.length),
+              child: ListView(
+                children: buildExcerciseCardList(),
+              ),
             ),
           ],
         ),
       ),
     ));
+  }
+
+  List<Widget> buildExcerciseCardList() {
+    var records = widget.workoutRecord.excerciseRecords;
+    List<Widget> cardList = [];
+    cardList.add(
+      Padding(
+        padding: const EdgeInsets.only(top: 24),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.amber),
+                  color: Colors.amber.withAlpha(25)),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    FontAwesome5.weight_hanging,
+                    size: 18,
+                    color: Colors.amber,
+                  ),
+                  const SizedBox(
+                    width: 4,
+                  ),
+                  Text(
+                    "Volume: $totalVolume kg",
+                    style: TextStyle(
+                        color: Colors.amber,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              width: 8,
+            ),
+            Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.green),
+                  color: Colors.green.withAlpha(25)),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    FontAwesome5.trophy,
+                    size: 18,
+                    color: Colors.green,
+                  ),
+                  const SizedBox(
+                    width: 8,
+                  ),
+                  Text(
+                    "Records: $recordNumber",
+                    style: TextStyle(
+                        color: Colors.green,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+    for (int i = 0; i < records.length; i++) {
+      cardList.add(Padding(
+        padding:
+            EdgeInsets.only(top: 24, bottom: i == records.length - 1 ? 24 : 0),
+        child: ExcerciseRecordCard(widget.workoutRecord.excerciseRecords[i]),
+      ));
+    }
+    return cardList;
   }
 }
 
