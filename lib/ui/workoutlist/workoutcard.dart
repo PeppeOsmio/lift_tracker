@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lift_tracker/data/workout.dart';
 
-import '../data/constants.dart';
-import 'colors.dart';
+import '../../data/helper.dart';
+import '../colors.dart';
 
 class WorkoutCard extends StatefulWidget {
   const WorkoutCard(this.workout, this.onLongPress, this.removeMode, {Key? key})
@@ -93,7 +93,7 @@ class _WorkoutCardState extends State<WorkoutCard> {
       },
       child: GestureDetector(
         onTap: () {
-          Constants.unfocusTextFields(context);
+          Helper.unfocusTextFields(context);
           if (_removeMode) {}
           widget.onLongPress.call(!isOpen);
         },

@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:lift_tracker/data/constants.dart';
+import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/data/excercise.dart';
 import 'package:lift_tracker/data/excerciserecord.dart';
@@ -54,9 +54,9 @@ class _NewSessionState extends State<NewSession> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: (){
+      onTap: () {
         var currentFocus = FocusScope.of(context);
-        if(!currentFocus.hasPrimaryFocus){
+        if (!currentFocus.hasPrimaryFocus) {
           currentFocus.unfocus();
         }
       },
@@ -69,10 +69,12 @@ class _NewSessionState extends State<NewSession> {
                 height: MediaQuery.of(context).size.height,
                 child: Column(
                   children: [
-                    CustomAppBar(middleText: "New ${widget.workout.name} session", 
-                    onBack: ()=>Navigator.pop(context), 
-                    onSubmit: ()=>createWorkoutSession(), 
-                    backButton: true, submitButton: true),
+                    CustomAppBar(
+                        middleText: "New ${widget.workout.name} session",
+                        onBack: () => Navigator.pop(context),
+                        onSubmit: () => createWorkoutSession(),
+                        backButton: true,
+                        submitButton: true),
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.only(
@@ -130,11 +132,11 @@ class _NewSessionState extends State<NewSession> {
       double currentMaxWeight = reps_weight_rpe[0]['weight'];
       int setRecordIndex = -1;
       //if there's only one set its weight is already the max weight among all sets
-        for (int j = 0; j < reps_weight_rpe.length - 1; j++) {
-          currentMaxWeight =
-              max(currentMaxWeight, reps_weight_rpe[j + 1]['weight']);
-              print("currentMaxWeight: $currentMaxWeight");
-        }
+      for (int j = 0; j < reps_weight_rpe.length - 1; j++) {
+        currentMaxWeight =
+            max(currentMaxWeight, reps_weight_rpe[j + 1]['weight']);
+        print("currentMaxWeight: $currentMaxWeight");
+      }
       if (previousWeightRecord != null) {
         if (currentMaxWeight > previousWeightRecord) {
           // if this weight is a record, mark the first set with this weight
@@ -145,7 +147,7 @@ class _NewSessionState extends State<NewSession> {
               ['hasRecord'] = 1;
           await CustomDatabase.instance
               .setWeightRecord(excercise.id, currentMaxWeight);
-          Constants.didSetWeightRecord = true;
+          Helper.didSetWeightRecord = true;
         }
       } else {
         // if this weight is a record, mark the first set with this weight
@@ -156,12 +158,12 @@ class _NewSessionState extends State<NewSession> {
             ['hasRecord'] = 1;
         await CustomDatabase.instance
             .setWeightRecord(excercise.id, currentMaxWeight);
-        Constants.didSetWeightRecord = true;
+        Helper.didSetWeightRecord = true;
       }
     }
     // save this workout session on the database
     await CustomDatabase.instance.addWorkoutRecord(workoutRecord);
-    Constants.didUpdateHistory = true;
+    Helper.didUpdateHistory = true;
     Navigator.pop(context);
   }
 
@@ -284,13 +286,13 @@ class _SetRowState extends State<SetRow> {
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
                       ],
-                      onEditingComplete: (){
+                      onEditingComplete: () {
                         String text = widget.rpeController.text;
-                        if(text != "" && int.parse(text)>10){
+                        if (text != "" && int.parse(text) > 10) {
                           widget.rpeController.text = "10";
                         }
                         var currentFocus = FocusScope.of(context);
-                        if(!currentFocus.hasPrimaryFocus){
+                        if (!currentFocus.hasPrimaryFocus) {
                           currentFocus.unfocus();
                         }
                       },

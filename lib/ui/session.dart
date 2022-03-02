@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
-import 'package:lift_tracker/app.dart';
-import 'package:lift_tracker/data/constants.dart';
+import 'package:lift_tracker/ui/app/app.dart';
+import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/data/excercise.dart';
 import 'package:lift_tracker/data/excerciserecord.dart';
 import 'package:lift_tracker/data/workout.dart';
 import 'package:lift_tracker/data/workoutrecord.dart';
-import 'package:lift_tracker/history.dart';
+import 'package:lift_tracker/ui/history/history.dart';
 import 'package:lift_tracker/ui/colors.dart';
 
 class Session extends StatefulWidget {
@@ -61,9 +61,7 @@ class _SessionState extends State<Session> {
                       child: Text(
                         widget.workoutRecord.workoutName +
                             " session of " +
-                            widget.workoutRecord.day
-                                .toString()
-                                .substring(0, 10),
+                            Helper.dateToString(widget.workoutRecord.day),
                         style: const TextStyle(
                             color: Colors.white,
                             fontSize: 20,
@@ -222,25 +220,45 @@ class ExcerciseRecordCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.only(left: 16),
+                padding: const EdgeInsets.only(left: 32),
                 child: Text(
                   excerciseRecord.excerciseName,
                   style: const TextStyle(color: Colors.white, fontSize: 20),
                 ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(left: 16, right: 32),
+                  child: Divider(
+                    thickness: 2,
+                    color: Palette.elementsDark,
+                  ),
+                ),
               )
             ],
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 32, right: 32),
-            child: Table(
-              columnWidths: {
-                0: FlexColumnWidth(3),
-                1: FlexColumnWidth(3),
-                2: FlexColumnWidth(4),
-                3: FlexColumnWidth(3)
-              },
-              children: setRows,
-            ),
+          Row(
+            children: [
+              Container(
+                color: Palette.elementsDark,
+                width: 8,
+                //height: double.infinity,
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 32, right: 32),
+                  child: Table(
+                    columnWidths: {
+                      0: FlexColumnWidth(3),
+                      1: FlexColumnWidth(3),
+                      2: FlexColumnWidth(4),
+                      3: FlexColumnWidth(3)
+                    },
+                    children: setRows,
+                  ),
+                ),
+              ),
+            ],
           )
         ],
       ),

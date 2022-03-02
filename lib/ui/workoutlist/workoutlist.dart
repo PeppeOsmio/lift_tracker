@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:lift_tracker/data/constants.dart';
+import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/data/workout.dart';
-import 'package:lift_tracker/newworkout.dart';
+import 'package:lift_tracker/ui/newworkout.dart';
 import 'package:lift_tracker/ui/colors.dart';
 import 'package:lift_tracker/ui/widgets.dart';
-import 'package:lift_tracker/ui/workoutcard.dart';
+import 'package:lift_tracker/ui/workoutlist/workoutcard.dart';
+import 'package:lift_tracker/ui/workoutlist/menuworkoutcard.dart';
 
-import 'data/excercise.dart';
+import '../../data/excercise.dart';
 
 class WorkoutList extends StatefulWidget {
   const WorkoutList({Key? key}) : super(key: key);
@@ -27,8 +28,8 @@ class _WorkoutListState extends State<WorkoutList> {
     super.initState();
     workoutsFuture = CustomDatabase.instance.readWorkouts();
     workoutsFuture.then((value) {
-      if (Constants.firstAppRun) {
-        Constants.firstAppRun = false;
+      if (Helper.firstAppRun) {
+        Helper.firstAppRun = false;
         Future.delayed(Duration.zero, () {
           List<Excercise> excercises = [
             Excercise(
@@ -70,7 +71,7 @@ class _WorkoutListState extends State<WorkoutList> {
       width: 65,
       child: FloatingActionButton(
         onPressed: () async {
-          Constants.unfocusTextFields(context);
+          Helper.unfocusTextFields(context);
           var route =
               MaterialPageRoute(builder: (context) => const NewWorkout());
           await Navigator.push(context, route).then((value) {
@@ -96,8 +97,8 @@ class _WorkoutListState extends State<WorkoutList> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: (){
-        Constants.unfocusTextFields(context);
+      onTap: () {
+        Helper.unfocusTextFields(context);
       },
       child: Stack(
         children: [
@@ -141,9 +142,10 @@ class _WorkoutListState extends State<WorkoutList> {
                       cardKeys.add(GlobalKey());
                       columnContent.add(Padding(
                           padding: const EdgeInsets.all(16.0),
-                          child: WorkoutCard(workouts[i], (startAsClosed) async {
-                            if (Constants.didSetWeightRecord) {
-                              Constants.didSetWeightRecord = false;
+                          child:
+                              WorkoutCard(workouts[i], (startAsClosed) async {
+                            if (Helper.didSetWeightRecord) {
+                              Helper.didSetWeightRecord = false;
                               workoutsFuture =
                                   CustomDatabase.instance.readWorkouts();
                               workouts = await workoutsFuture;
@@ -154,8 +156,10 @@ class _WorkoutListState extends State<WorkoutList> {
                               (startAsClosed) {},
                               true,
                             );
-                            await Navigator.push(context,
-                                blurredMenuBuilder(workoutCard, cardKeys[i], i));
+                            await Navigator.push(
+                                context,
+                                blurredMenuBuilder(
+                                    workoutCard, cardKeys[i], i));
                             workoutsFuture =
                                 CustomDatabase.instance.readWorkouts();
                             workouts = await workoutsFuture;

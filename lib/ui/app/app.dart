@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:lift_tracker/history.dart';
+import 'package:lift_tracker/ui/app/menu.dart';
+import 'package:lift_tracker/ui/history/history.dart';
 import 'package:lift_tracker/ui/colors.dart';
 import 'package:lift_tracker/ui/widgets.dart';
-import 'data/constants.dart';
-import 'workoutlist.dart';
-import 'excercises.dart';
+import '../../data/helper.dart';
+import '../workoutlist/workoutlist.dart';
+import '../excercises.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class App extends StatefulWidget {
@@ -42,8 +43,8 @@ class _AppState extends State<App> {
   void _selectTab(int index) {
     setState(() {
       _currentPageName = pageKeys[index];
-      Constants.pageIndex = index;
-      Constants.pageStack.add(index);
+      Helper.pageIndex = index;
+      Helper.pageStack.add(index);
     });
   }
 
@@ -51,8 +52,8 @@ class _AppState extends State<App> {
   void initState() {
     super.initState();
     _currentPageName = pageKeys[1];
-    Constants.pageIndex = 1;
-    Constants.pageStack.add(1);
+    Helper.pageIndex = 1;
+    Helper.pageStack.add(1);
     workoutList = WorkoutList();
   }
 
@@ -69,7 +70,7 @@ class _AppState extends State<App> {
               padding: const EdgeInsets.only(top: 16),
               child: IconButton(
                   onPressed: () {
-                    Constants.unfocusTextFields(context);
+                    Helper.unfocusTextFields(context);
                     showDialog(
                         barrierColor: Colors.transparent,
                         context: context,
@@ -132,12 +133,12 @@ class _AppState extends State<App> {
           excercises == null ? const SizedBox() : _buildOffStage(2, excercises!)
         ]),
         onWillPop: () async {
-          if (Constants.pageStack.length > 1) {
+          if (Helper.pageStack.length > 1) {
             int index;
-            Constants.pageStack.removeLast();
-            index = Constants.pageStack.last;
+            Helper.pageStack.removeLast();
+            index = Helper.pageStack.last;
             _currentPageName = pageKeys[index];
-            Constants.pageIndex = index;
+            Helper.pageIndex = index;
 
             setState(() {});
             return false;
@@ -160,10 +161,10 @@ class _AppState extends State<App> {
       bottomNavigationBar: BottomNavBar(
         [
           NavBarItem("History", Icons.schedule, () {
-            if (Constants.pageIndex != 0) {
+            if (Helper.pageIndex != 0) {
               //if something notified that the history was updated
               //we rebuild it in order to reload the content of the history
-              if (Constants.didUpdateHistory) {
+              if (Helper.didUpdateHistory) {
                 history = History(key: GlobalKey());
                 _selectTab(0);
                 return;
@@ -173,13 +174,13 @@ class _AppState extends State<App> {
             }
           }),
           NavBarItem("Workouts", Icons.add_outlined, () {
-            if (Constants.pageIndex != 1) {
+            if (Helper.pageIndex != 1) {
               _selectTab(1);
             }
           }),
           NavBarItem("Excercises", Icons.fitness_center, () {
             return;
-            if (Constants.pageIndex != 2) {
+            if (Helper.pageIndex != 2) {
               excercises ??= const Excercises();
               _selectTab(2);
             }
@@ -208,7 +209,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
     List<Widget> list = [];
     BoxDecoration? dec;
     for (int i = 0; i < widget.bottomNavItems.length; i++) {
-      if (i == Constants.pageIndex) {
+      if (i == Helper.pageIndex) {
         dec = const BoxDecoration(
           color: Color.fromARGB(200, 80, 36, 12),
           borderRadius: BorderRadius.all(Radius.circular(20)),
@@ -224,7 +225,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
         padding: const EdgeInsets.only(left: 4, right: 4, top: 6, bottom: 6),
         child: GestureDetector(
             onTap: () {
-              if (Constants.pageIndex == i) {
+              if (Helper.pageIndex == i) {
                 return;
               } else {
                 item.onPressed.call();

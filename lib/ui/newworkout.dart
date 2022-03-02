@@ -6,7 +6,7 @@ import 'package:lift_tracker/ui/colors.dart';
 import 'package:lift_tracker/ui/excerciselistitem.dart';
 import 'package:lift_tracker/ui/widgets.dart';
 
-import 'data/constants.dart';
+import '../data/helper.dart';
 
 class NewWorkout extends StatefulWidget {
   const NewWorkout({Key? key}) : super(key: key);
@@ -44,7 +44,7 @@ class _NewWorkoutState extends State<NewWorkout> {
     return SafeArea(
       child: GestureDetector(
         onTap: () {
-          Constants.unfocusTextFields(context);
+          Helper.unfocusTextFields(context);
         },
         child: Scaffold(
             resizeToAvoidBottomInset: true,

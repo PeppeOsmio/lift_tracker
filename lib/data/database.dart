@@ -1,4 +1,4 @@
-import 'package:lift_tracker/data/constants.dart';
+import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/excerciserecord.dart';
 import 'package:lift_tracker/data/workoutrecord.dart';
 import 'package:sqflite/sqflite.dart';
@@ -28,7 +28,7 @@ class CustomDatabase {
   }
 
   Future _createDB(Database db, int version) async {
-    Constants.firstAppRun = true;
+    Helper.firstAppRun = true;
     String sql = '''
     CREATE TABLE workout(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
