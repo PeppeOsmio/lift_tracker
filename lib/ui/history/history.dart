@@ -1,37 +1,33 @@
-import 'package:fluttericon/font_awesome5_icons.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:flutter/material.dart';
 import 'package:lift_tracker/data/database.dart';
+import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/ui/history/menuworkoutrecordcard.dart';
 
 import 'package:lift_tracker/ui/session.dart';
-import 'package:lift_tracker/ui/colors.dart';
 import 'package:lift_tracker/ui/history/workoutrecordcard.dart';
-import 'package:lift_tracker/ui/widgets.dart';
 
 import '../../data/workoutrecord.dart';
 
-class History extends StatefulWidget {
+class History extends ConsumerStatefulWidget {
   const History({Key? key}) : super(key: key);
 
   @override
   _HistoryState createState() => _HistoryState();
 }
 
-class _HistoryState extends State<History> {
+class _HistoryState extends ConsumerState<History> {
   late Future<List<WorkoutRecord>> workoutRecords;
 
   @override
   void initState() {
     super.initState();
-    workoutRecords = CustomDatabase.instance.readWorkoutRecords();
-    workoutRecords.then((value) {
-      setState(() {});
-    });
   }
 
   @override
   Widget build(BuildContext context) {
+    workoutRecords = ref.watch(Helper.workoutRecordsProvider);
     return SafeArea(
       child: Column(
         children: [

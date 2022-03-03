@@ -157,6 +157,7 @@ class _AppState extends ConsumerState<App> {
               list.add(_buildOffStage(i, temp[i]));
             }
             ref.watch(Helper.pageIndexProvider);
+            log("Building stack");
             return Stack(children: list);
           }),
           onWillPop: () async {
@@ -189,11 +190,7 @@ class _AppState extends ConsumerState<App> {
               NavBarItem("History", Icons.schedule, () {
                 //if something notified that the history was updated
                 //we rebuild it in order to reload the content of the history
-                if (Helper.didUpdateHistory) {
-                  history = History(key: GlobalKey());
-                  _selectTab(0, indexState);
-                  return;
-                }
+
                 history ??= const History();
                 _selectTab(0, indexState);
               }),

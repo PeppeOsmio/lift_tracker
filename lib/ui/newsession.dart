@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/database.dart';
@@ -11,7 +12,7 @@ import 'package:lift_tracker/data/workoutrecord.dart';
 import 'package:lift_tracker/ui/colors.dart';
 import 'package:lift_tracker/ui/widgets.dart';
 
-class NewSession extends StatefulWidget {
+class NewSession extends ConsumerStatefulWidget {
   const NewSession(this.workout, {Key? key}) : super(key: key);
   final Workout workout;
 
@@ -19,7 +20,7 @@ class NewSession extends StatefulWidget {
   _NewSessionState createState() => _NewSessionState();
 }
 
-class _NewSessionState extends State<NewSession> {
+class _NewSessionState extends ConsumerState<NewSession> {
   List<ExcerciseRecordItem> records = [];
   List<Excercise> data = [];
   List<Widget> items = [];
@@ -147,7 +148,7 @@ class _NewSessionState extends State<NewSession> {
               ['hasRecord'] = 1;
           await CustomDatabase.instance
               .setWeightRecord(excercise.id, currentMaxWeight);
-          Helper.didSetWeightRecord = true;
+          ref.read(Helper.workoutsProvider.notifier).refreshWorkouts();
         }
       } else {
         // if this weight is a record, mark the first set with this weight
@@ -158,12 +159,12 @@ class _NewSessionState extends State<NewSession> {
             ['hasRecord'] = 1;
         await CustomDatabase.instance
             .setWeightRecord(excercise.id, currentMaxWeight);
-        Helper.didSetWeightRecord = true;
+        ref.read(Helper.workoutsProvider.notifier).refreshWorkouts();
       }
     }
     // save this workout session on the database
     await CustomDatabase.instance.addWorkoutRecord(workoutRecord);
-    Helper.didUpdateHistory = true;
+    ref.read(Helper.workoutRecordsProvider.notifier).refreshWorkoutRecords();
     Navigator.pop(context);
   }
 

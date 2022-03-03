@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/data/workout.dart';
@@ -10,14 +11,14 @@ import 'package:lift_tracker/ui/workoutlist/menuworkoutcard.dart';
 
 import '../../data/excercise.dart';
 
-class WorkoutList extends StatefulWidget {
+class WorkoutList extends ConsumerStatefulWidget {
   const WorkoutList({Key? key}) : super(key: key);
 
   @override
   _WorkoutListState createState() => _WorkoutListState();
 }
 
-class _WorkoutListState extends State<WorkoutList> {
+class _WorkoutListState extends ConsumerState<WorkoutList> {
   late Future<List<Workout>> workoutsFuture;
   bool isButtonPressed = false;
   List<Size> cardSized = [];
@@ -26,7 +27,39 @@ class _WorkoutListState extends State<WorkoutList> {
   @override
   void initState() {
     super.initState();
-    workoutsFuture = CustomDatabase.instance.readWorkouts();
+  }
+
+  Widget buildFAB() {
+    return SizedBox(
+      height: 65,
+      width: 65,
+      child: FloatingActionButton(
+        onPressed: () async {
+          Helper.unfocusTextFields(context);
+          var route =
+              MaterialPageRoute(builder: (context) => const NewWorkout());
+          await Navigator.push(context, route).then((value) {
+            CustomDatabase.instance.readWorkouts().then((value) {
+              setState(() {
+                workoutsFuture = CustomDatabase.instance.readWorkouts();
+              });
+            });
+          });
+        },
+        backgroundColor: Colors.black,
+        elevation: 0,
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20))),
+        child: FittedBox(
+          child: Icon(Icons.add_outlined, color: Palette.orange),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    workoutsFuture = ref.watch(Helper.workoutsProvider);
     workoutsFuture.then((value) {
       if (Helper.firstAppRun) {
         Helper.firstAppRun = false;
@@ -63,38 +96,6 @@ class _WorkoutListState extends State<WorkoutList> {
         });
       }
     });
-  }
-
-  Widget buildFAB() {
-    return SizedBox(
-      height: 65,
-      width: 65,
-      child: FloatingActionButton(
-        onPressed: () async {
-          Helper.unfocusTextFields(context);
-          var route =
-              MaterialPageRoute(builder: (context) => const NewWorkout());
-          await Navigator.push(context, route).then((value) {
-            CustomDatabase.instance.readWorkouts().then((value) {
-              setState(() {
-                workoutsFuture = CustomDatabase.instance.readWorkouts();
-              });
-            });
-          });
-        },
-        backgroundColor: Colors.black,
-        elevation: 0,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(20))),
-        child: FittedBox(
-          child: Icon(Icons.add_outlined, color: Palette.orange),
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Stack(
       children: [
         Column(
@@ -138,24 +139,13 @@ class _WorkoutListState extends State<WorkoutList> {
                     columnContent.add(Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: WorkoutCard(workouts[i], (startAsClosed) async {
-                          if (Helper.didSetWeightRecord) {
-                            Helper.didSetWeightRecord = false;
-                            workoutsFuture =
-                                CustomDatabase.instance.readWorkouts();
-                            workouts = await workoutsFuture;
-                            setState(() {});
-                          }
                           WorkoutCard workoutCard = WorkoutCard(
                             workouts[i],
                             (startAsClosed) {},
                             true,
                           );
-                          await Navigator.push(context,
-                              blurredMenuBuilder(workoutCard, cardKeys[i], i));
-                          workoutsFuture =
-                              CustomDatabase.instance.readWorkouts();
-                          workouts = await workoutsFuture;
-                          setState(() {});
+                          Navigator.push(context,
+                              blurredMenuBuilder(workoutCard, cardKeys[i]));
                         }, false, key: cardKeys[i])));
                   }
                   return Expanded(
@@ -175,8 +165,7 @@ class _WorkoutListState extends State<WorkoutList> {
     );
   }
 
-  PageRouteBuilder blurredMenuBuilder(
-      WorkoutCard workoutCard, GlobalKey key, int tag) {
+  PageRouteBuilder blurredMenuBuilder(WorkoutCard workoutCard, GlobalKey key) {
     return PageRouteBuilder(
         transitionDuration: const Duration(milliseconds: 00),
         opaque: false,

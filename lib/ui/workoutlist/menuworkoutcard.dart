@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:lift_tracker/ui/workoutlist/workoutcard.dart';
 
@@ -136,7 +138,7 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                                   const EdgeInsets.only(bottom: 8, right: 8),
                               child: CardMenuButton(
                                   onPressed: () {
-                                    Navigator.push(context,
+                                    Navigator.pushReplacement(context,
                                         MaterialPageRoute(builder: (context) {
                                       return EditWorkout(
                                           widget.workoutCard.workout);

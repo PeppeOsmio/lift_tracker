@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/data/excercise.dart';
@@ -10,7 +11,7 @@ import 'package:lift_tracker/ui/colors.dart';
 import 'package:lift_tracker/ui/excerciselistitem.dart';
 import 'package:lift_tracker/ui/widgets.dart';
 
-class EditWorkout extends StatefulWidget {
+class EditWorkout extends ConsumerStatefulWidget {
   const EditWorkout(this.workout, {Key? key}) : super(key: key);
   final Workout workout;
 
@@ -18,7 +19,7 @@ class EditWorkout extends StatefulWidget {
   _EditWorkoutState createState() => _EditWorkoutState();
 }
 
-class _EditWorkoutState extends State<EditWorkout> {
+class _EditWorkoutState extends ConsumerState<EditWorkout> {
   List<ExcerciseListItem> excerciseWidgets = [];
   List<Excercise> data = [];
   TextEditingController workoutName = TextEditingController();
@@ -53,7 +54,6 @@ class _EditWorkoutState extends State<EditWorkout> {
     return WillPopScope(
       onWillPop: () async {
         Navigator.pop(context);
-        Navigator.maybePop(context);
         return false;
       },
       child: SafeArea(
@@ -66,7 +66,6 @@ class _EditWorkoutState extends State<EditWorkout> {
                     middleText: "Edit workout",
                     onBack: () {
                       Navigator.pop(context);
-                      Navigator.maybePop(context);
                     },
                     onSubmit: () => editWorkout(),
                     backButton: true,
@@ -154,9 +153,8 @@ class _EditWorkoutState extends State<EditWorkout> {
         .editWorkout(Workout(widget.workout.id, workoutName.text, excercises))
         .then((value) {
       Navigator.pop(context);
-      Navigator.maybePop(context);
     });
-    Helper.didUpdateWorkout = true;
+    ref.read(Helper.workoutsProvider.notifier).refreshWorkouts();
   }
 
   void onDelete(index) {
