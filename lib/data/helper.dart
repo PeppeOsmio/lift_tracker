@@ -1,5 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lift_tracker/data/database.dart';
+import 'package:lift_tracker/data/workout.dart';
+
+import '../ui/workoutlist/workoutlist.dart';
 
 class IndexNotifier extends StateNotifier<int> {
   IndexNotifier() : super(1);
@@ -8,11 +12,38 @@ class IndexNotifier extends StateNotifier<int> {
   }
 }
 
+class PagesNotifier extends StateNotifier<List<Widget>> {
+  PagesNotifier() : super([SizedBox(), WorkoutList(), SizedBox()]);
+  void addPage(Widget page, int index) {
+    var temp = <Widget>[];
+    temp.addAll(state);
+    temp[index] = page;
+    state = temp;
+  }
+
+  void popPage() {
+    state.removeLast();
+    state = state;
+  }
+}
+
+class WorkoutProvider extends StateNotifier<Future<List<Workout>>> {
+  WorkoutProvider() : super(CustomDatabase.instance.readWorkouts());
+
+  void refreshWorkouts() {
+    state = CustomDatabase.instance.readWorkouts();
+  }
+}
+
 class Helper {
   static final pageIndexProvider =
       StateNotifierProvider<IndexNotifier, int>(((ref) {
     return IndexNotifier();
   }));
+  static final pagesProvider =
+      StateNotifierProvider<PagesNotifier, List<Widget>>((ref) {
+    return PagesNotifier();
+  });
   static List<int> pageStack = [];
   static bool didUpdateHistory = false;
   static bool didSetWeightRecord = false;
