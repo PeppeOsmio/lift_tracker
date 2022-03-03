@@ -39,6 +39,7 @@ dependencies:
   curved_animation_controller: ^1.1.0+1
   flutter_launcher_icons: ^0.9.2
   fluttericon: ^2.0.0
+  flutter_riverpod: ^1.0.3
 
 dev_dependencies:
 

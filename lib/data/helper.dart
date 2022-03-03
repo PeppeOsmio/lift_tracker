@@ -1,7 +1,18 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+class IndexNotifier extends StateNotifier<int> {
+  IndexNotifier() : super(1);
+  void setIndex(int index) {
+    state = index;
+  }
+}
 
 class Helper {
-  static int pageIndex = 1;
+  static final pageIndexProvider =
+      StateNotifierProvider<IndexNotifier, int>(((ref) {
+    return IndexNotifier();
+  }));
   static List<int> pageStack = [];
   static bool didUpdateHistory = false;
   static bool didSetWeightRecord = false;

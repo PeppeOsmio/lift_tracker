@@ -10,13 +10,11 @@ class MenuWorkoutCard extends StatefulWidget {
       {required this.positionedAnimationDuration,
       required this.workoutCardKey,
       required this.workoutCard,
-      required this.heroTag,
       required this.deleteOnPressed,
       required this.cancelOnPressed,
       Key? key})
       : super(key: key);
   final WorkoutCard workoutCard;
-  final int heroTag;
   final void Function() deleteOnPressed;
   final void Function() cancelOnPressed;
   final Duration positionedAnimationDuration;
