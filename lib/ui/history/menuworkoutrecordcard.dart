@@ -87,7 +87,7 @@ class _MenuWorkoutRecordCardState extends State<MenuWorkoutRecordCard> {
                 ),
                 AnimatedPositioned(
                   curve: Curves.decelerate,
-                  duration: const Duration(milliseconds: 200),
+                  duration: widget.positionedAnimationDuration,
                   width: MediaQuery.of(context).size.width,
                   top: cardY,
                   child: AnimatedOpacity(

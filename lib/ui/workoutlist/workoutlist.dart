@@ -90,7 +90,7 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
             CustomDatabase.instance
                 .createWorkout("Pull", excercises)
                 .then((value) {
-              setState(() {});
+              ref.read(Helper.workoutsProvider.notifier).refreshWorkouts();
             });
           });
         });
@@ -122,7 +122,7 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
                         child: TextField(
                       readOnly: false,
                       decoration: InputDecoration(border: InputBorder.none),
-                      style: TextStyle(color: Colors.white, fontSize: 25),
+                      style: TextStyle(color: Colors.white, fontSize: 24),
                     )),
                   ],
                 ),
@@ -167,22 +167,20 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
 
   PageRouteBuilder blurredMenuBuilder(WorkoutCard workoutCard, GlobalKey key) {
     return PageRouteBuilder(
-        transitionDuration: const Duration(milliseconds: 00),
+        transitionDuration: const Duration(milliseconds: 0),
         opaque: false,
         pageBuilder: (context, a1, a2) {
           return MenuWorkoutCard(
-              positionedAnimationDuration: const Duration(milliseconds: 200),
+              positionedAnimationDuration: const Duration(milliseconds: 150),
               workoutCardKey: key,
               workoutCard: workoutCard,
               deleteOnPressed: () async {
                 isButtonPressed = true;
                 await CustomDatabase.instance
                     .removeWorkout(workoutCard.workout.id);
-                workoutsFuture = CustomDatabase.instance.readWorkouts();
+                ref.read(Helper.workoutsProvider.notifier).refreshWorkouts();
                 Navigator.maybePop(context);
-                setState(() {});
                 isButtonPressed = false;
-
                 return;
               },
               cancelOnPressed: () {

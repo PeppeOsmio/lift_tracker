@@ -124,7 +124,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
     );
   }
 
-  void editWorkout() {
+  void editWorkout() async {
     if (workoutName.text.isEmpty) {
       return;
     }
@@ -149,11 +149,9 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
           reps: int.parse(reps),
           weightRecord: weightRecord));
     }
-    CustomDatabase.instance
-        .editWorkout(Workout(widget.workout.id, workoutName.text, excercises))
-        .then((value) {
-      Navigator.pop(context);
-    });
+    await CustomDatabase.instance
+        .editWorkout(Workout(widget.workout.id, workoutName.text, excercises));
+    Navigator.pop(context);
     ref.read(Helper.workoutsProvider.notifier).refreshWorkouts();
   }
 

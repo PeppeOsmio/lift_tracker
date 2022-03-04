@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/data/excercise.dart';
 import 'package:lift_tracker/ui/colors.dart';
@@ -8,14 +9,14 @@ import 'package:lift_tracker/ui/widgets.dart';
 
 import '../data/helper.dart';
 
-class NewWorkout extends StatefulWidget {
+class NewWorkout extends ConsumerStatefulWidget {
   const NewWorkout({Key? key}) : super(key: key);
 
   @override
   _NewWorkoutState createState() => _NewWorkoutState();
 }
 
-class _NewWorkoutState extends State<NewWorkout> {
+class _NewWorkoutState extends ConsumerState<NewWorkout> {
   List<ExcerciseListItem> excerciseWidgets = [];
   List<Excercise> data = [];
   TextEditingController workoutName = TextEditingController();
@@ -107,7 +108,7 @@ class _NewWorkoutState extends State<NewWorkout> {
     );
   }
 
-  void createWorkout() {
+  void createWorkout() async {
     if (workoutName.text.isEmpty) {
       return;
     }
@@ -123,11 +124,9 @@ class _NewWorkoutState extends State<NewWorkout> {
       excercises.add(Excercise(
           id: i, name: name, sets: int.parse(sets), reps: int.parse(reps)));
     }
-    CustomDatabase.instance
-        .createWorkout(workoutName.text, excercises)
-        .then((value) {
-      Navigator.pop(context);
-    });
+    await CustomDatabase.instance.createWorkout(workoutName.text, excercises);
+    ref.read(Helper.workoutsProvider.notifier).refreshWorkouts();
+    Navigator.pop(context);
   }
 
   void onDelete(index) {

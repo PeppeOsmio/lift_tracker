@@ -112,7 +112,7 @@ class _HistoryState extends ConsumerState<History> {
         opaque: false,
         pageBuilder: (context, a1, a2) {
           return MenuWorkoutRecordCard(
-              positionedAnimationDuration: const Duration(milliseconds: 00),
+              positionedAnimationDuration: const Duration(milliseconds: 150),
               workoutCardKey: key,
               workoutRecordCard: workoutRecordCard,
               heroTag: tag,
