@@ -93,45 +93,12 @@ class _AppState extends ConsumerState<App> {
                 child: IconButton(
                     onPressed: () {
                       Helper.unfocusTextFields(context);
-                      showDialog(
-                          barrierColor: Colors.transparent,
-                          context: context,
-                          builder: (ctx) {
-                            return Stack(children: [
-                              GestureDetector(
-                                  onTap: () {
-                                    Navigator.maybePop(context);
-                                  },
-                                  child: const DimmingBackground(
-                                      duration: Duration(milliseconds: 150))),
-                              AlertDialog(
-                                backgroundColor: Palette.backgroundDark,
-                                titleTextStyle: const TextStyle(
-                                    color: Colors.white, fontSize: 20),
-                                title: const Text("Exit?"),
-                                actions: [
-                                  ElevatedButton(
-                                      style: ButtonStyle(
-                                          backgroundColor:
-                                              MaterialStateProperty.all(
-                                                  Palette.elementsDark)),
-                                      onPressed: () {
-                                        SystemNavigator.pop();
-                                      },
-                                      child: const Text("Yes")),
-                                  ElevatedButton(
-                                      style: ButtonStyle(
-                                          backgroundColor:
-                                              MaterialStateProperty.all(
-                                                  Palette.elementsDark)),
-                                      onPressed: () {
-                                        Navigator.maybePop(ctx);
-                                      },
-                                      child: const Text("Cancel"))
-                                ],
-                              ),
-                            ]);
-                          });
+                      showDimmedBackgroundDialog(context,
+                          title: 'Exit?',
+                          rightText: 'Cancel',
+                          leftText: 'Yes',
+                          rightOnPressed: () => Navigator.maybePop(context),
+                          leftOnPressed: () => SystemNavigator.pop());
                     },
                     icon: const Icon(Icons.logout_outlined)),
               ),

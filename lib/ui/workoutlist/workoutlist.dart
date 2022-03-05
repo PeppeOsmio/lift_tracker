@@ -141,10 +141,10 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
                         child: WorkoutCard(workouts[i], (startAsClosed) async {
                           WorkoutCard workoutCard = WorkoutCard(
                             workouts[i],
-                            (startAsClosed) {},
+                            (startAsClosed) async {},
                             true,
                           );
-                          Navigator.push(context,
+                          await Navigator.push(context,
                               blurredMenuBuilder(workoutCard, cardKeys[i]));
                         }, false, key: cardKeys[i])));
                   }
@@ -168,7 +168,6 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
   PageRouteBuilder blurredMenuBuilder(WorkoutCard workoutCard, GlobalKey key) {
     ref.read(Helper.blurProvider.notifier).setBlur(1);
     return PageRouteBuilder(
-        transitionDuration: const Duration(milliseconds: 0),
         opaque: false,
         pageBuilder: (context, a1, a2) {
           return MenuWorkoutCard(

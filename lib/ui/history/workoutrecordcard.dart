@@ -8,7 +8,7 @@ class WorkoutRecordCard extends StatefulWidget {
   const WorkoutRecordCard(this.workoutRecord, this.onPressed,
       {Key? key, this.onLongPress})
       : super(key: key);
-  final Function? onLongPress;
+  final Future Function()? onLongPress;
   final WorkoutRecord workoutRecord;
   final void Function() onPressed;
   Duration get expandDuration => Duration(
@@ -24,6 +24,7 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
   int totalVolume = 0;
   int recordNumber = 0;
   List<int> recordExcercisesIndexes = [];
+  double opacity = 1;
 
   @override
   void initState() {
@@ -91,118 +92,131 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
       onTap: () {
         widget.onPressed.call();
       },
-      onLongPress: () {
+      onLongPress: () async {
         if (widget.onLongPress != null) {
-          widget.onLongPress!.call();
+          setState(() {
+            opacity = 0;
+          });
+          await widget.onLongPress!.call();
+          Future.delayed(const Duration(milliseconds: 150), () {
+            setState(() {
+              opacity = 1;
+            });
+          });
         }
       },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Palette.elementsDark,
-          borderRadius: const BorderRadius.all(Radius.circular(20)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Material(
-            color: Colors.transparent,
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Row(children: [
-                  Icon(
-                    Icons.calendar_today_outlined,
-                    color: Palette.orange,
-                  ),
-                  const SizedBox(width: 16),
-                  Text(
-                    Helper.dateToString(widget.workoutRecord.day),
-                    style: const TextStyle(color: Colors.white, fontSize: 20),
-                  ),
-                  const Spacer(),
-                  const Icon(
-                    Icons.expand_more_outlined,
-                    color: Colors.white,
-                  )
-                ]),
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    flex: 4,
-                    child: Text(widget.workoutRecord.workoutName,
-                        style:
-                            const TextStyle(fontSize: 24, color: Colors.white)),
-                  ),
-                  const Spacer(),
-                  recordNumber > 0
-                      ? Container(
+      child: Opacity(
+        opacity: opacity,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Palette.elementsDark,
+            borderRadius: const BorderRadius.all(Radius.circular(20)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Material(
+              color: Colors.transparent,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Row(children: [
+                        Icon(
+                          Icons.calendar_today_outlined,
+                          color: Palette.orange,
+                        ),
+                        const SizedBox(width: 16),
+                        Text(
+                          Helper.dateToString(widget.workoutRecord.day),
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 20),
+                        ),
+                        const Spacer(),
+                        const Icon(
+                          Icons.expand_more_outlined,
+                          color: Colors.white,
+                        )
+                      ]),
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 4,
+                          child: Text(widget.workoutRecord.workoutName,
+                              style: const TextStyle(
+                                  fontSize: 24, color: Colors.white)),
+                        ),
+                        const Spacer(),
+                        recordNumber > 0
+                            ? Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: Colors.green),
+                                    color: Colors.green.withAlpha(25)),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      FontAwesome5.trophy,
+                                      size: 18,
+                                      color: Colors.green,
+                                    ),
+                                    const SizedBox(
+                                      width: 8,
+                                    ),
+                                    Text(
+                                      "$recordNumber",
+                                      style: TextStyle(
+                                          color: Colors.green,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : SizedBox(),
+                        const SizedBox(
+                          width: 8,
+                        ),
+                        Container(
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: Colors.green),
-                              color: Colors.green.withAlpha(25)),
+                              border: Border.all(color: Colors.amber),
+                              color: Colors.amber.withAlpha(25)),
                           child: Row(
                             children: [
                               Icon(
-                                FontAwesome5.trophy,
+                                FontAwesome5.weight_hanging,
                                 size: 18,
-                                color: Colors.green,
+                                color: Colors.amber,
                               ),
                               const SizedBox(
-                                width: 8,
+                                width: 4,
                               ),
                               Text(
-                                "$recordNumber",
+                                "$totalVolume kg",
                                 style: TextStyle(
-                                    color: Colors.green,
+                                    color: Colors.amber,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w400),
                               ),
                             ],
                           ),
-                        )
-                      : SizedBox(),
-                  const SizedBox(
-                    width: 8,
-                  ),
-                  Container(
-                    padding: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.amber),
-                        color: Colors.amber.withAlpha(25)),
-                    child: Row(
-                      children: [
-                        Icon(
-                          FontAwesome5.weight_hanging,
-                          size: 18,
-                          color: Colors.amber,
-                        ),
-                        const SizedBox(
-                          width: 4,
-                        ),
-                        Text(
-                          "$totalVolume kg",
-                          style: TextStyle(
-                              color: Colors.amber,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400),
                         ),
                       ],
                     ),
-                  ),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 24),
-                child: Padding(
-                    padding: const EdgeInsets.only(left: 8),
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: exc)),
-              ),
-            ]),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 24),
+                      child: Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: exc)),
+                    ),
+                  ]),
+            ),
           ),
         ),
       ),

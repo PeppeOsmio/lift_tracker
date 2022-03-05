@@ -79,14 +79,9 @@ class _HistoryState extends ConsumerState<History> {
                               return Session(records[length - 1 - i]);
                             });
                             Navigator.push(context, route);
-                          }, onLongPress: () {
-                            Navigator.push(
-                                    context,
-                                    blurredMenuBuilder(
-                                        workoutRecordCard, key, i))
-                                .then((value) {
-                              setState(() {});
-                            });
+                          }, onLongPress: () async {
+                            await Navigator.push(context,
+                                blurredMenuBuilder(workoutRecordCard, key, i));
                           }),
                           key: key,
                         );
@@ -119,8 +114,10 @@ class _HistoryState extends ConsumerState<History> {
               deleteOnPressed: () async {
                 await CustomDatabase.instance
                     .removeWorkoutRecord(workoutRecordCard.workoutRecord.id);
-                workoutRecords = CustomDatabase.instance.readWorkoutRecords();
-                Navigator.maybePop(context);
+                ref
+                    .read(Helper.workoutRecordsProvider.notifier)
+                    .refreshWorkoutRecords();
+                await Navigator.maybePop(context);
               },
               cancelOnPressed: () {
                 Navigator.maybePop(context);

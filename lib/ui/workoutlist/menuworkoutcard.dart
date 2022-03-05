@@ -94,7 +94,9 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                           Navigator.maybePop(context);
                         },
                         child: DimmingBackground(
-                            duration: const Duration(milliseconds: 150))),
+                          duration: const Duration(milliseconds: 150),
+                          maxAlpha: 230,
+                        )),
                     AnimatedPositioned(
                       curve: Curves.decelerate,
                       duration: widget.positionedAnimationDuration,

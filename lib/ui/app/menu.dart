@@ -72,7 +72,9 @@ class BlurredProfileMenuState extends State<BlurredProfileMenu> {
                             Navigator.maybePop(context);
                           },
                           child: const DimmingBackground(
-                              duration: const Duration(milliseconds: 150))),
+                            duration: const Duration(milliseconds: 150),
+                            maxAlpha: 200,
+                          )),
                       Positioned(
                           top: offset.dy,
                           left: offset.dx,

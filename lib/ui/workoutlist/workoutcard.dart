@@ -9,7 +9,7 @@ class WorkoutCard extends StatefulWidget {
       : super(key: key);
 
   final Workout workout;
-  final void Function(bool) onLongPress;
+  final Future Function(bool) onLongPress;
   final bool removeMode;
   Duration get expandDuration =>
       Duration(milliseconds: 100 + (workout.excercises.length - 5) * 40);
@@ -23,6 +23,7 @@ class _WorkoutCardState extends State<WorkoutCard> {
   bool isButtonPressed = false;
   late bool _removeMode;
   late Duration expandDuration;
+  double opacity = 1;
 
   @override
   void initState() {
@@ -92,63 +93,73 @@ class _WorkoutCardState extends State<WorkoutCard> {
         return true;
       },
       child: GestureDetector(
-        onTap: () {
+        onTap: () async {
+          setState(() {
+            opacity = 0;
+          });
           Helper.unfocusTextFields(context);
-          if (_removeMode) {}
-          widget.onLongPress.call(!isOpen);
+          await widget.onLongPress.call(!isOpen);
+          Future.delayed(const Duration(milliseconds: 150), () {
+            setState(() {
+              opacity = 1;
+            });
+          });
         },
-        child: Container(
-          decoration: BoxDecoration(
-            color: Palette.elementsDark,
-            borderRadius: const BorderRadius.all(Radius.circular(20)),
-          ),
-          child: AnimatedSize(
-            curve: Curves.decelerate,
-            duration: expandDuration,
-            reverseDuration: expandDuration,
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Material(
-                color: Colors.transparent,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(widget.workout.name,
-                            style: const TextStyle(
-                                fontSize: 24, color: Colors.white)),
-                        const Spacer(),
-                        _removeMode
-                            ? InkWell(
-                                borderRadius: BorderRadius.circular(20),
-                                radius: 20,
-                                onTap: () => Navigator.maybePop(context),
-                                child: Icon(
+        child: Opacity(
+          opacity: opacity,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Palette.elementsDark,
+              borderRadius: const BorderRadius.all(Radius.circular(20)),
+            ),
+            child: AnimatedSize(
+              curve: Curves.decelerate,
+              duration: expandDuration,
+              reverseDuration: expandDuration,
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Material(
+                  color: Colors.transparent,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(widget.workout.name,
+                              style: const TextStyle(
+                                  fontSize: 24, color: Colors.white)),
+                          const Spacer(),
+                          _removeMode
+                              ? InkWell(
+                                  borderRadius: BorderRadius.circular(20),
+                                  radius: 20,
+                                  onTap: () => Navigator.maybePop(context),
+                                  child: Icon(
+                                    isOpen
+                                        ? Icons.expand_less_outlined
+                                        : Icons.expand_more_outlined,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : Icon(
                                   isOpen
                                       ? Icons.expand_less_outlined
                                       : Icons.expand_more_outlined,
                                   color: Colors.white,
-                                ),
-                              )
-                            : Icon(
-                                isOpen
-                                    ? Icons.expand_less_outlined
-                                    : Icons.expand_more_outlined,
-                                color: Colors.white,
-                              )
-                      ],
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 24),
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 8),
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: exc),
+                                )
+                        ],
                       ),
-                    )
-                  ],
+                      Padding(
+                        padding: const EdgeInsets.only(top: 24),
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: exc),
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),

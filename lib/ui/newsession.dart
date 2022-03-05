@@ -96,6 +96,17 @@ class _NewSessionState extends ConsumerState<NewSession> {
   Future createWorkoutSession() async {
     WorkoutRecord? workoutRecord = getWorkoutRecord();
     if (workoutRecord == null) {
+      await showDimmedBackgroundDialog(context,
+          rightText: 'Cancel',
+          leftText: 'Yes',
+          rightOnPressed: () => Navigator.maybePop(context),
+          leftOnPressed: () {
+            Navigator.pop(context);
+            Navigator.maybePop(context);
+            Fluttertoast.showToast(msg: "Session canceled");
+          },
+          title: 'Cancel this session?',
+          content: 'All sets are empty. Press yes to cancel this session');
       return;
     }
     // delete all excercise records with empty sets
@@ -112,8 +123,16 @@ class _NewSessionState extends ConsumerState<NewSession> {
     // if every excercise record has been deleted, the session is not valid
     // and will not be saved
     if (workoutRecord.excerciseRecords.isEmpty) {
-      Fluttertoast.showToast(msg: "Session canceled");
-      Navigator.maybePop(context);
+      await showDimmedBackgroundDialog(context,
+          leftText: 'Yes', rightText: 'Cancel', leftOnPressed: () {
+        Navigator.pop(context);
+        Navigator.maybePop(context);
+        Fluttertoast.showToast(msg: "Session canceled");
+      }, rightOnPressed: () {
+        Navigator.maybePop(context);
+      },
+          title: 'Cancel this session?',
+          content: 'All sets have 0 reps. Press yes to cancel this session');
       return;
     }
     Workout workout = widget.workout;
@@ -136,7 +155,6 @@ class _NewSessionState extends ConsumerState<NewSession> {
       for (int j = 0; j < reps_weight_rpe.length - 1; j++) {
         currentMaxWeight =
             max(currentMaxWeight, reps_weight_rpe[j + 1]['weight']);
-        print("currentMaxWeight: $currentMaxWeight");
       }
       if (previousWeightRecord != null) {
         if (currentMaxWeight > previousWeightRecord) {

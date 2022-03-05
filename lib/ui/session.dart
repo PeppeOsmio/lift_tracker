@@ -10,6 +10,7 @@ import 'package:lift_tracker/data/workout.dart';
 import 'package:lift_tracker/data/workoutrecord.dart';
 import 'package:lift_tracker/ui/history/history.dart';
 import 'package:lift_tracker/ui/colors.dart';
+import 'package:lift_tracker/ui/widgets.dart';
 
 class Session extends StatefulWidget {
   const Session(this.workoutRecord, {Key? key}) : super(key: key);
@@ -52,45 +53,15 @@ class _SessionState extends State<Session> {
         backgroundColor: Palette.backgroundDark,
         body: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 16, left: 16, bottom: 8),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Material(
-                    color: Palette.elementsDark,
-                    borderRadius: BorderRadius.circular(10),
-                    child: SizedBox(
-                        height: 35,
-                        width: 35,
-                        child: InkWell(
-                            radius: 17.5,
-                            borderRadius: BorderRadius.circular(10),
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Icon(
-                              Icons.chevron_left_outlined,
-                              color: Colors.redAccent,
-                            ))),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 24),
-                      child: Text(
-                        widget.workoutRecord.workoutName +
-                            " session of " +
-                            Helper.dateToString(widget.workoutRecord.day),
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            CustomAppBar(
+                middleText:
+                    '${widget.workoutRecord.workoutName} session of ${Helper.dateToString(widget.workoutRecord.day)}',
+                onBack: () {
+                  Navigator.pop(context);
+                },
+                onSubmit: () {},
+                backButton: true,
+                submitButton: false),
             Expanded(
               child: ListView(
                 children: buildExcerciseCardList(),

@@ -2,13 +2,62 @@ import 'dart:ui';
 import 'package:curved_animation_controller/curved_animation_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lift_tracker/ui/editworkout.dart';
-import 'package:lift_tracker/ui/newsession.dart';
-import 'package:lift_tracker/ui/history/workoutrecordcard.dart';
-import '../data/helper.dart';
-import 'history/history.dart';
-import 'workoutlist/workoutcard.dart';
+import 'package:lift_tracker/data/helper.dart';
 import 'colors.dart';
+
+Future showDimmedBackgroundDialog(BuildContext context,
+    {String? title,
+    String? content,
+    required String rightText,
+    required String leftText,
+    required rightOnPressed,
+    required leftOnPressed}) async {
+  Helper.unfocusTextFields(context);
+  await showDialog(
+      barrierColor: Colors.transparent,
+      context: context,
+      builder: (ctx) {
+        return Stack(children: [
+          GestureDetector(
+              onTap: () {
+                Navigator.maybePop(context);
+              },
+              child: const DimmingBackground(
+                duration: Duration(milliseconds: 150),
+                maxAlpha: 200,
+              )),
+          AlertDialog(
+            backgroundColor: Palette.backgroundDark,
+            titleTextStyle: const TextStyle(color: Colors.white, fontSize: 20),
+            title: title != null ? Text(title) : null,
+            content: content != null
+                ? Text(
+                    content,
+                    style: TextStyle(color: Colors.white),
+                  )
+                : null,
+            actions: [
+              ElevatedButton(
+                  style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all(Palette.elementsDark)),
+                  onPressed: () {
+                    leftOnPressed();
+                  },
+                  child: Text(leftText)),
+              ElevatedButton(
+                  style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all(Palette.elementsDark)),
+                  onPressed: () {
+                    rightOnPressed();
+                  },
+                  child: Text(rightText)),
+            ],
+          ),
+        ]);
+      });
+}
 
 class CustomAppBar extends StatelessWidget {
   const CustomAppBar(
@@ -78,7 +127,10 @@ class CustomAppBar extends StatelessWidget {
                             color: Colors.green,
                           ))),
                 )
-              : SizedBox()
+              : Padding(
+                  padding: const EdgeInsets.only(left: 0),
+                  child: SizedBox(),
+                )
         ],
       ),
     );
@@ -129,8 +181,11 @@ class CardMenuButton extends StatelessWidget {
 }
 
 class DimmingBackground extends StatefulWidget {
-  const DimmingBackground({required this.duration, Key? key}) : super(key: key);
+  const DimmingBackground(
+      {required this.duration, required this.maxAlpha, Key? key})
+      : super(key: key);
   final Duration duration;
+  final int maxAlpha;
 
   @override
   State<DimmingBackground> createState() => _DimmingBackgroundState();
@@ -152,21 +207,21 @@ class _DimmingBackgroundState extends State<DimmingBackground> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async {
-        setState(() {
-          opacity = 0;
-        });
-        return true;
-      },
-      child: AnimatedOpacity(
-        duration: widget.duration,
-        opacity: opacity,
-        child: Container(
+        onWillPop: () async {
+          setState(() {
+            opacity = 0;
+          });
+          return true;
+        },
+        child: AnimatedOpacity(
+          duration: widget.duration,
+          opacity: opacity,
+          child: Container(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
-            color: Colors.black.withAlpha(240)),
-      ),
-    );
+            color: Colors.black.withAlpha(widget.maxAlpha),
+          ),
+        ));
   }
 }
 
@@ -220,7 +275,6 @@ class _AnimatedBlurState extends ConsumerState<AnimatedBlur>
         animation: animationController,
         builder: (context, child) {
           int alpha = animationController.value!.round() * 220;
-          print(alpha);
           return ImageFiltered(
             imageFilter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
             child: Container(
