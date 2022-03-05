@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:curved_animation_controller/curved_animation_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lift_tracker/ui/editworkout.dart';
 import 'package:lift_tracker/ui/newsession.dart';
 import 'package:lift_tracker/ui/history/workoutrecordcard.dart';
@@ -127,7 +128,49 @@ class CardMenuButton extends StatelessWidget {
   }
 }
 
-class AnimatedBlur extends StatefulWidget {
+class DimmingBackground extends StatefulWidget {
+  const DimmingBackground({required this.duration, Key? key}) : super(key: key);
+  final Duration duration;
+
+  @override
+  State<DimmingBackground> createState() => _DimmingBackgroundState();
+}
+
+class _DimmingBackgroundState extends State<DimmingBackground> {
+  double opacity = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration.zero, () {
+      setState(() {
+        opacity = 1;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () async {
+        setState(() {
+          opacity = 0;
+        });
+        return true;
+      },
+      child: AnimatedOpacity(
+        duration: widget.duration,
+        opacity: opacity,
+        child: Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            color: Colors.black.withAlpha(240)),
+      ),
+    );
+  }
+}
+
+class AnimatedBlur extends ConsumerStatefulWidget {
   const AnimatedBlur({required this.duration, required this.delay, Key? key})
       : super(key: key);
   final Duration duration;
@@ -137,9 +180,10 @@ class AnimatedBlur extends StatefulWidget {
   _AnimatedBlurState createState() => _AnimatedBlurState();
 }
 
-class _AnimatedBlurState extends State<AnimatedBlur>
+class _AnimatedBlurState extends ConsumerState<AnimatedBlur>
     with SingleTickerProviderStateMixin {
-  late CurvedAnimationController animationController;
+  double sigma = 3;
+  late CurvedAnimationController<double> animationController;
 
   @override
   void initState() {
@@ -173,14 +217,17 @@ class _AnimatedBlurState extends State<AnimatedBlur>
         return true;
       },
       child: AnimatedBuilder(
-        child: const SizedBox(),
         animation: animationController,
         builder: (context, child) {
-          var value = animationController.value;
-          return BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: value * 5, sigmaY: value * 5),
-            child:
-                Container(color: Colors.black.withAlpha((value * 150).round())),
+          int alpha = animationController.value!.round() * 220;
+          print(alpha);
+          return ImageFiltered(
+            imageFilter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+            child: Container(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              color: Colors.black.withAlpha(alpha),
+            ),
           );
         },
       ),

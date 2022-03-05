@@ -8,6 +8,14 @@ import 'package:lift_tracker/data/workoutrecord.dart';
 
 import '../ui/workoutlist/workoutlist.dart';
 
+class BlurNotifier extends StateNotifier<double> {
+  BlurNotifier() : super(0);
+
+  void setBlur(double sigma) {
+    state = 3 * sigma;
+  }
+}
+
 class IndexNotifier extends StateNotifier<int> {
   IndexNotifier() : super(1);
   void setIndex(int index) {
@@ -74,6 +82,11 @@ class Helper {
       WorkoutRecordsNotifier, Future<List<WorkoutRecord>>>((ref) {
     return WorkoutRecordsNotifier();
   });
+
+  static final blurProvider =
+      StateNotifierProvider<BlurNotifier, double>(((ref) {
+    return BlurNotifier();
+  }));
 
   static List<int> pageStack = [];
   static bool firstAppRun = false;

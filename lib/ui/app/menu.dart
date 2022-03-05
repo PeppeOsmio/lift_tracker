@@ -68,13 +68,11 @@ class BlurredProfileMenuState extends State<BlurredProfileMenu> {
                     },
                     child: Stack(children: [
                       GestureDetector(
-                        onTap: () {
-                          Navigator.maybePop(context);
-                        },
-                        child: const AnimatedBlur(
-                            duration: Duration(milliseconds: 200),
-                            delay: Duration.zero),
-                      ),
+                          onTap: () {
+                            Navigator.maybePop(context);
+                          },
+                          child: const DimmingBackground(
+                              duration: const Duration(milliseconds: 150))),
                       Positioned(
                           top: offset.dy,
                           left: offset.dx,
@@ -137,7 +135,7 @@ class _AnimatedMenuState extends State<AnimatedMenu> {
       },
       child: AnimatedOpacity(
         curve: Curves.decelerate,
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 150),
         opacity: menuOpacity,
         child: Container(
           width: 150,

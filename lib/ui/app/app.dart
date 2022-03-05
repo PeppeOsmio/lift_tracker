@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -98,13 +99,11 @@ class _AppState extends ConsumerState<App> {
                           builder: (ctx) {
                             return Stack(children: [
                               GestureDetector(
-                                onTap: () {
-                                  Navigator.maybePop(context);
-                                },
-                                child: const AnimatedBlur(
-                                    duration: Duration(milliseconds: 200),
-                                    delay: Duration.zero),
-                              ),
+                                  onTap: () {
+                                    Navigator.maybePop(context);
+                                  },
+                                  child: const DimmingBackground(
+                                      duration: Duration(milliseconds: 150))),
                               AlertDialog(
                                 backgroundColor: Palette.backgroundDark,
                                 titleTextStyle: const TextStyle(

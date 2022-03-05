@@ -1,8 +1,10 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lift_tracker/ui/workoutlist/workoutcard.dart';
 
+import '../../data/helper.dart';
 import '../editworkout.dart';
 import '../newsession.dart';
 import '../widgets.dart';
@@ -34,7 +36,7 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
   double finalCardY = 0;
   double cardY = 0;
   bool firstTimeBuilding = true;
-  double opacity = 1;
+  double opacity = 0;
 
   @override
   void initState() {
@@ -47,6 +49,7 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
           2;
       setState(() {
         cardY = finalCardY;
+        opacity = 1;
       });
     });
   }
@@ -86,10 +89,12 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                 },
                 child: Stack(
                   children: [
-                    const AnimatedBlur(
-                      duration: Duration(milliseconds: 200),
-                      delay: Duration(seconds: 0),
-                    ),
+                    GestureDetector(
+                        onTap: () {
+                          Navigator.maybePop(context);
+                        },
+                        child: DimmingBackground(
+                            duration: const Duration(milliseconds: 150))),
                     AnimatedPositioned(
                       curve: Curves.decelerate,
                       duration: widget.positionedAnimationDuration,
@@ -97,7 +102,7 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                       top: cardY,
                       child: AnimatedOpacity(
                         curve: Curves.decelerate,
-                        duration: const Duration(milliseconds: 200),
+                        duration: const Duration(milliseconds: 150),
                         opacity: opacity,
                         child: Material(
                             child: Padding(

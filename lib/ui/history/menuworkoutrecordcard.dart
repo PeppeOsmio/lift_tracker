@@ -77,14 +77,11 @@ class _MenuWorkoutRecordCardState extends State<MenuWorkoutRecordCard> {
             child: Stack(
               children: [
                 GestureDetector(
-                  onTap: () {
-                    Navigator.maybePop(context);
-                  },
-                  child: const AnimatedBlur(
-                    duration: Duration(milliseconds: 200),
-                    delay: Duration(seconds: 0),
-                  ),
-                ),
+                    onTap: () {
+                      Navigator.maybePop(context);
+                    },
+                    child: const DimmingBackground(
+                        duration: const Duration(milliseconds: 150))),
                 AnimatedPositioned(
                   curve: Curves.decelerate,
                   duration: widget.positionedAnimationDuration,
@@ -92,7 +89,7 @@ class _MenuWorkoutRecordCardState extends State<MenuWorkoutRecordCard> {
                   top: cardY,
                   child: AnimatedOpacity(
                     curve: Curves.decelerate,
-                    duration: const Duration(milliseconds: 200),
+                    duration: const Duration(milliseconds: 150),
                     opacity: opacity,
                     child: Material(
                         child: Padding(

@@ -166,6 +166,7 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
   }
 
   PageRouteBuilder blurredMenuBuilder(WorkoutCard workoutCard, GlobalKey key) {
+    ref.read(Helper.blurProvider.notifier).setBlur(1);
     return PageRouteBuilder(
         transitionDuration: const Duration(milliseconds: 0),
         opaque: false,
@@ -179,7 +180,7 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
                 await CustomDatabase.instance
                     .removeWorkout(workoutCard.workout.id);
                 ref.read(Helper.workoutsProvider.notifier).refreshWorkouts();
-                Navigator.maybePop(context);
+                await Navigator.maybePop(context);
                 isButtonPressed = false;
                 return;
               },
