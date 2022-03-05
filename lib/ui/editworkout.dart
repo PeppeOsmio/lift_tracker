@@ -109,6 +109,12 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
                               ),
                             ),
                             const SizedBox(height: 24),
+                            const Text(
+                              "Excercises",
+                              style:
+                                  TextStyle(fontSize: 20, color: Colors.white),
+                            ),
+                            const SizedBox(height: 24),
                             Column(
                                 mainAxisSize: MainAxisSize.min, children: temp),
                             addExcerciseButton()

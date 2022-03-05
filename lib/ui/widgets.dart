@@ -101,7 +101,7 @@ class CustomAppBar extends StatelessWidget {
               : SizedBox(),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(left: 24),
+              padding: const EdgeInsets.only(left: 24, right: 24),
               child: Text(
                 middleText,
                 style: const TextStyle(

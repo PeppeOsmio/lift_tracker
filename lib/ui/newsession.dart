@@ -39,10 +39,14 @@ class _NewSessionState extends ConsumerState<NewSession> {
         rpeControllers.add(TextEditingController());
       }
 
-      records.add(ExcerciseRecordItem(widget.workout.excercises[i],
-          repsControllers: repsControllers,
-          weightControllers: weightControllers,
-          rpeControllers: rpeControllers));
+      records.add(ExcerciseRecordItem(
+        widget.workout.excercises[i],
+        repsControllers: repsControllers,
+        weightControllers: weightControllers,
+        rpeControllers: rpeControllers,
+        nameController: TextEditingController(),
+        onEditItem: () {},
+      ));
 
       items.add(Padding(
         padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
@@ -98,6 +102,7 @@ class _NewSessionState extends ConsumerState<NewSession> {
     try {
       workoutRecord = getWorkoutRecord();
     } catch (e) {
+      print(e);
       Fluttertoast.showToast(msg: "Fill all fields");
       return;
     }
@@ -199,16 +204,20 @@ class _NewSessionState extends ConsumerState<NewSession> {
       try {
         excerciseRecord = records[i].excerciseRecord;
       } catch (e) {
-        Fluttertoast.showToast(
-            msg: "Typo in ${widget.workout.excercises[i].name}'s weight");
+        print(e);
+        throw Exception();
       }
       if (excerciseRecord == null) {
         return null;
       }
       worecords.add(excerciseRecord);
     }
-    return WorkoutRecord(0, DateTime.now(), widget.workout.name,
-        worecords as List<ExcerciseRecord>);
+    List<ExcerciseRecord> temp = [];
+    for (int j = 0; j < worecords.length; j++) {
+      ExcerciseRecord? record = worecords[j];
+      temp.add(record!);
+    }
+    return WorkoutRecord(0, DateTime.now(), widget.workout.name, temp);
   }
 }
 
@@ -338,22 +347,30 @@ class _SetRowState extends State<SetRow> {
 }
 
 class ExcerciseRecordItem extends StatefulWidget {
-  const ExcerciseRecordItem(this.excercise,
+  ExcerciseRecordItem(this.excercise,
       {required this.repsControllers,
       required this.weightControllers,
       required this.rpeControllers,
+      required this.nameController,
+      required this.onEditItem,
       Key? key})
       : super(key: key);
+  final void Function() onEditItem;
   final Excercise excercise;
-  final List<TextEditingController> repsControllers;
-  final List<TextEditingController> weightControllers;
-  final List<TextEditingController> rpeControllers;
+  final TextEditingController nameController;
+  List<TextEditingController> repsControllers;
+  List<TextEditingController> weightControllers;
+  List<TextEditingController> rpeControllers;
   ExcerciseRecord? get excerciseRecord {
     List<Map<String, dynamic>> listMap = [];
     for (int i = 0; i < excercise.sets; i++) {
       String reps = repsControllers[i].text;
       String weight = weightControllers[i].text;
       String rpe = rpeControllers[i].text;
+      String name = nameController.text;
+      if (name.isEmpty) {
+        throw Exception('missing_name');
+      }
       if (reps.isEmpty || weight.isEmpty || rpe.isEmpty) {
         return null;
       }
@@ -366,7 +383,7 @@ class ExcerciseRecordItem extends StatefulWidget {
         });
       }
     }
-    return ExcerciseRecord(excercise.name, listMap);
+    return ExcerciseRecord(nameController.text, listMap);
   }
 
   @override
@@ -374,6 +391,8 @@ class ExcerciseRecordItem extends StatefulWidget {
 }
 
 class _ExcerciseRecordItemState extends State<ExcerciseRecordItem> {
+  FocusNode focusNode = FocusNode();
+
   Widget buildAddSetButton() {
     return Center(
         child: Container(
@@ -425,13 +444,37 @@ class _ExcerciseRecordItemState extends State<ExcerciseRecordItem> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(widget.excercise.name,
-                  style: const TextStyle(fontSize: 20, color: Colors.white)),
-            ],
+          GestureDetector(
+            onTap: () {
+              focusNode.requestFocus();
+            },
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(width: 28),
+                IntrinsicWidth(
+                  child: TextField(
+                    focusNode: focusNode,
+                    decoration: InputDecoration(
+                      hintStyle: TextStyle(color: Colors.grey),
+                      hintText: "Name",
+                      border: InputBorder.none,
+                    ),
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                    controller: widget.nameController,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: Icon(
+                    Icons.edit,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ],
+            ),
           ),
           Row(
             mainAxisSize: MainAxisSize.max,
@@ -475,8 +518,15 @@ class _ExcerciseRecordItemState extends State<ExcerciseRecordItem> {
   }
 
   @override
+  void dispose() {
+    focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
+    widget.nameController.text = widget.excercise.name;
   }
 
   @override

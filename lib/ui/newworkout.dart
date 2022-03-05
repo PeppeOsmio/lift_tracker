@@ -94,6 +94,11 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
                             ),
                           ),
                           const SizedBox(height: 24),
+                          const Text(
+                            "Excercises",
+                            style: TextStyle(fontSize: 20, color: Colors.white),
+                          ),
+                          const SizedBox(height: 24),
                           Column(
                               mainAxisSize: MainAxisSize.min, children: temp),
                           addExcerciseButton()
