@@ -94,7 +94,13 @@ class _NewSessionState extends ConsumerState<NewSession> {
   }
 
   Future createWorkoutSession() async {
-    WorkoutRecord? workoutRecord = getWorkoutRecord();
+    WorkoutRecord? workoutRecord;
+    try {
+      workoutRecord = getWorkoutRecord();
+    } catch (e) {
+      Fluttertoast.showToast(msg: "Fill all fields");
+      return;
+    }
     if (workoutRecord == null) {
       await showDimmedBackgroundDialog(context,
           rightText: 'Cancel',
@@ -106,7 +112,7 @@ class _NewSessionState extends ConsumerState<NewSession> {
             Fluttertoast.showToast(msg: "Session canceled");
           },
           title: 'Cancel this session?',
-          content: 'All sets are empty. Press yes to cancel this session');
+          content: 'Some sets are empty. Press Yes to cancel this session');
       return;
     }
     // delete all excercise records with empty sets
@@ -114,7 +120,7 @@ class _NewSessionState extends ConsumerState<NewSession> {
     List<int> indexes = [];
     workoutRecord.excerciseRecords.removeWhere((element) {
       if (element.reps_weight_rpe.isEmpty) {
-        indexes.add(workoutRecord.excerciseRecords.indexOf(element));
+        indexes.add(workoutRecord!.excerciseRecords.indexOf(element));
         return true;
       }
       return false;
@@ -132,7 +138,7 @@ class _NewSessionState extends ConsumerState<NewSession> {
         Navigator.maybePop(context);
       },
           title: 'Cancel this session?',
-          content: 'All sets have 0 reps. Press yes to cancel this session');
+          content: 'Some sets are empty. Press Yes to cancel this session');
       return;
     }
     Workout workout = widget.workout;
@@ -187,7 +193,7 @@ class _NewSessionState extends ConsumerState<NewSession> {
   }
 
   WorkoutRecord? getWorkoutRecord() {
-    List<ExcerciseRecord> worecords = [];
+    List<ExcerciseRecord?> worecords = [];
     for (int i = 0; i < widget.workout.excercises.length; i++) {
       ExcerciseRecord? excerciseRecord;
       try {
@@ -195,14 +201,14 @@ class _NewSessionState extends ConsumerState<NewSession> {
       } catch (e) {
         Fluttertoast.showToast(
             msg: "Typo in ${widget.workout.excercises[i].name}'s weight");
-        return null;
       }
       if (excerciseRecord == null) {
         return null;
       }
-      worecords.add(records[i].excerciseRecord!);
+      worecords.add(excerciseRecord);
     }
-    return WorkoutRecord(0, DateTime.now(), widget.workout.name, worecords);
+    return WorkoutRecord(0, DateTime.now(), widget.workout.name,
+        worecords as List<ExcerciseRecord>);
   }
 }
 

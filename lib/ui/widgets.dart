@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:ui';
 import 'package:curved_animation_controller/curved_animation_controller.dart';
 import 'package:flutter/material.dart';
@@ -158,7 +159,7 @@ class CardMenuButton extends StatelessWidget {
       onTap: () => onPressed(),
       child: Container(
         decoration: BoxDecoration(
-            color: backgroundColor,
+            color: Palette.backgroundDark,
             border: Border.all(color: Palette.backgroundDark),
             borderRadius: BorderRadius.circular(10)),
         child: Container(
