@@ -166,7 +166,7 @@ class CardMenuButton extends StatelessWidget {
           width: width,
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-              color: backgroundColor,
+              color: backgroundColor.withAlpha(50),
               border: Border.all(color: borderColor),
               borderRadius: BorderRadius.circular(10)),
           child: Center(
