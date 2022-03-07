@@ -94,16 +94,18 @@ class _WorkoutCardState extends State<WorkoutCard> {
       },
       child: GestureDetector(
         onTap: () async {
-          setState(() {
-            opacity = 0;
-          });
-          Helper.unfocusTextFields(context);
-          await widget.onLongPress.call(!isOpen);
-          Future.delayed(const Duration(milliseconds: 150), () {
+          if (_removeMode) {
             setState(() {
-              opacity = 1;
+              opacity = 0;
             });
-          });
+            Helper.unfocusTextFields(context);
+            await widget.onLongPress.call(!isOpen);
+            Future.delayed(const Duration(milliseconds: 150), () {
+              setState(() {
+                opacity = 1;
+              });
+            });
+          }
         },
         child: Opacity(
           opacity: opacity,
