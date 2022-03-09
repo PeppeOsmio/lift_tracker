@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
+import 'package:fluttericon/font_awesome_icons.dart';
+import 'package:fluttericon/linearicons_free_icons.dart';
+import 'package:fluttericon/zocial_icons.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/workoutrecord.dart';
 import 'package:lift_tracker/ui/colors.dart';
@@ -24,7 +27,7 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
   int totalVolume = 0;
   int recordNumber = 0;
   List<int> recordExcercisesIndexes = [];
-  double opacity = 1;
+  bool offstage = false;
 
   @override
   void initState() {
@@ -95,18 +98,21 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
       onLongPress: () async {
         if (widget.onLongPress != null) {
           setState(() {
-            opacity = 0;
+            offstage = true;
           });
           await widget.onLongPress!.call();
           Future.delayed(const Duration(milliseconds: 150), () {
             setState(() {
-              opacity = 1;
+              offstage = false;
             });
           });
         }
       },
-      child: Opacity(
-        opacity: opacity,
+      child: Visibility(
+        visible: !offstage,
+        maintainAnimation: true,
+        maintainSize: true,
+        maintainState: true,
         child: Container(
           decoration: BoxDecoration(
             color: Palette.elementsDark,
@@ -123,9 +129,9 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
                       padding: const EdgeInsets.only(bottom: 16),
                       child: Row(children: [
                         Icon(
-                          Icons.calendar_today_outlined,
-                          color: Palette.orange,
-                        ),
+                            Icons
+                                .calendar_today_outlined, //FontAwesome5.calendar_check,
+                            color: Colors.blueGrey),
                         const SizedBox(width: 16),
                         Text(
                           Helper.dateToString(widget.workoutRecord.day),

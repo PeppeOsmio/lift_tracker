@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'workoutlist/workoutlist.dart';
+import 'package:lift_tracker/gym_icons_icons.dart';
+import 'colors.dart';
 
 class Excercises extends StatefulWidget {
   const Excercises({Key? key}) : super(key: key);
@@ -11,6 +12,10 @@ class Excercises extends StatefulWidget {
 class _ExcercisesState extends State<Excercises> {
   @override
   Widget build(BuildContext context) {
+    List<String> push = ['Chest', 'Triceps', 'Anterior delts'];
+    List<String> pull = ['Lats', 'Middle traps', 'Biceps'];
+    List<String> cardio = ['Cardio', '', ''];
+    List<String> legs_push = ['Quads', 'Glutes', 'Calves'];
     return SafeArea(
       child: Column(
         children: [
@@ -34,8 +39,11 @@ class _ExcercisesState extends State<Excercises> {
                   ),
                   Expanded(
                       child: TextField(
-                    decoration: InputDecoration(border: InputBorder.none),
-                    style: TextStyle(color: Colors.white, fontSize: 25),
+                    decoration: InputDecoration(
+                        hintStyle: TextStyle(color: Colors.grey),
+                        hintText: 'Filter...',
+                        border: InputBorder.none),
+                    style: TextStyle(color: Colors.white, fontSize: 22),
                   )),
                 ],
               ),
@@ -43,13 +51,193 @@ class _ExcercisesState extends State<Excercises> {
           ),
           Expanded(
             child: ListView(
-              physics: const BouncingScrollPhysics(),
-              children: const [
-                Padding(padding: EdgeInsets.all(16), child: SizedBox()),
+              children: [
+                Padding(
+                    padding: EdgeInsets.all(16),
+                    child: ExcerciseCard(
+                      number: 1,
+                      name: 'Bench press (Barebell)',
+                      icon: GymIcons.barebell,
+                      muscles: push,
+                    )),
+                Padding(
+                  padding: EdgeInsets.all(16),
+                  child: ExcerciseCard(
+                      number: 1,
+                      name: 'Bench press (Dumbbell)',
+                      icon: GymIcons.dumbbell,
+                      muscles: push),
+                ),
+                Padding(
+                    padding: EdgeInsets.all(16),
+                    child: ExcerciseCard(
+                        number: 1,
+                        name: 'Chest press',
+                        icon: GymIcons.machine,
+                        muscles: push)),
+                Padding(
+                    padding: EdgeInsets.all(16),
+                    child: ExcerciseCard(
+                        number: 1,
+                        name: 'Lat machine',
+                        icon: GymIcons.machine,
+                        muscles: pull)),
+                Padding(
+                    padding: EdgeInsets.all(16),
+                    child: ExcerciseCard(
+                        number: 1,
+                        name: 'Bent-over row (Barebell)',
+                        icon: GymIcons.barebell,
+                        muscles: pull)),
+                Padding(
+                    padding: EdgeInsets.all(16),
+                    child: ExcerciseCard(
+                        number: 1,
+                        name: 'Bent-over row (Dumbbell)',
+                        icon: GymIcons.dumbbell,
+                        muscles: pull)),
+                Padding(
+                    padding: EdgeInsets.all(16),
+                    child: ExcerciseCard(
+                        number: 1,
+                        name: 'Rope jump',
+                        icon: GymIcons.cardio,
+                        muscles: cardio)),
+                Padding(
+                    padding: EdgeInsets.all(16),
+                    child: ExcerciseCard(
+                        number: 1,
+                        name: 'Inclined chest press',
+                        icon: GymIcons.machine,
+                        muscles: push)),
+                Padding(
+                    padding: EdgeInsets.all(16),
+                    child: ExcerciseCard(
+                        number: 1,
+                        name: 'Squat',
+                        icon: GymIcons.barebell,
+                        muscles: legs_push)),
+                Padding(
+                    padding: EdgeInsets.all(16),
+                    child: ExcerciseCard(
+                        number: 1,
+                        name: 'Leg extensions',
+                        icon: GymIcons.machine,
+                        muscles: ['Quads', '', ''])),
+                Padding(
+                    padding: EdgeInsets.all(16),
+                    child: ExcerciseCard(
+                        number: 1,
+                        name: 'Leg curls',
+                        icon: GymIcons.machine,
+                        muscles: ['Hamstrings', 'Glutes', ''])),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class ExcerciseCard extends StatefulWidget {
+  const ExcerciseCard(
+      {required this.number,
+      required this.name,
+      required this.icon,
+      required this.muscles,
+      Key? key})
+      : super(key: key);
+  final int number;
+  final String name;
+  final IconData icon;
+  final List<String> muscles;
+
+  @override
+  State<ExcerciseCard> createState() => _ExcerciseCardState();
+}
+
+class _ExcerciseCardState extends State<ExcerciseCard> {
+  @override
+  Widget build(BuildContext context) {
+    print(widget.icon.codePoint);
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+          color: Palette.elementsDark, borderRadius: BorderRadius.circular(20)),
+      child: Row(
+        children: [
+          /*Expanded(
+            flex: 1,
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: Image.asset(
+                'assets/images/chest_triceps_antdelts${widget.number}.png',
+              ),
+            ),
+          ),*/
+          CircleAvatar(
+              radius: 26,
+              foregroundColor: Palette.elementsDark,
+              backgroundColor: Colors.blueGrey,
+              child: Icon(
+                widget.icon,
+                size: 26,
+              )),
+          Expanded(
+            flex: 100,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 16),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.name,
+                      style: TextStyle(color: Colors.white, fontSize: 20),
+                    ),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            buildMuscleBadge(Colors.red, widget.muscles[0]),
+                            const SizedBox(
+                              width: 8,
+                            ),
+                            buildMuscleBadge(Colors.blue, widget.muscles[1]),
+                            const SizedBox(
+                              width: 8,
+                            ),
+                            buildMuscleBadge(Colors.green, widget.muscles[2])
+                          ]),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget buildMuscleBadge(Color color, String name) {
+    return Container(
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(6.5),
+          border: Border.all(color: color.withAlpha(0)),
+          color: color.withAlpha(0)),
+      child: Text(
+        name,
+        style:
+            TextStyle(color: color, fontSize: 14, fontWeight: FontWeight.w400),
       ),
     );
   }

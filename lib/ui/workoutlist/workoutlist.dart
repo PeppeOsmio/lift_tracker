@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lift_tracker/data/helper.dart';
@@ -46,13 +48,11 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
             });
           });
         },
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.blueGrey,
         elevation: 0,
         shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(20))),
-        child: FittedBox(
-          child: Icon(Icons.add_outlined, color: Palette.orange),
-        ),
+        child: Icon(Icons.add_outlined, size: 24, color: Colors.black),
       ),
     );
   }

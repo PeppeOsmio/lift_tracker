@@ -164,7 +164,6 @@ class _AppState extends ConsumerState<App> {
                 _selectTab(1, indexState);
               }),
               NavBarItem("Excercises", Icons.fitness_center, () {
-                return;
                 excercises ??= const Excercises();
                 _selectTab(2, indexState);
               })
@@ -196,8 +195,9 @@ class _BottomNavBarState extends ConsumerState<BottomNavBar> {
     BoxDecoration? dec;
     for (int i = 0; i < widget.bottomNavItems.length; i++) {
       if (i == indexState) {
-        dec = const BoxDecoration(
-          color: Color.fromARGB(200, 80, 36, 12),
+        dec = BoxDecoration(
+          color:
+              Colors.blueGrey.withAlpha(125), //Color.fromARGB(200, 80, 36, 12),
           borderRadius: BorderRadius.all(Radius.circular(20)),
         );
       } else {

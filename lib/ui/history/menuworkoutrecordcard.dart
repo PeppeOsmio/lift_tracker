@@ -81,8 +81,9 @@ class _MenuWorkoutRecordCardState extends State<MenuWorkoutRecordCard> {
                       Navigator.maybePop(context);
                     },
                     child: const DimmingBackground(
+                      blurred: false,
                       duration: const Duration(milliseconds: 150),
-                      maxAlpha: 230,
+                      maxAlpha: 130,
                     )),
                 AnimatedPositioned(
                   curve: Curves.decelerate,
@@ -106,9 +107,9 @@ class _MenuWorkoutRecordCardState extends State<MenuWorkoutRecordCard> {
                   curve: Curves.decelerate,
                   right: 16,
                   bottom: MediaQuery.of(context).size.height - cardY,
-                  child: AnimatedEntry(
-                    duration: const Duration(milliseconds: 50),
-                    delay: widget.workoutRecordCard.expandDuration * 0.5,
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 150),
+                    opacity: opacity,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       mainAxisSize: MainAxisSize.max,

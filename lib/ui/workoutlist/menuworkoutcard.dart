@@ -94,8 +94,9 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                           Navigator.maybePop(context);
                         },
                         child: DimmingBackground(
-                          duration: const Duration(milliseconds: 150),
-                          maxAlpha: 230,
+                          blurred: false,
+                          duration: widget.positionedAnimationDuration,
+                          maxAlpha: 130,
                         )),
                     AnimatedPositioned(
                       curve: Curves.decelerate,
@@ -104,7 +105,7 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                       top: cardY,
                       child: AnimatedOpacity(
                         curve: Curves.decelerate,
-                        duration: const Duration(milliseconds: 150),
+                        duration: widget.positionedAnimationDuration,
                         opacity: opacity,
                         child: Material(
                             child: Padding(
@@ -120,9 +121,10 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                       curve: Curves.decelerate,
                       right: 16,
                       bottom: MediaQuery.of(context).size.height - cardY,
-                      child: AnimatedEntry(
-                        duration: const Duration(milliseconds: 50),
-                        delay: widget.workoutCard.expandDuration * 0.5,
+                      child: AnimatedOpacity(
+                        opacity: opacity,
+                        duration: const Duration(milliseconds: 100),
+                        curve: Curves.decelerate,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           mainAxisSize: MainAxisSize.max,

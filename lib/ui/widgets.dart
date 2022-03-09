@@ -24,8 +24,9 @@ Future showDimmedBackgroundDialog(BuildContext context,
                 Navigator.maybePop(context);
               },
               child: const DimmingBackground(
+                blurred: true,
                 duration: Duration(milliseconds: 150),
-                maxAlpha: 200,
+                maxAlpha: 150,
               )),
           AlertDialog(
             backgroundColor: Palette.backgroundDark,
@@ -183,10 +184,14 @@ class CardMenuButton extends StatelessWidget {
 
 class DimmingBackground extends StatefulWidget {
   const DimmingBackground(
-      {required this.duration, required this.maxAlpha, Key? key})
+      {required this.duration,
+      required this.maxAlpha,
+      this.blurred = false,
+      Key? key})
       : super(key: key);
   final Duration duration;
   final int maxAlpha;
+  final bool blurred;
 
   @override
   State<DimmingBackground> createState() => _DimmingBackgroundState();
@@ -215,14 +220,22 @@ class _DimmingBackgroundState extends State<DimmingBackground> {
           return true;
         },
         child: AnimatedOpacity(
-          duration: widget.duration,
-          opacity: opacity,
-          child: Container(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
-            color: Colors.black.withAlpha(widget.maxAlpha),
-          ),
-        ));
+            duration: widget.duration,
+            opacity: opacity,
+            child: widget.blurred
+                ? BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      color: Colors.black.withAlpha(widget.maxAlpha),
+                    ),
+                  )
+                : Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
+                    color: Colors.black.withAlpha(widget.maxAlpha + 80),
+                  )));
   }
 }
 
@@ -305,44 +318,31 @@ class AnimatedEntry extends StatefulWidget {
   _AnimatedEntryState createState() => _AnimatedEntryState();
 }
 
-class _AnimatedEntryState extends State<AnimatedEntry>
-    with SingleTickerProviderStateMixin {
-  bool animationEnded = false;
-  late AnimationController animationController;
+class _AnimatedEntryState extends State<AnimatedEntry> {
+  double opacity = 0;
 
   @override
   void initState() {
     super.initState();
-    animationController = AnimationController(
-      vsync: this,
-      duration: widget.duration,
-    );
-    Future.delayed(widget.delay, () => animate());
-  }
 
-  void animate() {
-    if (animationController.isCompleted || animationController.isAnimating) {
-      animationController.reverse();
-    } else {
-      animationController.forward();
-    }
-  }
-
-  @override
-  void dispose() {
-    animationController.dispose();
-    super.dispose();
+    Future.delayed(widget.delay, () {
+      setState(() {
+        opacity = 1;
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        animate();
+        setState(() {
+          opacity = 0;
+        });
         return true;
       },
-      child:
-          SizeTransition(sizeFactor: animationController, child: widget.child),
+      child: AnimatedOpacity(
+          duration: widget.duration, opacity: opacity, child: widget.child),
     );
   }
 }
