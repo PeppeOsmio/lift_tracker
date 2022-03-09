@@ -120,20 +120,13 @@ class _NewSessionState extends ConsumerState<NewSession> {
           content: 'Some sets are empty. Press Yes to cancel this session');
       return;
     }
-    // delete all excercise records with empty sets
-    // and track their indexes
-    List<int> indexes = [];
-    workoutRecord.excerciseRecords.removeWhere((element) {
-      if (element.reps_weight_rpe.isEmpty) {
-        indexes.add(workoutRecord!.excerciseRecords.indexOf(element));
-        return true;
+    try {
+      bool didSetRecord = await CustomDatabase.instance
+          .addWorkoutRecord(workoutRecord, widget.workout);
+      if (didSetRecord) {
+        ref.read(Helper.workoutsProvider.notifier).refreshWorkouts();
       }
-      return false;
-    });
-
-    // if every excercise record has been deleted, the session is not valid
-    // and will not be saved
-    if (workoutRecord.excerciseRecords.isEmpty) {
+    } catch (e) {
       await showDimmedBackgroundDialog(context,
           leftText: 'Yes', rightText: 'Cancel', leftOnPressed: () {
         Navigator.pop(context);
@@ -144,55 +137,7 @@ class _NewSessionState extends ConsumerState<NewSession> {
       },
           title: 'Cancel this session?',
           content: 'Some sets are empty. Press Yes to cancel this session');
-      return;
     }
-    Workout workout = widget.workout;
-    // from the workout schedule, delete all the excercises that were
-    // not excecuted in this session
-    List<Excercise> tempExcercises = workout.excercises;
-    for (int i = 0; i < indexes.length; i++) {
-      tempExcercises.removeAt(i);
-    }
-
-    // check if there were weight records in this session
-    // among all the excercises that were excecuted
-    for (int i = 0; i < tempExcercises.length; i++) {
-      Excercise excercise = tempExcercises[i];
-      double? previousWeightRecord = excercise.weightRecord;
-      var reps_weight_rpe = workoutRecord.excerciseRecords[i].reps_weight_rpe;
-      double currentMaxWeight = reps_weight_rpe[0]['weight'];
-      int setRecordIndex = -1;
-      //if there's only one set its weight is already the max weight among all sets
-      for (int j = 0; j < reps_weight_rpe.length - 1; j++) {
-        currentMaxWeight =
-            max(currentMaxWeight, reps_weight_rpe[j + 1]['weight']);
-      }
-      if (previousWeightRecord != null) {
-        if (currentMaxWeight > previousWeightRecord) {
-          // if this weight is a record, mark the first set with this weight
-          // as record
-          setRecordIndex = workoutRecord.excerciseRecords[i].reps_weight_rpe
-              .indexWhere((element) => element['weight'] == currentMaxWeight);
-          workoutRecord.excerciseRecords[i].reps_weight_rpe[setRecordIndex]
-              ['hasRecord'] = 1;
-          await CustomDatabase.instance
-              .setWeightRecord(excercise.id, currentMaxWeight);
-          ref.read(Helper.workoutsProvider.notifier).refreshWorkouts();
-        }
-      } else {
-        // if this weight is a record, mark the first set with this weight
-        // as record
-        setRecordIndex = workoutRecord.excerciseRecords[i].reps_weight_rpe
-            .indexWhere((element) => element['weight'] == currentMaxWeight);
-        workoutRecord.excerciseRecords[i].reps_weight_rpe[setRecordIndex]
-            ['hasRecord'] = 1;
-        await CustomDatabase.instance
-            .setWeightRecord(excercise.id, currentMaxWeight);
-        ref.read(Helper.workoutsProvider.notifier).refreshWorkouts();
-      }
-    }
-    // save this workout session on the database
-    await CustomDatabase.instance.addWorkoutRecord(workoutRecord);
     ref.read(Helper.workoutRecordsProvider.notifier).refreshWorkoutRecords();
     Navigator.pop(context);
   }

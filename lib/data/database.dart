@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/excerciserecord.dart';
 import 'package:lift_tracker/data/workoutrecord.dart';
@@ -245,8 +247,81 @@ class CustomDatabase {
         where: 'id=?', whereArgs: [excerciseId]);
   }
 
-  Future addWorkoutRecord(WorkoutRecord workoutRecord) async {
+  Future<bool> addWorkoutRecord(
+      WorkoutRecord workoutRecord, Workout workout) async {
+    // delete all excercise records with empty sets
+    // and track their indexes
+    List<int> indexes = [];
+    bool didSetWeightRecord = false;
+    workoutRecord.excerciseRecords.removeWhere((element) {
+      if (element.reps_weight_rpe.isEmpty) {
+        indexes.add(workoutRecord.excerciseRecords.indexOf(element));
+        return true;
+      }
+      return false;
+    });
+
+    // if every excercise record has been deleted, the session is not valid
+    // and will not be saved
+    if (workoutRecord.excerciseRecords.isEmpty) {
+      throw Exception('empty_exercises');
+    }
+    // from the workout schedule, delete all the excercises that were
+    // not excecuted in this session
+    List<Excercise> tempExcercises = workout.excercises;
+    for (int i = 0; i < indexes.length; i++) {
+      tempExcercises.removeAt(i);
+    }
+
+    // check if there were weight records in this session
+    // among all the excercises that were excecuted
+    for (int i = 0; i < tempExcercises.length; i++) {
+      Excercise excercise = tempExcercises[i];
+      double? previousWeightRecord = excercise.weightRecord;
+      var reps_weight_rpe = workoutRecord.excerciseRecords[i].reps_weight_rpe;
+      double currentMaxWeight = reps_weight_rpe[0]['weight'];
+      int setRecordIndex = -1;
+      //if there's only one set its weight is already the max weight among all sets
+      for (int j = 0; j < reps_weight_rpe.length - 1; j++) {
+        currentMaxWeight =
+            max(currentMaxWeight, reps_weight_rpe[j + 1]['weight']);
+      }
+      if (previousWeightRecord != null) {
+        if (currentMaxWeight > previousWeightRecord) {
+          // if this weight is a record, mark the first set with this weight
+          // as record
+          setRecordIndex = workoutRecord.excerciseRecords[i].reps_weight_rpe
+              .indexWhere((element) => element['weight'] == currentMaxWeight);
+          workoutRecord.excerciseRecords[i].reps_weight_rpe[setRecordIndex]
+              ['hasRecord'] = 1;
+          await CustomDatabase.instance
+              .setWeightRecord(excercise.id, currentMaxWeight);
+          didSetWeightRecord = true;
+        }
+      } else {
+        // if this weight is a record, mark the first set with this weight
+        // as record
+        setRecordIndex = workoutRecord.excerciseRecords[i].reps_weight_rpe
+            .indexWhere((element) => element['weight'] == currentMaxWeight);
+        workoutRecord.excerciseRecords[i].reps_weight_rpe[setRecordIndex]
+            ['hasRecord'] = 1;
+        await CustomDatabase.instance
+            .setWeightRecord(excercise.id, currentMaxWeight);
+        didSetWeightRecord = true;
+      }
+    }
+
     final db = await instance.database;
+
+    for (int i = 0; i < tempExcercises.length; i++) {
+      String oldName = tempExcercises[i].name;
+      String newName = workoutRecord.excerciseRecords[i].excerciseName;
+      if (newName != oldName) {
+        await db.update('excercise', {'name': newName},
+            where: 'id=?', whereArgs: [tempExcercises[i].id]);
+        didSetWeightRecord = true;
+      }
+    }
 
     DateTime now = DateTime.now();
     String day = "${now.year}-${now.month}-${now.day}";
@@ -284,6 +359,8 @@ class CustomDatabase {
         await db.insert('excercise_set', values);
       }
     }
+
+    return didSetWeightRecord;
   }
 
   Future removeWorkout(int id) async {
