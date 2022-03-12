@@ -141,6 +141,8 @@ class _NewSessionState extends ConsumerState<NewSession>
       return;
     }
     try {
+      //inform the addWorkoutRecord function that the cache has been deleted already
+      await pref.setBool('didCacheSession', false);
       bool didSetRecord = await CustomDatabase.instance
           .addWorkoutRecord(workoutRecord, widget.workout);
       if (didSetRecord) {
