@@ -1,3 +1,4 @@
+import 'dart:developer' as dev;
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,7 +21,8 @@ class NewSession extends ConsumerStatefulWidget {
   _NewSessionState createState() => _NewSessionState();
 }
 
-class _NewSessionState extends ConsumerState<NewSession> {
+class _NewSessionState extends ConsumerState<NewSession>
+    with WidgetsBindingObserver {
   List<ExcerciseRecordItem> records = [];
   List<Excercise> data = [];
   List<Widget> items = [];
@@ -28,6 +30,8 @@ class _NewSessionState extends ConsumerState<NewSession> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance!.addObserver(this);
+    print(WidgetsBinding.instance == null);
     for (int i = 0; i < widget.workout.excercises.length; i++) {
       List<TextEditingController> repsControllers = [];
       List<TextEditingController> weightControllers = [];
@@ -163,6 +167,18 @@ class _NewSessionState extends ConsumerState<NewSession> {
       temp.add(record!);
     }
     return WorkoutRecord(0, DateTime.now(), widget.workout.name, temp);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance!.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    print(state);
   }
 }
 
