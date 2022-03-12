@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/data/workout.dart';
 import 'package:lift_tracker/data/workoutrecord.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../ui/workoutlist/workoutlist.dart';
 
@@ -86,6 +87,10 @@ class Helper {
   static final blurProvider =
       StateNotifierProvider<BlurNotifier, double>(((ref) {
     return BlurNotifier();
+  }));
+
+  static final sharedPreferencesProvider = Provider(((ref) {
+    return SharedPreferences.getInstance();
   }));
 
   static List<int> pageStack = [];

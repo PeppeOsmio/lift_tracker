@@ -4,10 +4,13 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/ui/app/menu.dart';
 import 'package:lift_tracker/ui/history/history.dart';
 import 'package:lift_tracker/ui/colors.dart';
+import 'package:lift_tracker/ui/newsession.dart';
 import 'package:lift_tracker/ui/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../data/helper.dart';
 import '../workoutlist/workoutlist.dart';
 import '../excercises.dart';
@@ -38,6 +41,7 @@ class _AppState extends ConsumerState<App> {
   Widget? history;
   Widget? excercises;
   List<Widget> pages = [];
+  late SharedPreferences pref;
 
   Widget _buildOffStage(int index, Widget child) {
     int indexState = ref.read(Helper.pageIndexProvider.notifier).state;
@@ -73,6 +77,32 @@ class _AppState extends ConsumerState<App> {
     super.initState();
     Helper.pageStack.add(1);
     workoutList = WorkoutList();
+    Future.delayed(Duration.zero, () async {
+      pref = await SharedPreferences.getInstance();
+      bool? temp = pref.getBool('didCacheSession');
+      bool cached = false;
+      if (temp != null) {
+        cached = temp;
+      }
+      if (cached) {
+        showDimmedBackgroundDialog(context,
+            rightText: 'Cancel', leftText: 'Resume', rightOnPressed: () async {
+          await CustomDatabase.instance.removeCachedSession();
+          Navigator.maybePop(context);
+        }, leftOnPressed: () async {
+          var worecords = await ref.read(Helper.workoutRecordsProvider);
+          var cachedRecord = worecords.last;
+          var wos = await ref.read(Helper.workoutsProvider);
+          Route route = MaterialPageRoute(builder: (context) {
+            return NewSession(wos.last, resumedSession: cachedRecord);
+          });
+          Navigator.pushReplacement(context, route);
+        }, barrierOnPressed: () async {
+          await CustomDatabase.instance.removeCachedSession();
+          Navigator.maybePop(context);
+        }, title: 'Resume last workout session?');
+      }
+    });
   }
 
   @override

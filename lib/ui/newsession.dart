@@ -1,5 +1,5 @@
 import 'dart:developer' as dev;
-import 'dart:math';
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,10 +12,13 @@ import 'package:lift_tracker/data/workout.dart';
 import 'package:lift_tracker/data/workoutrecord.dart';
 import 'package:lift_tracker/ui/colors.dart';
 import 'package:lift_tracker/ui/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NewSession extends ConsumerStatefulWidget {
-  const NewSession(this.workout, {Key? key}) : super(key: key);
+  const NewSession(this.workout, {this.resumedSession, Key? key})
+      : super(key: key);
   final Workout workout;
+  final WorkoutRecord? resumedSession;
 
   @override
   _NewSessionState createState() => _NewSessionState();
@@ -26,12 +29,14 @@ class _NewSessionState extends ConsumerState<NewSession>
   List<ExcerciseRecordItem> records = [];
   List<Excercise> data = [];
   List<Widget> items = [];
+  late SharedPreferences pref;
+  bool isCreatingSession = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
-    print(WidgetsBinding.instance == null);
+    SharedPreferences.getInstance().then((value) => pref = value);
     for (int i = 0; i < widget.workout.excercises.length; i++) {
       List<TextEditingController> repsControllers = [];
       List<TextEditingController> weightControllers = [];
@@ -101,16 +106,25 @@ class _NewSessionState extends ConsumerState<NewSession>
     );
   }
 
-  Future createWorkoutSession() async {
+  Future createWorkoutSession({bool cacheMode = false}) async {
+    isCreatingSession = true;
     WorkoutRecord? workoutRecord;
+    if (cacheMode) {
+      workoutRecord = getWorkoutRecord(cacheMode: true);
+      await CustomDatabase.instance
+          .addWorkoutRecord(workoutRecord!, widget.workout);
+      return;
+    }
     try {
       workoutRecord = getWorkoutRecord();
     } catch (e) {
+      isCreatingSession = false;
       print(e);
       Fluttertoast.showToast(msg: "Fill all fields");
       return;
     }
     if (workoutRecord == null) {
+      isCreatingSession = false;
       await showDimmedBackgroundDialog(context,
           rightText: 'Cancel',
           leftText: 'Yes',
@@ -131,6 +145,7 @@ class _NewSessionState extends ConsumerState<NewSession>
         ref.read(Helper.workoutsProvider.notifier).refreshWorkouts();
       }
     } catch (e) {
+      isCreatingSession = false;
       await showDimmedBackgroundDialog(context,
           leftText: 'Yes', rightText: 'Cancel', leftOnPressed: () {
         Navigator.pop(context);
@@ -142,11 +157,27 @@ class _NewSessionState extends ConsumerState<NewSession>
           title: 'Cancel this session?',
           content: 'Some sets are empty. Press Yes to cancel this session');
     }
+    await removeCache();
     ref.read(Helper.workoutRecordsProvider.notifier).refreshWorkoutRecords();
     Navigator.pop(context);
   }
 
-  WorkoutRecord? getWorkoutRecord() {
+  WorkoutRecord? getWorkoutRecord({bool cacheMode = false}) {
+    if (cacheMode) {
+      List<ExcerciseRecord> worecords = [];
+      for (int i = 0; i < widget.workout.excercises.length; i++) {
+        ExcerciseRecord excerciseRecord;
+        excerciseRecord = records[i].cacheExerciseRecord;
+
+        worecords.add(excerciseRecord);
+      }
+      List<ExcerciseRecord> temp = [];
+      for (int j = 0; j < worecords.length; j++) {
+        ExcerciseRecord record = worecords[j];
+        temp.add(record);
+      }
+      return WorkoutRecord(0, DateTime.now(), widget.workout.name, temp);
+    }
     List<ExcerciseRecord?> worecords = [];
     for (int i = 0; i < widget.workout.excercises.length; i++) {
       ExcerciseRecord? excerciseRecord;
@@ -175,10 +206,28 @@ class _NewSessionState extends ConsumerState<NewSession>
     super.dispose();
   }
 
+  Future removeCache() async {
+    int id = await CustomDatabase.instance.removeCachedSession();
+    log('Removed record: $id');
+    ref.read(Helper.workoutRecordsProvider.notifier).refreshWorkoutRecords();
+  }
+
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
     print(state);
+    if (!isCreatingSession) {
+      bool? cached = pref.getBool('didCacheSession');
+      if (cached != null) {
+        if (cached) {
+          removeCache();
+        }
+      }
+      await createWorkoutSession(cacheMode: true);
+      pref.setBool('didCacheSession', true);
+      pref.setInt('cachedWorkoutId', widget.workout.id);
+      dev.log('Cached session');
+    }
   }
 }
 
@@ -345,6 +394,36 @@ class ExcerciseRecordItem extends StatefulWidget {
       }
     }
     return ExcerciseRecord(nameController.text, listMap);
+  }
+
+  ExcerciseRecord get cacheExerciseRecord {
+    List<Map<String, dynamic>> listMap = [];
+    String name = nameController.text;
+    for (int i = 0; i < excercise.sets; i++) {
+      String reps = repsControllers[i].text;
+      String weight = weightControllers[i].text;
+      String rpe = rpeControllers[i].text;
+
+      if (reps.isEmpty) {
+        reps = '-1';
+      }
+      if (weight.isEmpty) {
+        weight = '-1';
+      }
+      if (rpe.isEmpty) {
+        rpe = '-1';
+      }
+      listMap.add({
+        "reps": int.parse(reps),
+        "weight": double.parse(weight),
+        "rpe": int.parse(rpe),
+        "hasRecord": 0
+      });
+    }
+    if (name.isEmpty) {
+      name = excercise.name;
+    }
+    return ExcerciseRecord(name, listMap);
   }
 
   @override

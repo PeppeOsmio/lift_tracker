@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/excerciserecord.dart';
 import 'package:lift_tracker/data/workoutrecord.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'excercise.dart';
 import 'workout.dart';
@@ -107,7 +108,33 @@ class CustomDatabase {
     }
   }
 
-  Future removeWorkoutRecord(int workoutRecordId) async {
+  Future getCachedSession() async {
+    final db = await instance.database;
+  }
+
+  Future<int> removeCachedSession() async {
+    var pref = await SharedPreferences.getInstance();
+    bool? temp = pref.getBool('didCacheSession');
+    bool cached = false;
+    if (temp != null) {
+      pref.setBool('didCacheSession', false);
+      cached = temp;
+    }
+    if (cached) {
+      final db = await instance.database;
+      var idQuery = await db.query('workout_record', columns: ['id']);
+      if (idQuery.isNotEmpty) {
+        int? id = idQuery.last['id'] as int?;
+        if (id != null) {
+          return await removeWorkoutRecord(id);
+        }
+      }
+      return -1;
+    }
+    return -1;
+  }
+
+  Future<int> removeWorkoutRecord(int workoutRecordId) async {
     final db = await instance.database;
     List<Map<String, Object?>> query = await db.query('excercise_record',
         columns: ['id'],
@@ -125,11 +152,19 @@ class CustomDatabase {
       await db.delete('excercise_record',
           where: "fk_workout_recordId=?", whereArgs: [workoutRecordId]);
     }
-    await db
+    int id = await db
         .delete('workout_record', where: "id=?", whereArgs: [workoutRecordId]);
+    return id;
   }
 
   Future<List<WorkoutRecord>> readWorkoutRecords() async {
+    var pref = await SharedPreferences.getInstance();
+    bool? temp = pref.getBool('didCacheSession');
+    bool cached = false;
+    if (temp != null) {
+      cached = temp;
+    }
+
     final db = await instance.database;
 
     var query = await db.rawQuery("PRAGMA table_info(excercise_set);");
@@ -197,8 +232,12 @@ class CustomDatabase {
       String workoutName = queryWorkoutRecords[i]['workout_name'] as String;
       String dayString = queryWorkoutRecords[i]['day'] as String;
       DateTime day = DateTime.parse(sqlToDartDate(dayString));
+      log(workoutRecordId);
       workoutRecords.add(
           WorkoutRecord(workoutRecordId, day, workoutName, excerciseRecords));
+    }
+    if (cached && workoutRecords.length > 0) {
+      workoutRecords.removeLast();
     }
     return workoutRecords;
   }
@@ -301,13 +340,15 @@ class CustomDatabase {
       } else {
         // if this weight is a record, mark the first set with this weight
         // as record
-        setRecordIndex = workoutRecord.excerciseRecords[i].reps_weight_rpe
-            .indexWhere((element) => element['weight'] == currentMaxWeight);
-        workoutRecord.excerciseRecords[i].reps_weight_rpe[setRecordIndex]
-            ['hasRecord'] = 1;
-        await CustomDatabase.instance
-            .setWeightRecord(excercise.id, currentMaxWeight);
-        didSetWeightRecord = true;
+        if (currentMaxWeight > 0) {
+          setRecordIndex = workoutRecord.excerciseRecords[i].reps_weight_rpe
+              .indexWhere((element) => element['weight'] == currentMaxWeight);
+          workoutRecord.excerciseRecords[i].reps_weight_rpe[setRecordIndex]
+              ['hasRecord'] = 1;
+          await CustomDatabase.instance
+              .setWeightRecord(excercise.id, currentMaxWeight);
+          didSetWeightRecord = true;
+        }
       }
     }
 

@@ -11,8 +11,9 @@ Future showDimmedBackgroundDialog(BuildContext context,
     String? content,
     required String rightText,
     required String leftText,
-    required rightOnPressed,
-    required leftOnPressed}) async {
+    required Function rightOnPressed,
+    required Function leftOnPressed,
+    Function? barrierOnPressed}) async {
   Helper.unfocusTextFields(context);
   await showDialog(
       barrierColor: Colors.transparent,
@@ -21,7 +22,11 @@ Future showDimmedBackgroundDialog(BuildContext context,
         return Stack(children: [
           GestureDetector(
               onTap: () {
-                Navigator.maybePop(context);
+                if (barrierOnPressed == null) {
+                  Navigator.maybePop(context);
+                  return;
+                }
+                barrierOnPressed();
               },
               child: const DimmingBackground(
                 blurred: true,
