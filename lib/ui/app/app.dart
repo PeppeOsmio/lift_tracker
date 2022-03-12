@@ -79,7 +79,7 @@ class _AppState extends ConsumerState<App> {
     workoutList = WorkoutList();
     Future.delayed(Duration.zero, () async {
       pref = await SharedPreferences.getInstance();
-      bool? temp = pref.getBool('didCacheSession');
+      bool? temp = await pref.getBool('didCacheSession');
       bool cached = false;
       if (temp != null) {
         cached = temp;
@@ -93,8 +93,6 @@ class _AppState extends ConsumerState<App> {
           var cachedRecord = await CustomDatabase.instance.getCachedSession();
           var cachedWorkout = await CustomDatabase.instance
               .getCachedWorkout(cachedRecord.workoutId);
-          log(cachedWorkout.name);
-          log(cachedRecord.workoutName);
           Route route = MaterialPageRoute(builder: (context) {
             return NewSession(cachedWorkout, resumedSession: cachedRecord);
           });

@@ -30,7 +30,6 @@ class _NewSessionState extends ConsumerState<NewSession>
   List<Exercise> data = [];
   List<Widget> items = [];
   late SharedPreferences pref;
-  bool isCreatingSession = false;
 
   @override
   void initState() {
@@ -99,8 +98,8 @@ class _NewSessionState extends ConsumerState<NewSession>
                       child: Padding(
                         padding: const EdgeInsets.only(
                             top: 8, left: 0, right: 0, bottom: 0),
-                        child: ListView(
-                          children: items,
+                        child: SingleChildScrollView(
+                          child: Column(children: items),
                         ),
                       ),
                     ),
@@ -113,7 +112,6 @@ class _NewSessionState extends ConsumerState<NewSession>
   }
 
   Future createWorkoutSession({bool cacheMode = false}) async {
-    isCreatingSession = true;
     WorkoutRecord? workoutRecord;
     if (cacheMode) {
       workoutRecord = getWorkoutRecord(cacheMode: true);
@@ -124,13 +122,11 @@ class _NewSessionState extends ConsumerState<NewSession>
     try {
       workoutRecord = getWorkoutRecord();
     } catch (e) {
-      isCreatingSession = false;
       print(e);
       Fluttertoast.showToast(msg: "Fill all fields");
       return;
     }
     if (workoutRecord == null) {
-      isCreatingSession = false;
       await showDimmedBackgroundDialog(context,
           rightText: 'Cancel',
           leftText: 'Yes',
@@ -151,7 +147,6 @@ class _NewSessionState extends ConsumerState<NewSession>
         ref.read(Helper.workoutsProvider.notifier).refreshWorkouts();
       }
     } catch (e) {
-      isCreatingSession = false;
       await showDimmedBackgroundDialog(context,
           leftText: 'Yes', rightText: 'Cancel', leftOnPressed: () {
         Navigator.pop(context);
@@ -163,6 +158,7 @@ class _NewSessionState extends ConsumerState<NewSession>
           title: 'Cancel this session?',
           content: 'Some sets are empty. Press Yes to cancel this session');
     }
+
     ref.read(Helper.workoutRecordsProvider.notifier).refreshWorkoutRecords();
     Navigator.pop(context);
   }
@@ -216,12 +212,11 @@ class _NewSessionState extends ConsumerState<NewSession>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
-    print(state);
-    if (!isCreatingSession) {
+    if (state == AppLifecycleState.paused) {
+      await pref.setBool('didCacheSession', true);
+      await pref.setInt('cachedWorkoutId', widget.workout.id);
       await createWorkoutSession(cacheMode: true);
-      pref.setBool('didCacheSession', true);
-      pref.setInt('cachedWorkoutId', widget.workout.id);
-      dev.log('Cached session');
+      var list = await CustomDatabase.instance.readWorkoutRecords();
     }
   }
 }

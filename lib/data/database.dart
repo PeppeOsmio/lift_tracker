@@ -131,10 +131,10 @@ class CustomDatabase {
 
   Future<int> removeCachedSession() async {
     var pref = await SharedPreferences.getInstance();
-    bool? temp = pref.getBool('didCacheSession');
+    bool? temp = await pref.getBool('didCacheSession');
     bool cached = false;
     if (temp != null) {
-      pref.setBool('didCacheSession', false);
+      await pref.setBool('didCacheSession', false);
       cached = temp;
     }
     if (cached) {
@@ -143,7 +143,8 @@ class CustomDatabase {
       if (idQuery.isNotEmpty) {
         int? id = idQuery.last['id'] as int?;
         if (id != null) {
-          return await removeWorkoutRecord(id);
+          int iid = await removeWorkoutRecord(id);
+          return iid;
         }
       }
       return -1;
@@ -179,11 +180,14 @@ class CustomDatabase {
     bool cached = false;
     if (!cacheMode) {
       var pref = await SharedPreferences.getInstance();
-      bool? temp = pref.getBool('didCacheSession');
+      bool? temp = await pref.getBool('didCacheSession');
       if (temp != null) {
         cached = temp;
       }
     }
+
+    var pref = await SharedPreferences.getInstance();
+    bool? temp = await pref.getBool('didCacheSession');
 
     final db = await instance.database;
 
@@ -256,14 +260,15 @@ class CustomDatabase {
       String dayString = queryWorkoutRecords[i]['day'] as String;
       DateTime day = DateTime.parse(sqlToDartDate(dayString));
       int workoutId = queryWorkoutRecords[i]['fk_workout_id'] as int;
-      log(workoutRecordId);
       workoutRecords.add(WorkoutRecord(
           workoutRecordId, day, workoutName, exerciseRecords,
           workoutId: workoutId));
     }
+    for (int i = 0; i < workoutRecords.length; i++) {}
     if (!cacheMode && cached && workoutRecords.length > 0) {
       workoutRecords.removeLast();
     }
+
     return workoutRecords;
   }
 
@@ -315,7 +320,7 @@ class CustomDatabase {
       {bool cacheMode = false}) async {
     // delete all exercise records with empty sets
     // and track their indexes
-    removeCachedSession();
+    await removeCachedSession();
     List<int> indexes = [];
     bool didSetWeightRecord = false;
     workoutRecord.exerciseRecords.removeWhere((element) {
@@ -416,7 +421,6 @@ class CustomDatabase {
 
       for (int j = 0; j < exerciseRecord.reps_weight_rpe.length; j++) {
         var repsWeightRpe = exerciseRecord.reps_weight_rpe[j];
-        dev.log(repsWeightRpe.toString());
         int reps = repsWeightRpe["reps"] as int;
         double weight = repsWeightRpe["weight"] as double;
         int rpe = repsWeightRpe["rpe"] as int;
@@ -432,7 +436,10 @@ class CustomDatabase {
         await db.insert('exercise_set', values);
       }
     }
-
+    if (cacheMode) {
+      var pref = await SharedPreferences.getInstance();
+      pref.setBool('didCacheSession', true);
+    }
     return didSetWeightRecord;
   }
 
