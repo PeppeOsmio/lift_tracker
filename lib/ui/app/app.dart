@@ -13,7 +13,7 @@ import 'package:lift_tracker/ui/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../data/helper.dart';
 import '../workoutlist/workoutlist.dart';
-import '../excercises.dart';
+import '../exercises.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class PageNameNotifier extends StateNotifier<String> {
@@ -35,11 +35,11 @@ class App extends ConsumerStatefulWidget {
 }
 
 class _AppState extends ConsumerState<App> {
-  List<String> pageKeys = ["History", "Workouts", "Excercises"];
+  List<String> pageKeys = ["History", "Workouts", "Exercises"];
   DateTime? backPressedTime;
   late Widget workoutList;
   Widget? history;
-  Widget? excercises;
+  Widget? exercises;
   List<Widget> pages = [];
   late SharedPreferences pref;
 
@@ -65,7 +65,7 @@ class _AppState extends ConsumerState<App> {
     if (index == 0) {
       temp = history!;
     } else if (index == 2) {
-      temp = excercises!;
+      temp = exercises!;
     }
     if (temp != null) {
       ref.read(Helper.pagesProvider.notifier).addPage(temp, index);
@@ -90,16 +90,17 @@ class _AppState extends ConsumerState<App> {
           await CustomDatabase.instance.removeCachedSession();
           Navigator.maybePop(context);
         }, leftOnPressed: () async {
-          var worecords = await ref.read(Helper.workoutRecordsProvider);
-          var cachedRecord = worecords.last;
-          var wos = await ref.read(Helper.workoutsProvider);
+          var cachedRecord = await CustomDatabase.instance.getCachedSession();
+          var cachedWorkout = await CustomDatabase.instance
+              .getCachedWorkout(cachedRecord.workoutId);
+          log(cachedWorkout.name);
+          log(cachedRecord.workoutName);
           Route route = MaterialPageRoute(builder: (context) {
-            return NewSession(wos.last, resumedSession: cachedRecord);
+            return NewSession(cachedWorkout, resumedSession: cachedRecord);
           });
           Navigator.pushReplacement(context, route);
-        }, barrierOnPressed: () async {
+        }, onDispose: () async {
           await CustomDatabase.instance.removeCachedSession();
-          Navigator.maybePop(context);
         }, title: 'Resume last workout session?');
       }
     });
@@ -193,8 +194,8 @@ class _AppState extends ConsumerState<App> {
               NavBarItem("Workouts", Icons.add_outlined, () {
                 _selectTab(1, indexState);
               }),
-              NavBarItem("Excercises", Icons.fitness_center, () {
-                excercises ??= const Excercises();
+              NavBarItem("Exercises", Icons.fitness_center, () {
+                exercises ??= const Exercises();
                 _selectTab(2, indexState);
               })
             ],

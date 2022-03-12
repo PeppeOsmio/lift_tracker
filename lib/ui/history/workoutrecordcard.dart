@@ -15,7 +15,7 @@ class WorkoutRecordCard extends StatefulWidget {
   final WorkoutRecord workoutRecord;
   final void Function() onPressed;
   Duration get expandDuration => Duration(
-      milliseconds: 100 + (workoutRecord.excerciseRecords.length - 5) * 40);
+      milliseconds: 100 + (workoutRecord.exerciseRecords.length - 5) * 40);
 
   @override
   _WorkoutRecordCardState createState() => _WorkoutRecordCardState();
@@ -26,7 +26,7 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
   late Duration expandDuration;
   int totalVolume = 0;
   int recordNumber = 0;
-  List<int> recordExcercisesIndexes = [];
+  List<int> recordExercisesIndexes = [];
   bool offstage = false;
 
   @override
@@ -34,13 +34,13 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
     super.initState();
     expandDuration = Duration(
         milliseconds:
-            100 + (widget.workoutRecord.excerciseRecords.length - 5) * 20);
+            100 + (widget.workoutRecord.exerciseRecords.length - 5) * 20);
     // total volume of workout
-    for (int i = 0; i < widget.workoutRecord.excerciseRecords.length; i++) {
-      var excerciseRecord = widget.workoutRecord.excerciseRecords[i];
+    for (int i = 0; i < widget.workoutRecord.exerciseRecords.length; i++) {
+      var exerciseRecord = widget.workoutRecord.exerciseRecords[i];
       bool hasRecord = false;
-      for (int j = 0; j < excerciseRecord.reps_weight_rpe.length; j++) {
-        var set = excerciseRecord.reps_weight_rpe;
+      for (int j = 0; j < exerciseRecord.reps_weight_rpe.length; j++) {
+        var set = exerciseRecord.reps_weight_rpe;
         double volume = (set[j]['reps'] * set[j]['weight']);
         totalVolume += volume.round();
 
@@ -49,18 +49,18 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
         }
       }
       if (hasRecord) {
-        recordExcercisesIndexes.add(i);
+        recordExercisesIndexes.add(i);
       }
     }
-    recordNumber = recordExcercisesIndexes.length;
+    recordNumber = recordExercisesIndexes.length;
   }
 
   @override
   Widget build(BuildContext context) {
-    var excercises = widget.workoutRecord.excerciseRecords;
+    var exercises = widget.workoutRecord.exerciseRecords;
     List<Widget> exc = [];
 
-    for (int i = 0; i < excercises.length; i++) {
+    for (int i = 0; i < exercises.length; i++) {
       exc.add(Padding(
         padding: const EdgeInsets.only(bottom: 12),
         child: Row(
@@ -70,11 +70,11 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
               child: Row(
                 children: [
                   Text(
-                      "${excercises[i].reps_weight_rpe.length}  ×  " +
-                          excercises[i].excerciseName,
+                      "${exercises[i].reps_weight_rpe.length}  ×  " +
+                          exercises[i].exerciseName,
                       style:
                           const TextStyle(fontSize: 15, color: Colors.white)),
-                  recordExcercisesIndexes.contains(i)
+                  recordExercisesIndexes.contains(i)
                       ? Padding(
                           padding: const EdgeInsets.only(left: 8),
                           child: Icon(

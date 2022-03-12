@@ -6,8 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/database.dart';
-import 'package:lift_tracker/data/excercise.dart';
-import 'package:lift_tracker/data/excerciserecord.dart';
+import 'package:lift_tracker/data/exercise.dart';
+import 'package:lift_tracker/data/exerciserecord.dart';
 import 'package:lift_tracker/data/workout.dart';
 import 'package:lift_tracker/data/workoutrecord.dart';
 import 'package:lift_tracker/ui/colors.dart';
@@ -26,8 +26,8 @@ class NewSession extends ConsumerStatefulWidget {
 
 class _NewSessionState extends ConsumerState<NewSession>
     with WidgetsBindingObserver {
-  List<ExcerciseRecordItem> records = [];
-  List<Excercise> data = [];
+  List<ExerciseRecordItem> records = [];
+  List<Exercise> data = [];
   List<Widget> items = [];
   late SharedPreferences pref;
   bool isCreatingSession = false;
@@ -37,24 +37,27 @@ class _NewSessionState extends ConsumerState<NewSession>
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
     SharedPreferences.getInstance().then((value) => pref = value);
-    for (int i = 0; i < widget.workout.excercises.length; i++) {
+    for (int i = 0; i < widget.workout.exercises.length; i++) {
       List<TextEditingController> repsControllers = [];
       List<TextEditingController> weightControllers = [];
       List<TextEditingController> rpeControllers = [];
 
-      for (int j = 0; j < widget.workout.excercises[i].sets; j++) {
+      for (int j = 0; j < widget.workout.exercises[i].sets; j++) {
         repsControllers.add(TextEditingController());
         weightControllers.add(TextEditingController());
         rpeControllers.add(TextEditingController());
       }
 
-      records.add(ExcerciseRecordItem(
-        widget.workout.excercises[i],
+      records.add(ExerciseRecordItem(
+        widget.workout.exercises[i],
         repsControllers: repsControllers,
         weightControllers: weightControllers,
         rpeControllers: rpeControllers,
         nameController: TextEditingController(),
         onEditItem: () {},
+        startingRecord: widget.resumedSession != null
+            ? widget.resumedSession!.exerciseRecords[i]
+            : null,
       ));
 
       items.add(Padding(
@@ -85,7 +88,10 @@ class _NewSessionState extends ConsumerState<NewSession>
                   children: [
                     CustomAppBar(
                         middleText: "New ${widget.workout.name} session",
-                        onBack: () => Navigator.pop(context),
+                        onBack: () {
+                          CustomDatabase.instance.removeCachedSession();
+                          Navigator.pop(context);
+                        },
                         onSubmit: () => createWorkoutSession(),
                         backButton: true,
                         submitButton: true),
@@ -112,7 +118,7 @@ class _NewSessionState extends ConsumerState<NewSession>
     if (cacheMode) {
       workoutRecord = getWorkoutRecord(cacheMode: true);
       await CustomDatabase.instance
-          .addWorkoutRecord(workoutRecord!, widget.workout);
+          .addWorkoutRecord(workoutRecord!, widget.workout, cacheMode: true);
       return;
     }
     try {
@@ -157,47 +163,48 @@ class _NewSessionState extends ConsumerState<NewSession>
           title: 'Cancel this session?',
           content: 'Some sets are empty. Press Yes to cancel this session');
     }
-    await removeCache();
     ref.read(Helper.workoutRecordsProvider.notifier).refreshWorkoutRecords();
     Navigator.pop(context);
   }
 
   WorkoutRecord? getWorkoutRecord({bool cacheMode = false}) {
     if (cacheMode) {
-      List<ExcerciseRecord> worecords = [];
-      for (int i = 0; i < widget.workout.excercises.length; i++) {
-        ExcerciseRecord excerciseRecord;
-        excerciseRecord = records[i].cacheExerciseRecord;
+      List<ExerciseRecord> worecords = [];
+      for (int i = 0; i < widget.workout.exercises.length; i++) {
+        ExerciseRecord exerciseRecord;
+        exerciseRecord = records[i].cacheExerciseRecord;
 
-        worecords.add(excerciseRecord);
+        worecords.add(exerciseRecord);
       }
-      List<ExcerciseRecord> temp = [];
+      List<ExerciseRecord> temp = [];
       for (int j = 0; j < worecords.length; j++) {
-        ExcerciseRecord record = worecords[j];
+        ExerciseRecord record = worecords[j];
         temp.add(record);
       }
-      return WorkoutRecord(0, DateTime.now(), widget.workout.name, temp);
+      return WorkoutRecord(0, DateTime.now(), widget.workout.name, temp,
+          workoutId: widget.workout.id);
     }
-    List<ExcerciseRecord?> worecords = [];
-    for (int i = 0; i < widget.workout.excercises.length; i++) {
-      ExcerciseRecord? excerciseRecord;
+    List<ExerciseRecord?> worecords = [];
+    for (int i = 0; i < widget.workout.exercises.length; i++) {
+      ExerciseRecord? exerciseRecord;
       try {
-        excerciseRecord = records[i].excerciseRecord;
+        exerciseRecord = records[i].exerciseRecord;
       } catch (e) {
         print(e);
         throw Exception();
       }
-      if (excerciseRecord == null) {
+      if (exerciseRecord == null) {
         return null;
       }
-      worecords.add(excerciseRecord);
+      worecords.add(exerciseRecord);
     }
-    List<ExcerciseRecord> temp = [];
+    List<ExerciseRecord> temp = [];
     for (int j = 0; j < worecords.length; j++) {
-      ExcerciseRecord? record = worecords[j];
+      ExerciseRecord? record = worecords[j];
       temp.add(record!);
     }
-    return WorkoutRecord(0, DateTime.now(), widget.workout.name, temp);
+    return WorkoutRecord(0, DateTime.now(), widget.workout.name, temp,
+        workoutId: widget.workout.id);
   }
 
   @override
@@ -206,23 +213,11 @@ class _NewSessionState extends ConsumerState<NewSession>
     super.dispose();
   }
 
-  Future removeCache() async {
-    int id = await CustomDatabase.instance.removeCachedSession();
-    log('Removed record: $id');
-    ref.read(Helper.workoutRecordsProvider.notifier).refreshWorkoutRecords();
-  }
-
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
     print(state);
     if (!isCreatingSession) {
-      bool? cached = pref.getBool('didCacheSession');
-      if (cached != null) {
-        if (cached) {
-          removeCache();
-        }
-      }
       await createWorkoutSession(cacheMode: true);
       pref.setBool('didCacheSession', true);
       pref.setInt('cachedWorkoutId', widget.workout.id);
@@ -356,24 +351,26 @@ class _SetRowState extends State<SetRow> {
   }
 }
 
-class ExcerciseRecordItem extends StatefulWidget {
-  ExcerciseRecordItem(this.excercise,
+class ExerciseRecordItem extends StatefulWidget {
+  ExerciseRecordItem(this.exercise,
       {required this.repsControllers,
       required this.weightControllers,
       required this.rpeControllers,
       required this.nameController,
       required this.onEditItem,
+      this.startingRecord,
       Key? key})
       : super(key: key);
   final void Function() onEditItem;
-  final Excercise excercise;
+  final Exercise exercise;
+  final ExerciseRecord? startingRecord;
   final TextEditingController nameController;
   List<TextEditingController> repsControllers;
   List<TextEditingController> weightControllers;
   List<TextEditingController> rpeControllers;
-  ExcerciseRecord? get excerciseRecord {
+  ExerciseRecord? get exerciseRecord {
     List<Map<String, dynamic>> listMap = [];
-    for (int i = 0; i < excercise.sets; i++) {
+    for (int i = 0; i < exercise.sets; i++) {
       String reps = repsControllers[i].text;
       String weight = weightControllers[i].text;
       String rpe = rpeControllers[i].text;
@@ -393,17 +390,17 @@ class ExcerciseRecordItem extends StatefulWidget {
         });
       }
     }
-    return ExcerciseRecord(nameController.text, listMap);
+    return ExerciseRecord(nameController.text, listMap,
+        exerciseId: exercise.id);
   }
 
-  ExcerciseRecord get cacheExerciseRecord {
+  ExerciseRecord get cacheExerciseRecord {
     List<Map<String, dynamic>> listMap = [];
     String name = nameController.text;
-    for (int i = 0; i < excercise.sets; i++) {
+    for (int i = 0; i < exercise.sets; i++) {
       String reps = repsControllers[i].text;
       String weight = weightControllers[i].text;
       String rpe = rpeControllers[i].text;
-
       if (reps.isEmpty) {
         reps = '-1';
       }
@@ -421,17 +418,18 @@ class ExcerciseRecordItem extends StatefulWidget {
       });
     }
     if (name.isEmpty) {
-      name = excercise.name;
+      name = exercise.name;
     }
-    return ExcerciseRecord(name, listMap);
+    return ExerciseRecord(name, listMap, exerciseId: exercise.id);
   }
 
   @override
-  _ExcerciseRecordItemState createState() => _ExcerciseRecordItemState();
+  _ExerciseRecordItemState createState() => _ExerciseRecordItemState();
 }
 
-class _ExcerciseRecordItemState extends State<ExcerciseRecordItem> {
+class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
   FocusNode focusNode = FocusNode();
+  ExerciseRecord? startingRecord;
 
   Widget buildAddSetButton() {
     return Center(
@@ -466,10 +464,10 @@ class _ExcerciseRecordItemState extends State<ExcerciseRecordItem> {
     ));
   }
 
-  Widget buildExcercise() {
+  Widget buildExercise() {
     double width = MediaQuery.of(context).size.width;
     List<Widget> temp = [];
-    for (int i = 0; i < widget.excercise.sets; i++) {
+    for (int i = 0; i < widget.exercise.sets; i++) {
       temp.add(SetRow(i + 1,
           repsController: widget.repsControllers[i],
           weightController: widget.weightControllers[i],
@@ -533,7 +531,7 @@ class _ExcerciseRecordItemState extends State<ExcerciseRecordItem> {
                 child: Padding(
                     padding: const EdgeInsets.only(top: 24, bottom: 24),
                     child: Text(
-                      "Reps goal: ${widget.excercise.reps}",
+                      "Reps goal: ${widget.exercise.reps}",
                       style: const TextStyle(color: Colors.white),
                     )),
               ),
@@ -543,8 +541,8 @@ class _ExcerciseRecordItemState extends State<ExcerciseRecordItem> {
                     padding:
                         const EdgeInsets.only(top: 24, bottom: 24, left: 8),
                     child: Text(
-                      widget.excercise.weightRecord != null
-                          ? "Best weight: ${widget.excercise.weightRecord} kg"
+                      widget.exercise.weightRecord != null
+                          ? "Best weight: ${widget.exercise.weightRecord} kg"
                           : "",
                       style: const TextStyle(color: Colors.white),
                     )),
@@ -566,11 +564,33 @@ class _ExcerciseRecordItemState extends State<ExcerciseRecordItem> {
   @override
   void initState() {
     super.initState();
-    widget.nameController.text = widget.excercise.name;
+    widget.nameController.text = widget.exercise.name;
+    startingRecord = widget.startingRecord;
+    if (startingRecord != null) {
+      var rwr = startingRecord!.reps_weight_rpe;
+      for (int i = 0; i < rwr.length; i++) {
+        String initialReps = rwr[i]['reps'].toString();
+        String initialWeight = rwr[i]['weight'].toString();
+        String initialRpe = rwr[i]['rpe'].toString();
+        if (initialReps == '-1') {
+          initialReps = '';
+        }
+        if (initialWeight == '-1.0') {
+          initialWeight = '';
+        }
+        if (initialRpe == '-1') {
+          initialRpe = '';
+        }
+        widget.repsControllers[i].text = initialReps;
+        widget.weightControllers[i].text = initialWeight;
+        widget.rpeControllers[i].text = initialRpe;
+      }
+      widget.nameController.text = startingRecord!.exerciseName;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return buildExcercise();
+    return buildExercise();
   }
 }

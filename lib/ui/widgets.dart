@@ -13,56 +13,61 @@ Future showDimmedBackgroundDialog(BuildContext context,
     required String leftText,
     required Function rightOnPressed,
     required Function leftOnPressed,
-    Function? barrierOnPressed}) async {
+    Function? onDispose}) async {
   Helper.unfocusTextFields(context);
   await showDialog(
       barrierColor: Colors.transparent,
       context: context,
       builder: (ctx) {
-        return Stack(children: [
-          GestureDetector(
-              onTap: () {
-                if (barrierOnPressed == null) {
+        return WillPopScope(
+          onWillPop: () async {
+            if (onDispose != null) {
+              onDispose();
+            }
+            return true;
+          },
+          child: Stack(children: [
+            GestureDetector(
+                onTap: () {
                   Navigator.maybePop(context);
-                  return;
-                }
-                barrierOnPressed();
-              },
-              child: const DimmingBackground(
-                blurred: true,
-                duration: Duration(milliseconds: 150),
-                maxAlpha: 150,
-              )),
-          AlertDialog(
-            backgroundColor: Palette.backgroundDark,
-            titleTextStyle: const TextStyle(color: Colors.white, fontSize: 20),
-            title: title != null ? Text(title) : null,
-            content: content != null
-                ? Text(
-                    content,
-                    style: TextStyle(color: Colors.white),
-                  )
-                : null,
-            actions: [
-              ElevatedButton(
-                  style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all(Palette.elementsDark)),
-                  onPressed: () {
-                    leftOnPressed();
-                  },
-                  child: Text(leftText)),
-              ElevatedButton(
-                  style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all(Palette.elementsDark)),
-                  onPressed: () {
-                    rightOnPressed();
-                  },
-                  child: Text(rightText)),
-            ],
-          ),
-        ]);
+                },
+                child: const DimmingBackground(
+                  blurred: true,
+                  duration: Duration(milliseconds: 150),
+                  maxAlpha: 150,
+                )),
+            AlertDialog(
+              backgroundColor: Palette.backgroundDark,
+              titleTextStyle:
+                  const TextStyle(color: Colors.white, fontSize: 20),
+              title: title != null ? Text(title) : null,
+              content: content != null
+                  ? Text(
+                      content,
+                      style: TextStyle(color: Colors.white),
+                    )
+                  : null,
+              actions: [
+                ElevatedButton(
+                    style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all(Palette.elementsDark)),
+                    onPressed: () {
+                      leftOnPressed();
+                    },
+                    child: Text(leftText)),
+                ElevatedButton(
+                    style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all(Palette.elementsDark)),
+                    onPressed: () {
+                      rightOnPressed();
+                    },
+                    child: Text(rightText)),
+              ],
+            ),
+          ]),
+        );
       });
 }
 

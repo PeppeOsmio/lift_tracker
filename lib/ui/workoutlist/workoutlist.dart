@@ -11,7 +11,7 @@ import 'package:lift_tracker/ui/widgets.dart';
 import 'package:lift_tracker/ui/workoutlist/workoutcard.dart';
 import 'package:lift_tracker/ui/workoutlist/menuworkoutcard.dart';
 
-import '../../data/excercise.dart';
+import '../../data/exercise.dart';
 
 class WorkoutList extends ConsumerStatefulWidget {
   const WorkoutList({Key? key}) : super(key: key);
@@ -64,31 +64,74 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
       if (Helper.firstAppRun) {
         Helper.firstAppRun = false;
         Future.delayed(Duration.zero, () {
-          List<Excercise> excercises = [
-            Excercise(
-                id: 0, name: "Panca inclinata manubri", sets: 4, reps: 10),
-            Excercise(id: 1, name: "Croci ai cavi alti", sets: 4, reps: 10),
-            Excercise(id: 2, name: "Shoulder press", sets: 3, reps: 12),
-            Excercise(id: 3, name: "Alzate laterali cavi", sets: 5, reps: 12),
-            Excercise(id: 4, name: "Pushdown corda", sets: 4, reps: 12),
-            Excercise(id: 5, name: "French press cavi", sets: 4, reps: 12)
+          List<Exercise> exercises = [
+            Exercise(
+                id: 0,
+                name: "Panca inclinata manubri",
+                sets: 4,
+                reps: 10,
+                workoutId: 0),
+            Exercise(
+                id: 1,
+                name: "Croci ai cavi alti",
+                sets: 4,
+                reps: 10,
+                workoutId: 0),
+            Exercise(
+                id: 2, name: "Shoulder press", sets: 3, reps: 12, workoutId: 0),
+            Exercise(
+                id: 3,
+                name: "Alzate laterali cavi",
+                sets: 5,
+                reps: 12,
+                workoutId: 0),
+            Exercise(
+                id: 4, name: "Pushdown corda", sets: 4, reps: 12, workoutId: 0),
+            Exercise(
+                id: 5,
+                name: "French press cavi",
+                sets: 4,
+                reps: 12,
+                workoutId: 0)
           ];
           CustomDatabase.instance
-              .createWorkout("Push", excercises)
+              .createWorkout("Push", exercises)
               .then((value) {
-            setState(() {});
-            excercises.clear();
-            excercises = [
-              Excercise(id: 0, name: "Lat machine", sets: 4, reps: 10),
-              Excercise(id: 1, name: "Pulley basso", sets: 4, reps: 10),
-              Excercise(id: 2, name: "Hyperextension", sets: 3, reps: 20),
-              Excercise(id: 3, name: "Alzate laterali 90", sets: 5, reps: 12),
-              Excercise(id: 4, name: "Curl manubri", sets: 3, reps: 12),
-              Excercise(id: 5, name: "Curl martello", sets: 3, reps: 12),
-              Excercise(id: 6, name: "Curl panca inclinata", sets: 3, reps: 12)
+            exercises.clear();
+            exercises = [
+              Exercise(
+                  id: 0, name: "Lat machine", sets: 4, reps: 10, workoutId: 0),
+              Exercise(
+                  id: 1, name: "Pulley basso", sets: 4, reps: 10, workoutId: 0),
+              Exercise(
+                  id: 2,
+                  name: "Hyperextension",
+                  sets: 3,
+                  reps: 20,
+                  workoutId: 0),
+              Exercise(
+                  id: 3,
+                  name: "Alzate laterali 90",
+                  sets: 5,
+                  reps: 12,
+                  workoutId: 0),
+              Exercise(
+                  id: 4, name: "Curl manubri", sets: 3, reps: 12, workoutId: 0),
+              Exercise(
+                  id: 5,
+                  name: "Curl martello",
+                  sets: 3,
+                  reps: 12,
+                  workoutId: 0),
+              Exercise(
+                  id: 6,
+                  name: "Curl panca inclinata",
+                  sets: 3,
+                  reps: 12,
+                  workoutId: 0)
             ];
             CustomDatabase.instance
-                .createWorkout("Pull", excercises)
+                .createWorkout("Pull", exercises)
                 .then((value) {
               ref.read(Helper.workoutsProvider.notifier).refreshWorkouts();
             });

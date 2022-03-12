@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:lift_tracker/gym_icons_icons.dart';
 import 'colors.dart';
 
-class Excercises extends StatefulWidget {
-  const Excercises({Key? key}) : super(key: key);
+class Exercises extends StatefulWidget {
+  const Exercises({Key? key}) : super(key: key);
 
   @override
-  _ExcercisesState createState() => _ExcercisesState();
+  _ExercisesState createState() => _ExercisesState();
 }
 
-class _ExcercisesState extends State<Excercises> {
+class _ExercisesState extends State<Exercises> {
   @override
   Widget build(BuildContext context) {
     List<String> push = ['Chest', 'Triceps', 'Anterior delts'];
@@ -54,7 +54,7 @@ class _ExcercisesState extends State<Excercises> {
               children: [
                 Padding(
                     padding: EdgeInsets.all(16),
-                    child: ExcerciseCard(
+                    child: ExerciseCard(
                       number: 1,
                       name: 'Bench press (Barebell)',
                       icon: GymIcons.barebell,
@@ -62,7 +62,7 @@ class _ExcercisesState extends State<Excercises> {
                     )),
                 Padding(
                   padding: EdgeInsets.all(16),
-                  child: ExcerciseCard(
+                  child: ExerciseCard(
                       number: 1,
                       name: 'Bench press (Dumbbell)',
                       icon: GymIcons.dumbbell,
@@ -70,63 +70,63 @@ class _ExcercisesState extends State<Excercises> {
                 ),
                 Padding(
                     padding: EdgeInsets.all(16),
-                    child: ExcerciseCard(
+                    child: ExerciseCard(
                         number: 1,
                         name: 'Chest press',
                         icon: GymIcons.machine,
                         muscles: push)),
                 Padding(
                     padding: EdgeInsets.all(16),
-                    child: ExcerciseCard(
+                    child: ExerciseCard(
                         number: 1,
                         name: 'Lat machine',
                         icon: GymIcons.machine,
                         muscles: pull)),
                 Padding(
                     padding: EdgeInsets.all(16),
-                    child: ExcerciseCard(
+                    child: ExerciseCard(
                         number: 1,
                         name: 'Bent-over row (Barebell)',
                         icon: GymIcons.barebell,
                         muscles: pull)),
                 Padding(
                     padding: EdgeInsets.all(16),
-                    child: ExcerciseCard(
+                    child: ExerciseCard(
                         number: 1,
                         name: 'Bent-over row (Dumbbell)',
                         icon: GymIcons.dumbbell,
                         muscles: pull)),
                 Padding(
                     padding: EdgeInsets.all(16),
-                    child: ExcerciseCard(
+                    child: ExerciseCard(
                         number: 1,
                         name: 'Rope jump',
                         icon: GymIcons.cardio,
                         muscles: cardio)),
                 Padding(
                     padding: EdgeInsets.all(16),
-                    child: ExcerciseCard(
+                    child: ExerciseCard(
                         number: 1,
                         name: 'Inclined chest press',
                         icon: GymIcons.machine,
                         muscles: push)),
                 Padding(
                     padding: EdgeInsets.all(16),
-                    child: ExcerciseCard(
+                    child: ExerciseCard(
                         number: 1,
                         name: 'Squat',
                         icon: GymIcons.barebell,
                         muscles: legs_push)),
                 Padding(
                     padding: EdgeInsets.all(16),
-                    child: ExcerciseCard(
+                    child: ExerciseCard(
                         number: 1,
                         name: 'Leg extensions',
                         icon: GymIcons.machine,
                         muscles: ['Quads', '', ''])),
                 Padding(
                     padding: EdgeInsets.all(16),
-                    child: ExcerciseCard(
+                    child: ExerciseCard(
                         number: 1,
                         name: 'Leg curls',
                         icon: GymIcons.machine,
@@ -140,8 +140,8 @@ class _ExcercisesState extends State<Excercises> {
   }
 }
 
-class ExcerciseCard extends StatefulWidget {
-  const ExcerciseCard(
+class ExerciseCard extends StatefulWidget {
+  const ExerciseCard(
       {required this.number,
       required this.name,
       required this.icon,
@@ -154,10 +154,10 @@ class ExcerciseCard extends StatefulWidget {
   final List<String> muscles;
 
   @override
-  State<ExcerciseCard> createState() => _ExcerciseCardState();
+  State<ExerciseCard> createState() => _ExerciseCardState();
 }
 
-class _ExcerciseCardState extends State<ExcerciseCard> {
+class _ExerciseCardState extends State<ExerciseCard> {
   @override
   Widget build(BuildContext context) {
     print(widget.icon.codePoint);

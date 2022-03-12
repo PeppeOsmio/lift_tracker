@@ -1,11 +1,13 @@
 import 'package:lift_tracker/data/workout.dart';
 
-import 'excerciserecord.dart';
+import 'exerciserecord.dart';
 
 class WorkoutRecord {
-  WorkoutRecord(this.id, this.day, this.workoutName, this.excerciseRecords);
+  WorkoutRecord(this.id, this.day, this.workoutName, this.exerciseRecords,
+      {required this.workoutId});
   int id;
   final DateTime day;
   final String workoutName;
-  final List<ExcerciseRecord> excerciseRecords;
+  final int workoutId;
+  final List<ExerciseRecord> exerciseRecords;
 }

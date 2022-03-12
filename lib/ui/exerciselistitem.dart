@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../data/excercise.dart';
+import '../data/exercise.dart';
 import 'colors.dart';
 
-class ExcerciseListItem extends StatefulWidget {
-  ExcerciseListItem(this.excerciseNumber,
+class ExerciseListItem extends StatefulWidget {
+  ExerciseListItem(this.exerciseNumber,
       {required this.onDelete,
       this.onMoveUp,
       this.onMoveDown,
-      this.initialExcercise,
+      this.initialExercise,
       Key? key})
       : super(key: key);
-  int excerciseNumber;
-  int get number => excerciseNumber;
-  set exNumber(int num) => excerciseNumber = num;
+  int exerciseNumber;
+  int get number => exerciseNumber;
+  set exNumber(int num) => exerciseNumber = num;
   final TextEditingController nameController = TextEditingController();
   String get name => nameController.text;
   final TextEditingController setsController = TextEditingController();
@@ -24,22 +24,22 @@ class ExcerciseListItem extends StatefulWidget {
   final Function(int index) onDelete;
   final Function(int index)? onMoveUp;
   final Function(int index)? onMoveDown;
-  final Excercise? initialExcercise;
+  final Exercise? initialExercise;
 
   @override
-  _ExcerciseListItemState createState() => _ExcerciseListItemState();
+  _ExerciseListItemState createState() => _ExerciseListItemState();
 }
 
-class _ExcerciseListItemState extends State<ExcerciseListItem> {
+class _ExerciseListItemState extends State<ExerciseListItem> {
   String a = "c";
 
   @override
   void initState() {
     super.initState();
-    if (widget.initialExcercise != null) {
-      widget.nameController.text = widget.initialExcercise!.name;
-      widget.setsController.text = widget.initialExcercise!.sets.toString();
-      widget.repsController.text = widget.initialExcercise!.reps.toString();
+    if (widget.initialExercise != null) {
+      widget.nameController.text = widget.initialExercise!.name;
+      widget.setsController.text = widget.initialExercise!.sets.toString();
+      widget.repsController.text = widget.initialExercise!.reps.toString();
     }
   }
 
@@ -72,7 +72,7 @@ class _ExcerciseListItemState extends State<ExcerciseListItem> {
                                 color: Colors.white, fontSize: 16),
                             decoration: const InputDecoration(
                               hintStyle: TextStyle(color: Colors.grey),
-                              hintText: "Excercise name",
+                              hintText: "Exercise name",
                               border: InputBorder.none,
                             ),
                           )),
@@ -147,27 +147,26 @@ class _ExcerciseListItemState extends State<ExcerciseListItem> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    excerciseButton(
+                    exerciseButton(
                         onTap: () {
                           if (widget.onMoveUp != null) {
-                            widget.onMoveUp!.call(widget.excerciseNumber - 1);
+                            widget.onMoveUp!.call(widget.exerciseNumber - 1);
                           }
                         },
                         color: Palette.elementsDark,
                         icon: Icons.expand_less_outlined),
                     const SizedBox(height: 16),
-                    excerciseButton(
+                    exerciseButton(
                         onTap: () {
                           if (widget.onMoveDown != null) {
-                            widget.onMoveDown!.call(widget.excerciseNumber - 1);
+                            widget.onMoveDown!.call(widget.exerciseNumber - 1);
                           }
                         },
                         color: Palette.elementsDark,
                         icon: Icons.expand_more_outlined),
                     const SizedBox(height: 16),
-                    excerciseButton(
-                        onTap: () =>
-                            widget.onDelete(widget.excerciseNumber - 1),
+                    exerciseButton(
+                        onTap: () => widget.onDelete(widget.exerciseNumber - 1),
                         color: Colors.red,
                         icon: Icons.remove_outlined),
                   ],
@@ -178,7 +177,7 @@ class _ExcerciseListItemState extends State<ExcerciseListItem> {
     );
   }
 
-  Widget excerciseButton(
+  Widget exerciseButton(
       {required Function() onTap,
       required Color color,
       required IconData icon}) {

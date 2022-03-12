@@ -45,7 +45,7 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
     Future.delayed(Duration.zero, () {
       finalCardY = (screenHeight -
               originalHeight -
-              (widget.workoutCard.workout.excercises.length - 5) * 30) /
+              (widget.workoutCard.workout.exercises.length - 5) * 30) /
           2;
       setState(() {
         cardY = finalCardY;

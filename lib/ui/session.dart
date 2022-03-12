@@ -4,8 +4,8 @@ import 'package:fluttericon/font_awesome5_icons.dart';
 import 'package:lift_tracker/ui/app/app.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/database.dart';
-import 'package:lift_tracker/data/excercise.dart';
-import 'package:lift_tracker/data/excerciserecord.dart';
+import 'package:lift_tracker/data/exercise.dart';
+import 'package:lift_tracker/data/exerciserecord.dart';
 import 'package:lift_tracker/data/workout.dart';
 import 'package:lift_tracker/data/workoutrecord.dart';
 import 'package:lift_tracker/ui/history/history.dart';
@@ -27,11 +27,11 @@ class _SessionState extends State<Session> {
   @override
   void initState() {
     super.initState();
-    for (int i = 0; i < widget.workoutRecord.excerciseRecords.length; i++) {
-      var excerciseRecord = widget.workoutRecord.excerciseRecords[i];
+    for (int i = 0; i < widget.workoutRecord.exerciseRecords.length; i++) {
+      var exerciseRecord = widget.workoutRecord.exerciseRecords[i];
       bool hasRecord = false;
-      for (int j = 0; j < excerciseRecord.reps_weight_rpe.length; j++) {
-        var set = excerciseRecord.reps_weight_rpe;
+      for (int j = 0; j < exerciseRecord.reps_weight_rpe.length; j++) {
+        var set = exerciseRecord.reps_weight_rpe;
         double volume = (set[j]['reps'] * set[j]['weight']);
         totalVolume += volume.round();
 
@@ -64,7 +64,7 @@ class _SessionState extends State<Session> {
                 submitButton: false),
             Expanded(
               child: ListView(
-                children: buildExcerciseCardList(),
+                children: buildExerciseCardList(),
               ),
             ),
           ],
@@ -73,8 +73,8 @@ class _SessionState extends State<Session> {
     ));
   }
 
-  List<Widget> buildExcerciseCardList() {
-    var records = widget.workoutRecord.excerciseRecords;
+  List<Widget> buildExerciseCardList() {
+    var records = widget.workoutRecord.exerciseRecords;
     List<Widget> cardList = [];
     cardList.add(
       Padding(
@@ -147,30 +147,30 @@ class _SessionState extends State<Session> {
       cardList.add(Padding(
         padding:
             EdgeInsets.only(top: 24, bottom: i == records.length - 1 ? 24 : 0),
-        child: ExcerciseRecordCard(widget.workoutRecord.excerciseRecords[i]),
+        child: ExerciseRecordCard(widget.workoutRecord.exerciseRecords[i]),
       ));
     }
     return cardList;
   }
 }
 
-class ExcerciseRecordCard extends StatelessWidget {
-  const ExcerciseRecordCard(this.excerciseRecord, {Key? key}) : super(key: key);
-  final ExcerciseRecord excerciseRecord;
+class ExerciseRecordCard extends StatelessWidget {
+  const ExerciseRecordCard(this.exerciseRecord, {Key? key}) : super(key: key);
+  final ExerciseRecord exerciseRecord;
 
   TableRow buildSetRow(int index, BuildContext context) {
-    String weight = excerciseRecord.reps_weight_rpe[index]['weight'].toString();
+    String weight = exerciseRecord.reps_weight_rpe[index]['weight'].toString();
     int k = weight.indexOf(".");
     for (int i = k + 1; i < weight.length; i++) {
       if (weight[i] != 0) {
         i = weight.length;
-        weight = (excerciseRecord.reps_weight_rpe[index]['weight'] as double)
+        weight = (exerciseRecord.reps_weight_rpe[index]['weight'] as double)
             .toStringAsFixed(0);
       }
     }
-    String reps = excerciseRecord.reps_weight_rpe[index]['reps'].toString();
-    String rpe = excerciseRecord.reps_weight_rpe[index]['rpe'].toString();
-    int hasRecord = excerciseRecord.reps_weight_rpe[index]['hasRecord'];
+    String reps = exerciseRecord.reps_weight_rpe[index]['reps'].toString();
+    String rpe = exerciseRecord.reps_weight_rpe[index]['rpe'].toString();
+    int hasRecord = exerciseRecord.reps_weight_rpe[index]['hasRecord'];
     double width = MediaQuery.of(context).size.width;
     return TableRow(children: [
       Padding(
@@ -266,7 +266,7 @@ class ExcerciseRecordCard extends StatelessWidget {
 
     setRows.add(topRow);
 
-    for (int i = 0; i < excerciseRecord.reps_weight_rpe.length; i++) {
+    for (int i = 0; i < exerciseRecord.reps_weight_rpe.length; i++) {
       setRows.add(buildSetRow(i, context));
     }
 
@@ -281,7 +281,7 @@ class ExcerciseRecordCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(left: 32),
                 child: Text(
-                  excerciseRecord.excerciseName,
+                  exerciseRecord.exerciseName,
                   style: const TextStyle(color: Colors.white, fontSize: 20),
                 ),
               ),

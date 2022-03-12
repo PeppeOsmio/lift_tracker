@@ -12,7 +12,7 @@ class WorkoutCard extends StatefulWidget {
   final Future Function(bool) onLongPress;
   final bool removeMode;
   Duration get expandDuration =>
-      Duration(milliseconds: 100 + (workout.excercises.length - 5) * 40);
+      Duration(milliseconds: 100 + (workout.exercises.length - 5) * 40);
 
   @override
   _WorkoutCardState createState() => _WorkoutCardState();
@@ -29,7 +29,7 @@ class _WorkoutCardState extends State<WorkoutCard> {
   void initState() {
     super.initState();
     expandDuration = Duration(
-        milliseconds: 100 + (widget.workout.excercises.length - 5) * 20);
+        milliseconds: 100 + (widget.workout.exercises.length - 5) * 20);
     _removeMode = widget.removeMode;
     if (_removeMode == true) {
       Future.delayed(const Duration(seconds: 0), () {
@@ -41,21 +41,21 @@ class _WorkoutCardState extends State<WorkoutCard> {
 
   @override
   Widget build(BuildContext context) {
-    var excercises = widget.workout.excercises;
+    var exercises = widget.workout.exercises;
     List<Widget> exc = [];
     int stop;
     if (isOpen) {
-      stop = excercises.length;
+      stop = exercises.length;
     } else {
       stop = 4;
     }
-    if (excercises.length <= 5) {
-      stop = excercises.length;
+    if (exercises.length <= 5) {
+      stop = exercises.length;
     }
     for (int i = 0; i < stop; i++) {
-      String name = excercises[i].name;
-      if (excercises[i].type != null) {
-        name += " (${excercises[i].type!})";
+      String name = exercises[i].name;
+      if (exercises[i].type != null) {
+        name += " (${exercises[i].type!})";
       }
       exc.add(Padding(
           padding: const EdgeInsets.only(top: 6, bottom: 6),
@@ -69,15 +69,15 @@ class _WorkoutCardState extends State<WorkoutCard> {
               Expanded(
                 flex: 3,
                 child: Text(
-                    excercises[i].sets.toString() +
+                    exercises[i].sets.toString() +
                         "  ×  " +
-                        excercises[i].reps.toString(),
+                        exercises[i].reps.toString(),
                     style: const TextStyle(fontSize: 15, color: Colors.white)),
               ),
             ],
           )));
     }
-    if (!isOpen && excercises.length > 5) {
+    if (!isOpen && exercises.length > 5) {
       exc.add(const Padding(
         padding: EdgeInsets.only(top: 6, bottom: 6),
         child: Text("...", style: TextStyle(fontSize: 15, color: Colors.white)),

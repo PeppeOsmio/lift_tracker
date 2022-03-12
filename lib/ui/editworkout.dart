@@ -5,10 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/database.dart';
-import 'package:lift_tracker/data/excercise.dart';
+import 'package:lift_tracker/data/exercise.dart';
 import 'package:lift_tracker/data/workout.dart';
 import 'package:lift_tracker/ui/colors.dart';
-import 'package:lift_tracker/ui/excerciselistitem.dart';
+import 'package:lift_tracker/ui/exerciselistitem.dart';
 import 'package:lift_tracker/ui/widgets.dart';
 
 class EditWorkout extends ConsumerStatefulWidget {
@@ -20,21 +20,21 @@ class EditWorkout extends ConsumerStatefulWidget {
 }
 
 class _EditWorkoutState extends ConsumerState<EditWorkout> {
-  List<ExcerciseListItem> excerciseWidgets = [];
-  List<Excercise> data = [];
+  List<ExerciseListItem> exerciseWidgets = [];
+  List<Exercise> data = [];
   TextEditingController workoutName = TextEditingController();
-  List<Excercise> initialExcercises = [];
+  List<Exercise> initialExercises = [];
 
   @override
   void initState() {
     super.initState();
-    initialExcercises.addAll(widget.workout.excercises);
+    initialExercises.addAll(widget.workout.exercises);
     workoutName.text = widget.workout.name;
-    for (int i = 0; i < widget.workout.excercises.length; i++) {
-      excerciseWidgets.add(ExcerciseListItem(
+    for (int i = 0; i < widget.workout.exercises.length; i++) {
+      exerciseWidgets.add(ExerciseListItem(
         i + 1,
         onDelete: (index) => onDelete(index),
-        initialExcercise: initialExcercises[i],
+        initialExercise: initialExercises[i],
         onMoveDown: onMoveDown,
         onMoveUp: onMoveUp,
       ));
@@ -44,11 +44,11 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
   @override
   Widget build(BuildContext context) {
     List<Widget> temp = [];
-    for (int i = 0; i < excerciseWidgets.length; i++) {
+    for (int i = 0; i < exerciseWidgets.length; i++) {
       temp.add(Padding(
         padding:
-            EdgeInsets.only(bottom: i == excerciseWidgets.length - 1 ? 0 : 24),
-        child: excerciseWidgets[i],
+            EdgeInsets.only(bottom: i == exerciseWidgets.length - 1 ? 0 : 24),
+        child: exerciseWidgets[i],
       ));
     }
     return WillPopScope(
@@ -110,14 +110,14 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
                             ),
                             const SizedBox(height: 24),
                             const Text(
-                              "Excercises",
+                              "Exercises",
                               style:
                                   TextStyle(fontSize: 20, color: Colors.white),
                             ),
                             const SizedBox(height: 24),
                             Column(
                                 mainAxisSize: MainAxisSize.min, children: temp),
-                            addExcerciseButton()
+                            addExerciseButton()
                           ],
                         ),
                       ),
@@ -134,54 +134,54 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
     if (workoutName.text.isEmpty) {
       return;
     }
-    List<Excercise> excercises = [];
-    for (int i = 0; i < excerciseWidgets.length; i++) {
-      var excerciseWidget = excerciseWidgets[i];
-      String name = excerciseWidget.name;
-      String sets = excerciseWidget.sets;
-      String reps = excerciseWidget.reps;
+    List<Exercise> exercises = [];
+    for (int i = 0; i < exerciseWidgets.length; i++) {
+      var exerciseWidget = exerciseWidgets[i];
+      String name = exerciseWidget.name;
+      String sets = exerciseWidget.sets;
+      String reps = exerciseWidget.reps;
       double? weightRecord;
-      if (excerciseWidget.initialExcercise != null) {
-        weightRecord = excerciseWidget.initialExcercise!.weightRecord;
+      if (exerciseWidget.initialExercise != null) {
+        weightRecord = exerciseWidget.initialExercise!.weightRecord;
       }
 
       if (name.isEmpty || sets.isEmpty || reps.isEmpty) {
         return;
       }
-      excercises.add(Excercise(
+      exercises.add(Exercise(
           id: i,
           name: name,
           sets: int.parse(sets),
           reps: int.parse(reps),
-          weightRecord: weightRecord));
+          weightRecord: weightRecord,
+          workoutId: widget.workout.id));
     }
     await CustomDatabase.instance
-        .editWorkout(Workout(widget.workout.id, workoutName.text, excercises));
+        .editWorkout(Workout(widget.workout.id, workoutName.text, exercises));
     Navigator.pop(context);
     ref.read(Helper.workoutsProvider.notifier).refreshWorkouts();
   }
 
   void onDelete(index) {
-    if (excerciseWidgets.length > 1) {
+    if (exerciseWidgets.length > 1) {
       setState(() {
-        excerciseWidgets.removeAt(index);
-        for (int i = 0; i < excerciseWidgets.length; i++) {
-          excerciseWidgets[i].exNumber = i + 1;
+        exerciseWidgets.removeAt(index);
+        for (int i = 0; i < exerciseWidgets.length; i++) {
+          exerciseWidgets[i].exNumber = i + 1;
         }
       });
     }
   }
 
   void onMoveDown(index) {
-    if (index == excerciseWidgets.length - 1) {
+    if (index == exerciseWidgets.length - 1) {
       return;
     }
-    var temp = excerciseWidgets[index + 1];
-    temp.exNumber = temp.excerciseNumber - 1;
-    excerciseWidgets[index].exNumber =
-        excerciseWidgets[index].excerciseNumber + 1;
-    excerciseWidgets[index + 1] = excerciseWidgets[index];
-    excerciseWidgets[index] = temp;
+    var temp = exerciseWidgets[index + 1];
+    temp.exNumber = temp.exerciseNumber - 1;
+    exerciseWidgets[index].exNumber = exerciseWidgets[index].exerciseNumber + 1;
+    exerciseWidgets[index + 1] = exerciseWidgets[index];
+    exerciseWidgets[index] = temp;
     setState(() {});
   }
 
@@ -189,16 +189,15 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
     if (index == 0) {
       return;
     }
-    var temp = excerciseWidgets[index - 1];
-    temp.exNumber = temp.excerciseNumber + 1;
-    excerciseWidgets[index].exNumber =
-        excerciseWidgets[index].excerciseNumber - 1;
-    excerciseWidgets[index - 1] = excerciseWidgets[index];
-    excerciseWidgets[index] = temp;
+    var temp = exerciseWidgets[index - 1];
+    temp.exNumber = temp.exerciseNumber + 1;
+    exerciseWidgets[index].exNumber = exerciseWidgets[index].exerciseNumber - 1;
+    exerciseWidgets[index - 1] = exerciseWidgets[index];
+    exerciseWidgets[index] = temp;
     setState(() {});
   }
 
-  Widget addExcerciseButton() {
+  Widget addExerciseButton() {
     return Center(
         child: SizedBox(
             height: 65,
@@ -206,13 +205,13 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
             child: FloatingActionButton(
               heroTag: null,
               onPressed: () {
-                var excerciseElement =
-                    excerciseWidgets[excerciseWidgets.length - 1];
-                if (excerciseElement.name != "" &&
-                    excerciseElement.sets != "" &&
-                    excerciseElement.reps != "") {
-                  excerciseWidgets.add(ExcerciseListItem(
-                    excerciseWidgets.length + 1,
+                var exerciseElement =
+                    exerciseWidgets[exerciseWidgets.length - 1];
+                if (exerciseElement.name != "" &&
+                    exerciseElement.sets != "" &&
+                    exerciseElement.reps != "") {
+                  exerciseWidgets.add(ExerciseListItem(
+                    exerciseWidgets.length + 1,
                     onDelete: (index) => onDelete(index),
                     onMoveDown: onMoveDown,
                     onMoveUp: onMoveUp,

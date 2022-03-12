@@ -57,13 +57,13 @@ class Helper {
   // Providers
 
   // Provides the index that indicates the current displayed page
-  // among History, Workouts or Excercises
+  // among History, Workouts or Exercises
   static final pageIndexProvider =
       StateNotifierProvider<IndexNotifier, int>(((ref) {
     return IndexNotifier();
   }));
 
-  // Provides the History, Workouts and Excercises pages
+  // Provides the History, Workouts and Exercises pages
   // in order to keep their states
   static final pagesProvider =
       StateNotifierProvider<PagesNotifier, List<Widget>>((ref) {

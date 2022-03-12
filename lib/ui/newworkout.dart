@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lift_tracker/data/database.dart';
-import 'package:lift_tracker/data/excercise.dart';
+import 'package:lift_tracker/data/exercise.dart';
 import 'package:lift_tracker/ui/colors.dart';
-import 'package:lift_tracker/ui/excerciselistitem.dart';
+import 'package:lift_tracker/ui/exerciselistitem.dart';
 import 'package:lift_tracker/ui/widgets.dart';
 
 import '../data/helper.dart';
@@ -17,14 +17,14 @@ class NewWorkout extends ConsumerStatefulWidget {
 }
 
 class _NewWorkoutState extends ConsumerState<NewWorkout> {
-  List<ExcerciseListItem> excerciseWidgets = [];
-  List<Excercise> data = [];
+  List<ExerciseListItem> exerciseWidgets = [];
+  List<Exercise> data = [];
   TextEditingController workoutName = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    excerciseWidgets.add(ExcerciseListItem(
+    exerciseWidgets.add(ExerciseListItem(
       1,
       onDelete: (index) => onDelete(index),
       onMoveDown: (index) => onMoveDown(index),
@@ -35,11 +35,11 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
   @override
   Widget build(BuildContext context) {
     List<Widget> temp = [];
-    for (int i = 0; i < excerciseWidgets.length; i++) {
+    for (int i = 0; i < exerciseWidgets.length; i++) {
       temp.add(Padding(
         padding:
-            EdgeInsets.only(bottom: i == excerciseWidgets.length - 1 ? 0 : 24),
-        child: excerciseWidgets[i],
+            EdgeInsets.only(bottom: i == exerciseWidgets.length - 1 ? 0 : 24),
+        child: exerciseWidgets[i],
       ));
     }
     return SafeArea(
@@ -95,13 +95,13 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
                           ),
                           const SizedBox(height: 24),
                           const Text(
-                            "Excercises",
+                            "Exercises",
                             style: TextStyle(fontSize: 20, color: Colors.white),
                           ),
                           const SizedBox(height: 24),
                           Column(
                               mainAxisSize: MainAxisSize.min, children: temp),
-                          addExcerciseButton()
+                          addExerciseButton()
                         ],
                       ),
                     ),
@@ -117,44 +117,47 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
     if (workoutName.text.isEmpty) {
       return;
     }
-    List<Excercise> excercises = [];
-    for (int i = 0; i < excerciseWidgets.length; i++) {
-      var excerciseWidget = excerciseWidgets[i];
-      String name = excerciseWidget.name;
-      String sets = excerciseWidget.sets;
-      String reps = excerciseWidget.reps;
+    List<Exercise> exercises = [];
+    for (int i = 0; i < exerciseWidgets.length; i++) {
+      var exerciseWidget = exerciseWidgets[i];
+      String name = exerciseWidget.name;
+      String sets = exerciseWidget.sets;
+      String reps = exerciseWidget.reps;
       if (name.isEmpty || sets.isEmpty || reps.isEmpty) {
         return;
       }
-      excercises.add(Excercise(
-          id: i, name: name, sets: int.parse(sets), reps: int.parse(reps)));
+      exercises.add(Exercise(
+          id: 0,
+          name: name,
+          sets: int.parse(sets),
+          reps: int.parse(reps),
+          workoutId: 0));
     }
-    await CustomDatabase.instance.createWorkout(workoutName.text, excercises);
+    await CustomDatabase.instance.createWorkout(workoutName.text, exercises);
     ref.read(Helper.workoutsProvider.notifier).refreshWorkouts();
     Navigator.pop(context);
   }
 
   void onDelete(index) {
-    if (excerciseWidgets.length > 1) {
+    if (exerciseWidgets.length > 1) {
       setState(() {
-        excerciseWidgets.removeAt(index);
-        for (int i = 0; i < excerciseWidgets.length; i++) {
-          excerciseWidgets[i].exNumber = i + 1;
+        exerciseWidgets.removeAt(index);
+        for (int i = 0; i < exerciseWidgets.length; i++) {
+          exerciseWidgets[i].exNumber = i + 1;
         }
       });
     }
   }
 
   void onMoveDown(index) {
-    if (index == excerciseWidgets.length - 1) {
+    if (index == exerciseWidgets.length - 1) {
       return;
     }
-    var temp = excerciseWidgets[index + 1];
-    temp.exNumber = temp.excerciseNumber - 1;
-    excerciseWidgets[index].exNumber =
-        excerciseWidgets[index].excerciseNumber + 1;
-    excerciseWidgets[index + 1] = excerciseWidgets[index];
-    excerciseWidgets[index] = temp;
+    var temp = exerciseWidgets[index + 1];
+    temp.exNumber = temp.exerciseNumber - 1;
+    exerciseWidgets[index].exNumber = exerciseWidgets[index].exerciseNumber + 1;
+    exerciseWidgets[index + 1] = exerciseWidgets[index];
+    exerciseWidgets[index] = temp;
     setState(() {});
   }
 
@@ -162,16 +165,15 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
     if (index == 0) {
       return;
     }
-    var temp = excerciseWidgets[index - 1];
-    temp.exNumber = temp.excerciseNumber + 1;
-    excerciseWidgets[index].exNumber =
-        excerciseWidgets[index].excerciseNumber - 1;
-    excerciseWidgets[index - 1] = excerciseWidgets[index];
-    excerciseWidgets[index] = temp;
+    var temp = exerciseWidgets[index - 1];
+    temp.exNumber = temp.exerciseNumber + 1;
+    exerciseWidgets[index].exNumber = exerciseWidgets[index].exerciseNumber - 1;
+    exerciseWidgets[index - 1] = exerciseWidgets[index];
+    exerciseWidgets[index] = temp;
     setState(() {});
   }
 
-  Widget addExcerciseButton() {
+  Widget addExerciseButton() {
     return Center(
         child: SizedBox(
             height: 65,
@@ -179,13 +181,13 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
             child: FloatingActionButton(
               heroTag: null,
               onPressed: () {
-                var excerciseElement =
-                    excerciseWidgets[excerciseWidgets.length - 1];
-                if (excerciseElement.name != "" &&
-                    excerciseElement.sets != "" &&
-                    excerciseElement.reps != "") {
-                  excerciseWidgets.add(ExcerciseListItem(
-                    excerciseWidgets.length + 1,
+                var exerciseElement =
+                    exerciseWidgets[exerciseWidgets.length - 1];
+                if (exerciseElement.name != "" &&
+                    exerciseElement.sets != "" &&
+                    exerciseElement.reps != "") {
+                  exerciseWidgets.add(ExerciseListItem(
+                    exerciseWidgets.length + 1,
                     onDelete: (index) => onDelete(index),
                     onMoveDown: (index) => onMoveDown(index),
                     onMoveUp: (index) => onMoveUp(index),
