@@ -230,8 +230,6 @@ class _NewSessionState extends ConsumerState<NewSession>
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.paused) {
-      //remember that we tried to cache a session
-      await pref.setBool('didFailCache', true);
       //create a cached session
       await createWorkoutSession(cacheMode: true);
       //then save didCacheSession as true
