@@ -35,24 +35,29 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
     return SizedBox(
       height: 65,
       width: 65,
-      child: FloatingActionButton(
-        onPressed: () async {
-          Helper.unfocusTextFields(context);
-          var route =
-              MaterialPageRoute(builder: (context) => const NewWorkout());
-          await Navigator.push(context, route).then((value) {
-            CustomDatabase.instance.readWorkouts().then((value) {
-              setState(() {
-                workoutsFuture = CustomDatabase.instance.readWorkouts();
+      child: ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+          child: FloatingActionButton(
+            onPressed: () async {
+              Helper.unfocusTextFields(context);
+              var route =
+                  MaterialPageRoute(builder: (context) => const NewWorkout());
+              await Navigator.push(context, route).then((value) {
+                CustomDatabase.instance.readWorkouts().then((value) {
+                  setState(() {
+                    workoutsFuture = CustomDatabase.instance.readWorkouts();
+                  });
+                });
               });
-            });
-          });
-        },
-        backgroundColor: Colors.blueGrey,
-        elevation: 0,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(20))),
-        child: Icon(Icons.add_outlined, size: 24, color: Colors.black),
+            },
+            backgroundColor: Colors.blueGrey.withAlpha(125),
+            elevation: 0,
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(20))),
+            child: Icon(Icons.add_outlined, size: 24, color: Colors.black),
+          ),
+        ),
       ),
     );
   }
