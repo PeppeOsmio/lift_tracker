@@ -122,18 +122,20 @@ class _NewSessionState extends ConsumerState<NewSession>
 
   Future createWorkoutSession({bool cacheMode = false}) async {
     WorkoutRecord? workoutRecord;
-
-    //remove cached sessions then create another one
+    // remove cached sessions
+    int id = await CustomDatabase.instance.removeCachedSession();
+    if (id != -1) {
+      log('createWorkoutSession: removed cached session.');
+    }
+    // create cached session
     if (cacheMode) {
-      int id = await CustomDatabase.instance.removeCachedSession();
-      if (id != -1) {
-        log('createWorkoutSession: removed cached session.');
-      }
       workoutRecord = getWorkoutRecord(cacheMode: true);
       await CustomDatabase.instance
           .addWorkoutRecord(workoutRecord!, widget.workout, cacheMode: true);
       return;
     }
+
+    // create regular session
     try {
       workoutRecord = getWorkoutRecord();
     } catch (e) {
