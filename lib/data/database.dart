@@ -178,16 +178,13 @@ class CustomDatabase {
   Future<List<WorkoutRecord>> readWorkoutRecords(
       {bool cacheMode = false}) async {
     bool cached = false;
+    var pref = await SharedPreferences.getInstance();
     if (!cacheMode) {
-      var pref = await SharedPreferences.getInstance();
       bool? temp = await pref.getBool('didCacheSession');
       if (temp != null) {
         cached = temp;
       }
     }
-
-    var pref = await SharedPreferences.getInstance();
-    bool? temp = await pref.getBool('didCacheSession');
 
     final db = await instance.database;
 
@@ -264,11 +261,20 @@ class CustomDatabase {
           workoutRecordId, day, workoutName, exerciseRecords,
           workoutId: workoutId));
     }
-    for (int i = 0; i < workoutRecords.length; i++) {}
+
+    //if didFailCache is true, the caching process was started but not finished
+    //and it is necessary to remove the corrupted cache
+    bool? temp = await pref.getBool('didFailCache');
+    if (temp != null) {
+      if (temp) {
+        int id = workoutRecords.removeLast().id;
+        await removeWorkoutRecord(id);
+        pref.setBool('didFailCache', false);
+      }
+    }
     if (!cacheMode && cached && workoutRecords.length > 0) {
       workoutRecords.removeLast();
     }
-
     return workoutRecords;
   }
 
@@ -320,7 +326,7 @@ class CustomDatabase {
       {bool cacheMode = false}) async {
     // delete all exercise records with empty sets
     // and track their indexes
-    await removeCachedSession();
+    //await removeCachedSession();
     List<int> indexes = [];
     bool didSetWeightRecord = false;
     workoutRecord.exerciseRecords.removeWhere((element) {

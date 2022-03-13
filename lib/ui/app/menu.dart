@@ -73,7 +73,7 @@ class BlurredProfileMenuState extends State<BlurredProfileMenu> {
                           },
                           child: const DimmingBackground(
                             blurred: true,
-                            duration: const Duration(milliseconds: 150),
+                            duration: const Duration(milliseconds: 100),
                             maxAlpha: 130,
                           )),
                       Positioned(
@@ -138,7 +138,7 @@ class _AnimatedMenuState extends State<AnimatedMenu> {
       },
       child: AnimatedOpacity(
         curve: Curves.decelerate,
-        duration: const Duration(milliseconds: 150),
+        duration: const Duration(milliseconds: 100),
         opacity: menuOpacity,
         child: Container(
           width: 150,

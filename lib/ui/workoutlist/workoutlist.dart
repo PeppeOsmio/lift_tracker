@@ -133,7 +133,36 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
             CustomDatabase.instance
                 .createWorkout("Pull", exercises)
                 .then((value) {
-              ref.read(Helper.workoutsProvider.notifier).refreshWorkouts();
+              exercises.clear();
+              exercises = [
+                Exercise(
+                    id: 0, name: "Hack squat", sets: 5, reps: 10, workoutId: 0),
+                Exercise(
+                    id: 1,
+                    name: "Leg exensions",
+                    sets: 5,
+                    reps: 10,
+                    workoutId: 0),
+                Exercise(
+                    id: 2,
+                    name: "Stacchi gambe tese",
+                    sets: 5,
+                    reps: 10,
+                    workoutId: 0),
+                Exercise(
+                    id: 3, name: "Leg curl", sets: 5, reps: 10, workoutId: 0),
+                Exercise(
+                    id: 4,
+                    name: "Calf pressa",
+                    sets: 5,
+                    reps: 20,
+                    workoutId: 0),
+              ];
+              CustomDatabase.instance
+                  .createWorkout('Legs', exercises)
+                  .then((value) {
+                ref.read(Helper.workoutsProvider.notifier).refreshWorkouts();
+              });
             });
           });
         });

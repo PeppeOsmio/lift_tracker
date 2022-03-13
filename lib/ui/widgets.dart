@@ -33,7 +33,7 @@ Future showDimmedBackgroundDialog(BuildContext context,
                 },
                 child: const DimmingBackground(
                   blurred: true,
-                  duration: Duration(milliseconds: 150),
+                  duration: Duration(milliseconds: 100),
                   maxAlpha: 150,
                 )),
             AlertDialog(

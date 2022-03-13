@@ -85,21 +85,22 @@ class _AppState extends ConsumerState<App> {
         cached = temp;
       }
       if (cached) {
+        log('App: cached mode = true');
+        var cachedRecord = await CustomDatabase.instance.getCachedSession();
+        var cachedWorkout = await CustomDatabase.instance
+            .getCachedWorkout(cachedRecord.workoutId);
         showDimmedBackgroundDialog(context,
             rightText: 'Cancel', leftText: 'Resume', rightOnPressed: () async {
           await CustomDatabase.instance.removeCachedSession();
           Navigator.maybePop(context);
         }, leftOnPressed: () async {
-          var cachedRecord = await CustomDatabase.instance.getCachedSession();
-          var cachedWorkout = await CustomDatabase.instance
-              .getCachedWorkout(cachedRecord.workoutId);
           Route route = MaterialPageRoute(builder: (context) {
             return NewSession(cachedWorkout, resumedSession: cachedRecord);
           });
           Navigator.pushReplacement(context, route);
         }, onDispose: () async {
           await CustomDatabase.instance.removeCachedSession();
-        }, title: 'Resume last workout session?');
+        }, title: 'Resume last ${cachedWorkout.name} session?');
       }
     });
   }

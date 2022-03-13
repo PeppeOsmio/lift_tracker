@@ -35,7 +35,13 @@ class _NewSessionState extends ConsumerState<NewSession>
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
-    SharedPreferences.getInstance().then((value) => pref = value);
+
+    //remove cached sessions
+    SharedPreferences.getInstance().then((value) async {
+      pref = value;
+      CustomDatabase.instance.removeCachedSession();
+    });
+
     for (int i = 0; i < widget.workout.exercises.length; i++) {
       List<TextEditingController> repsControllers = [];
       List<TextEditingController> weightControllers = [];
@@ -98,8 +104,11 @@ class _NewSessionState extends ConsumerState<NewSession>
                       child: Padding(
                         padding: const EdgeInsets.only(
                             top: 8, left: 0, right: 0, bottom: 0),
-                        child: SingleChildScrollView(
-                          child: Column(children: items),
+                        child: ListView.builder(
+                          itemBuilder: (context, index) {
+                            return items[index];
+                          },
+                          itemCount: items.length,
                         ),
                       ),
                     ),
@@ -113,7 +122,13 @@ class _NewSessionState extends ConsumerState<NewSession>
 
   Future createWorkoutSession({bool cacheMode = false}) async {
     WorkoutRecord? workoutRecord;
+
+    //remove cached sessions then create another one
     if (cacheMode) {
+      int id = await CustomDatabase.instance.removeCachedSession();
+      if (id != -1) {
+        log('createWorkoutSession: removed cached session.');
+      }
       workoutRecord = getWorkoutRecord(cacheMode: true);
       await CustomDatabase.instance
           .addWorkoutRecord(workoutRecord!, widget.workout, cacheMode: true);
@@ -215,10 +230,13 @@ class _NewSessionState extends ConsumerState<NewSession>
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.paused) {
-      await pref.setBool('didCacheSession', true);
-      await pref.setInt('cachedWorkoutId', widget.workout.id);
+      //remember that we tried to cache a session
+      await pref.setBool('didFailCache', true);
+      //create a cached session
       await createWorkoutSession(cacheMode: true);
-      var list = await CustomDatabase.instance.readWorkoutRecords();
+      //then save didCacheSession as true
+      await pref.setBool('didFailCache', false);
+      await pref.setBool('didCacheSession', true);
     }
   }
 }
@@ -375,8 +393,11 @@ class ExerciseRecordItem extends StatefulWidget {
       if (name.isEmpty) {
         throw Exception('missing_name');
       }
-      if (reps.isEmpty || weight.isEmpty || rpe.isEmpty) {
+      if (reps.isEmpty || weight.isEmpty) {
         return null;
+      }
+      if (rpe.isEmpty || int.parse(rpe) > 10) {
+        rpe = '10';
       }
       if (reps != "0") {
         listMap.add({
@@ -406,6 +427,8 @@ class ExerciseRecordItem extends StatefulWidget {
       }
       if (rpe.isEmpty) {
         rpe = '-1';
+      } else if (int.parse(rpe) > 10) {
+        rpe = '10';
       }
       listMap.add({
         "reps": int.parse(reps),
@@ -424,7 +447,8 @@ class ExerciseRecordItem extends StatefulWidget {
   _ExerciseRecordItemState createState() => _ExerciseRecordItemState();
 }
 
-class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
+class _ExerciseRecordItemState extends State<ExerciseRecordItem>
+    with AutomaticKeepAliveClientMixin {
   FocusNode focusNode = FocusNode();
   ExerciseRecord? startingRecord;
 
@@ -590,4 +614,7 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
   Widget build(BuildContext context) {
     return buildExercise();
   }
+
+  @override
+  bool get wantKeepAlive => false;
 }
