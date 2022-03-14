@@ -234,9 +234,6 @@ class _NewSessionState extends ConsumerState<NewSession>
     if (state == AppLifecycleState.paused) {
       //create a cached session
       await createWorkoutSession(cacheMode: true);
-      //then save didCacheSession as true
-      await pref.setBool('didFailCache', false);
-      await pref.setBool('didCacheSession', true);
     }
   }
 }

@@ -337,6 +337,8 @@ class CustomDatabase {
       return false;
     });
 
+    var pref = await SharedPreferences.getInstance();
+
     // if every exercise record has been deleted, the session is not valid
     // and will not be saved
     if (workoutRecord.exerciseRecords.isEmpty) {
@@ -414,6 +416,11 @@ class CustomDatabase {
     int workoutRecordId = await db.insert('workout_record', values);
     values.clear();
 
+    // save that we saved a cache session right after saving the workout_record row
+    if (cacheMode) {
+      await pref.setBool('didCacheSession', true);
+    }
+
     for (int i = 0; i < workoutRecord.exerciseRecords.length; i++) {
       ExerciseRecord exerciseRecord = workoutRecord.exerciseRecords[i];
 
@@ -441,10 +448,6 @@ class CustomDatabase {
         };
         await db.insert('exercise_set', values);
       }
-    }
-    if (cacheMode) {
-      var pref = await SharedPreferences.getInstance();
-      pref.setBool('didCacheSession', true);
     }
     return didSetWeightRecord;
   }
