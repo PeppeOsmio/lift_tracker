@@ -93,24 +93,26 @@ class CustomDatabase {
 
   Future editWorkout(Workout workout) async {
     final db = await instance.database;
-    await db.update('workout', {'name': workout.name},
-        where: 'id=?', whereArgs: [workout.id]);
-    await db
-        .delete('exercise', where: 'fk_workout_id=?', whereArgs: [workout.id]);
-    for (int i = 0; i < workout.exercises.length; i++) {
-      Exercise exercise = workout.exercises[i];
-      String name = exercise.name;
-      int reps = exercise.reps;
-      int sets = exercise.sets;
-      double? weightRecord = exercise.weightRecord;
-      await db.insert('exercise', {
-        'name': name,
-        'reps': reps,
-        'sets': sets,
-        'weight_record': weightRecord,
-        'fk_workout_id': workout.id
-      });
-    }
+    db.transaction((txn) async {
+      await txn.update('workout', {'name': workout.name},
+          where: 'id=?', whereArgs: [workout.id]);
+      await txn.delete('exercise',
+          where: 'fk_workout_id=?', whereArgs: [workout.id]);
+      for (int i = 0; i < workout.exercises.length; i++) {
+        Exercise exercise = workout.exercises[i];
+        String name = exercise.name;
+        int reps = exercise.reps;
+        int sets = exercise.sets;
+        double? weightRecord = exercise.weightRecord;
+        await txn.insert('exercise', {
+          'name': name,
+          'reps': reps,
+          'sets': sets,
+          'weight_record': weightRecord,
+          'fk_workout_id': workout.id
+        });
+      }
+    });
   }
 
   Future<WorkoutRecord> getCachedSession() async {
@@ -154,25 +156,33 @@ class CustomDatabase {
 
   Future<int> removeWorkoutRecord(int workoutRecordId) async {
     final db = await instance.database;
-    List<Map<String, Object?>> query = await db.query('exercise_record',
-        columns: ['id'],
-        where: "fk_workout_record_id=?",
-        whereArgs: [workoutRecordId]);
-    List<int> exerciseRecordIds = [];
-    for (int i = 0; i < query.length; i++) {
-      exerciseRecordIds.add(query[i]['id'] as int);
+    int? id;
+    db.transaction((txn) async {
+      List<Map<String, Object?>> query = await txn.query('exercise_record',
+          columns: ['id'],
+          where: "fk_workout_record_id=?",
+          whereArgs: [workoutRecordId]);
+      List<int> exerciseRecordIds = [];
+      for (int i = 0; i < query.length; i++) {
+        exerciseRecordIds.add(query[i]['id'] as int);
+      }
+      for (int i = 0; i < exerciseRecordIds.length; i++) {
+        await txn.delete('exercise_set',
+            where: "fk_exercise_record_id=?",
+            whereArgs: [exerciseRecordIds[i]]);
+      }
+      for (int i = 0; i < query.length; i++) {
+        await txn.delete('exercise_record',
+            where: "fk_workout_record_id=?", whereArgs: [workoutRecordId]);
+      }
+      id = await txn.delete('workout_record',
+          where: "id=?", whereArgs: [workoutRecordId]);
+    });
+    if (id == null) {
+      return -1;
+    } else {
+      return id!;
     }
-    for (int i = 0; i < exerciseRecordIds.length; i++) {
-      await db.delete('exercise_set',
-          where: "fk_exercise_record_id=?", whereArgs: [exerciseRecordIds[i]]);
-    }
-    for (int i = 0; i < query.length; i++) {
-      await db.delete('exercise_record',
-          where: "fk_workout_record_id=?", whereArgs: [workoutRecordId]);
-    }
-    int id = await db
-        .delete('workout_record', where: "id=?", whereArgs: [workoutRecordId]);
-    return id;
   }
 
   Future<List<WorkoutRecord>> readWorkoutRecords(
@@ -316,9 +326,9 @@ class CustomDatabase {
     return previousWeightRecord;
   }
 
-  Future setWeightRecord(int exerciseId, double weightRecord) async {
-    final db = await instance.database;
-    await db.update('exercise', {"weight_record": weightRecord},
+  Future setWeightRecord(
+      int exerciseId, double weightRecord, Transaction txn) async {
+    await txn.update('exercise', {"weight_record": weightRecord},
         where: 'id=?', whereArgs: [exerciseId]);
   }
 
@@ -327,135 +337,142 @@ class CustomDatabase {
     // delete all exercise records with empty sets
     // and track their indexes
     //await removeCachedSession();
-    List<int> indexes = [];
+    final db = await instance.database;
     bool didSetWeightRecord = false;
-    workoutRecord.exerciseRecords.removeWhere((element) {
-      if (element.reps_weight_rpe.isEmpty) {
-        indexes.add(workoutRecord.exerciseRecords.indexOf(element));
-        return true;
-      }
-      return false;
-    });
+    await db.transaction((txn) async {
+      List<int> indexes = [];
 
-    var pref = await SharedPreferences.getInstance();
-
-    // if every exercise record has been deleted, the session is not valid
-    // and will not be saved
-    if (workoutRecord.exerciseRecords.isEmpty) {
-      throw Exception('empty_exercises');
-    }
-    // from the workout schedule, delete all the exercises that were
-    // not excecuted in this session
-    List<Exercise> tempExercises = workout.exercises;
-    for (int i = 0; i < indexes.length; i++) {
-      tempExercises.removeAt(i);
-    }
-
-    // don't save any weight records if in cache mode
-    if (!cacheMode) {
-      // check if there were weight records in this session
-      // among all the exercises that were excecuted
-      for (int i = 0; i < tempExercises.length; i++) {
-        Exercise exercise = tempExercises[i];
-        double? previousWeightRecord = exercise.weightRecord;
-        var reps_weight_rpe = workoutRecord.exerciseRecords[i].reps_weight_rpe;
-        double currentMaxWeight = reps_weight_rpe[0]['weight'];
-        int setRecordIndex = -1;
-        //if there's only one set its weight is already the max weight among all sets
-        for (int j = 0; j < reps_weight_rpe.length - 1; j++) {
-          currentMaxWeight =
-              max(currentMaxWeight, reps_weight_rpe[j + 1]['weight']);
+      workoutRecord.exerciseRecords.removeWhere((element) {
+        if (element.reps_weight_rpe.isEmpty) {
+          indexes.add(workoutRecord.exerciseRecords.indexOf(element));
+          return true;
         }
-        if (previousWeightRecord != null) {
-          if (currentMaxWeight > previousWeightRecord) {
+        return false;
+      });
+
+      var pref = await SharedPreferences.getInstance();
+
+      // if every exercise record has been deleted, the session is not valid
+      // and will not be saved
+      if (workoutRecord.exerciseRecords.isEmpty) {
+        throw Exception('empty_exercises');
+      }
+      // from the workout schedule, delete all the exercises that were
+      // not excecuted in this session
+      List<Exercise> tempExercises = workout.exercises;
+      for (int i = 0; i < indexes.length; i++) {
+        tempExercises.removeAt(i);
+      }
+
+      // don't save any weight records if in cache mode
+      if (!cacheMode) {
+        // check if there were weight records in this session
+        // among all the exercises that were excecuted
+        for (int i = 0; i < tempExercises.length; i++) {
+          Exercise exercise = tempExercises[i];
+          double? previousWeightRecord = exercise.weightRecord;
+          var reps_weight_rpe =
+              workoutRecord.exerciseRecords[i].reps_weight_rpe;
+          double currentMaxWeight = reps_weight_rpe[0]['weight'];
+          int setRecordIndex = -1;
+          //if there's only one set its weight is already the max weight among all sets
+          for (int j = 0; j < reps_weight_rpe.length - 1; j++) {
+            currentMaxWeight =
+                max(currentMaxWeight, reps_weight_rpe[j + 1]['weight']);
+          }
+          if (previousWeightRecord != null) {
+            if (currentMaxWeight > previousWeightRecord) {
+              // if this weight is a record, mark the first set with this weight
+              // as record
+              setRecordIndex = workoutRecord.exerciseRecords[i].reps_weight_rpe
+                  .indexWhere(
+                      (element) => element['weight'] == currentMaxWeight);
+              workoutRecord.exerciseRecords[i].reps_weight_rpe[setRecordIndex]
+                  ['hasRecord'] = 1;
+              await CustomDatabase.instance
+                  .setWeightRecord(exercise.id, currentMaxWeight, txn);
+              didSetWeightRecord = true;
+            }
+          } else {
             // if this weight is a record, mark the first set with this weight
             // as record
-            setRecordIndex = workoutRecord.exerciseRecords[i].reps_weight_rpe
-                .indexWhere((element) => element['weight'] == currentMaxWeight);
-            workoutRecord.exerciseRecords[i].reps_weight_rpe[setRecordIndex]
-                ['hasRecord'] = 1;
-            await CustomDatabase.instance
-                .setWeightRecord(exercise.id, currentMaxWeight);
-            didSetWeightRecord = true;
-          }
-        } else {
-          // if this weight is a record, mark the first set with this weight
-          // as record
-          if (currentMaxWeight > 0) {
-            setRecordIndex = workoutRecord.exerciseRecords[i].reps_weight_rpe
-                .indexWhere((element) => element['weight'] == currentMaxWeight);
-            workoutRecord.exerciseRecords[i].reps_weight_rpe[setRecordIndex]
-                ['hasRecord'] = 1;
-            await CustomDatabase.instance
-                .setWeightRecord(exercise.id, currentMaxWeight);
-            didSetWeightRecord = true;
+            if (currentMaxWeight > 0) {
+              setRecordIndex = workoutRecord.exerciseRecords[i].reps_weight_rpe
+                  .indexWhere(
+                      (element) => element['weight'] == currentMaxWeight);
+              workoutRecord.exerciseRecords[i].reps_weight_rpe[setRecordIndex]
+                  ['hasRecord'] = 1;
+              await CustomDatabase.instance
+                  .setWeightRecord(exercise.id, currentMaxWeight, txn);
+              didSetWeightRecord = true;
+            }
           }
         }
       }
-    }
 
-    final db = await instance.database;
-
-    for (int i = 0; i < tempExercises.length; i++) {
-      String oldName = tempExercises[i].name;
-      String newName = workoutRecord.exerciseRecords[i].exerciseName;
-      if (newName != oldName) {
-        await db.update('exercise', {'name': newName},
-            where: 'id=?', whereArgs: [tempExercises[i].id]);
-        didSetWeightRecord = true;
+      for (int i = 0; i < tempExercises.length; i++) {
+        String oldName = tempExercises[i].name;
+        String newName = workoutRecord.exerciseRecords[i].exerciseName;
+        if (newName != oldName) {
+          await txn.update('exercise', {'name': newName},
+              where: 'id=?', whereArgs: [tempExercises[i].id]);
+          didSetWeightRecord = true;
+        }
       }
-    }
 
-    DateTime now = DateTime.now();
-    String day = "${now.year}-${now.month}-${now.day}";
-    Map<String, Object> values = {
-      "day": day,
-      "workout_name": workoutRecord.workoutName,
-      'fk_workout_id': workoutRecord.workoutId
-    };
-    int workoutRecordId = await db.insert('workout_record', values);
-    values.clear();
-
-    // save that we saved a cache session right after saving the workout_record row
-    if (cacheMode) {
-      await pref.setBool('didCacheSession', true);
-    }
-
-    for (int i = 0; i < workoutRecord.exerciseRecords.length; i++) {
-      ExerciseRecord exerciseRecord = workoutRecord.exerciseRecords[i];
-
-      values = {
-        "fk_workout_record_id": workoutRecordId,
-        "exercise_name": workoutRecord.exerciseRecords[i].exerciseName,
-        'fk_exercise_id': workoutRecord.exerciseRecords[i].exerciseId
+      DateTime now = DateTime.now();
+      String day = "${now.year}-${now.month}-${now.day}";
+      Map<String, Object> values = {
+        "day": day,
+        "workout_name": workoutRecord.workoutName,
+        'fk_workout_id': workoutRecord.workoutId
       };
-      int exerciseRecordId = await db.insert('exercise_record', values);
+      int workoutRecordId = await txn.insert('workout_record', values);
       values.clear();
 
-      for (int j = 0; j < exerciseRecord.reps_weight_rpe.length; j++) {
-        var repsWeightRpe = exerciseRecord.reps_weight_rpe[j];
-        int reps = repsWeightRpe["reps"] as int;
-        double weight = repsWeightRpe["weight"] as double;
-        int rpe = repsWeightRpe["rpe"] as int;
-        int hasRecord = repsWeightRpe["hasRecord"] as int;
+      // save that we saved a cache session right after saving the workout_record row
+
+      for (int i = 0; i < workoutRecord.exerciseRecords.length; i++) {
+        ExerciseRecord exerciseRecord = workoutRecord.exerciseRecords[i];
+
         values = {
-          "set_number": i,
-          "reps": reps,
-          "weight": weight,
-          "rpe": rpe,
-          "record": hasRecord,
-          "fk_exercise_record_id": exerciseRecordId
+          "fk_workout_record_id": workoutRecordId,
+          "exercise_name": workoutRecord.exerciseRecords[i].exerciseName,
+          'fk_exercise_id': workoutRecord.exerciseRecords[i].exerciseId
         };
-        await db.insert('exercise_set', values);
+        int exerciseRecordId = await txn.insert('exercise_record', values);
+        values.clear();
+
+        for (int j = 0; j < exerciseRecord.reps_weight_rpe.length; j++) {
+          var repsWeightRpe = exerciseRecord.reps_weight_rpe[j];
+          int reps = repsWeightRpe["reps"] as int;
+          double weight = repsWeightRpe["weight"] as double;
+          int rpe = repsWeightRpe["rpe"] as int;
+          int hasRecord = repsWeightRpe["hasRecord"] as int;
+          values = {
+            "set_number": i,
+            "reps": reps,
+            "weight": weight,
+            "rpe": rpe,
+            "record": hasRecord,
+            "fk_exercise_record_id": exerciseRecordId
+          };
+          await txn.insert('exercise_set', values);
+        }
       }
-    }
+      if (cacheMode) {
+        await pref.setBool('didCacheSession', true);
+      }
+    });
     return didSetWeightRecord;
   }
 
   Future removeWorkout(int id) async {
     final db = await instance.database;
-    await db.delete("exercise", where: "fk_workout_id=?", whereArgs: [id]);
-    await db.delete("workout", where: "id=?", whereArgs: [id]);
+    db.transaction((txn) async {
+      await txn.delete("exercise", where: "fk_workout_id=?", whereArgs: [id]);
+      await txn.delete("workout", where: "id=?", whereArgs: [id]);
+    });
   }
 
   Future<List<Workout>> readWorkouts() async {
@@ -500,16 +517,18 @@ class CustomDatabase {
 
   Future createWorkout(String name, List<Exercise> exercises) async {
     final db = await instance.database;
-    final id = await db.insert('workout', {"name": name});
-    for (int i = 0; i < exercises.length; i++) {
-      var exercise = exercises[i];
-      db.insert('exercise', {
-        "name": exercise.name,
-        "sets": exercise.sets,
-        "reps": exercise.reps,
-        "fk_workout_id": id
-      });
-    }
+    db.transaction((txn) async {
+      final id = await txn.insert('workout', {"name": name});
+      for (int i = 0; i < exercises.length; i++) {
+        var exercise = exercises[i];
+        txn.insert('exercise', {
+          "name": exercise.name,
+          "sets": exercise.sets,
+          "reps": exercise.reps,
+          "fk_workout_id": id
+        });
+      }
+    });
   }
 
   Future clearWorkouts() async {
