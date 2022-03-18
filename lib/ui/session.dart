@@ -1,14 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
-import 'package:lift_tracker/ui/app/app.dart';
 import 'package:lift_tracker/data/helper.dart';
-import 'package:lift_tracker/data/database.dart';
-import 'package:lift_tracker/data/exercise.dart';
 import 'package:lift_tracker/data/exerciserecord.dart';
-import 'package:lift_tracker/data/workout.dart';
 import 'package:lift_tracker/data/workoutrecord.dart';
-import 'package:lift_tracker/ui/history/history.dart';
 import 'package:lift_tracker/ui/colors.dart';
 import 'package:lift_tracker/ui/widgets.dart';
 

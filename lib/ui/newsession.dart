@@ -144,6 +144,7 @@ class _NewSessionState extends ConsumerState<NewSession>
       return;
     }
     if (workoutRecord == null) {
+      log("Null workout record");
       await showDimmedBackgroundDialog(context,
           rightText: 'Cancel',
           leftText: 'Yes',
@@ -166,8 +167,13 @@ class _NewSessionState extends ConsumerState<NewSession>
         ref.read(Helper.workoutsProvider.notifier).refreshWorkouts();
       }
     } catch (e) {
+      log(e.toString());
       await showDimmedBackgroundDialog(context,
           leftText: 'Yes', rightText: 'Cancel', leftOnPressed: () {
+        ref
+            .read(Helper.workoutRecordsProvider.notifier)
+            .refreshWorkoutRecords();
+
         Navigator.pop(context);
         Navigator.maybePop(context);
         Fluttertoast.showToast(msg: "Session canceled");
@@ -176,10 +182,10 @@ class _NewSessionState extends ConsumerState<NewSession>
       },
           title: 'Cancel this session?',
           content: 'Some sets are empty. Press Yes to cancel this session');
+      return;
     }
-
-    ref.read(Helper.workoutRecordsProvider.notifier).refreshWorkoutRecords();
     Navigator.pop(context);
+    ref.read(Helper.workoutRecordsProvider.notifier).refreshWorkoutRecords();
   }
 
   WorkoutRecord? getWorkoutRecord({bool cacheMode = false}) {

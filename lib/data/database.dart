@@ -340,9 +340,26 @@ class CustomDatabase {
     final db = await instance.database;
     bool didSetWeightRecord = false;
     await db.transaction((txn) async {
+      List<Exercise> tempExercises = [];
+      // addAll to prevent exercises disappearing in Workouts page
+
+      tempExercises.addAll(workout.exercises);
+
+      //edit the names of the edited exercises
+      for (int i = 0; i < tempExercises.length; i++) {
+        String oldName = tempExercises[i].name;
+        String newName = workoutRecord.exerciseRecords[i].exerciseName;
+        if (newName != oldName) {
+          await txn.update('exercise', {'name': newName},
+              where: 'id=?', whereArgs: [tempExercises[i].id]);
+          didSetWeightRecord = true;
+        }
+      }
+
       List<int> indexes = [];
 
       workoutRecord.exerciseRecords.removeWhere((element) {
+        print(element.reps_weight_rpe);
         if (element.reps_weight_rpe.isEmpty) {
           indexes.add(workoutRecord.exerciseRecords.indexOf(element));
           return true;
@@ -357,9 +374,9 @@ class CustomDatabase {
       if (workoutRecord.exerciseRecords.isEmpty) {
         throw Exception('empty_exercises');
       }
+
       // from the workout schedule, delete all the exercises that were
       // not excecuted in this session
-      List<Exercise> tempExercises = workout.exercises;
       for (int i = 0; i < indexes.length; i++) {
         tempExercises.removeAt(i);
       }
@@ -407,16 +424,6 @@ class CustomDatabase {
               didSetWeightRecord = true;
             }
           }
-        }
-      }
-
-      for (int i = 0; i < tempExercises.length; i++) {
-        String oldName = tempExercises[i].name;
-        String newName = workoutRecord.exerciseRecords[i].exerciseName;
-        if (newName != oldName) {
-          await txn.update('exercise', {'name': newName},
-              where: 'id=?', whereArgs: [tempExercises[i].id]);
-          didSetWeightRecord = true;
         }
       }
 
