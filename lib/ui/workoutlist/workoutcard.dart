@@ -110,6 +110,13 @@ class _WorkoutCardState extends State<WorkoutCard> {
           maintainState: true,
           child: Container(
             decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black,
+                    blurRadius: 2.0,
+                    spreadRadius: 0.0,
+                    offset: Offset(1.0, 1.0)),
+              ],
               color: Palette.elementsDark,
               borderRadius: const BorderRadius.all(Radius.circular(20)),
             ),
