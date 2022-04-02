@@ -190,38 +190,37 @@ class _NewSessionState extends ConsumerState<NewSession>
 
   WorkoutRecord? getWorkoutRecord({bool cacheMode = false}) {
     if (cacheMode) {
-      List<ExerciseRecord> worecords = [];
+      List<ExerciseRecord> exerciseRecords = [];
       for (int i = 0; i < widget.workout.exercises.length; i++) {
         ExerciseRecord exerciseRecord;
         exerciseRecord = records[i].cacheExerciseRecord;
 
-        worecords.add(exerciseRecord);
+        exerciseRecords.add(exerciseRecord);
       }
       List<ExerciseRecord> temp = [];
-      for (int j = 0; j < worecords.length; j++) {
-        ExerciseRecord record = worecords[j];
+      for (int j = 0; j < exerciseRecords.length; j++) {
+        ExerciseRecord record = exerciseRecords[j];
         temp.add(record);
       }
       return WorkoutRecord(0, DateTime.now(), widget.workout.name, temp,
           workoutId: widget.workout.id);
     }
-    List<ExerciseRecord?> worecords = [];
+    List<ExerciseRecord?> exerciseRecords = [];
     for (int i = 0; i < widget.workout.exercises.length; i++) {
       ExerciseRecord? exerciseRecord;
       try {
         exerciseRecord = records[i].exerciseRecord;
       } catch (e) {
-        print(e);
         throw Exception();
       }
       if (exerciseRecord == null) {
         return null;
       }
-      worecords.add(exerciseRecord);
+      exerciseRecords.add(exerciseRecord);
     }
     List<ExerciseRecord> temp = [];
-    for (int j = 0; j < worecords.length; j++) {
-      ExerciseRecord? record = worecords[j];
+    for (int j = 0; j < exerciseRecords.length; j++) {
+      ExerciseRecord? record = exerciseRecords[j];
       temp.add(record!);
     }
     return WorkoutRecord(0, DateTime.now(), widget.workout.name, temp,
@@ -396,13 +395,15 @@ class ExerciseRecordItem extends StatefulWidget {
       if (name.isEmpty) {
         throw Exception('missing_name');
       }
-      if (reps.isEmpty || weight.isEmpty) {
+      if (reps.isEmpty) {
+        return null;
+      } else if (reps != '0' && weight.isEmpty) {
         return null;
       }
       if (rpe.isEmpty || int.parse(rpe) > 10) {
         rpe = '10';
       }
-      if (reps != '0' && weight != '0') {
+      if (reps != '0') {
         listMap.add({
           'reps': int.parse(reps),
           'weight': double.parse(weight),
