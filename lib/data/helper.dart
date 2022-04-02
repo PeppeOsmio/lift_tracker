@@ -133,8 +133,8 @@ class Helper {
     ];
     month = months[date.month - 1];
     day = date.day.toString();
-    String output = "";
-    output += month + " " + day + ", " + year;
+    String output = '';
+    output += month + ' ' + day + ', ' + year;
     return output;
   }
 }

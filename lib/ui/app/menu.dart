@@ -158,15 +158,15 @@ class _AnimatedMenuState extends State<AnimatedMenu> {
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    buildMenuElement("Me", Icons.person, style),
+                    buildMenuElement('Me', Icons.person, style),
                     SizedBox(
                       height: 16,
                     ),
-                    buildMenuElement("Settings", Icons.settings, style),
+                    buildMenuElement('Settings', Icons.settings, style),
                     SizedBox(
                       height: 16,
                     ),
-                    buildMenuElement("Help", Icons.help, style)
+                    buildMenuElement('Help', Icons.help, style)
                   ]),
             ),
           ),

@@ -31,7 +31,7 @@ class ExerciseListItem extends StatefulWidget {
 }
 
 class _ExerciseListItemState extends State<ExerciseListItem> {
-  String a = "c";
+  String a = 'c';
 
   @override
   void initState() {
@@ -72,7 +72,7 @@ class _ExerciseListItemState extends State<ExerciseListItem> {
                                 color: Colors.white, fontSize: 16),
                             decoration: const InputDecoration(
                               hintStyle: TextStyle(color: Colors.grey),
-                              hintText: "Exercise name",
+                              hintText: 'Exercise name',
                               border: InputBorder.none,
                             ),
                           )),
@@ -102,14 +102,14 @@ class _ExerciseListItemState extends State<ExerciseListItem> {
                                 color: Colors.white, fontSize: 16),
                             decoration: const InputDecoration(
                               hintStyle: TextStyle(color: Colors.grey),
-                              hintText: "Sets",
+                              hintText: 'Sets',
                               border: InputBorder.none,
                             ),
                           )),
                     ),
                     const SizedBox(width: 16),
                     Text(
-                      "×",
+                      '×',
                       style: TextStyle(color: Colors.white, fontSize: 24),
                     ),
                     const SizedBox(width: 16),
@@ -131,7 +131,7 @@ class _ExerciseListItemState extends State<ExerciseListItem> {
                               style: const TextStyle(color: Colors.white),
                               decoration: const InputDecoration(
                                 hintStyle: TextStyle(color: Colors.grey),
-                                hintText: "Reps",
+                                hintText: 'Reps',
                                 border: InputBorder.none,
                               ))),
                     )

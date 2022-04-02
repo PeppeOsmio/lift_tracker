@@ -136,7 +136,7 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                                 onPressed: () {
                                   widget.deleteOnPressed();
                                 },
-                                text: "Delete",
+                                text: 'Delete',
                                 borderColor: Colors.red,
                                 backgroundColor: Colors.red.withAlpha(25),
                                 width: 70,
@@ -153,7 +153,7 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                                           widget.workoutCard.workout);
                                     }));
                                   },
-                                  text: "Edit workout",
+                                  text: 'Edit workout',
                                   borderColor: Colors.amber,
                                   backgroundColor: Colors.amber.withAlpha(25)),
                             ),
@@ -168,7 +168,7 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                                     });
                                     Navigator.pushReplacement(context, route);
                                   },
-                                  text: "Start workout",
+                                  text: 'Start workout',
                                   borderColor: Colors.green,
                                   backgroundColor: Colors.green.withAlpha(25)),
                             ),

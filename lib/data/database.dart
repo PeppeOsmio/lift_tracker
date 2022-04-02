@@ -26,7 +26,7 @@ class CustomDatabase {
 
   Future<Database> _initDB(String filename) async {
     final dbPath = await getDatabasesPath();
-    final path = dbPath + "/" + filename;
+    final path = dbPath + '/' + filename;
     return await openDatabase(path, version: 1, onCreate: _createDB);
   }
 
@@ -160,7 +160,7 @@ class CustomDatabase {
     db.transaction((txn) async {
       List<Map<String, Object?>> query = await txn.query('exercise_record',
           columns: ['id'],
-          where: "fk_workout_record_id=?",
+          where: 'fk_workout_record_id=?',
           whereArgs: [workoutRecordId]);
       List<int> exerciseRecordIds = [];
       for (int i = 0; i < query.length; i++) {
@@ -168,15 +168,15 @@ class CustomDatabase {
       }
       for (int i = 0; i < exerciseRecordIds.length; i++) {
         await txn.delete('exercise_set',
-            where: "fk_exercise_record_id=?",
+            where: 'fk_exercise_record_id=?',
             whereArgs: [exerciseRecordIds[i]]);
       }
       for (int i = 0; i < query.length; i++) {
         await txn.delete('exercise_record',
-            where: "fk_workout_record_id=?", whereArgs: [workoutRecordId]);
+            where: 'fk_workout_record_id=?', whereArgs: [workoutRecordId]);
       }
       id = await txn.delete('workout_record',
-          where: "id=?", whereArgs: [workoutRecordId]);
+          where: 'id=?', whereArgs: [workoutRecordId]);
     });
     if (id == null) {
       return -1;
@@ -198,7 +198,7 @@ class CustomDatabase {
 
     final db = await instance.database;
 
-    /*var query = await db.rawQuery("PRAGMA table_info(exercise_set);");
+    /*var query = await db.rawQuery('PRAGMA table_info(exercise_set);');
     bool containsHasRecord = false;
     for (int i = 0; i < query.length; i++) {
       var column = query[i];
@@ -209,7 +209,7 @@ class CustomDatabase {
     }
     if (!containsHasRecord) {
       await db.execute(
-          "ALTER TABLE exercise_set ADD COLUMN record BIT NOT NULL DEFAULT 0;");
+          'ALTER TABLE exercise_set ADD COLUMN record BIT NOT NULL DEFAULT 0;');
     }*/
 
     List<WorkoutRecord> workoutRecords = [];
@@ -226,7 +226,7 @@ class CustomDatabase {
       List<Map<String, Object?>> queryExerciseRecords = await db.query(
           'exercise_record',
           columns: ['id', 'exercise_name', 'fk_exercise_id'],
-          where: "fk_workout_record_id=?",
+          where: 'fk_workout_record_id=?',
           whereArgs: [workoutRecordId]);
 
       //we get all the exercise sets
@@ -235,9 +235,9 @@ class CustomDatabase {
         List<Map<String, Object?>> queryExerciseSets = await db.query(
             'exercise_set',
             columns: ['id', 'reps', 'weight', 'rpe', 'record'],
-            where: "fk_exercise_record_id=?",
+            where: 'fk_exercise_record_id=?',
             whereArgs: [exerciseRecordId],
-            orderBy: "set_number");
+            orderBy: 'set_number');
         //we get the information about every exercise set
         List<Map<String, dynamic>> repsWeightRpeMap = [];
         for (int k = 0; k < queryExerciseSets.length; k++) {
@@ -246,10 +246,10 @@ class CustomDatabase {
           int rpe = queryExerciseSets[k]['rpe'] as int;
           int hasRecord = queryExerciseSets[k]['record'] as int;
           Map<String, dynamic> value = {
-            "reps": reps,
-            "weight": weight,
-            "rpe": rpe,
-            "hasRecord": hasRecord
+            'reps': reps,
+            'weight': weight,
+            'rpe': rpe,
+            'hasRecord': hasRecord
           };
           repsWeightRpeMap.add(value);
         }
@@ -289,28 +289,28 @@ class CustomDatabase {
   }
 
   String sqlToDartDate(String sqlDate) {
-    String year = "";
-    String month = "";
-    String day = "";
+    String year = '';
+    String month = '';
+    String day = '';
     int j;
-    for (j = 0; sqlDate[j] != "-"; j++) {
+    for (j = 0; sqlDate[j] != '-'; j++) {
       year += sqlDate[j];
     }
-    for (j = j + 1; sqlDate[j] != "-"; j++) {
+    for (j = j + 1; sqlDate[j] != '-'; j++) {
       month += sqlDate[j];
     }
     for (j = j + 1; j < sqlDate.length; j++) {
       day += sqlDate[j];
     }
-    String dartDate = "";
-    dartDate += year + "-";
+    String dartDate = '';
+    dartDate += year + '-';
     if (month.length < 2) {
-      dartDate += "0" + month + "-";
+      dartDate += '0' + month + '-';
     } else {
-      dartDate += month + "-";
+      dartDate += month + '-';
     }
     if (day.length < 2) {
-      dartDate += "0" + day;
+      dartDate += '0' + day;
     } else {
       dartDate += day;
     }
@@ -328,7 +328,7 @@ class CustomDatabase {
 
   Future setWeightRecord(
       int exerciseId, double weightRecord, Transaction txn) async {
-    await txn.update('exercise', {"weight_record": weightRecord},
+    await txn.update('exercise', {'weight_record': weightRecord},
         where: 'id=?', whereArgs: [exerciseId]);
   }
 
@@ -428,10 +428,10 @@ class CustomDatabase {
       }
 
       DateTime now = DateTime.now();
-      String day = "${now.year}-${now.month}-${now.day}";
+      String day = '${now.year}-${now.month}-${now.day}';
       Map<String, Object> values = {
-        "day": day,
-        "workout_name": workoutRecord.workoutName,
+        'day': day,
+        'workout_name': workoutRecord.workoutName,
         'fk_workout_id': workoutRecord.workoutId
       };
       int workoutRecordId = await txn.insert('workout_record', values);
@@ -443,8 +443,8 @@ class CustomDatabase {
         ExerciseRecord exerciseRecord = workoutRecord.exerciseRecords[i];
 
         values = {
-          "fk_workout_record_id": workoutRecordId,
-          "exercise_name": workoutRecord.exerciseRecords[i].exerciseName,
+          'fk_workout_record_id': workoutRecordId,
+          'exercise_name': workoutRecord.exerciseRecords[i].exerciseName,
           'fk_exercise_id': workoutRecord.exerciseRecords[i].exerciseId
         };
         int exerciseRecordId = await txn.insert('exercise_record', values);
@@ -452,17 +452,17 @@ class CustomDatabase {
 
         for (int j = 0; j < exerciseRecord.reps_weight_rpe.length; j++) {
           var repsWeightRpe = exerciseRecord.reps_weight_rpe[j];
-          int reps = repsWeightRpe["reps"] as int;
-          double weight = repsWeightRpe["weight"] as double;
-          int rpe = repsWeightRpe["rpe"] as int;
-          int hasRecord = repsWeightRpe["hasRecord"] as int;
+          int reps = repsWeightRpe['reps'] as int;
+          double weight = repsWeightRpe['weight'] as double;
+          int rpe = repsWeightRpe['rpe'] as int;
+          int hasRecord = repsWeightRpe['hasRecord'] as int;
           values = {
-            "set_number": i,
-            "reps": reps,
-            "weight": weight,
-            "rpe": rpe,
-            "record": hasRecord,
-            "fk_exercise_record_id": exerciseRecordId
+            'set_number': i,
+            'reps': reps,
+            'weight': weight,
+            'rpe': rpe,
+            'record': hasRecord,
+            'fk_exercise_record_id': exerciseRecordId
           };
           await txn.insert('exercise_set', values);
         }
@@ -477,8 +477,8 @@ class CustomDatabase {
   Future removeWorkout(int id) async {
     final db = await instance.database;
     db.transaction((txn) async {
-      await txn.delete("exercise", where: "fk_workout_id=?", whereArgs: [id]);
-      await txn.delete("workout", where: "id=?", whereArgs: [id]);
+      await txn.delete('exercise', where: 'fk_workout_id=?', whereArgs: [id]);
+      await txn.delete('workout', where: 'id=?', whereArgs: [id]);
     });
   }
 
@@ -499,7 +499,7 @@ class CustomDatabase {
             'weight_record',
             'fk_workout_id'
           ],
-          where: "fk_workout_id=?",
+          where: 'fk_workout_id=?',
           whereArgs: [id]);
       for (int j = 0; j < queryExercise.length; j++) {
         int exid = queryExercise[j]['id'] as int;
@@ -525,14 +525,14 @@ class CustomDatabase {
   Future createWorkout(String name, List<Exercise> exercises) async {
     final db = await instance.database;
     db.transaction((txn) async {
-      final id = await txn.insert('workout', {"name": name});
+      final id = await txn.insert('workout', {'name': name});
       for (int i = 0; i < exercises.length; i++) {
         var exercise = exercises[i];
         txn.insert('exercise', {
-          "name": exercise.name,
-          "sets": exercise.sets,
-          "reps": exercise.reps,
-          "fk_workout_id": id
+          'name': exercise.name,
+          'sets': exercise.sets,
+          'reps': exercise.reps,
+          'fk_workout_id': id
         });
       }
     });

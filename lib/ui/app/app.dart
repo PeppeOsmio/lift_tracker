@@ -17,7 +17,7 @@ import '../exercises.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class PageNameNotifier extends StateNotifier<String> {
-  PageNameNotifier() : super("Workouts");
+  PageNameNotifier() : super('Workouts');
   void setName(String name) {
     state = name;
   }
@@ -35,7 +35,7 @@ class App extends ConsumerStatefulWidget {
 }
 
 class _AppState extends ConsumerState<App> {
-  List<String> pageKeys = ["History", "Workouts", "Exercises"];
+  List<String> pageKeys = ['History', 'Workouts', 'Exercises'];
   DateTime? backPressedTime;
   late Widget workoutList;
   Widget? history;
@@ -153,7 +153,7 @@ class _AppState extends ConsumerState<App> {
               list.add(_buildOffStage(i, temp[i]));
             }
             ref.watch(Helper.pageIndexProvider);
-            log("Building stack");
+            log('Building stack');
             return Stack(children: list);
           }),
           onWillPop: () async {
@@ -167,13 +167,13 @@ class _AppState extends ConsumerState<App> {
             if (backPressedTime == null) {
               backPressedTime = DateTime.now();
               Fluttertoast.cancel();
-              Fluttertoast.showToast(msg: "Press back again to quit");
+              Fluttertoast.showToast(msg: 'Press back again to quit');
               return false;
             } else if (DateTime.now().difference(backPressedTime!) >
                 const Duration(milliseconds: 2000)) {
               backPressedTime = DateTime.now();
               Fluttertoast.cancel();
-              Fluttertoast.showToast(msg: "Press back again to quit");
+              Fluttertoast.showToast(msg: 'Press back again to quit');
               return false;
             }
             return true;
@@ -183,17 +183,17 @@ class _AppState extends ConsumerState<App> {
           var indexState = ref.read(Helper.pageIndexProvider.notifier).state;
           return BottomNavBar(
             [
-              NavBarItem("History", Icons.schedule, () {
+              NavBarItem('History', Icons.schedule, () {
                 //if something notified that the history was updated
                 //we rebuild it in order to reload the content of the history
 
                 history ??= const History();
                 _selectTab(0, indexState);
               }),
-              NavBarItem("Workouts", Icons.add_outlined, () {
+              NavBarItem('Workouts', Icons.add_outlined, () {
                 _selectTab(1, indexState);
               }),
-              NavBarItem("Exercises", Icons.fitness_center, () {
+              NavBarItem('Exercises', Icons.fitness_center, () {
                 exercises ??= const Exercises();
                 _selectTab(2, indexState);
               })

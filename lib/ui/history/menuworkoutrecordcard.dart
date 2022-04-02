@@ -118,7 +118,7 @@ class _MenuWorkoutRecordCardState extends State<MenuWorkoutRecordCard> {
                           padding: const EdgeInsets.only(bottom: 8),
                           child: CardMenuButton(
                               onPressed: widget.deleteOnPressed,
-                              text: "Delete",
+                              text: 'Delete',
                               borderColor: Colors.red,
                               backgroundColor: Colors.red.withAlpha(25),
                               width: 70),

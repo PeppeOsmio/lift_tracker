@@ -72,93 +72,93 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
           List<Exercise> exercises = [
             Exercise(
                 id: 0,
-                name: "Panca inclinata manubri",
+                name: 'Panca inclinata manubri',
                 sets: 4,
                 reps: 10,
                 workoutId: 0),
             Exercise(
                 id: 1,
-                name: "Croci ai cavi alti",
+                name: 'Croci ai cavi alti',
                 sets: 4,
                 reps: 10,
                 workoutId: 0),
             Exercise(
-                id: 2, name: "Shoulder press", sets: 3, reps: 12, workoutId: 0),
+                id: 2, name: 'Shoulder press', sets: 3, reps: 12, workoutId: 0),
             Exercise(
                 id: 3,
-                name: "Alzate laterali cavi",
+                name: 'Alzate laterali cavi',
                 sets: 5,
                 reps: 12,
                 workoutId: 0),
             Exercise(
-                id: 4, name: "Pushdown corda", sets: 4, reps: 12, workoutId: 0),
+                id: 4, name: 'Pushdown corda', sets: 4, reps: 12, workoutId: 0),
             Exercise(
                 id: 5,
-                name: "French press cavi",
+                name: 'French press cavi',
                 sets: 4,
                 reps: 12,
                 workoutId: 0)
           ];
           CustomDatabase.instance
-              .createWorkout("Push", exercises)
+              .createWorkout('Push', exercises)
               .then((value) {
             exercises.clear();
             exercises = [
               Exercise(
-                  id: 0, name: "Lat machine", sets: 4, reps: 10, workoutId: 0),
+                  id: 0, name: 'Lat machine', sets: 4, reps: 10, workoutId: 0),
               Exercise(
-                  id: 1, name: "Pulley basso", sets: 4, reps: 10, workoutId: 0),
+                  id: 1, name: 'Pulley basso', sets: 4, reps: 10, workoutId: 0),
               Exercise(
                   id: 2,
-                  name: "Hyperextension",
+                  name: 'Hyperextension',
                   sets: 3,
                   reps: 20,
                   workoutId: 0),
               Exercise(
                   id: 3,
-                  name: "Alzate laterali 90",
+                  name: 'Alzate laterali 90',
                   sets: 5,
                   reps: 12,
                   workoutId: 0),
               Exercise(
-                  id: 4, name: "Curl manubri", sets: 3, reps: 12, workoutId: 0),
+                  id: 4, name: 'Curl manubri', sets: 3, reps: 12, workoutId: 0),
               Exercise(
                   id: 5,
-                  name: "Curl martello",
+                  name: 'Curl martello',
                   sets: 3,
                   reps: 12,
                   workoutId: 0),
               Exercise(
                   id: 6,
-                  name: "Curl panca inclinata",
+                  name: 'Curl panca inclinata',
                   sets: 3,
                   reps: 12,
                   workoutId: 0)
             ];
             CustomDatabase.instance
-                .createWorkout("Pull", exercises)
+                .createWorkout('Pull', exercises)
                 .then((value) {
               exercises.clear();
               exercises = [
                 Exercise(
-                    id: 0, name: "Hack squat", sets: 5, reps: 10, workoutId: 0),
+                    id: 0, name: 'Hack squat', sets: 5, reps: 10, workoutId: 0),
                 Exercise(
                     id: 1,
-                    name: "Leg exensions",
+                    name: 'Leg exensions',
                     sets: 5,
                     reps: 10,
                     workoutId: 0),
                 Exercise(
                     id: 2,
-                    name: "Stacchi gambe tese",
+                    name: 'Stacchi gambe tese',
                     sets: 5,
                     reps: 10,
                     workoutId: 0),
                 Exercise(
-                    id: 3, name: "Leg curl", sets: 5, reps: 10, workoutId: 0),
+                    id: 3, name: 'Leg curl', sets: 5, reps: 10, workoutId: 0),
                 Exercise(
                     id: 4,
-                    name: "Calf pressa",
+                    name: 'Calf pressa',
                     sets: 5,
                     reps: 20,
                     workoutId: 0),

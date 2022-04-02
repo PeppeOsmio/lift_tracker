@@ -55,7 +55,7 @@ class _WorkoutCardState extends State<WorkoutCard> {
     for (int i = 0; i < stop; i++) {
       String name = exercises[i].name;
       if (exercises[i].type != null) {
-        name += " (${exercises[i].type!})";
+        name += ' (${exercises[i].type!})';
       }
       exc.add(Padding(
           padding: const EdgeInsets.only(top: 6, bottom: 6),
@@ -70,7 +70,7 @@ class _WorkoutCardState extends State<WorkoutCard> {
                 flex: 3,
                 child: Text(
                     exercises[i].sets.toString() +
-                        "  ×  " +
+                        '  ×  ' +
                         exercises[i].reps.toString(),
                     style: const TextStyle(fontSize: 15, color: Colors.white)),
               ),
@@ -80,7 +80,7 @@ class _WorkoutCardState extends State<WorkoutCard> {
     if (!isOpen && exercises.length > 5) {
       exc.add(const Padding(
         padding: EdgeInsets.only(top: 6, bottom: 6),
-        child: Text("...", style: TextStyle(fontSize: 15, color: Colors.white)),
+        child: Text('...', style: TextStyle(fontSize: 15, color: Colors.white)),
       ));
     }
     return WillPopScope(

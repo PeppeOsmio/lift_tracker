@@ -92,7 +92,7 @@ class _NewSessionState extends ConsumerState<NewSession>
                 child: Column(
                   children: [
                     CustomAppBar(
-                        middleText: "New ${widget.workout.name} session",
+                        middleText: 'New ${widget.workout.name} session',
                         onBack: () {
                           CustomDatabase.instance.removeCachedSession();
                           Navigator.pop(context);
@@ -140,11 +140,11 @@ class _NewSessionState extends ConsumerState<NewSession>
       workoutRecord = getWorkoutRecord();
     } catch (e) {
       print(e);
-      Fluttertoast.showToast(msg: "Fill all fields");
+      Fluttertoast.showToast(msg: 'Fill all fields');
       return;
     }
     if (workoutRecord == null) {
-      log("Null workout record");
+      log('Null workout record');
       await showDimmedBackgroundDialog(context,
           rightText: 'Cancel',
           leftText: 'Yes',
@@ -152,7 +152,7 @@ class _NewSessionState extends ConsumerState<NewSession>
           leftOnPressed: () {
             Navigator.pop(context);
             Navigator.maybePop(context);
-            Fluttertoast.showToast(msg: "Session canceled");
+            Fluttertoast.showToast(msg: 'Session canceled');
           },
           title: 'Cancel this session?',
           content: 'Some sets are empty. Press Yes to cancel this session');
@@ -176,7 +176,7 @@ class _NewSessionState extends ConsumerState<NewSession>
 
         Navigator.pop(context);
         Navigator.maybePop(context);
-        Fluttertoast.showToast(msg: "Session canceled");
+        Fluttertoast.showToast(msg: 'Session canceled');
       }, rightOnPressed: () {
         Navigator.maybePop(context);
       },
@@ -277,7 +277,7 @@ class _SetRowState extends State<SetRow> {
               child: Container(
                   padding: const EdgeInsets.only(left: 8),
                   child: Text(
-                    "${widget.rowIndex}",
+                    '${widget.rowIndex}',
                     style: const TextStyle(color: Colors.white, fontSize: 16),
                   )),
             ),
@@ -300,7 +300,7 @@ class _SetRowState extends State<SetRow> {
                     style: const TextStyle(color: Colors.white, fontSize: 16),
                     decoration: const InputDecoration(
                       hintStyle: TextStyle(color: Colors.grey),
-                      hintText: "Reps",
+                      hintText: 'Reps',
                       border: InputBorder.none,
                     ),
                   )),
@@ -324,7 +324,7 @@ class _SetRowState extends State<SetRow> {
                     style: const TextStyle(color: Colors.white, fontSize: 16),
                     decoration: const InputDecoration(
                       hintStyle: TextStyle(color: Colors.grey),
-                      hintText: "Kg",
+                      hintText: 'Kg',
                       border: InputBorder.none,
                     ),
                   )),
@@ -345,8 +345,8 @@ class _SetRowState extends State<SetRow> {
                       ],
                       onEditingComplete: () {
                         String text = widget.rpeController.text;
-                        if (text != "" && int.parse(text) > 10) {
-                          widget.rpeController.text = "10";
+                        if (text != '' && int.parse(text) > 10) {
+                          widget.rpeController.text = '10';
                         }
                         var currentFocus = FocusScope.of(context);
                         if (!currentFocus.hasPrimaryFocus) {
@@ -358,7 +358,7 @@ class _SetRowState extends State<SetRow> {
                       style: const TextStyle(color: Colors.white),
                       decoration: const InputDecoration(
                         hintStyle: TextStyle(color: Colors.grey),
-                        hintText: "Rpe",
+                        hintText: 'Rpe',
                         border: InputBorder.none,
                       ))),
             ),
@@ -402,12 +402,12 @@ class ExerciseRecordItem extends StatefulWidget {
       if (rpe.isEmpty || int.parse(rpe) > 10) {
         rpe = '10';
       }
-      if (reps != "0") {
+      if (reps != '0' && weight != '0') {
         listMap.add({
-          "reps": int.parse(reps),
-          "weight": double.parse(weight),
-          "rpe": int.parse(rpe),
-          "hasRecord": 0
+          'reps': int.parse(reps),
+          'weight': double.parse(weight),
+          'rpe': int.parse(rpe),
+          'hasRecord': 0
         });
       }
     }
@@ -434,10 +434,10 @@ class ExerciseRecordItem extends StatefulWidget {
         rpe = '10';
       }
       listMap.add({
-        "reps": int.parse(reps),
-        "weight": double.parse(weight),
-        "rpe": int.parse(rpe),
-        "hasRecord": 0
+        'reps': int.parse(reps),
+        'weight': double.parse(weight),
+        'rpe': int.parse(rpe),
+        'hasRecord': 0
       });
     }
     if (name.isEmpty) {
@@ -473,7 +473,7 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem>
               ),
               Spacer(),
               Text(
-                "Add set",
+                'Add set',
                 style: TextStyle(color: Colors.white, fontSize: 16),
               ),
               Spacer(),
@@ -520,7 +520,7 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem>
                     focusNode: focusNode,
                     decoration: InputDecoration(
                       hintStyle: TextStyle(color: Colors.grey),
-                      hintText: "Name",
+                      hintText: 'Name',
                       border: InputBorder.none,
                     ),
                     style: TextStyle(color: Colors.white, fontSize: 20),
@@ -546,7 +546,7 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem>
                 child: Padding(
                     padding: EdgeInsets.only(top: 24, bottom: 24),
                     child: Text(
-                      "Set",
+                      'Set',
                       style: TextStyle(color: Colors.white),
                     )),
               ),
@@ -555,7 +555,7 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem>
                 child: Padding(
                     padding: const EdgeInsets.only(top: 24, bottom: 24),
                     child: Text(
-                      "Reps goal: ${widget.exercise.reps}",
+                      'Reps goal: ${widget.exercise.reps}',
                       style: const TextStyle(color: Colors.white),
                     )),
               ),
@@ -566,8 +566,8 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem>
                         const EdgeInsets.only(top: 24, bottom: 24, left: 8),
                     child: Text(
                       widget.exercise.weightRecord != null
-                          ? "Best weight: ${widget.exercise.weightRecord} kg"
-                          : "",
+                          ? 'Best weight: ${widget.exercise.weightRecord} kg'
+                          : '',
                       style: const TextStyle(color: Colors.white),
                     )),
               ),

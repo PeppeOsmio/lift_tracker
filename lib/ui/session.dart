@@ -94,7 +94,7 @@ class _SessionState extends State<Session> {
                     width: 4,
                   ),
                   Text(
-                    "Volume: $totalVolume kg",
+                    'Volume: $totalVolume kg',
                     style: TextStyle(
                         color: Colors.amber,
                         fontSize: 14,
@@ -124,7 +124,7 @@ class _SessionState extends State<Session> {
                     width: 8,
                   ),
                   Text(
-                    "Records: $recordNumber",
+                    'Records: $recordNumber',
                     style: TextStyle(
                         color: Colors.green,
                         fontSize: 14,
@@ -154,7 +154,7 @@ class ExerciseRecordCard extends StatelessWidget {
 
   TableRow buildSetRow(int index, BuildContext context) {
     String weight = exerciseRecord.reps_weight_rpe[index]['weight'].toString();
-    int k = weight.indexOf(".");
+    int k = weight.indexOf('.');
     for (int i = k + 1; i < weight.length; i++) {
       if (weight[i] != 0) {
         i = weight.length;
@@ -174,7 +174,7 @@ class ExerciseRecordCard extends StatelessWidget {
             width: (width - 32) / 10,
             child: Center(
               child: Text(
-                "${index + 1}",
+                '${index + 1}',
                 style: const TextStyle(color: Colors.white, fontSize: 16),
               ),
             )),
@@ -228,7 +228,7 @@ class ExerciseRecordCard extends StatelessWidget {
           padding: const EdgeInsets.only(top: 24, bottom: 12),
           child: Center(
             child: Text(
-              "Set",
+              'Set',
               style: const TextStyle(color: Colors.white),
             ),
           )),
@@ -236,7 +236,7 @@ class ExerciseRecordCard extends StatelessWidget {
           padding: const EdgeInsets.only(top: 24, bottom: 12),
           child: Center(
             child: Text(
-              "Reps",
+              'Reps',
               style: const TextStyle(color: Colors.white),
             ),
           )),
@@ -244,7 +244,7 @@ class ExerciseRecordCard extends StatelessWidget {
           padding: EdgeInsets.only(top: 24, bottom: 12),
           child: Center(
             child: Text(
-              "Weight (kg)",
+              'Weight (kg)',
               style: TextStyle(color: Colors.white),
             ),
           )),
@@ -252,7 +252,7 @@ class ExerciseRecordCard extends StatelessWidget {
           padding: EdgeInsets.only(top: 24, bottom: 12, left: 8),
           child: Center(
             child: Text(
-              "Rpe",
+              'Rpe',
               style: TextStyle(color: Colors.white),
             ),
           )),

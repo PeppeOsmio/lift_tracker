@@ -63,7 +63,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
             body: Column(
               children: [
                 CustomAppBar(
-                    middleText: "Edit workout",
+                    middleText: 'Edit workout',
                     onBack: () {
                       Navigator.pop(context);
                     },
@@ -82,7 +82,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
-                              "Workout name",
+                              'Workout name',
                               style:
                                   TextStyle(fontSize: 20, color: Colors.white),
                             ),
@@ -101,7 +101,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
                                   controller: workoutName,
                                   decoration: const InputDecoration(
                                       hintStyle: TextStyle(color: Colors.grey),
-                                      hintText: "Chest, Legs...",
+                                      hintText: 'Chest, Legs...',
                                       border: InputBorder.none),
                                   style: const TextStyle(
                                       color: Colors.white, fontSize: 16),
@@ -110,7 +110,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
                             ),
                             const SizedBox(height: 24),
                             const Text(
-                              "Exercises",
+                              'Exercises',
                               style:
                                   TextStyle(fontSize: 20, color: Colors.white),
                             ),
@@ -207,9 +207,9 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
               onPressed: () {
                 var exerciseElement =
                     exerciseWidgets[exerciseWidgets.length - 1];
-                if (exerciseElement.name != "" &&
-                    exerciseElement.sets != "" &&
-                    exerciseElement.reps != "") {
+                if (exerciseElement.name != '' &&
+                    exerciseElement.sets != '' &&
+                    exerciseElement.reps != '') {
                   exerciseWidgets.add(ExerciseListItem(
                     exerciseWidgets.length + 1,
                     onDelete: (index) => onDelete(index),

@@ -70,7 +70,7 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
               child: Row(
                 children: [
                   Text(
-                      "${exercises[i].reps_weight_rpe.length}  ×  " +
+                      '${exercises[i].reps_weight_rpe.length}  ×  ' +
                           exercises[i].exerciseName,
                       style:
                           const TextStyle(fontSize: 15, color: Colors.white)),
@@ -179,7 +179,7 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
                                       width: 8,
                                     ),
                                     Text(
-                                      "$recordNumber",
+                                      '$recordNumber',
                                       style: TextStyle(
                                           color: Colors.green,
                                           fontSize: 14,
@@ -209,7 +209,7 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
                                 width: 4,
                               ),
                               Text(
-                                "$totalVolume kg",
+                                '$totalVolume kg',
                                 style: TextStyle(
                                     color: Colors.amber,
                                     fontSize: 14,
