@@ -13,8 +13,7 @@ will be added in the future with pre-made excercises and workout schedules.
 
 You can compile the code by yourself by cloning this project if you have the Flutter SDK installed on your machine. If you don't want to compile it, there's a pre-built APK file for Android in releases.  
 Compile instructions for Android:  
-  * You will need Java Development Kit 11 (JDK 11) and the Flutter SDK installed on your machine.  
-  Newer version of JDK don't work with Flutter
+  * You will need Java Development Kit 11 (JDK 11) and the Flutter SDK installed on your machine. Newer versions of JDK don't work with Flutter
   * Clone this project
   * In your terminal, `cd` into the project folder
   * Run the command: `flutter pub get` to download the necessary Flutter packages
