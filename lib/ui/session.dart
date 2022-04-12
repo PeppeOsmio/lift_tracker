@@ -41,6 +41,7 @@ class _SessionState extends State<Session> {
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> items = buildExerciseCardList();
     return MaterialApp(
         home: SafeArea(
       child: Scaffold(
@@ -57,8 +58,9 @@ class _SessionState extends State<Session> {
                 backButton: true,
                 submitButton: false),
             Expanded(
-              child: ListView(
-                children: buildExerciseCardList(),
+              child: ListView.builder(
+                itemBuilder: (context, index) => items[index],
+                itemCount: items.length,
               ),
             ),
           ],

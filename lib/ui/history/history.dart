@@ -66,7 +66,7 @@ class _HistoryState extends ConsumerState<History> {
                 List<WorkoutRecord> records = ss.data! as List<WorkoutRecord>;
                 int length = records.length;
                 return Expanded(
-                  child: ListView.separated(
+                  child: ListView.builder(
                       itemBuilder: (context, i) {
                         WorkoutRecordCard workoutRecordCard =
                             WorkoutRecordCard(records[length - 1 - i], () {});
@@ -85,9 +85,6 @@ class _HistoryState extends ConsumerState<History> {
                           }),
                           key: key,
                         );
-                      },
-                      separatorBuilder: (context, i) {
-                        return const SizedBox();
                       },
                       itemCount: length),
                 );

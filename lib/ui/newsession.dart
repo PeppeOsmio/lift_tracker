@@ -104,12 +104,8 @@ class _NewSessionState extends ConsumerState<NewSession>
                       child: Padding(
                         padding: const EdgeInsets.only(
                             top: 8, left: 0, right: 0, bottom: 0),
-                        child: ListView.builder(
-                          itemBuilder: (context, index) {
-                            return items[index];
-                          },
-                          itemCount: items.length,
-                        ),
+                        child: SingleChildScrollView(
+                            child: Column(children: items)),
                       ),
                     ),
                   ],

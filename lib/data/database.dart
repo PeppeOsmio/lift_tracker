@@ -79,12 +79,11 @@ class CustomDatabase {
     sql = '''
     CREATE TABLE exercise_set(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      set_number INTEGER NOT NULL,
       reps INTEGER NOT NULL,
       weight DOUBLE(5,2) NOT NULL,
       rpe INTEGER NOT NULL,
       fk_exercise_record_id INTEGER NOT NULL,
-      record BIT NOT NULL,
+      record BIT NOT NULL DEFAULT 0,
       FOREIGN KEY (fk_exercise_record_id) REFERENCES exercise_record(id)
     );
     ''';
@@ -115,10 +114,6 @@ class CustomDatabase {
     });
   }
 
-  Future<WorkoutRecord> getCachedSession() async {
-    return (await readWorkoutRecords(cacheMode: true)).last;
-  }
-
   Future<Workout> getCachedWorkout(int workoutId) async {
     var list = await readWorkouts();
     Workout? workout;
@@ -141,9 +136,10 @@ class CustomDatabase {
     }
     if (cached) {
       final db = await instance.database;
-      var idQuery = await db.query('workout_record', columns: ['id']);
+      var idQuery = await db.query('workout_record',
+          columns: ['id'], orderBy: 'id DESC', limit: 1);
       if (idQuery.isNotEmpty) {
-        int? id = idQuery.last['id'] as int?;
+        int? id = idQuery[0]['id'] as int?;
         if (id != null) {
           int iid = await removeWorkoutRecord(id);
           return iid;
@@ -161,7 +157,8 @@ class CustomDatabase {
       List<Map<String, Object?>> query = await txn.query('exercise_record',
           columns: ['id'],
           where: 'fk_workout_record_id=?',
-          whereArgs: [workoutRecordId]);
+          whereArgs: [workoutRecordId],
+          orderBy: 'id');
       List<int> exerciseRecordIds = [];
       for (int i = 0; i < query.length; i++) {
         exerciseRecordIds.add(query[i]['id'] as int);
@@ -185,9 +182,66 @@ class CustomDatabase {
     }
   }
 
+  Future<WorkoutRecord> getCachedSession() async {
+    final db = await instance.database;
+    List<ExerciseRecord> cachedExerciseRecords = [];
+    List<Map<String, Object?>> queryCachedWorkoutRecord = await db.query(
+        'workout_record',
+        columns: ['id', 'day', 'workout_name', 'fk_workout_id'],
+        orderBy: 'id DESC',
+        limit: 1);
+    int cachedWorkoutRecordId = queryCachedWorkoutRecord[0]['id'] as int;
+
+    List<Map<String, Object?>> queryCachedExerciseRecords = await db.query(
+        'exercise_record',
+        columns: ['id', 'exercise_name', 'fk_exercise_id'],
+        where: 'fk_workout_record_id=?',
+        whereArgs: [cachedWorkoutRecordId],
+        orderBy: 'id');
+    for (int i = 0; i < queryCachedExerciseRecords.length; i++) {
+      List<Map<String, dynamic>> cachedSets = [];
+
+      int id = queryCachedExerciseRecords[i]['id'] as int;
+      String exerciseName =
+          queryCachedExerciseRecords[i]['exercise_name'] as String;
+      int exerciseId = queryCachedExerciseRecords[i]['fk_exercise_id'] as int;
+
+      List<Map<String, Object?>> queryCachedExerciseSets = await db.query(
+          'exercise_set',
+          columns: ['reps', 'weight', 'rpe'],
+          where: 'fk_exercise_record_id=?',
+          whereArgs: [id],
+          orderBy: 'id');
+
+      for (int j = 0; j < queryCachedExerciseSets.length; j++) {
+        int reps = queryCachedExerciseSets[j]['reps'] as int;
+        double weight = queryCachedExerciseSets[j]['weight'] as double;
+        int rpe = queryCachedExerciseSets[j]['rpe'] as int;
+        cachedSets.add({'reps': reps, 'weight': weight, 'rpe': rpe});
+      }
+
+      cachedExerciseRecords.add(
+          ExerciseRecord(exerciseName, cachedSets, exerciseId: exerciseId));
+    }
+
+    DateTime day = DateTime.parse(
+        sqlToDartDate(queryCachedWorkoutRecord[0]['day'] as String));
+    String workoutName = queryCachedWorkoutRecord[0]['workout_name'] as String;
+    int workoutId = queryCachedWorkoutRecord[0]['fk_workout_id'] as int;
+    log(cachedExerciseRecords.length);
+    return WorkoutRecord(
+        cachedWorkoutRecordId, day, workoutName, cachedExerciseRecords,
+        workoutId: workoutId);
+  }
+
   Future<List<WorkoutRecord>> readWorkoutRecords(
       {bool cacheMode = false}) async {
     bool cached = false;
+
+    final db = await instance.database;
+
+    if (cacheMode) {}
+
     var pref = await SharedPreferences.getInstance();
     if (!cacheMode) {
       bool? temp = await pref.getBool('didCacheSession');
@@ -196,28 +250,13 @@ class CustomDatabase {
       }
     }
 
-    final db = await instance.database;
-
-    /*var query = await db.rawQuery('PRAGMA table_info(exercise_set);');
-    bool containsHasRecord = false;
-    for (int i = 0; i < query.length; i++) {
-      var column = query[i];
-      if (column['name'] == 'record') {
-        containsHasRecord = true;
-        i = query.length;
-      }
-    }
-    if (!containsHasRecord) {
-      await db.execute(
-          'ALTER TABLE exercise_set ADD COLUMN record BIT NOT NULL DEFAULT 0;');
-    }*/
-
     List<WorkoutRecord> workoutRecords = [];
 
     //we get all the workout records
     List<Map<String, Object?>> queryWorkoutRecords = await db.query(
         'workout_record',
-        columns: ['id', 'day', 'workout_name', 'fk_workout_id']);
+        columns: ['id', 'day', 'workout_name', 'fk_workout_id'],
+        orderBy: 'id');
 
     //we get all the exercise records
     for (int i = 0; i < queryWorkoutRecords.length; i++) {
@@ -227,7 +266,8 @@ class CustomDatabase {
           'exercise_record',
           columns: ['id', 'exercise_name', 'fk_exercise_id'],
           where: 'fk_workout_record_id=?',
-          whereArgs: [workoutRecordId]);
+          whereArgs: [workoutRecordId],
+          orderBy: 'id');
 
       //we get all the exercise sets
       for (int j = 0; j < queryExerciseRecords.length; j++) {
@@ -237,7 +277,7 @@ class CustomDatabase {
             columns: ['id', 'reps', 'weight', 'rpe', 'record'],
             where: 'fk_exercise_record_id=?',
             whereArgs: [exerciseRecordId],
-            orderBy: 'set_number');
+            orderBy: 'id');
         //we get the information about every exercise set
         List<Map<String, dynamic>> repsWeightRpeMap = [];
         for (int k = 0; k < queryExerciseSets.length; k++) {
@@ -457,7 +497,6 @@ class CustomDatabase {
           int rpe = repsWeightRpe['rpe'] as int;
           int hasRecord = repsWeightRpe['hasRecord'] as int;
           values = {
-            'set_number': i,
             'reps': reps,
             'weight': weight,
             'rpe': rpe,
@@ -485,7 +524,8 @@ class CustomDatabase {
   Future<List<Workout>> readWorkouts() async {
     List<Workout> workoutList = [];
     final db = await instance.database;
-    final queryWorkouts = await db.query('workout', columns: ['id', 'name']);
+    final queryWorkouts =
+        await db.query('workout', columns: ['id', 'name'], orderBy: 'id');
     for (int i = 0; i < queryWorkouts.length; i++) {
       int id = queryWorkouts[i]['id'] as int;
       String name = queryWorkouts[i]['name'] as String;
@@ -500,7 +540,8 @@ class CustomDatabase {
             'fk_workout_id'
           ],
           where: 'fk_workout_id=?',
-          whereArgs: [id]);
+          whereArgs: [id],
+          orderBy: 'id');
       for (int j = 0; j < queryExercise.length; j++) {
         int exid = queryExercise[j]['id'] as int;
         String exname = queryExercise[j]['name'] as String;
