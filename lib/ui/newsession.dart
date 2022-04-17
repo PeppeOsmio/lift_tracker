@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttericon/font_awesome5_icons.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/database.dart';
@@ -447,8 +448,7 @@ class ExerciseRecordItem extends StatefulWidget {
   _ExerciseRecordItemState createState() => _ExerciseRecordItemState();
 }
 
-class _ExerciseRecordItemState extends State<ExerciseRecordItem>
-    with AutomaticKeepAliveClientMixin {
+class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
   FocusNode focusNode = FocusNode();
   ExerciseRecord? startingRecord;
 
@@ -503,37 +503,60 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem>
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          GestureDetector(
-            onTap: () {
-              focusNode.requestFocus();
-            },
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(width: 28),
-                IntrinsicWidth(
-                  child: TextField(
-                    focusNode: focusNode,
-                    decoration: InputDecoration(
-                      hintStyle: TextStyle(color: Colors.grey),
-                      hintText: 'Name',
-                      border: InputBorder.none,
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              const Spacer(),
+              const SizedBox(
+                width: 24,
+              ),
+              GestureDetector(
+                onTap: () {
+                  focusNode.requestFocus();
+                },
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.edit,
+                      color: Colors.white,
+                      size: 20,
                     ),
-                    style: TextStyle(color: Colors.white, fontSize: 20),
-                    controller: widget.nameController,
-                  ),
+                    SizedBox(width: 8),
+                    IntrinsicWidth(
+                      child: TextField(
+                        focusNode: focusNode,
+                        decoration: InputDecoration(
+                          hintStyle: TextStyle(color: Colors.grey),
+                          hintText: 'Name',
+                          border: InputBorder.none,
+                        ),
+                        style: TextStyle(color: Colors.white, fontSize: 20),
+                        controller: widget.nameController,
+                      ),
+                    ),
+                  ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8),
+              ),
+              const Spacer(),
+              GestureDetector(
+                onTap: () {
+                  for (var e in widget.repsControllers) {
+                    e.text = '0';
+                  }
+                  for (var e in widget.weightControllers) {
+                    e.text = '0';
+                  }
+                },
+                child: SizedBox(
+                  width: 32,
                   child: Icon(
-                    Icons.edit,
-                    color: Colors.white,
-                    size: 20,
+                    Icons.delete,
+                    color: Colors.red,
                   ),
                 ),
-              ],
-            ),
+              )
+            ],
           ),
           Row(
             mainAxisSize: MainAxisSize.max,
@@ -614,7 +637,4 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem>
   Widget build(BuildContext context) {
     return buildExercise();
   }
-
-  @override
-  bool get wantKeepAlive => false;
 }
