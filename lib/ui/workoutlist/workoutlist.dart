@@ -102,26 +102,41 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
               builder: (context, ss) {
                 if (ss.hasData) {
                   var workouts = ss.data! as List<Workout>;
-                  List<Widget> columnContent = [];
-                  for (int i = 0; i < workouts.length; i++) {
-                    cardKeys.add(GlobalKey());
-                    columnContent.add(Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: WorkoutCard(workouts[i], (startAsClosed) async {
-                          WorkoutCard workoutCard = WorkoutCard(
-                            workouts[i],
-                            (startAsClosed) async {},
-                            true,
-                          );
-                          await Navigator.push(context,
-                              blurredMenuBuilder(workoutCard, cardKeys[i]));
-                        }, false, key: cardKeys[i])));
+                  if (workouts.isNotEmpty) {
+                    List<Widget> columnContent = [];
+                    for (int i = 0; i < workouts.length; i++) {
+                      cardKeys.add(GlobalKey());
+                      columnContent.add(Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child:
+                              WorkoutCard(workouts[i], (startAsClosed) async {
+                            WorkoutCard workoutCard = WorkoutCard(
+                              workouts[i],
+                              (startAsClosed) async {},
+                              true,
+                            );
+                            await Navigator.push(context,
+                                blurredMenuBuilder(workoutCard, cardKeys[i]));
+                          }, false, key: cardKeys[i])));
+                    }
+                    return Expanded(
+                        child: SingleChildScrollView(
+                            child: Column(
+                      children: columnContent,
+                    )));
+                  } else {
+                    return Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Center(
+                            child: Text(
+                          'Press the + button to create a workout',
+                          style: TextStyle(color: Colors.white, fontSize: 20),
+                          textAlign: TextAlign.center,
+                        )),
+                      ),
+                    );
                   }
-                  return Expanded(
-                      child: SingleChildScrollView(
-                          child: Column(
-                    children: columnContent,
-                  )));
                 } else {
                   return const SizedBox();
                 }

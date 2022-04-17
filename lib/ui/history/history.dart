@@ -64,30 +64,47 @@ class _HistoryState extends ConsumerState<History> {
             builder: (context, ss) {
               if (ss.hasData) {
                 List<WorkoutRecord> records = ss.data! as List<WorkoutRecord>;
-                int length = records.length;
-                return Expanded(
-                  child: ListView.builder(
-                      itemBuilder: (context, i) {
-                        WorkoutRecordCard workoutRecordCard =
-                            WorkoutRecordCard(records[length - 1 - i], () {});
-                        GlobalKey key = GlobalKey();
-                        return Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: WorkoutRecordCard(records[length - 1 - i], () {
-                            MaterialPageRoute route =
-                                MaterialPageRoute(builder: (context) {
-                              return Session(records[length - 1 - i]);
-                            });
-                            Navigator.push(context, route);
-                          }, onLongPress: () async {
-                            await Navigator.push(context,
-                                blurredMenuBuilder(workoutRecordCard, key, i));
-                          }),
-                          key: key,
-                        );
-                      },
-                      itemCount: length),
-                );
+                if (records.isNotEmpty) {
+                  int length = records.length;
+                  return Expanded(
+                    child: ListView.builder(
+                        itemBuilder: (context, i) {
+                          WorkoutRecordCard workoutRecordCard =
+                              WorkoutRecordCard(records[length - 1 - i], () {});
+                          GlobalKey key = GlobalKey();
+                          return Padding(
+                            padding: const EdgeInsets.all(16),
+                            child:
+                                WorkoutRecordCard(records[length - 1 - i], () {
+                              MaterialPageRoute route =
+                                  MaterialPageRoute(builder: (context) {
+                                return Session(records[length - 1 - i]);
+                              });
+                              Navigator.push(context, route);
+                            }, onLongPress: () async {
+                              await Navigator.push(
+                                  context,
+                                  blurredMenuBuilder(
+                                      workoutRecordCard, key, i));
+                            }),
+                            key: key,
+                          );
+                        },
+                        itemCount: length),
+                  );
+                } else {
+                  return Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Center(
+                          child: Text(
+                        'All your workout sessions will be displayed here',
+                        style: TextStyle(color: Colors.white, fontSize: 20),
+                        textAlign: TextAlign.center,
+                      )),
+                    ),
+                  );
+                }
               }
               return const SizedBox();
             },
