@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -123,12 +125,27 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
       String name = exerciseWidget.name;
       String sets = exerciseWidget.sets;
       String reps = exerciseWidget.reps;
-      if (name.isEmpty || sets.isEmpty || reps.isEmpty) {
+      String type = exerciseWidget.type;
+      String jsonId = exerciseWidget.jsonId;
+
+      if (name.isEmpty ||
+          sets.isEmpty ||
+          reps.isEmpty ||
+          type.isEmpty ||
+          jsonId.isEmpty) {
+        log('A');
+        log('name' + name);
+        log('sets' + sets);
+        log('reps' + reps);
+        log('jsonId' + jsonId);
+        log('type' + type);
         return;
       }
       exercises.add(Exercise(
-          id: 0,
+          id: i,
+          jsonId: int.parse(jsonId),
           name: name,
+          type: type,
           sets: int.parse(sets),
           reps: int.parse(reps),
           workoutId: 0));

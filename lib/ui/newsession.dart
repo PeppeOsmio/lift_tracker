@@ -584,12 +584,7 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
                 child: Padding(
                     padding:
                         const EdgeInsets.only(top: 24, bottom: 24, left: 8),
-                    child: Text(
-                      widget.exercise.weightRecord != null
-                          ? 'Best weight: ${widget.exercise.weightRecord} kg'
-                          : '',
-                      style: const TextStyle(color: Colors.white),
-                    )),
+                    child: Text('')),
               ),
             ],
           ),

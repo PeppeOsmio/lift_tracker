@@ -54,9 +54,6 @@ class _WorkoutCardState extends State<WorkoutCard> {
     }
     for (int i = 0; i < stop; i++) {
       String name = exercises[i].name;
-      if (exercises[i].type != null) {
-        name += ' (${exercises[i].type!})';
-      }
       exc.add(Padding(
           padding: const EdgeInsets.only(top: 6, bottom: 6),
           child: Row(

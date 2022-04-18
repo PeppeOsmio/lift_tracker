@@ -2,17 +2,17 @@ class Exercise {
   int id;
   int workoutId;
   String name;
+  int jsonId;
   int reps;
   int sets;
-  double? weightRecord;
-  String? type;
+  String type;
 
   Exercise(
       {required this.workoutId,
+      required this.jsonId,
       required this.id,
       required this.name,
       required this.sets,
       required this.reps,
-      this.weightRecord,
-      this.type});
+      required this.type});
 }

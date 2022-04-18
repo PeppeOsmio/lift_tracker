@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:lift_tracker/data/exercisedata.dart';
 import 'package:lift_tracker/gym_icons_icons.dart';
+import 'package:lift_tracker/ui/widgets.dart';
 import 'colors.dart';
 
 class Exercises extends StatefulWidget {
@@ -19,119 +21,10 @@ class _ExercisesState extends State<Exercises> {
     return SafeArea(
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
-            child: Container(
-              padding: const EdgeInsets.only(left: 16, right: 16),
-              width: MediaQuery.of(context).size.width,
-              decoration: const BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.all(Radius.circular(20))),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Padding(
-                    padding: EdgeInsets.only(right: 16),
-                    child: Icon(
-                      Icons.search_outlined,
-                      color: Colors.white,
-                    ),
-                  ),
-                  Expanded(
-                      child: TextField(
-                    decoration: InputDecoration(
-                        hintStyle: TextStyle(color: Colors.grey),
-                        hintText: 'Filter...',
-                        border: InputBorder.none),
-                    style: TextStyle(color: Colors.white, fontSize: 22),
-                  )),
-                ],
-              ),
-            ),
-          ),
+          SearchBar(hint: 'Filter...', textController: TextEditingController()),
           Expanded(
             child: ListView(
-              children: [
-                Padding(
-                    padding: EdgeInsets.all(16),
-                    child: ExerciseCard(
-                      number: 1,
-                      name: 'Bench press (Barebell)',
-                      icon: GymIcons.barebell,
-                      muscles: push,
-                    )),
-                Padding(
-                  padding: EdgeInsets.all(16),
-                  child: ExerciseCard(
-                      number: 1,
-                      name: 'Bench press (Dumbbell)',
-                      icon: GymIcons.dumbbell,
-                      muscles: push),
-                ),
-                Padding(
-                    padding: EdgeInsets.all(16),
-                    child: ExerciseCard(
-                        number: 1,
-                        name: 'Chest press',
-                        icon: GymIcons.machine,
-                        muscles: push)),
-                Padding(
-                    padding: EdgeInsets.all(16),
-                    child: ExerciseCard(
-                        number: 1,
-                        name: 'Lat machine',
-                        icon: GymIcons.machine,
-                        muscles: pull)),
-                Padding(
-                    padding: EdgeInsets.all(16),
-                    child: ExerciseCard(
-                        number: 1,
-                        name: 'Bent-over row (Barebell)',
-                        icon: GymIcons.barebell,
-                        muscles: pull)),
-                Padding(
-                    padding: EdgeInsets.all(16),
-                    child: ExerciseCard(
-                        number: 1,
-                        name: 'Bent-over row (Dumbbell)',
-                        icon: GymIcons.dumbbell,
-                        muscles: pull)),
-                Padding(
-                    padding: EdgeInsets.all(16),
-                    child: ExerciseCard(
-                        number: 1,
-                        name: 'Rope jump',
-                        icon: GymIcons.cardio,
-                        muscles: cardio)),
-                Padding(
-                    padding: EdgeInsets.all(16),
-                    child: ExerciseCard(
-                        number: 1,
-                        name: 'Inclined chest press',
-                        icon: GymIcons.machine,
-                        muscles: push)),
-                Padding(
-                    padding: EdgeInsets.all(16),
-                    child: ExerciseCard(
-                        number: 1,
-                        name: 'Squat',
-                        icon: GymIcons.barebell,
-                        muscles: legs_push)),
-                Padding(
-                    padding: EdgeInsets.all(16),
-                    child: ExerciseCard(
-                        number: 1,
-                        name: 'Leg extensions',
-                        icon: GymIcons.machine,
-                        muscles: ['Quads', '', ''])),
-                Padding(
-                    padding: EdgeInsets.all(16),
-                    child: ExerciseCard(
-                        number: 1,
-                        name: 'Leg curls',
-                        icon: GymIcons.machine,
-                        muscles: ['Hamstrings', 'Glutes', ''])),
-              ],
+              children: [],
             ),
           ),
         ],
@@ -141,17 +34,8 @@ class _ExercisesState extends State<Exercises> {
 }
 
 class ExerciseCard extends StatefulWidget {
-  const ExerciseCard(
-      {required this.number,
-      required this.name,
-      required this.icon,
-      required this.muscles,
-      Key? key})
-      : super(key: key);
-  final int number;
-  final String name;
-  final IconData icon;
-  final List<String> muscles;
+  const ExerciseCard({required this.exerciseData, Key? key}) : super(key: key);
+  final ExerciseData exerciseData;
 
   @override
   State<ExerciseCard> createState() => _ExerciseCardState();
@@ -160,7 +44,26 @@ class ExerciseCard extends StatefulWidget {
 class _ExerciseCardState extends State<ExerciseCard> {
   @override
   Widget build(BuildContext context) {
-    print(widget.icon.codePoint);
+    IconData icon;
+    switch (widget.exerciseData.type) {
+      case 'dumbbell':
+        icon = GymIcons.dumbbell;
+        break;
+      case 'barebell':
+        icon = GymIcons.barebell;
+        break;
+      case 'machine':
+        icon = GymIcons.machine;
+        break;
+      case 'cardio':
+        icon = GymIcons.cardio;
+        break;
+      case 'free':
+        icon = GymIcons.cardio;
+        break;
+      default:
+        icon = GymIcons.barebell;
+    }
     return Container(
       width: MediaQuery.of(context).size.width,
       padding: EdgeInsets.all(12),
@@ -182,7 +85,7 @@ class _ExerciseCardState extends State<ExerciseCard> {
               foregroundColor: Palette.elementsDark,
               backgroundColor: Colors.blueGrey,
               child: Icon(
-                widget.icon,
+                icon,
                 size: 26,
               )),
           Expanded(
@@ -196,7 +99,7 @@ class _ExerciseCardState extends State<ExerciseCard> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(
-                      widget.name,
+                      widget.exerciseData.name,
                       style: TextStyle(color: Colors.white, fontSize: 20),
                     ),
                     const SizedBox(
@@ -207,15 +110,18 @@ class _ExerciseCardState extends State<ExerciseCard> {
                       child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            buildMuscleBadge(Colors.red, widget.muscles[0]),
+                            buildMuscleBadge(
+                                Colors.red, widget.exerciseData.firstMuscle),
                             const SizedBox(
                               width: 8,
                             ),
-                            buildMuscleBadge(Colors.blue, widget.muscles[1]),
+                            buildMuscleBadge(
+                                Colors.blue, widget.exerciseData.secondMuscle),
                             const SizedBox(
                               width: 8,
                             ),
-                            buildMuscleBadge(Colors.green, widget.muscles[2])
+                            buildMuscleBadge(
+                                Colors.green, widget.exerciseData.thirdMuscle)
                           ]),
                     )
                   ],

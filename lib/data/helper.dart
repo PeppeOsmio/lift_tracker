@@ -1,8 +1,11 @@
+import 'dart:convert';
 import 'dart:developer';
 
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lift_tracker/data/database.dart';
+import 'package:lift_tracker/data/exercisedata.dart';
 import 'package:lift_tracker/data/workout.dart';
 import 'package:lift_tracker/data/workoutrecord.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -92,6 +95,29 @@ class Helper {
   static final sharedPreferencesProvider = Provider(((ref) {
     return SharedPreferences.getInstance();
   }));
+
+  static Future<List<ExerciseData>> getExerciseData() async {
+    String exerciseDataJson =
+        await rootBundle.loadString('assets/exercise_data.json');
+    var mapData = jsonDecode(exerciseDataJson);
+    List<ExerciseData> exerciseDataList = [];
+    for (var item in mapData) {
+      int id = item['id'] as int;
+      String name = item['name'] as String;
+      String type = item['type'] as String;
+      String firstMuscle = item['firstMuscle'] as String;
+      String secondMuscle = item['secondMuscle'] as String;
+      String thirdMuscle = item['thirdMuscle'] as String;
+      exerciseDataList.add(ExerciseData(
+          id: id,
+          name: name,
+          firstMuscle: firstMuscle,
+          secondMuscle: secondMuscle,
+          thirdMuscle: thirdMuscle,
+          type: type));
+    }
+    return exerciseDataList;
+  }
 
   static List<int> pageStack = [];
   static bool firstAppRun = false;

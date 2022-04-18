@@ -1,0 +1,298 @@
+[
+    {
+        "id": 1,
+        "name": "bench-press-barebell",
+        "firstMuscle": "chest",
+        "secondMuscle": "triceps",
+        "thirdMuscle": "ant-delts",
+        "type": "barebell"
+    },
+    {
+        "id": 2,
+        "name": "bench-press-dumbbell",
+        "firstMuscle": "chest",
+        "secondMuscle": "triceps",
+        "thirdMuscle": "ant-delts",
+        "type": "dumbbell"
+    },
+    {
+        "id": 3,
+        "name": "chest-press",
+        "firstMuscle": "chest",
+        "secondMuscle": "triceps",
+        "thirdMuscle": "ant-delts",
+        "type": "machine"
+    },
+    {
+        "id": 4,
+        "name": "chest-press-incline",
+        "firstMuscle": "chest",
+        "secondMuscle": "triceps",
+        "thirdMuscle": "ant-delts",
+        "type": "machine"
+    },
+    {
+        "id": 5,
+        "name": "push-ups",
+        "firstMuscle": "chest",
+        "secondMuscle": "triceps",
+        "thirdMuscle": "ant-delts",
+        "type": "free"
+    },
+    {
+        "id": 6,
+        "name": "bent-over-row-barebell",
+        "firstMuscle": "lats",
+        "secondMuscle": "biceps",
+        "thirdMuscle": "rear-delts",
+        "type": "barebell"
+    },
+    {
+        "id": 7,
+        "name": "bent-over-row-dumbbell",
+        "firstMuscle": "lats",
+        "secondMuscle": "biceps",
+        "thirdMuscle": "rear-delts",
+        "type": "dumbbell"
+    },
+    {
+        "id": 8,
+        "name": "pull-ups",
+        "firstMuscle": "lats",
+        "secondMuscle": "biceps",
+        "thirdMuscle": "rear-delts",
+        "type": "free"
+    },
+    {
+        "id": 9,
+        "name": "chin-ups",
+        "firstMuscle": "lats",
+        "secondMuscle": "biceps",
+        "thirdMuscle": "rear-delts",
+        "type": "free"
+    },
+    {
+        "id": 10,
+        "name": "low-pulley",
+        "firstMuscle": "lats",
+        "secondMuscle": "bicep",
+        "thirdMuscle": "rear-delts",
+        "type": "machine"
+    },
+    {
+        "id": 11,
+        "name": "rowing",
+        "firstMuscle": "lats",
+        "secondMuscle": "biceps",
+        "thirdMuscle": "rear-delts",
+        "type": "machine"
+    },
+    {
+        "id": 12,
+        "name": "squat-smith",
+        "firstMuscle": "quads",
+        "secondMuscle": "glutes",
+        "thirdMuscle": "calves",
+        "type": "machine"
+    },
+    {
+        "id": 13,
+        "name": "hack-squat",
+        "firstMuscle": "quads",
+        "secondMuscle": "glutes",
+        "thirdMuscle": "calves",
+        "type": "machine"
+    },
+    {
+        "id": 14,
+        "name": "pendulum-squat",
+        "firstMuscle": "quads",
+        "secondMuscle": "glutes",
+        "thirdMuscle": "",
+        "type": "machine"
+    },
+    {
+        "id": 15,
+        "name": "dumbbell-curl",
+        "firstMuscle": "biceps",
+        "secondMuscle": "brachialis",
+        "thirdMuscle": "forearms",
+        "type": "dumbbell"
+    },
+    {
+        "id": 16,
+        "name": " barebell-curl",
+        "firstMuscle": "biceps",
+        "secondMuscle": "forearms",
+        "thirdMuscle": "brachialis",
+        "type": "barebell"
+    },
+    {
+        "id": 17,
+        "name": "hammer-curl",
+        "firstMuscle": "biceps",
+        "secondMuscle": "brachialis",
+        "thirdMuscle": "forearms",
+        "type": "dumbbell"
+    },
+    {
+        "id": 18,
+        "name": "pushdown-rope",
+        "firstMuscle": "triceps",
+        "secondMuscle": "",
+        "thirdMuscle": "",
+        "type": "machine"
+    },
+    {
+        "id": 19,
+        "name": "pushdown-bar",
+        "firstMuscle": "triceps",
+        "secondMuscle": "",
+        "thirdMuscle": "",
+        "type": "machine"
+    },
+    {
+        "id": 20,
+        "name": "dips-triceps-weighted",
+        "firstMuscle": "triceps",
+        "secondMuscle": "chest",
+        "thirdMuscle": "ant-delts",
+        "type": "dumbbell"
+    },
+    {
+        "id": 21,
+        "name": "dips-triceps-free",
+        "firstMuscle": "triceps",
+        "secondMuscle": "chest",
+        "thirdMuscle": "ant-delts",
+        "type": "free"
+    },
+    {
+        "id": 22,
+        "name": "dips-chest-free",
+        "firstMuscle": "chest",
+        "secondMuscle": "triceps",
+        "thirdMuscle": "ant-delts",
+        "type": "free"
+    },
+    {
+        "id": 23,
+        "name": "dips-chest-weighted",
+        "firstMuscle": "chest",
+        "secondMuscle": "triceps",
+        "thirdMuscle": "ant-delts",
+        "type": "dumbbell"
+    },
+    {
+        "id": 24,
+        "name": "squat-barebell",
+        "firstMuscle": "quads",
+        "secondMuscle": "glutes",
+        "thirdMuscle": "calves",
+        "type": "barebell"
+    },
+    {
+        "id": 25,
+        "name": "squat-sumo",
+        "firstMuscle": "quads",
+        "secondMuscle": "glutes",
+        "thirdMuscle": "calves",
+        "type": "dumbbell"
+    },
+    {
+        "id": 26,
+        "name": "stiff-legs-deadlift-barebell",
+        "firstMuscle": "hamstrings",
+        "secondMuscle": "glutes",
+        "thirdMuscle": "lower-back",
+        "type": "barebell"
+    },
+    {
+        "id": 27,
+        "name": "stiff-legs-deadlift-dumbbell",
+        "firstMuscle": "hamstrings",
+        "secondMuscle": "glutes",
+        "thirdMuscle": "lower-back",
+        "type": "dumbbell"
+    },
+    {
+        "id": 28,
+        "name": "leg-exensions",
+        "firstMuscle": "quads",
+        "secondMuscle": "",
+        "thirdMuscle": "",
+        "type": "machine"
+    },
+    {
+        "id": 29,
+        "name": "lateral-raises-machine",
+        "firstMuscle": "lat-delts",
+        "secondMuscle": "",
+        "thirdMuscle": "",
+        "type": "machine"
+    },
+    {
+        "id": 30,
+        "name": "lateral-raises-dumbbell",
+        "firstMuscle": "lat-delts",
+        "secondMuscle": "",
+        "thirdMuscle": "",
+        "type": "dumbbell"
+    },
+    {
+        "id": 31,
+        "name": "front-raises",
+        "firstMuscle": "ant-delts",
+        "secondMuscle": "",
+        "thirdMuscle": "",
+        "type": "dumbbell"
+    },
+    {
+        "id": 32,
+        "name": "rear-raises",
+        "firstMuscle": "rear-delts",
+        "secondMuscle": "mid-traps",
+        "thirdMuscle": "",
+        "type": "dumbbell"
+    },
+    {
+        "id": 33,
+        "name": "shrugs-dumbbell",
+        "firstMuscle": "upper-traps",
+        "secondMuscle": "mid-traps",
+        "thirdMuscle": "",
+        "type": "dumbbell"
+    },
+    {
+        "id": 34,
+        "name": "shrugs-barebell",
+        "firstMuscle": "upper-traps",
+        "secondMuscle": "mid-traps",
+        "thirdMuscle": "",
+        "type": "barebell"
+    },
+    {
+        "id": 35,
+        "name": "deadlift-barebell",
+        "firstMuscle": "lower-back",
+        "secondMuscle": "upper-traps",
+        "thirdMuscle": "quads",
+        "type": "barebell"
+    },
+    {
+        "id": 36,
+        "name": "lat-pulldown",
+        "firstMuscle": "lats",
+        "secondMuscle": "biceps",
+        "thirdMuscle": "rear-delts",
+        "type": "machine"
+    },
+    {
+        "id": 37,
+        "name": "incline-bench-curl",
+        "firstMuscle": "biceps",
+        "secondMuscle": "forearms",
+        "thirdMuscle": "brachialis",
+        "type": "dumbbell"
+    }
+]

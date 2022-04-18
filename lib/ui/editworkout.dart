@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -140,20 +141,23 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
       String name = exerciseWidget.name;
       String sets = exerciseWidget.sets;
       String reps = exerciseWidget.reps;
-      double? weightRecord;
-      if (exerciseWidget.initialExercise != null) {
-        weightRecord = exerciseWidget.initialExercise!.weightRecord;
-      }
+      String type = exerciseWidget.type;
+      String jsonId = exerciseWidget.jsonId;
 
-      if (name.isEmpty || sets.isEmpty || reps.isEmpty) {
+      if (name.isEmpty ||
+          sets.isEmpty ||
+          reps.isEmpty ||
+          type.isEmpty ||
+          jsonId.isEmpty) {
         return;
       }
       exercises.add(Exercise(
           id: i,
+          jsonId: int.parse(jsonId),
           name: name,
+          type: type,
           sets: int.parse(sets),
           reps: int.parse(reps),
-          weightRecord: weightRecord,
           workoutId: widget.workout.id));
     }
     await CustomDatabase.instance

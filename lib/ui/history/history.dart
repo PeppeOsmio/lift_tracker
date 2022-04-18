@@ -7,6 +7,7 @@ import 'package:lift_tracker/ui/history/menuworkoutrecordcard.dart';
 
 import 'package:lift_tracker/ui/session.dart';
 import 'package:lift_tracker/ui/history/workoutrecordcard.dart';
+import 'package:lift_tracker/ui/widgets.dart';
 
 import '../../data/workoutrecord.dart';
 
@@ -31,34 +32,7 @@ class _HistoryState extends ConsumerState<History> {
     return SafeArea(
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
-            child: Container(
-              padding: const EdgeInsets.only(left: 16, right: 16),
-              width: MediaQuery.of(context).size.width,
-              decoration: const BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.all(Radius.circular(20))),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Padding(
-                    padding: EdgeInsets.only(right: 16),
-                    child: Icon(
-                      Icons.search_outlined,
-                      color: Colors.white,
-                    ),
-                  ),
-                  Expanded(
-                      child: TextField(
-                    readOnly: true,
-                    decoration: InputDecoration(border: InputBorder.none),
-                    style: TextStyle(color: Colors.white, fontSize: 25),
-                  )),
-                ],
-              ),
-            ),
-          ),
+          SearchBar(hint: 'Filter...', textController: TextEditingController()),
           FutureBuilder(
             future: workoutRecords,
             builder: (context, ss) {
@@ -95,7 +69,7 @@ class _HistoryState extends ConsumerState<History> {
                 } else {
                   return Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(16.0),
                       child: Center(
                           child: Text(
                         'All your workout sessions will be displayed here',
