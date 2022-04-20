@@ -197,7 +197,9 @@ class ExerciseRecordCard extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.only(right: hasRepsRecord == 1 ? 22 : 0),
                 child: Text(
-                  reps,
+                  rpe != 'null' && exerciseRecord.type == 'free'
+                      ? reps + ' @' + rpe
+                      : reps,
                   style: const TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ),
@@ -221,7 +223,11 @@ class ExerciseRecordCard extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.only(right: hasWeightRecord == 1 ? 22 : 0),
                 child: Text(
-                  exerciseRecord.type != 'free' ? weight : '/',
+                  exerciseRecord.type != 'free'
+                      ? rpe != 'null'
+                          ? weight + ' @' + rpe
+                          : weight
+                      : '/',
                   style: const TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ),
