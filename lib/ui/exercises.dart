@@ -41,9 +41,7 @@ class _ExercisesState extends State<Exercises> {
                             itemCount: exerciseData.length,
                             itemBuilder: (context, index) {
                               return GestureDetector(
-                                onTap: () {
-                                  Navigator.pop(context, exerciseData[index]);
-                                },
+                                onTap: () {},
                                 child: Padding(
                                   padding: EdgeInsets.only(
                                       left: 16,
