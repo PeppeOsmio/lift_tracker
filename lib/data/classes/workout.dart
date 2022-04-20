@@ -1,4 +1,4 @@
-import 'package:lift_tracker/data/exercise.dart';
+import 'package:lift_tracker/data/classes/exercise.dart';
 
 class Workout {
   List<Exercise> exercises;

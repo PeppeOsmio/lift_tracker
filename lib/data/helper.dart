@@ -5,9 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lift_tracker/data/database.dart';
-import 'package:lift_tracker/data/exercisedata.dart';
-import 'package:lift_tracker/data/workout.dart';
-import 'package:lift_tracker/data/workoutrecord.dart';
+import 'package:lift_tracker/data/classes/exercisedata.dart';
+import 'package:lift_tracker/data/classes/workout.dart';
+import 'package:lift_tracker/data/classes/workoutrecord.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../ui/workoutlist/workoutlist.dart';

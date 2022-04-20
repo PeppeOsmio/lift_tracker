@@ -6,6 +6,9 @@ class Exercise {
   int reps;
   int sets;
   String type;
+  double? bestWeight;
+  int? bestVolume;
+  int? bestReps;
 
   Exercise(
       {required this.workoutId,
@@ -14,5 +17,8 @@ class Exercise {
       required this.name,
       required this.sets,
       required this.reps,
-      required this.type});
+      required this.type,
+      this.bestWeight,
+      this.bestVolume,
+      this.bestReps});
 }

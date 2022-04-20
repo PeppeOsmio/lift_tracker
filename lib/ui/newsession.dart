@@ -5,13 +5,17 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:lift_tracker/data/classes/exercisedata.dart';
+import 'package:lift_tracker/data/classes/exerciseset.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/database.dart';
-import 'package:lift_tracker/data/exercise.dart';
-import 'package:lift_tracker/data/exerciserecord.dart';
-import 'package:lift_tracker/data/workout.dart';
-import 'package:lift_tracker/data/workoutrecord.dart';
+import 'package:lift_tracker/data/classes/exercise.dart';
+import 'package:lift_tracker/data/classes/exerciserecord.dart';
+import 'package:lift_tracker/data/classes/workout.dart';
+import 'package:lift_tracker/data/classes/workoutrecord.dart';
 import 'package:lift_tracker/ui/colors.dart';
+import 'package:lift_tracker/ui/exercises.dart';
+import 'package:lift_tracker/ui/selectexercise.dart';
 import 'package:lift_tracker/ui/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -53,13 +57,14 @@ class _NewSessionState extends ConsumerState<NewSession>
         weightControllers.add(TextEditingController());
         rpeControllers.add(TextEditingController());
       }
-
+      var exercise = widget.workout.exercises[i];
       records.add(ExerciseRecordItem(
         widget.workout.exercises[i],
         repsControllers: repsControllers,
         weightControllers: weightControllers,
         rpeControllers: rpeControllers,
-        nameController: TextEditingController(),
+        exerciseData: ExerciseData(
+            id: exercise.id, name: exercise.name, type: exercise.type),
         onEditItem: () {},
         startingRecord: widget.resumedSession != null
             ? widget.resumedSession!.exerciseRecords[i]
@@ -370,25 +375,27 @@ class ExerciseRecordItem extends StatefulWidget {
       {required this.repsControllers,
       required this.weightControllers,
       required this.rpeControllers,
-      required this.nameController,
+      required this.exerciseData,
       required this.onEditItem,
       this.startingRecord,
+      this.temp = false,
       Key? key})
       : super(key: key);
   final void Function() onEditItem;
   final Exercise exercise;
   final ExerciseRecord? startingRecord;
-  final TextEditingController nameController;
+  bool temp;
+  ExerciseData exerciseData;
   List<TextEditingController> repsControllers;
   List<TextEditingController> weightControllers;
   List<TextEditingController> rpeControllers;
   ExerciseRecord? get exerciseRecord {
-    List<Map<String, dynamic>> listMap = [];
+    List<ExerciseSet> setList = [];
     for (int i = 0; i < exercise.sets; i++) {
       String reps = repsControllers[i].text;
       String weight = weightControllers[i].text;
       String rpe = rpeControllers[i].text;
-      String name = nameController.text;
+      String name = exerciseData.name;
       if (name.isEmpty) {
         throw Exception('missing_name');
       }
@@ -397,25 +404,23 @@ class ExerciseRecordItem extends StatefulWidget {
       } else if (reps != '0' && weight.isEmpty) {
         return null;
       }
-      if (rpe.isEmpty || int.parse(rpe) > 10) {
+      if (int.parse(rpe) > 10) {
         rpe = '10';
       }
       if (reps != '0') {
-        listMap.add({
-          'reps': int.parse(reps),
-          'weight': double.parse(weight),
-          'rpe': int.parse(rpe),
-          'hasRecord': 0
-        });
+        double numWeight = double.parse(weight);
+        int numReps = int.parse(reps);
+        int? numRpe = rpe.isEmpty ? int.parse(rpe) : null;
+        setList.add(ExerciseSet(weight: numWeight, reps: numReps, rpe: numRpe));
       }
     }
-    return ExerciseRecord(nameController.text, listMap,
-        exerciseId: exercise.id);
+    return ExerciseRecord(exerciseData.name, setList,
+        exerciseId: exercise.id, type: exercise.type, temp: temp);
   }
 
   ExerciseRecord get cacheExerciseRecord {
-    List<Map<String, dynamic>> listMap = [];
-    String name = nameController.text;
+    List<ExerciseSet> setList = [];
+    String name = exerciseData.name;
     for (int i = 0; i < exercise.sets; i++) {
       String reps = repsControllers[i].text;
       String weight = weightControllers[i].text;
@@ -431,17 +436,16 @@ class ExerciseRecordItem extends StatefulWidget {
       } else if (int.parse(rpe) > 10) {
         rpe = '10';
       }
-      listMap.add({
-        'reps': int.parse(reps),
-        'weight': double.parse(weight),
-        'rpe': int.parse(rpe),
-        'hasRecord': 0
-      });
+      setList.add(ExerciseSet(
+          weight: double.parse(weight),
+          reps: int.parse(reps),
+          rpe: int.parse(rpe)));
     }
     if (name.isEmpty) {
       name = exercise.name;
     }
-    return ExerciseRecord(name, listMap, exerciseId: exercise.id);
+    return ExerciseRecord(name, setList,
+        exerciseId: exercise.id, type: exercise.type);
   }
 
   @override
@@ -449,7 +453,6 @@ class ExerciseRecordItem extends StatefulWidget {
 }
 
 class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
-  FocusNode focusNode = FocusNode();
   ExerciseRecord? startingRecord;
 
   Widget buildAddSetButton() {
@@ -512,8 +515,16 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
                 width: 24,
               ),
               GestureDetector(
-                onTap: () {
-                  focusNode.requestFocus();
+                onTap: () async {
+                  var result = await Navigator.push(context,
+                      MaterialPageRoute(builder: (context) {
+                    return SelectExercise();
+                  }));
+                  if (widget.exerciseData != result) {
+                    widget.temp = true;
+                  }
+                  widget.exerciseData = result;
+                  setState(() {});
                 },
                 child: Row(
                   children: [
@@ -524,15 +535,9 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
                     ),
                     SizedBox(width: 8),
                     IntrinsicWidth(
-                      child: TextField(
-                        focusNode: focusNode,
-                        decoration: InputDecoration(
-                          hintStyle: TextStyle(color: Colors.grey),
-                          hintText: 'Name',
-                          border: InputBorder.none,
-                        ),
+                      child: Text(
+                        widget.exerciseData.name,
                         style: TextStyle(color: Colors.white, fontSize: 20),
-                        controller: widget.nameController,
                       ),
                     ),
                   ],
@@ -584,7 +589,15 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
                 child: Padding(
                     padding:
                         const EdgeInsets.only(top: 24, bottom: 24, left: 8),
-                    child: Text('')),
+                    child: Text(
+                        widget.exercise.type != 'free'
+                            ? widget.exercise.bestWeight != null
+                                ? 'Best weight: ${widget.exercise.bestWeight}'
+                                : ''
+                            : widget.exercise.bestReps != null
+                                ? 'Best reps: ${widget.exercise.bestReps}'
+                                : '',
+                        style: const TextStyle(color: Colors.white))),
               ),
             ],
           ),
@@ -596,21 +609,19 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
 
   @override
   void dispose() {
-    focusNode.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
-    widget.nameController.text = widget.exercise.name;
     startingRecord = widget.startingRecord;
     if (startingRecord != null) {
       var rwr = startingRecord!.reps_weight_rpe;
       for (int i = 0; i < rwr.length; i++) {
-        String initialReps = rwr[i]['reps'].toString();
-        String initialWeight = rwr[i]['weight'].toString();
-        String initialRpe = rwr[i]['rpe'].toString();
+        String initialReps = rwr[i].reps.toString();
+        String initialWeight = rwr[i].weight.toString();
+        String initialRpe = rwr[i].rpe.toString();
         if (initialReps == '-1') {
           initialReps = '';
         }
@@ -624,7 +635,6 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
         widget.weightControllers[i].text = initialWeight;
         widget.rpeControllers[i].text = initialRpe;
       }
-      widget.nameController.text = startingRecord!.exerciseName;
     }
   }
 

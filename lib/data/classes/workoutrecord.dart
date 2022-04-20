@@ -1,4 +1,4 @@
-import 'package:lift_tracker/data/workout.dart';
+import 'package:lift_tracker/data/classes/workout.dart';
 
 import 'exerciserecord.dart';
 

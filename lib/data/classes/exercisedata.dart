@@ -10,7 +10,7 @@ class ExerciseData {
       {required this.id,
       required this.name,
       required this.type,
-      required this.firstMuscle,
-      required this.secondMuscle,
-      required this.thirdMuscle});
+      this.firstMuscle = '',
+      this.secondMuscle = '',
+      this.thirdMuscle = ''});
 }

@@ -4,10 +4,11 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/database.dart';
-import 'package:lift_tracker/data/exercise.dart';
-import 'package:lift_tracker/data/workout.dart';
+import 'package:lift_tracker/data/classes/exercise.dart';
+import 'package:lift_tracker/data/classes/workout.dart';
 import 'package:lift_tracker/ui/colors.dart';
 import 'package:lift_tracker/ui/exerciselistitem.dart';
 import 'package:lift_tracker/ui/widgets.dart';
@@ -58,76 +59,77 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
         return false;
       },
       child: SafeArea(
-        child: Scaffold(
-            resizeToAvoidBottomInset: true,
-            backgroundColor: Palette.backgroundDark,
-            body: Column(
-              children: [
-                CustomAppBar(
-                    middleText: 'Edit workout',
-                    onBack: () {
-                      Navigator.pop(context);
-                    },
-                    onSubmit: () => editWorkout(),
-                    backButton: true,
-                    submitButton: true),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: SingleChildScrollView(
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                            top: 40, left: 24, bottom: 24),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Workout name',
-                              style:
-                                  TextStyle(fontSize: 20, color: Colors.white),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 24, bottom: 24, right: 48),
-                              child: Container(
-                                padding:
-                                    const EdgeInsets.only(left: 16, right: 16),
-                                width: MediaQuery.of(context).size.width,
-                                decoration: const BoxDecoration(
-                                    color: Color.fromARGB(255, 31, 31, 31),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(10))),
-                                child: TextField(
-                                  controller: workoutName,
-                                  decoration: const InputDecoration(
-                                      hintStyle: TextStyle(color: Colors.grey),
-                                      hintText: 'Chest, Legs...',
-                                      border: InputBorder.none),
-                                  style: const TextStyle(
-                                      color: Colors.white, fontSize: 16),
+          child: Scaffold(
+              resizeToAvoidBottomInset: true,
+              backgroundColor: Palette.backgroundDark,
+              body: Column(
+                children: [
+                  CustomAppBar(
+                      middleText: 'Edit workout',
+                      onBack: () {
+                        Navigator.pop(context);
+                      },
+                      onSubmit: () => editWorkout(),
+                      backButton: true,
+                      submitButton: true),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                              top: 40, left: 24, bottom: 24),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Workout name',
+                                style: TextStyle(
+                                    fontSize: 20, color: Colors.white),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    top: 24, bottom: 24, right: 48),
+                                child: Container(
+                                  padding: const EdgeInsets.only(
+                                      left: 16, right: 16),
+                                  width: MediaQuery.of(context).size.width,
+                                  decoration: const BoxDecoration(
+                                      color: Color.fromARGB(255, 31, 31, 31),
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(10))),
+                                  child: TextField(
+                                    controller: workoutName,
+                                    decoration: const InputDecoration(
+                                        hintStyle:
+                                            TextStyle(color: Colors.grey),
+                                        hintText: 'Chest, Legs...',
+                                        border: InputBorder.none),
+                                    style: const TextStyle(
+                                        color: Colors.white, fontSize: 16),
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 24),
-                            const Text(
-                              'Exercises',
-                              style:
-                                  TextStyle(fontSize: 20, color: Colors.white),
-                            ),
-                            const SizedBox(height: 24),
-                            Column(
-                                mainAxisSize: MainAxisSize.min, children: temp),
-                            addExerciseButton()
-                          ],
+                              const SizedBox(height: 24),
+                              const Text(
+                                'Exercises',
+                                style: TextStyle(
+                                    fontSize: 20, color: Colors.white),
+                              ),
+                              const SizedBox(height: 24),
+                              Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: temp),
+                              addExerciseButton()
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            )),
-      ),
+                ],
+              ))),
     );
   }
 
@@ -135,6 +137,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
     if (workoutName.text.isEmpty) {
       return;
     }
+
     List<Exercise> exercises = [];
     for (int i = 0; i < exerciseWidgets.length; i++) {
       var exerciseWidget = exerciseWidgets[i];
@@ -144,6 +147,12 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
       String type = exerciseWidget.type;
       String jsonId = exerciseWidget.jsonId;
 
+      log('name: ' + name);
+      log('sets: ' + sets);
+      log('reps: ' + reps);
+      log('type: ' + type);
+      log('jsonId: ' + jsonId);
+
       if (name.isEmpty ||
           sets.isEmpty ||
           reps.isEmpty ||
@@ -151,6 +160,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
           jsonId.isEmpty) {
         return;
       }
+
       exercises.add(Exercise(
           id: i,
           jsonId: int.parse(jsonId),

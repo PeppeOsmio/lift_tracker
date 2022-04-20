@@ -9,7 +9,7 @@ import 'package:lift_tracker/ui/session.dart';
 import 'package:lift_tracker/ui/history/workoutrecordcard.dart';
 import 'package:lift_tracker/ui/widgets.dart';
 
-import '../../data/workoutrecord.dart';
+import '../../data/classes/workoutrecord.dart';
 
 class History extends ConsumerStatefulWidget {
   const History({Key? key}) : super(key: key);

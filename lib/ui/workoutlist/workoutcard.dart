@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lift_tracker/data/workout.dart';
+import 'package:lift_tracker/data/classes/workout.dart';
 
 import '../../data/helper.dart';
 import '../colors.dart';

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lift_tracker/data/database.dart';
-import 'package:lift_tracker/data/exercise.dart';
+import 'package:lift_tracker/data/classes/exercise.dart';
 import 'package:lift_tracker/ui/colors.dart';
 import 'package:lift_tracker/ui/exerciselistitem.dart';
 import 'package:lift_tracker/ui/widgets.dart';

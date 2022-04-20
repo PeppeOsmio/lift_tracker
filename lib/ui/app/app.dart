@@ -3,6 +3,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/ui/app/menu.dart';
 import 'package:lift_tracker/ui/history/history.dart';
@@ -25,6 +26,8 @@ class PageNameNotifier extends StateNotifier<String> {
 final pageNameProvider = StateNotifierProvider<PageNameNotifier, String>((ref) {
   return PageNameNotifier();
 });
+
+late final List<ExerciseData> exerciseData;
 
 class App extends ConsumerStatefulWidget {
   const App({Key? key}) : super(key: key);

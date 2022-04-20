@@ -4,7 +4,7 @@ import 'package:fluttericon/font_awesome_icons.dart';
 import 'package:fluttericon/linearicons_free_icons.dart';
 import 'package:fluttericon/zocial_icons.dart';
 import 'package:lift_tracker/data/helper.dart';
-import 'package:lift_tracker/data/workoutrecord.dart';
+import 'package:lift_tracker/data/classes/workoutrecord.dart';
 import 'package:lift_tracker/ui/colors.dart';
 
 class WorkoutRecordCard extends StatefulWidget {
@@ -41,10 +41,12 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
       bool hasRecord = false;
       for (int j = 0; j < exerciseRecord.reps_weight_rpe.length; j++) {
         var set = exerciseRecord.reps_weight_rpe;
-        double volume = (set[j]['reps'] * set[j]['weight']);
+        double volume = (set[j].reps * set[j].weight);
         totalVolume += volume.round();
 
-        if (set[j]['hasRecord'] == 1) {
+        if (set[j].hasRepsRecord == 1 ||
+            set[j].hasWeightRecord == 1 ||
+            set[j].hasVolumeRecord == 1) {
           hasRecord = true;
         }
       }

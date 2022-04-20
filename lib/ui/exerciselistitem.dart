@@ -2,10 +2,10 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:lift_tracker/data/exercisedata.dart';
+import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/ui/selectexercise.dart';
 
-import '../data/exercise.dart';
+import '../data/classes/exercise.dart';
 import 'colors.dart';
 
 class ExerciseListItem extends StatefulWidget {
@@ -66,6 +66,10 @@ class _ExerciseListItemState extends State<ExerciseListItem> {
   void initState() {
     super.initState();
     if (widget.initialExercise != null) {
+      widget.exerciseData = ExerciseData(
+          id: widget.initialExercise!.jsonId,
+          name: widget.initialExercise!.name,
+          type: widget.initialExercise!.type);
       widget.nameController.text = widget.initialExercise!.name;
       widget.setsController.text = widget.initialExercise!.sets.toString();
       widget.repsController.text = widget.initialExercise!.reps.toString();

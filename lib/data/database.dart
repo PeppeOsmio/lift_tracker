@@ -1,13 +1,15 @@
 import 'dart:io';
 import 'dart:math';
 import 'dart:developer' as dev;
+import 'package:lift_tracker/data/classes/exerciseset.dart';
 import 'package:lift_tracker/data/helper.dart';
-import 'package:lift_tracker/data/exerciserecord.dart';
-import 'package:lift_tracker/data/workoutrecord.dart';
+import 'package:lift_tracker/data/classes/exerciserecord.dart';
+import 'package:lift_tracker/data/classes/workoutrecord.dart';
+import 'package:lift_tracker/ui/exercises.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
-import 'exercise.dart';
-import 'workout.dart';
+import 'classes/exercise.dart';
+import 'classes/workout.dart';
 
 class CustomDatabase {
   static final instance = CustomDatabase._init();
@@ -49,6 +51,9 @@ class CustomDatabase {
       sets INTEGER NOT NULL,
       reps INTEGER NOT NULL,
       notes VARCHAR(300),
+      best_weight DOUBLE(5,2),
+      best_volume INTEGER,
+      best_reps INTEGER,
       fk_workout_id INTEGER NOT NULL,
       FOREIGN KEY (fk_workout_id) REFERENCES workout(id)
     );
@@ -82,6 +87,7 @@ class CustomDatabase {
       exercise_name VARCHAR(33) NOT NULL,
       fk_workout_record_id INTEGER NOT NULL,
       fk_exercise_id INTEGER NOT NULL,
+      type VARCHAR(20) NOT NULL,
       FOREIGN KEY (fk_workout_record_id) REFERENCES workout_record(id),
       FOREIGN KEY (fk_exercise_id) REFERENCES exercise(id)
     );
@@ -93,9 +99,11 @@ class CustomDatabase {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       reps INTEGER NOT NULL,
       weight DOUBLE(5,2) NOT NULL,
-      rpe INTEGER NOT NULL,
+      rpe INTEGER,
       fk_exercise_record_id INTEGER NOT NULL,
-      record BIT NOT NULL DEFAULT 0,
+      has_weight_record BIT NOT NULL DEFAULT 0,
+      has_volume_record BIT NOT NULL DEFAULT 0,
+      has_reps_record BIT NOT NULL DEFAULT 0,
       FOREIGN KEY (fk_exercise_record_id) REFERENCES exercise_record(id)
     );
     ''';
@@ -204,17 +212,18 @@ class CustomDatabase {
 
     List<Map<String, Object?>> queryCachedExerciseRecords = await db.query(
         'exercise_record',
-        columns: ['id', 'exercise_name', 'fk_exercise_id'],
+        columns: ['id', 'exercise_name', 'type', 'fk_exercise_id'],
         where: 'fk_workout_record_id=?',
         whereArgs: [cachedWorkoutRecordId],
         orderBy: 'id');
     for (int i = 0; i < queryCachedExerciseRecords.length; i++) {
-      List<Map<String, dynamic>> cachedSets = [];
+      List<ExerciseSet> cachedSets = [];
 
       int id = queryCachedExerciseRecords[i]['id'] as int;
       String exerciseName =
           queryCachedExerciseRecords[i]['exercise_name'] as String;
       int exerciseId = queryCachedExerciseRecords[i]['fk_exercise_id'] as int;
+      String type = queryCachedExerciseRecords[i]['type'] as String;
 
       List<Map<String, Object?>> queryCachedExerciseSets = await db.query(
           'exercise_set',
@@ -226,12 +235,12 @@ class CustomDatabase {
       for (int j = 0; j < queryCachedExerciseSets.length; j++) {
         int reps = queryCachedExerciseSets[j]['reps'] as int;
         double weight = queryCachedExerciseSets[j]['weight'] as double;
-        int rpe = queryCachedExerciseSets[j]['rpe'] as int;
-        cachedSets.add({'reps': reps, 'weight': weight, 'rpe': rpe});
+        int? rpe = queryCachedExerciseSets[j]['rpe'] as int?;
+        cachedSets.add(ExerciseSet(weight: weight, reps: reps, rpe: rpe));
       }
 
-      cachedExerciseRecords.add(
-          ExerciseRecord(exerciseName, cachedSets, exerciseId: exerciseId));
+      cachedExerciseRecords.add(ExerciseRecord(exerciseName, cachedSets,
+          exerciseId: exerciseId, type: type));
     }
 
     DateTime day = DateTime.parse(
@@ -273,7 +282,7 @@ class CustomDatabase {
       int workoutRecordId = queryWorkoutRecords[i]['id'] as int;
       List<Map<String, Object?>> queryExerciseRecords = await db.query(
           'exercise_record',
-          columns: ['id', 'exercise_name', 'fk_exercise_id'],
+          columns: ['id', 'exercise_name', 'fk_exercise_id', 'type'],
           where: 'fk_workout_record_id=?',
           whereArgs: [workoutRecordId],
           orderBy: 'id');
@@ -281,34 +290,47 @@ class CustomDatabase {
       //we get all the exercise sets
       for (int j = 0; j < queryExerciseRecords.length; j++) {
         int exerciseRecordId = queryExerciseRecords[j]['id'] as int;
-        List<Map<String, Object?>> queryExerciseSets = await db.query(
-            'exercise_set',
-            columns: ['id', 'reps', 'weight', 'rpe', 'record'],
-            where: 'fk_exercise_record_id=?',
-            whereArgs: [exerciseRecordId],
-            orderBy: 'id');
+        List<Map<String, Object?>> queryExerciseSets =
+            await db.query('exercise_set',
+                columns: [
+                  'id',
+                  'reps',
+                  'weight',
+                  'rpe',
+                  'has_volume_record',
+                  'has_weight_record',
+                  'has_reps_record'
+                ],
+                where: 'fk_exercise_record_id=?',
+                whereArgs: [exerciseRecordId],
+                orderBy: 'id');
         //we get the information about every exercise set
-        List<Map<String, dynamic>> repsWeightRpeMap = [];
+        List<ExerciseSet> repsWeightRpes = [];
         for (int k = 0; k < queryExerciseSets.length; k++) {
           int reps = queryExerciseSets[k]['reps'] as int;
           double weight = queryExerciseSets[k]['weight'] as double;
-          int rpe = queryExerciseSets[k]['rpe'] as int;
-          int hasRecord = queryExerciseSets[k]['record'] as int;
-          Map<String, dynamic> value = {
-            'reps': reps,
-            'weight': weight,
-            'rpe': rpe,
-            'hasRecord': hasRecord
-          };
-          repsWeightRpeMap.add(value);
+          int? rpe = queryExerciseSets[k]['rpe'] as int?;
+          int hasVolumeRecord =
+              queryExerciseSets[k]['has_volume_record'] as int;
+          int hasWeightRecord =
+              queryExerciseSets[k]['has_weight_record'] as int;
+          int hasRepsRecord = queryExerciseSets[k]['has_reps_record'] as int;
+          repsWeightRpes.add(ExerciseSet(
+              weight: weight,
+              reps: reps,
+              rpe: rpe,
+              hasVolumeRecord: hasVolumeRecord,
+              hasWeightRecord: hasWeightRecord,
+              hasRepsRecord: hasRepsRecord));
         }
         //we create the exercise record and add it to the list
         String exerciseName =
             queryExerciseRecords[j]['exercise_name'] as String;
         int exerciseId = queryExerciseRecords[j]['fk_exercise_id'] as int;
+        String type = queryExerciseRecords[j]['type'] as String;
         ExerciseRecord exerciseRecord = ExerciseRecord(
-            exerciseName, repsWeightRpeMap,
-            exerciseId: exerciseId);
+            exerciseName, repsWeightRpes,
+            exerciseId: exerciseId, type: type);
         exerciseRecords.add(exerciseRecord);
       }
       //we get the information about the workout
@@ -367,11 +389,11 @@ class CustomDatabase {
   }
 
   Future<Map<String, dynamic>> getBestWeightVolumeReps(
-      int exerciseJsonId, Transaction txn) async {
-    var queryRecords = await txn.query('best_weight_volume_reps',
+      int exerciseId, Transaction txn) async {
+    var queryRecords = await txn.query('exercise',
         columns: ['best_weight', 'best_volume', 'best_reps'],
-        where: 'json_id=?',
-        whereArgs: [exerciseJsonId]);
+        where: 'id=?',
+        whereArgs: [exerciseId]);
 
     if (queryRecords.isEmpty) {
       return {'best_weight': null, 'best_volume': null, 'best_reps': null};
@@ -384,32 +406,55 @@ class CustomDatabase {
     };
   }
 
-  Future setBestWeightVolumeReps(
-      int exerciseJsonId, Map<String, dynamic> data, Transaction txn) async {
+  Future setBestWeightVolumeReps(int exerciseId, int exerciseJsonId,
+      Map<String, dynamic> data, Transaction txn) async {
     double? bestWeight = data['best_weight'];
     int? bestVolume = data['best_volume'];
     int? bestReps = data['best_reps'];
 
+    await txn.update(
+        'exercise',
+        {
+          'best_weight': bestWeight,
+          'best_volume': bestVolume,
+          'best_reps': bestReps
+        },
+        where: 'id=?',
+        whereArgs: [exerciseId]);
     var query = await txn.query('best_weight_volume_reps',
-        columns: ['json_id'], where: 'json_id=?', whereArgs: [exerciseJsonId]);
+        columns: ['best_weight', 'best_volume', 'best_reps']);
+
     if (query.isEmpty) {
-      txn.insert('best_weight_volume_reps', {
+      await txn.insert('best_weight_volume_reps', {
         'json_id': exerciseJsonId,
         'best_weight': bestWeight,
         'best_volume': bestVolume,
         'best_reps': bestReps
       });
-    } else {
-      txn.update(
-          'best_weight_volume_reps',
-          {
-            'best_weight': bestWeight,
-            'best_volume': bestVolume,
-            'best_reps': bestReps
-          },
-          where: 'json_id=?',
-          whereArgs: [exerciseJsonId]);
+      return;
     }
+    double prevWeight = query[0]['best_weight'] as double? ?? -1;
+    int prevVolume = query[0]['best_volume'] as int? ?? -1;
+    int prevReps = query[0]['best_reps'] as int? ?? -1;
+
+    var queryCopy = {};
+    queryCopy.addAll(query[0]);
+    if (bestWeight != null) {
+      if (bestWeight > prevWeight) {
+        queryCopy['best_weight'] = bestWeight;
+      }
+    }
+    if (bestVolume != null) {
+      if (bestVolume > prevVolume) {
+        queryCopy['best_volume'] = bestVolume;
+      }
+    }
+    if (bestReps != null) {
+      if (bestReps > prevReps) {
+        queryCopy['best_reps'] = prevReps;
+      }
+    }
+    await txn.update('best_weight_volume_reps', query[0]);
   }
 
   Future setWeightRecord(
@@ -464,13 +509,12 @@ class CustomDatabase {
           Exercise exercise = tempExercises[i];
           var reps_weight_rpe =
               workoutRecord.exerciseRecords[i].reps_weight_rpe;
-          var previousRecords =
-              await getBestWeightVolumeReps(exercise.jsonId, txn);
+          var previousRecords = await getBestWeightVolumeReps(exercise.id, txn);
           if (exercise.type == 'free') {
             int recordIndex = 0;
-            int currentMaxReps = reps_weight_rpe[0]['reps'];
+            int currentMaxReps = reps_weight_rpe[0].reps;
             for (int j = 0; j < reps_weight_rpe.length - 1; j++) {
-              int maxReps = max(currentMaxReps, reps_weight_rpe[j + 1]['reps']);
+              int maxReps = max(currentMaxReps, reps_weight_rpe[j + 1].reps);
               if (maxReps > currentMaxReps) {
                 recordIndex = j;
               }
@@ -482,29 +526,34 @@ class CustomDatabase {
             }
             if (currentMaxReps > prevReps) {
               didSetWeightRecord = true;
-              reps_weight_rpe[recordIndex]['hasRecord'] = 1;
+              reps_weight_rpe[recordIndex].hasRepsRecord = 1;
               await setBestWeightVolumeReps(
+                  exercise.id,
                   exercise.jsonId,
-                  {'best_weight': null, 'best_volume': null, 'best_reps': null},
+                  {
+                    'best_weight': null,
+                    'best_volume': null,
+                    'best_reps': currentMaxReps
+                  },
                   txn);
             }
           } else {
-            double currentMaxWeight = reps_weight_rpe[0]['weight'];
+            double currentMaxWeight = reps_weight_rpe[0].weight;
             int recordIndex = 0;
             for (int j = 0; j < reps_weight_rpe.length - 1; j++) {
               double maxWeight =
-                  max(currentMaxWeight, reps_weight_rpe[j + 1]['weight']);
+                  max(currentMaxWeight, reps_weight_rpe[j + 1].weight);
               if (maxWeight > currentMaxWeight) {
                 recordIndex = j;
               }
               currentMaxWeight = maxWeight;
             }
             int currentMaxVolume =
-                (reps_weight_rpe[0]['weight'] * reps_weight_rpe[0]['reps'])
-                    .round();
+                (reps_weight_rpe[0].weight * reps_weight_rpe[0].reps).round();
             for (int j = 0; j < reps_weight_rpe.length - 1; j++) {
-              int nextVolume = reps_weight_rpe[j + 1]['weight'] *
-                  reps_weight_rpe[j + 1]['reps'];
+              int nextVolume =
+                  (reps_weight_rpe[j + 1].weight * reps_weight_rpe[j + 1].reps)
+                      .round();
               int maxVolume = max(currentMaxVolume, nextVolume);
               if (maxVolume > currentMaxVolume) {
                 recordIndex = j;
@@ -522,14 +571,16 @@ class CustomDatabase {
             if (currentMaxWeight > maxWeight) {
               didSetWeightRecord = true;
               maxWeight = currentMaxWeight;
+              reps_weight_rpe[recordIndex].hasWeightRecord = 1;
             }
             if (currentMaxVolume > maxVolume) {
               didSetWeightRecord = true;
               maxVolume = currentMaxVolume;
+              reps_weight_rpe[recordIndex].hasVolumeRecord = 1;
             }
             if (didSetWeightRecord) {
-              reps_weight_rpe[recordIndex]['hasRecord'] = 1;
               setBestWeightVolumeReps(
+                  exercise.id,
                   exercise.jsonId,
                   {
                     'best_weight': maxWeight,
@@ -542,10 +593,10 @@ class CustomDatabase {
 
           DateTime now = DateTime.now();
           String day = '${now.year}-${now.month}-${now.day}';
-          Map<String, Object> values = {
+          Map<String, Object?> values = {
             'day': day,
             'workout_name': workoutRecord.workoutName,
-            'fk_workout_id': workoutRecord.workoutId
+            'fk_workout_id': workoutRecord.workoutId,
           };
           int workoutRecordId = await txn.insert('workout_record', values);
           values.clear();
@@ -558,23 +609,27 @@ class CustomDatabase {
             values = {
               'fk_workout_record_id': workoutRecordId,
               'exercise_name': workoutRecord.exerciseRecords[i].exerciseName,
-              'fk_exercise_id': workoutRecord.exerciseRecords[i].exerciseId
+              'fk_exercise_id': workoutRecord.exerciseRecords[i].exerciseId,
+              'type': workoutRecord.exerciseRecords[i].type
             };
             int exerciseRecordId = await txn.insert('exercise_record', values);
             values.clear();
 
             for (int j = 0; j < exerciseRecord.reps_weight_rpe.length; j++) {
               var repsWeightRpe = exerciseRecord.reps_weight_rpe[j];
-              int reps = repsWeightRpe['reps'] as int;
-              double weight = repsWeightRpe['weight'] as double;
-              int rpe = repsWeightRpe['rpe'] as int;
-              int hasRecord = repsWeightRpe['hasRecord'] as int;
-              print(hasRecord);
+              int reps = repsWeightRpe.reps;
+              double weight = repsWeightRpe.weight;
+              int? rpe = repsWeightRpe.rpe;
+              int hasRepsRecord = repsWeightRpe.hasRepsRecord;
+              int hasWeightRecord = repsWeightRpe.hasWeightRecord;
+              int hasVolumeRecord = repsWeightRpe.hasVolumeRecord;
               values = {
                 'reps': reps,
                 'weight': weight,
                 'rpe': rpe,
-                'record': hasRecord,
+                'has_weight_record': hasWeightRecord,
+                'has_reps_record': hasRepsRecord,
+                'has_volume_record': hasVolumeRecord,
                 'fk_exercise_record_id': exerciseRecordId
               };
               await txn.insert('exercise_set', values);
@@ -607,7 +662,17 @@ class CustomDatabase {
       String name = queryWorkouts[i]['name'] as String;
       List<Exercise> exerciseList = [];
       final queryExercise = await db.query('exercise',
-          columns: ['id', 'json_id', 'sets', 'type', 'reps', 'fk_workout_id'],
+          columns: [
+            'id',
+            'json_id',
+            'sets',
+            'type',
+            'reps',
+            'best_weight',
+            'best_volume',
+            'best_reps',
+            'fk_workout_id'
+          ],
           where: 'fk_workout_id=?',
           whereArgs: [id],
           orderBy: 'id');
@@ -621,6 +686,9 @@ class CustomDatabase {
         String exname =
             exerciseData.where((element) => element.id == jsonId).first.name;
         String type = queryExercise[j]['type'] as String;
+        double? bestWeight = queryExercise[j]['best_weight'] as double?;
+        int? bestVolume = queryExercise[j]['best_volume'] as int?;
+        int? bestReps = queryExercise[j]['best_reps'] as int?;
 
         exerciseList.add(Exercise(
             id: exid,
@@ -629,6 +697,9 @@ class CustomDatabase {
             sets: sets,
             reps: reps,
             type: type,
+            bestReps: bestReps,
+            bestWeight: bestWeight,
+            bestVolume: bestVolume,
             workoutId: workoutId));
       }
       workoutList.add(Workout(id, name, exerciseList));
