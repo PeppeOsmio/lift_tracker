@@ -404,13 +404,10 @@ class ExerciseRecordItem extends StatefulWidget {
       } else if (reps != '0' && weight.isEmpty) {
         return null;
       }
-      if (int.parse(rpe) > 10) {
-        rpe = '10';
-      }
       if (reps != '0') {
         double numWeight = double.parse(weight);
         int numReps = int.parse(reps);
-        int? numRpe = rpe.isEmpty ? int.parse(rpe) : null;
+        int? numRpe = rpe.isNotEmpty ? int.parse(rpe) : null;
         setList.add(ExerciseSet(weight: numWeight, reps: numReps, rpe: numRpe));
       }
     }
