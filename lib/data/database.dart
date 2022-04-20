@@ -507,87 +507,90 @@ class CustomDatabase {
         // among all the exercises that were excecuted
         for (int i = 0; i < tempExercises.length; i++) {
           Exercise exercise = tempExercises[i];
-          var reps_weight_rpe =
-              workoutRecord.exerciseRecords[i].reps_weight_rpe;
-          var previousRecords = await getBestWeightVolumeReps(exercise.id, txn);
-          if (exercise.type == 'free') {
-            int recordIndex = 0;
-            int currentMaxReps = reps_weight_rpe[0].reps;
-            for (int j = 0; j < reps_weight_rpe.length - 1; j++) {
-              int maxReps = max(currentMaxReps, reps_weight_rpe[j + 1].reps);
-              if (maxReps > currentMaxReps) {
-                recordIndex = j;
+          if (!workoutRecord.exerciseRecords[i].temp) {
+            var reps_weight_rpe =
+                workoutRecord.exerciseRecords[i].reps_weight_rpe;
+            var previousRecords =
+                await getBestWeightVolumeReps(exercise.id, txn);
+            if (exercise.type == 'free') {
+              int recordIndex = 0;
+              int currentMaxReps = reps_weight_rpe[0].reps;
+              for (int j = 0; j < reps_weight_rpe.length - 1; j++) {
+                int maxReps = max(currentMaxReps, reps_weight_rpe[j + 1].reps);
+                if (maxReps > currentMaxReps) {
+                  recordIndex = j;
+                }
+                currentMaxReps = maxReps;
               }
-              currentMaxReps = maxReps;
-            }
-            int prevReps = -1;
-            if (previousRecords['best_reps'] != null) {
-              prevReps = previousRecords['best_reps'] as int;
-            }
-            if (currentMaxReps > prevReps) {
-              didSetWeightRecord = true;
-              reps_weight_rpe[recordIndex].hasRepsRecord = 1;
-              await setBestWeightVolumeReps(
-                  exercise.id,
-                  exercise.jsonId,
-                  {
-                    'best_weight': null,
-                    'best_volume': null,
-                    'best_reps': currentMaxReps
-                  },
-                  txn);
-            }
-          } else {
-            double currentMaxWeight = reps_weight_rpe[0].weight;
-            int recordIndex = 0;
-            for (int j = 0; j < reps_weight_rpe.length - 1; j++) {
-              double maxWeight =
-                  max(currentMaxWeight, reps_weight_rpe[j + 1].weight);
-              if (maxWeight > currentMaxWeight) {
-                recordIndex = j;
+              int prevReps = -1;
+              if (previousRecords['best_reps'] != null) {
+                prevReps = previousRecords['best_reps'] as int;
               }
-              currentMaxWeight = maxWeight;
-            }
-            int currentMaxVolume =
-                (reps_weight_rpe[0].weight * reps_weight_rpe[0].reps).round();
-            for (int j = 0; j < reps_weight_rpe.length - 1; j++) {
-              int nextVolume =
-                  (reps_weight_rpe[j + 1].weight * reps_weight_rpe[j + 1].reps)
-                      .round();
-              int maxVolume = max(currentMaxVolume, nextVolume);
-              if (maxVolume > currentMaxVolume) {
-                recordIndex = j;
+              if (currentMaxReps > prevReps) {
+                didSetWeightRecord = true;
+                reps_weight_rpe[recordIndex].hasRepsRecord = 1;
+                await setBestWeightVolumeReps(
+                    exercise.id,
+                    exercise.jsonId,
+                    {
+                      'best_weight': null,
+                      'best_volume': null,
+                      'best_reps': currentMaxReps
+                    },
+                    txn);
               }
-              currentMaxVolume = maxVolume;
-            }
-            double maxWeight = -1;
-            if (previousRecords['best_weight'] != null) {
-              maxWeight = previousRecords['best_weight'] as double;
-            }
-            int maxVolume = -1;
-            if (previousRecords['best_volume'] != null) {
-              maxVolume = previousRecords['best_volume'] as int;
-            }
-            if (currentMaxWeight > maxWeight) {
-              didSetWeightRecord = true;
-              maxWeight = currentMaxWeight;
-              reps_weight_rpe[recordIndex].hasWeightRecord = 1;
-            }
-            if (currentMaxVolume > maxVolume) {
-              didSetWeightRecord = true;
-              maxVolume = currentMaxVolume;
-              reps_weight_rpe[recordIndex].hasVolumeRecord = 1;
-            }
-            if (didSetWeightRecord) {
-              setBestWeightVolumeReps(
-                  exercise.id,
-                  exercise.jsonId,
-                  {
-                    'best_weight': maxWeight,
-                    'best_volume': maxVolume,
-                    'best_reps': null
-                  },
-                  txn);
+            } else {
+              double currentMaxWeight = reps_weight_rpe[0].weight;
+              int recordIndex = 0;
+              for (int j = 0; j < reps_weight_rpe.length - 1; j++) {
+                double maxWeight =
+                    max(currentMaxWeight, reps_weight_rpe[j + 1].weight);
+                if (maxWeight > currentMaxWeight) {
+                  recordIndex = j;
+                }
+                currentMaxWeight = maxWeight;
+              }
+              int currentMaxVolume =
+                  (reps_weight_rpe[0].weight * reps_weight_rpe[0].reps).round();
+              for (int j = 0; j < reps_weight_rpe.length - 1; j++) {
+                int nextVolume = (reps_weight_rpe[j + 1].weight *
+                        reps_weight_rpe[j + 1].reps)
+                    .round();
+                int maxVolume = max(currentMaxVolume, nextVolume);
+                if (maxVolume > currentMaxVolume) {
+                  recordIndex = j;
+                }
+                currentMaxVolume = maxVolume;
+              }
+              double maxWeight = -1;
+              if (previousRecords['best_weight'] != null) {
+                maxWeight = previousRecords['best_weight'] as double;
+              }
+              int maxVolume = -1;
+              if (previousRecords['best_volume'] != null) {
+                maxVolume = previousRecords['best_volume'] as int;
+              }
+              if (currentMaxWeight > maxWeight) {
+                didSetWeightRecord = true;
+                maxWeight = currentMaxWeight;
+                reps_weight_rpe[recordIndex].hasWeightRecord = 1;
+              }
+              if (currentMaxVolume > maxVolume) {
+                didSetWeightRecord = true;
+                maxVolume = currentMaxVolume;
+                reps_weight_rpe[recordIndex].hasVolumeRecord = 1;
+              }
+              if (didSetWeightRecord) {
+                setBestWeightVolumeReps(
+                    exercise.id,
+                    exercise.jsonId,
+                    {
+                      'best_weight': maxWeight,
+                      'best_volume': maxVolume,
+                      'best_reps': null
+                    },
+                    txn);
+              }
             }
           }
 
