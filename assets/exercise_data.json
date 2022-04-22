@@ -302,5 +302,13 @@
         "secondMuscle": "antDelts",
         "thirdMuscle": "",
         "type": "machine"
+    },
+    {
+        "id": 39,
+        "name": "shoulderPress",
+        "firstMuscle": "antDelts",
+        "secondMuscle": "latDelts",
+        "thirdMuscle": "triceps",
+        "type": "machine"
     }
 ]
