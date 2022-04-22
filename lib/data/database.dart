@@ -517,15 +517,15 @@ class CustomDatabase {
               int currentMaxReps = reps_weight_rpe[0].reps;
               for (int j = 0; j < reps_weight_rpe.length - 1; j++) {
                 int maxReps = max(currentMaxReps, reps_weight_rpe[j + 1].reps);
-                if (maxReps > currentMaxReps) {
-                  recordIndex = j;
-                }
+                if (maxReps > currentMaxReps) {}
                 currentMaxReps = maxReps;
               }
               int prevReps = -1;
               if (previousRecords['best_reps'] != null) {
                 prevReps = previousRecords['best_reps'] as int;
               }
+              recordIndex = reps_weight_rpe
+                  .indexWhere((element) => element.reps == currentMaxReps);
               if (currentMaxReps > prevReps) {
                 didSetWeightRecord = true;
                 reps_weight_rpe[recordIndex].hasRepsRecord = 1;
@@ -570,11 +570,17 @@ class CustomDatabase {
               if (previousRecords['best_volume'] != null) {
                 maxVolume = previousRecords['best_volume'] as int;
               }
+              recordIndex = reps_weight_rpe
+                  .indexWhere((element) => element.weight == currentMaxWeight);
               if (currentMaxWeight > maxWeight) {
                 didSetWeightRecord = true;
                 maxWeight = currentMaxWeight;
                 reps_weight_rpe[recordIndex].hasWeightRecord = 1;
               }
+              recordIndex = reps_weight_rpe.indexWhere((element) {
+                return (element.reps * element.weight).round() ==
+                    currentMaxVolume;
+              });
               if (currentMaxVolume > maxVolume) {
                 didSetWeightRecord = true;
                 maxVolume = currentMaxVolume;
@@ -593,53 +599,53 @@ class CustomDatabase {
               }
             }
           }
-
-          DateTime now = DateTime.now();
-          String day = '${now.year}-${now.month}-${now.day}';
-          Map<String, Object?> values = {
-            'day': day,
-            'workout_name': workoutRecord.workoutName,
-            'fk_workout_id': workoutRecord.workoutId,
-          };
-          int workoutRecordId = await txn.insert('workout_record', values);
-          values.clear();
-
-          // save that we saved a cache session right after saving the workout_record row
-
-          for (int i = 0; i < workoutRecord.exerciseRecords.length; i++) {
-            ExerciseRecord exerciseRecord = workoutRecord.exerciseRecords[i];
-
-            values = {
-              'fk_workout_record_id': workoutRecordId,
-              'exercise_name': workoutRecord.exerciseRecords[i].exerciseName,
-              'fk_exercise_id': workoutRecord.exerciseRecords[i].exerciseId,
-              'type': workoutRecord.exerciseRecords[i].type
-            };
-            int exerciseRecordId = await txn.insert('exercise_record', values);
-            values.clear();
-
-            for (int j = 0; j < exerciseRecord.reps_weight_rpe.length; j++) {
-              var repsWeightRpe = exerciseRecord.reps_weight_rpe[j];
-              int reps = repsWeightRpe.reps;
-              double weight = repsWeightRpe.weight;
-              int? rpe = repsWeightRpe.rpe;
-              int hasRepsRecord = repsWeightRpe.hasRepsRecord;
-              int hasWeightRecord = repsWeightRpe.hasWeightRecord;
-              int hasVolumeRecord = repsWeightRpe.hasVolumeRecord;
-              values = {
-                'reps': reps,
-                'weight': weight,
-                'rpe': rpe,
-                'has_weight_record': hasWeightRecord,
-                'has_reps_record': hasRepsRecord,
-                'has_volume_record': hasVolumeRecord,
-                'fk_exercise_record_id': exerciseRecordId
-              };
-              await txn.insert('exercise_set', values);
-            }
-          }
         }
       }
+      DateTime now = DateTime.now();
+      String day = '${now.year}-${now.month}-${now.day}';
+      Map<String, Object?> values = {
+        'day': day,
+        'workout_name': workoutRecord.workoutName,
+        'fk_workout_id': workoutRecord.workoutId,
+      };
+      int workoutRecordId = await txn.insert('workout_record', values);
+      values.clear();
+
+      // save that we saved a cache session right after saving the workout_record row
+
+      for (int i = 0; i < workoutRecord.exerciseRecords.length; i++) {
+        ExerciseRecord exerciseRecord = workoutRecord.exerciseRecords[i];
+
+        values = {
+          'fk_workout_record_id': workoutRecordId,
+          'exercise_name': workoutRecord.exerciseRecords[i].exerciseName,
+          'fk_exercise_id': workoutRecord.exerciseRecords[i].exerciseId,
+          'type': workoutRecord.exerciseRecords[i].type
+        };
+        int exerciseRecordId = await txn.insert('exercise_record', values);
+        values.clear();
+
+        for (int j = 0; j < exerciseRecord.reps_weight_rpe.length; j++) {
+          var repsWeightRpe = exerciseRecord.reps_weight_rpe[j];
+          int reps = repsWeightRpe.reps;
+          double weight = repsWeightRpe.weight;
+          int? rpe = repsWeightRpe.rpe;
+          int hasRepsRecord = repsWeightRpe.hasRepsRecord;
+          int hasWeightRecord = repsWeightRpe.hasWeightRecord;
+          int hasVolumeRecord = repsWeightRpe.hasVolumeRecord;
+          values = {
+            'reps': reps,
+            'weight': weight,
+            'rpe': rpe,
+            'has_weight_record': hasWeightRecord,
+            'has_reps_record': hasRepsRecord,
+            'has_volume_record': hasVolumeRecord,
+            'fk_exercise_record_id': exerciseRecordId
+          };
+          await txn.insert('exercise_set', values);
+        }
+      }
+
       if (cacheMode) {
         await pref.setBool('didCacheSession', true);
       }

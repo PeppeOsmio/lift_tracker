@@ -8,6 +8,7 @@ import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/classes/workout.dart';
 import 'package:lift_tracker/data/classes/workoutrecord.dart';
+import 'package:lift_tracker/localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../ui/workoutlist/workoutlist.dart';
@@ -127,6 +128,10 @@ class Helper {
     if (!currentFocus.hasPrimaryFocus) {
       currentFocus.unfocus();
     }
+  }
+
+  static loadTranslation(BuildContext context, String key) {
+    return Localization.of(context).getString(key);
   }
 
   static String dateToString(DateTime date) {

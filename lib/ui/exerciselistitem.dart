@@ -1,12 +1,12 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
+import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/ui/selectexercise.dart';
-
 import '../data/classes/exercise.dart';
 import 'colors.dart';
+import 'package:lift_tracker/localizations.dart';
 
 class ExerciseListItem extends StatefulWidget {
   ExerciseListItem(this.exerciseNumber,
@@ -80,7 +80,8 @@ class _ExerciseListItemState extends State<ExerciseListItem> {
   @override
   Widget build(BuildContext context) {
     if (exerciseData != null) {
-      widget.nameController.text = exerciseData!.name;
+      widget.nameController.text =
+          Helper.loadTranslation(context, exerciseData!.name);
     }
     return Padding(
       padding: const EdgeInsets.only(bottom: 24),

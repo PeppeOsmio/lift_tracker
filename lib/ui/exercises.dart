@@ -15,10 +15,6 @@ class Exercises extends StatefulWidget {
 class _ExercisesState extends State<Exercises> {
   @override
   Widget build(BuildContext context) {
-    List<String> push = ['Chest', 'Triceps', 'Anterior delts'];
-    List<String> pull = ['Lats', 'Middle traps', 'Biceps'];
-    List<String> cardio = ['Cardio', '', ''];
-    List<String> legs_push = ['Quads', 'Glutes', 'Calves'];
     return SafeArea(
       child: Column(
         children: [
@@ -136,7 +132,7 @@ class _ExerciseCardState extends State<ExerciseCard> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(
-                      widget.exerciseData.name,
+                      Helper.loadTranslation(context, widget.exerciseData.name),
                       style: TextStyle(color: Colors.white, fontSize: 20),
                     ),
                     const SizedBox(
@@ -148,17 +144,23 @@ class _ExerciseCardState extends State<ExerciseCard> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             buildMuscleBadge(
-                                Colors.red, widget.exerciseData.firstMuscle),
+                                Colors.red,
+                                Helper.loadTranslation(
+                                    context, widget.exerciseData.firstMuscle)),
                             const SizedBox(
                               width: 8,
                             ),
                             buildMuscleBadge(
-                                Colors.blue, widget.exerciseData.secondMuscle),
+                                Colors.blue,
+                                Helper.loadTranslation(
+                                    context, widget.exerciseData.secondMuscle)),
                             const SizedBox(
                               width: 8,
                             ),
                             buildMuscleBadge(
-                                Colors.green, widget.exerciseData.thirdMuscle)
+                                Colors.green,
+                                Helper.loadTranslation(
+                                    context, widget.exerciseData.thirdMuscle))
                           ]),
                     )
                   ],

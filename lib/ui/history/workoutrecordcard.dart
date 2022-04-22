@@ -73,7 +73,8 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
                 children: [
                   Text(
                       '${exercises[i].reps_weight_rpe.length}  ×  ' +
-                          exercises[i].exerciseName,
+                          Helper.loadTranslation(
+                              context, exercises[i].exerciseName),
                       style:
                           const TextStyle(fontSize: 15, color: Colors.white)),
                   recordExercisesIndexes.contains(i)

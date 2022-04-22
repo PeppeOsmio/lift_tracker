@@ -88,36 +88,34 @@ class _NewSessionState extends ConsumerState<NewSession>
           currentFocus.unfocus();
         }
       },
-      child: MaterialApp(
-        home: SafeArea(
-          child: Scaffold(
-              resizeToAvoidBottomInset: true,
-              backgroundColor: Palette.backgroundDark,
-              body: SizedBox(
-                height: MediaQuery.of(context).size.height,
-                child: Column(
-                  children: [
-                    CustomAppBar(
-                        middleText: 'New ${widget.workout.name} session',
-                        onBack: () {
-                          CustomDatabase.instance.removeCachedSession();
-                          Navigator.pop(context);
-                        },
-                        onSubmit: () => createWorkoutSession(),
-                        backButton: true,
-                        submitButton: true),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                            top: 8, left: 0, right: 0, bottom: 0),
-                        child: SingleChildScrollView(
-                            child: Column(children: items)),
-                      ),
+      child: SafeArea(
+        child: Scaffold(
+            resizeToAvoidBottomInset: true,
+            backgroundColor: Palette.backgroundDark,
+            body: SizedBox(
+              height: MediaQuery.of(context).size.height,
+              child: Column(
+                children: [
+                  CustomAppBar(
+                      middleText: 'New ${widget.workout.name} session',
+                      onBack: () {
+                        CustomDatabase.instance.removeCachedSession();
+                        Navigator.pop(context);
+                      },
+                      onSubmit: () => createWorkoutSession(),
+                      backButton: true,
+                      submitButton: true),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                          top: 8, left: 0, right: 0, bottom: 0),
+                      child:
+                          SingleChildScrollView(child: Column(children: items)),
                     ),
-                  ],
-                ),
-              )),
-        ),
+                  ),
+                ],
+              ),
+            )),
       ),
     );
   }
@@ -533,7 +531,8 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
                     SizedBox(width: 8),
                     IntrinsicWidth(
                       child: Text(
-                        widget.exerciseData.name,
+                        Helper.loadTranslation(
+                            context, widget.exerciseData.name),
                         style: TextStyle(color: Colors.white, fontSize: 20),
                       ),
                     ),

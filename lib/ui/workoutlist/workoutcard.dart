@@ -60,7 +60,7 @@ class _WorkoutCardState extends State<WorkoutCard> {
             children: [
               Expanded(
                 flex: 5,
-                child: Text(name,
+                child: Text(Helper.loadTranslation(context, name),
                     style: const TextStyle(fontSize: 15, color: Colors.white)),
               ),
               Expanded(

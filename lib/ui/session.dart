@@ -5,6 +5,7 @@ import 'package:lift_tracker/data/classes/exerciserecord.dart';
 import 'package:lift_tracker/data/classes/workoutrecord.dart';
 import 'package:lift_tracker/ui/colors.dart';
 import 'package:lift_tracker/ui/widgets.dart';
+import 'package:lift_tracker/localizations.dart';
 
 class Session extends StatefulWidget {
   const Session(this.workoutRecord, {Key? key}) : super(key: key);
@@ -44,8 +45,7 @@ class _SessionState extends State<Session> {
   @override
   Widget build(BuildContext context) {
     List<Widget> items = buildExerciseCardList();
-    return MaterialApp(
-        home: SafeArea(
+    return SafeArea(
       child: Scaffold(
         backgroundColor: Palette.backgroundDark,
         body: Column(
@@ -68,7 +68,7 @@ class _SessionState extends State<Session> {
           ],
         ),
       ),
-    ));
+    );
   }
 
   List<Widget> buildExerciseCardList() {
@@ -321,7 +321,7 @@ class ExerciseRecordCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(left: 32),
                 child: Text(
-                  exerciseRecord.exerciseName,
+                  Helper.loadTranslation(context, exerciseRecord.exerciseName),
                   style: const TextStyle(color: Colors.white, fontSize: 20),
                 ),
               ),

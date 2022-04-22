@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +14,7 @@ import '../../data/helper.dart';
 import '../workoutlist/workoutlist.dart';
 import '../exercises.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'dart:io';
 
 class PageNameNotifier extends StateNotifier<String> {
   PageNameNotifier() : super('Workouts');
@@ -76,6 +76,7 @@ class _AppState extends ConsumerState<App> {
 
   @override
   void initState() {
+    log(Platform.localeName);
     super.initState();
     Helper.pageStack.add(1);
     workoutList = WorkoutList();
