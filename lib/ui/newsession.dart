@@ -97,7 +97,10 @@ class _NewSessionState extends ConsumerState<NewSession>
               child: Column(
                 children: [
                   CustomAppBar(
-                      middleText: 'New ${widget.workout.name} session',
+                      middleText:
+                          Helper.loadTranslation(context, 'newSessionOf') +
+                              ' ' +
+                              widget.workout.name,
                       onBack: () {
                         CustomDatabase.instance.removeCachedSession();
                         Navigator.pop(context);
@@ -562,12 +565,12 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
           Row(
             mainAxisSize: MainAxisSize.max,
             children: [
-              const Expanded(
+              Expanded(
                 flex: 2,
                 child: Padding(
                     padding: EdgeInsets.only(top: 24, bottom: 24),
                     child: Text(
-                      'Set',
+                      Helper.loadTranslation(context, 'set'),
                       style: TextStyle(color: Colors.white),
                     )),
               ),
@@ -576,7 +579,7 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
                 child: Padding(
                     padding: const EdgeInsets.only(top: 24, bottom: 24),
                     child: Text(
-                      'Reps goal: ${widget.exercise.reps}',
+                      '${Helper.loadTranslation(context, 'repsGoal')}: ${widget.exercise.reps}',
                       style: const TextStyle(color: Colors.white),
                     )),
               ),
@@ -588,10 +591,10 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
                     child: Text(
                         widget.exercise.type != 'free'
                             ? widget.exercise.bestWeight != null
-                                ? 'Best weight: ${widget.exercise.bestWeight}'
+                                ? '${Helper.loadTranslation(context, 'bestWeight')}: ${widget.exercise.bestWeight} kg'
                                 : ''
                             : widget.exercise.bestReps != null
-                                ? 'Best reps: ${widget.exercise.bestReps}'
+                                ? '${Helper.loadTranslation(context, 'bestReps')}: ${widget.exercise.bestReps}'
                                 : '',
                         style: const TextStyle(color: Colors.white))),
               ),

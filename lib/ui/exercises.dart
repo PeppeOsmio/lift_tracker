@@ -18,7 +18,9 @@ class _ExercisesState extends State<Exercises> {
     return SafeArea(
       child: Column(
         children: [
-          SearchBar(hint: 'Filter...', textController: TextEditingController()),
+          SearchBar(
+              hint: Helper.loadTranslation(context, 'filter'),
+              textController: TextEditingController()),
           Expanded(
               child: FutureBuilder(
                   future: Helper.getExerciseData(),

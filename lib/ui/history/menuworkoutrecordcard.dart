@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/ui/history/workoutrecordcard.dart';
 import 'package:lift_tracker/ui/widgets.dart';
 
@@ -118,7 +119,7 @@ class _MenuWorkoutRecordCardState extends State<MenuWorkoutRecordCard> {
                           padding: const EdgeInsets.only(bottom: 8),
                           child: CardMenuButton(
                               onPressed: widget.deleteOnPressed,
-                              text: 'Delete',
+                              text: Helper.loadTranslation(context, 'delete'),
                               borderColor: Colors.red,
                               backgroundColor: Colors.red.withAlpha(25),
                               width: 70),

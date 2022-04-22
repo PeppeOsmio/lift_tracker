@@ -52,7 +52,7 @@ class _SessionState extends State<Session> {
           children: [
             CustomAppBar(
                 middleText:
-                    '${widget.workoutRecord.workoutName} session of ${Helper.dateToString(widget.workoutRecord.day)}',
+                    '${Helper.loadTranslation(context, 'sessionOf')} ${widget.workoutRecord.workoutName} ${Helper.dateToString(widget.workoutRecord.day)}',
                 onBack: () {
                   Navigator.pop(context);
                 },
@@ -98,7 +98,7 @@ class _SessionState extends State<Session> {
                     width: 4,
                   ),
                   Text(
-                    'Volume: $totalVolume kg',
+                    '${Helper.loadTranslation(context, 'volume')}: $totalVolume kg',
                     style: TextStyle(
                         color: Colors.amber,
                         fontSize: 14,
@@ -269,12 +269,12 @@ class ExerciseRecordCard extends StatelessWidget {
   Widget build(BuildContext context) {
     List<TableRow> setRows = [];
 
-    TableRow topRow = const TableRow(children: [
+    TableRow topRow = TableRow(children: [
       Padding(
-          padding: const EdgeInsets.only(top: 24, bottom: 12),
+          padding: EdgeInsets.only(top: 24, bottom: 12),
           child: Center(
             child: Text(
-              'Set',
+              Helper.loadTranslation(context, 'set'),
               style: const TextStyle(color: Colors.white),
             ),
           )),
@@ -282,7 +282,7 @@ class ExerciseRecordCard extends StatelessWidget {
           padding: const EdgeInsets.only(top: 24, bottom: 12),
           child: Center(
             child: Text(
-              'Reps',
+              Helper.loadTranslation(context, 'reps'),
               style: const TextStyle(color: Colors.white),
             ),
           )),
@@ -290,7 +290,7 @@ class ExerciseRecordCard extends StatelessWidget {
           padding: EdgeInsets.only(top: 24, bottom: 12),
           child: Center(
             child: Text(
-              'Weight (kg)',
+              '${Helper.loadTranslation(context, 'weight')} (kg)',
               style: TextStyle(color: Colors.white),
             ),
           )),
@@ -298,7 +298,7 @@ class ExerciseRecordCard extends StatelessWidget {
           padding: EdgeInsets.only(top: 24, bottom: 12, left: 8),
           child: Center(
             child: Text(
-              'Volume (kg)',
+              '${Helper.loadTranslation(context, 'volume')} (kg)',
               style: TextStyle(color: Colors.white),
             ),
           )),

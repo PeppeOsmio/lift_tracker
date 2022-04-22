@@ -53,5 +53,25 @@
     "deadliftBarebell": "Deadlift (barebell)",
     "latPulldown": "Lat pulldown",
     "inclineBenchCurl": "Incline bench curl",
-    "cableCrossover": "Cable crossover"
+    "cableCrossover": "Cable crossover",
+
+    "workouts": "Workouts",
+    "history": "History",
+    "exercises": "Exercises",
+    "delete": "Delete",
+    "editWorkout": "Edit",
+    "startWorkout": "Start",
+    "profile": "Profilo",
+    "settings": "Settings",
+    "help": "Help",
+    "set": "Set",
+    "repsGoal": "Reps goal",
+    "bestWeight": "Best weight",
+    "bestReps": "Best reps",
+    "newSessionOf": "New session of",
+    "sessionOf": "Session of",
+    "filter": "Filter...",
+    "weight": "Weight",
+    "volume": "Volume",
+    "reps": "Reps"
 }

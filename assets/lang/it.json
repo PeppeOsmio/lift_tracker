@@ -53,5 +53,25 @@
     "deadliftBarebell": "Stacchi (bilancere)",
     "latPulldown": "Lat machine",
     "inclineBenchCurl": "Curl panca inclinata",
-    "cableCrossover": "Croci ai cavi"
+    "cableCrossover": "Croci ai cavi",
+
+    "workouts": "Allenamenti",
+    "history": "Cronologia",
+    "exercises": "Esercizi",
+    "delete": "Elimina",
+    "editWorkout": "Modifica",
+    "startWorkout": "Inizia",
+    "profile": "Profilo",
+    "settings": "Impostazioni",
+    "help": "Aiuto",
+    "set": "Serie",
+    "repsGoal": "Obiettivo reps",
+    "bestWeight": "Maggior carico",
+    "bestReps": "Maggiori reps",
+    "newSessionOf": "Nuova sessione di",
+    "sessionOf": "Sessione di",
+    "filter": "Filtra...",
+    "weight": "Carico",
+    "volume": "Volume",
+    "reps": "Ripetizioni"
 }

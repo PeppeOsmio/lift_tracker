@@ -32,7 +32,9 @@ class _HistoryState extends ConsumerState<History> {
     return SafeArea(
       child: Column(
         children: [
-          SearchBar(hint: 'Filter...', textController: TextEditingController()),
+          SearchBar(
+              hint: Helper.loadTranslation(context, 'filter'),
+              textController: TextEditingController()),
           FutureBuilder(
             future: workoutRecords,
             builder: (context, ss) {

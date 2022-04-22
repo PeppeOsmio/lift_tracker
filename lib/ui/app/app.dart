@@ -17,7 +17,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:io';
 
 class PageNameNotifier extends StateNotifier<String> {
-  PageNameNotifier() : super('Workouts');
+  PageNameNotifier() : super('workouts');
   void setName(String name) {
     state = name;
   }
@@ -37,7 +37,7 @@ class App extends ConsumerStatefulWidget {
 }
 
 class _AppState extends ConsumerState<App> {
-  List<String> pageKeys = ['History', 'Workouts', 'Exercises'];
+  List<String> pageKeys = ['history', 'workouts', 'exercises'];
   DateTime? backPressedTime;
   late Widget workoutList;
   Widget? history;
@@ -139,7 +139,7 @@ class _AppState extends ConsumerState<App> {
                   padding: const EdgeInsets.only(left: 16, top: 16),
                   child: Consumer(builder: (context, textRef, child) {
                     String pageName = textRef.watch(pageNameProvider);
-                    return Text(pageName);
+                    return Text(Helper.loadTranslation(context, pageName));
                   })),
             ],
           ),
@@ -186,17 +186,21 @@ class _AppState extends ConsumerState<App> {
           var indexState = ref.read(Helper.pageIndexProvider.notifier).state;
           return BottomNavBar(
             [
-              NavBarItem('History', Icons.schedule, () {
+              NavBarItem(
+                  Helper.loadTranslation(context, 'history'), Icons.schedule,
+                  () {
                 //if something notified that the history was updated
                 //we rebuild it in order to reload the content of the history
 
                 history ??= const History();
                 _selectTab(0, indexState);
               }),
-              NavBarItem('Workouts', Icons.add_outlined, () {
+              NavBarItem(Helper.loadTranslation(context, 'workouts'),
+                  Icons.add_outlined, () {
                 _selectTab(1, indexState);
               }),
-              NavBarItem('Exercises', Icons.fitness_center, () {
+              NavBarItem(Helper.loadTranslation(context, 'exercises'),
+                  Icons.fitness_center, () {
                 exercises ??= const Exercises();
                 _selectTab(2, indexState);
               })

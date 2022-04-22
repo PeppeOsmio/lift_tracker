@@ -70,7 +70,8 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
         Column(
           children: [
             SearchBar(
-                hint: 'Filter...', textController: TextEditingController()),
+                hint: Helper.loadTranslation(context, 'filter'),
+                textController: TextEditingController()),
             FutureBuilder(
               future: workoutsFuture,
               builder: (context, ss) {

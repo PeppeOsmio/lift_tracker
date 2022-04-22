@@ -147,32 +147,40 @@ class _AnimatedMenuState extends State<AnimatedMenu> {
         curve: Curves.decelerate,
         duration: const Duration(milliseconds: 100),
         opacity: menuOpacity,
-        child: Container(
-          width: 150,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: GestureDetector(
-              onTap: () {
-                Navigator.maybePop(context);
-              },
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildMenuElement('Me', Icons.person, style),
-                    SizedBox(
-                      height: 16,
-                    ),
-                    buildMenuElement('Settings', Icons.settings, style),
-                    SizedBox(
-                      height: 16,
-                    ),
-                    buildMenuElement('Help', Icons.help, style)
-                  ]),
+        child: IntrinsicWidth(
+          child: Container(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.maybePop(context);
+                },
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildMenuElement(
+                          Helper.loadTranslation(context, 'profile'),
+                          Icons.person,
+                          style),
+                      SizedBox(
+                        height: 16,
+                      ),
+                      buildMenuElement(
+                          Helper.loadTranslation(context, 'settings'),
+                          Icons.settings,
+                          style),
+                      SizedBox(
+                        height: 16,
+                      ),
+                      buildMenuElement(Helper.loadTranslation(context, 'help'),
+                          Icons.help, style)
+                    ]),
+              ),
             ),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: Palette.elementsDark.withAlpha(120)),
           ),
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: Palette.elementsDark.withAlpha(120)),
         ),
       ),
     );
@@ -187,6 +195,9 @@ class _AnimatedMenuState extends State<AnimatedMenu> {
           style: style,
         ),
         Spacer(),
+        const SizedBox(
+          width: 8,
+        ),
         Icon(
           icon,
           color: Colors.white,
