@@ -578,9 +578,11 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
                 flex: 5,
                 child: Padding(
                     padding: const EdgeInsets.only(top: 24, bottom: 24),
-                    child: Text(
-                      '${Helper.loadTranslation(context, 'repsGoal')}: ${widget.exercise.reps}',
-                      style: const TextStyle(color: Colors.white),
+                    child: FittedBox(
+                      child: Text(
+                        '${Helper.loadTranslation(context, 'repsGoal')}: ${widget.exercise.reps}',
+                        style: const TextStyle(color: Colors.white),
+                      ),
                     )),
               ),
               Expanded(
