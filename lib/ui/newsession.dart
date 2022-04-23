@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fluttericon/font_awesome5_icons.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/classes/exerciseset.dart';
@@ -14,7 +13,6 @@ import 'package:lift_tracker/data/classes/exerciserecord.dart';
 import 'package:lift_tracker/data/classes/workout.dart';
 import 'package:lift_tracker/data/classes/workoutrecord.dart';
 import 'package:lift_tracker/ui/colors.dart';
-import 'package:lift_tracker/ui/exercises.dart';
 import 'package:lift_tracker/ui/selectexercise.dart';
 import 'package:lift_tracker/ui/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -143,22 +141,24 @@ class _NewSessionState extends ConsumerState<NewSession>
       workoutRecord = getWorkoutRecord();
     } catch (e) {
       print(e);
-      Fluttertoast.showToast(msg: 'Fill all fields');
+      Fluttertoast.showToast(
+          msg: Helper.loadTranslation(context, 'fillAllFields'));
       return;
     }
     if (workoutRecord == null) {
       log('Null workout record');
       await showDimmedBackgroundDialog(context,
-          rightText: 'Cancel',
-          leftText: 'Yes',
+          rightText: Helper.loadTranslation(context, 'cancel'),
+          leftText: Helper.loadTranslation(context, 'yes'),
           rightOnPressed: () => Navigator.maybePop(context),
           leftOnPressed: () {
             Navigator.pop(context);
             Navigator.maybePop(context);
-            Fluttertoast.showToast(msg: 'Session canceled');
+            Fluttertoast.showToast(
+                msg: Helper.loadTranslation(context, 'sessionCanceled'));
           },
-          title: 'Cancel this session?',
-          content: 'Some sets are empty. Press Yes to cancel this session');
+          title: Helper.loadTranslation(context, 'cancelSession'),
+          content: Helper.loadTranslation(context, 'cancelSessionBody'));
       return;
     }
     try {
@@ -172,7 +172,9 @@ class _NewSessionState extends ConsumerState<NewSession>
     } catch (e) {
       log(e.toString());
       await showDimmedBackgroundDialog(context,
-          leftText: 'Yes', rightText: 'Cancel', leftOnPressed: () {
+          leftText: Helper.loadTranslation(context, 'yes'),
+          rightText: Helper.loadTranslation(context, 'cancel'),
+          leftOnPressed: () {
         ref
             .read(Helper.workoutRecordsProvider.notifier)
             .refreshWorkoutRecords();
@@ -183,8 +185,8 @@ class _NewSessionState extends ConsumerState<NewSession>
       }, rightOnPressed: () {
         Navigator.maybePop(context);
       },
-          title: 'Cancel this session?',
-          content: 'Some sets are empty. Press Yes to cancel this session');
+          title: Helper.loadTranslation(context, 'cancelSession'),
+          content: Helper.loadTranslation(context, 'cancelSessionBody'));
       return;
     }
     Navigator.pop(context);

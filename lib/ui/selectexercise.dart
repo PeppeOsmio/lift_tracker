@@ -23,14 +23,14 @@ class _SelectExerciseState extends ConsumerState<SelectExercise> {
         backgroundColor: Palette.backgroundDark,
         body: Column(children: [
           CustomAppBar(
-            middleText: 'Select an exercise',
+            middleText: Helper.loadTranslation(context, 'selectExerciseTitle'),
             onBack: () => Navigator.pop(context),
             onSubmit: () {},
             backButton: true,
             submitButton: false,
           ),
           SearchBar(
-            hint: 'Filter...',
+            hint: Helper.loadTranslation(context, 'filter'),
             textController: TextEditingController(),
           ),
           Expanded(

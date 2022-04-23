@@ -93,7 +93,9 @@ class _AppState extends ConsumerState<App> {
         var cachedWorkout = await CustomDatabase.instance
             .getCachedWorkout(cachedRecord.workoutId);
         showDimmedBackgroundDialog(context,
-            rightText: 'Cancel', leftText: 'Resume', rightOnPressed: () async {
+            rightText: Helper.loadTranslation(context, 'cancel'),
+            leftText: Helper.loadTranslation(context, 'resume'),
+            rightOnPressed: () async {
           await CustomDatabase.instance.removeCachedSession();
           Navigator.maybePop(context);
         }, leftOnPressed: () async {
@@ -103,7 +105,9 @@ class _AppState extends ConsumerState<App> {
           Navigator.pushReplacement(context, route);
         }, onDispose: () async {
           await CustomDatabase.instance.removeCachedSession();
-        }, title: 'Resume last ${cachedWorkout.name} session?');
+        },
+            title:
+                '${Helper.loadTranslation(context, 'resumeWorkoutSession')} ${cachedWorkout.name}?');
       }
     });
   }
@@ -127,9 +131,9 @@ class _AppState extends ConsumerState<App> {
                     onPressed: () {
                       Helper.unfocusTextFields(context);
                       showDimmedBackgroundDialog(context,
-                          title: 'Exit?',
-                          rightText: 'Cancel',
-                          leftText: 'Yes',
+                          title: '${Helper.loadTranslation(context, 'exit')}?',
+                          rightText: Helper.loadTranslation(context, 'cancel'),
+                          leftText: Helper.loadTranslation(context, 'yes'),
                           rightOnPressed: () => Navigator.maybePop(context),
                           leftOnPressed: () => SystemNavigator.pop());
                     },
@@ -170,13 +174,15 @@ class _AppState extends ConsumerState<App> {
             if (backPressedTime == null) {
               backPressedTime = DateTime.now();
               Fluttertoast.cancel();
-              Fluttertoast.showToast(msg: 'Press back again to quit');
+              Fluttertoast.showToast(
+                  msg: Helper.loadTranslation(context, 'pressAgainQuit'));
               return false;
             } else if (DateTime.now().difference(backPressedTime!) >
                 const Duration(milliseconds: 2000)) {
               backPressedTime = DateTime.now();
               Fluttertoast.cancel();
-              Fluttertoast.showToast(msg: 'Press back again to quit');
+              Fluttertoast.showToast(
+                  msg: Helper.loadTranslation(context, 'pressAgainQuit'));
               return false;
             }
             return true;

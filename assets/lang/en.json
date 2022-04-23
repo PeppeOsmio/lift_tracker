@@ -82,6 +82,12 @@
     "profile": "Profile",
     "settings": "Settings",
     "help": "Help",
+    "exit": "Exit",
+    "yes": "Yes",
+    "cancel": "Cancel",
+    "resume": "Resume",
+    "resumeWorkoutSession": "Resume last session of",
+    "pressAgainQuit": "Press again to quit",
     "set": "Set",
     "repsGoal": "Reps goal",
     "bestWeight": "Best weight",
@@ -96,5 +102,10 @@
     "workoutName": "Workout name",
     "workoutNameExample": "Chest and triceps, Legs...",
     "selectExercise": "Select exercise...",
-    "setsField": "Sets"
+    "setsField": "Sets",
+    "selectExerciseTitle": "Select an exercise",
+    "cancelSession": "Cancel this session?",
+    "cancelSessionBody": "Some sets are empty. Press Yes to cancel this session",
+    "fillAllFields": "Fill all fields",
+    "sessionCanceled": "Session canceled"
 }
