@@ -123,9 +123,10 @@ class _ExerciseListItemState extends State<ExerciseListItem> {
                                 controller: widget.nameController,
                                 style: const TextStyle(
                                     color: Colors.white, fontSize: 16),
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
                                   hintStyle: TextStyle(color: Colors.grey),
-                                  hintText: 'Select exercise...',
+                                  hintText: Helper.loadTranslation(
+                                      context, 'selectExercise'),
                                   border: InputBorder.none,
                                 ),
                               ),
@@ -155,9 +156,10 @@ class _ExerciseListItemState extends State<ExerciseListItem> {
                             keyboardType: TextInputType.number,
                             style: const TextStyle(
                                 color: Colors.white, fontSize: 16),
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               hintStyle: TextStyle(color: Colors.grey),
-                              hintText: 'Sets',
+                              hintText:
+                                  Helper.loadTranslation(context, 'setsField'),
                               border: InputBorder.none,
                             ),
                           )),
@@ -184,9 +186,10 @@ class _ExerciseListItemState extends State<ExerciseListItem> {
                               controller: widget.repsController,
                               keyboardType: TextInputType.number,
                               style: const TextStyle(color: Colors.white),
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 hintStyle: TextStyle(color: Colors.grey),
-                                hintText: 'Reps',
+                                hintText:
+                                    Helper.loadTranslation(context, 'reps'),
                                 border: InputBorder.none,
                               ))),
                     )

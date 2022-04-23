@@ -74,7 +74,7 @@ class _HistoryState extends ConsumerState<History> {
                       padding: const EdgeInsets.all(16.0),
                       child: Center(
                           child: Text(
-                        'All your workout sessions will be displayed here',
+                        Helper.loadTranslation(context, 'historyWelcome'),
                         style: TextStyle(color: Colors.white, fontSize: 20),
                         textAlign: TextAlign.center,
                       )),

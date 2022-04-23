@@ -105,7 +105,7 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
                         padding: const EdgeInsets.all(16.0),
                         child: Center(
                             child: Text(
-                          'Press the + button to create a workout',
+                          Helper.loadTranslation(context, 'workoutListWelcome'),
                           style: TextStyle(color: Colors.white, fontSize: 20),
                           textAlign: TextAlign.center,
                         )),

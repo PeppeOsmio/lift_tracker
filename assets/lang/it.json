@@ -61,6 +61,8 @@
     "workouts": "Allenamenti",
     "history": "Cronologia",
     "exercises": "Esercizi",
+    "workoutListWelcome": "Premi il pulsante + per creare un allenamento",
+    "historyWelcome": "Tutte le tue sessioni di allenamento verranno mostrate qui",
     "delete": "Elimina",
     "editWorkout": "Modifica",
     "startWorkout": "Inizia",
@@ -76,5 +78,10 @@
     "filter": "Filtra...",
     "weight": "Carico",
     "volume": "Volume",
-    "reps": "Ripetizioni"
+    "reps": "Ripetizioni",
+    "newWorkout": "Nuovo allenamento",
+    "workoutName": "Nome allenamento",
+    "workoutNameExample": "Petto e tricipiti, Gambe...",
+    "selectExercise": "Seleziona esercizio...",
+    "setsField": "Serie"
 }

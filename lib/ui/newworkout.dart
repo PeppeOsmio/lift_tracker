@@ -55,7 +55,7 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
             body: Column(
               children: [
                 CustomAppBar(
-                    middleText: 'New workout',
+                    middleText: Helper.loadTranslation(context, 'newWorkout'),
                     onBack: () => Navigator.pop(context),
                     onSubmit: () => createWorkout(),
                     backButton: true,
@@ -69,8 +69,8 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Workout name',
+                          Text(
+                            Helper.loadTranslation(context, 'workoutName'),
                             style: TextStyle(fontSize: 20, color: Colors.white),
                           ),
                           Padding(
@@ -86,9 +86,10 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
                                       BorderRadius.all(Radius.circular(10))),
                               child: TextField(
                                 controller: workoutName,
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
                                     hintStyle: TextStyle(color: Colors.grey),
-                                    hintText: 'Chest, Legs...',
+                                    hintText: Helper.loadTranslation(
+                                        context, 'workoutNameExample'),
                                     border: InputBorder.none),
                                 style: const TextStyle(
                                     color: Colors.white, fontSize: 16),
@@ -96,8 +97,8 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
                             ),
                           ),
                           const SizedBox(height: 24),
-                          const Text(
-                            'Exercises',
+                          Text(
+                            Helper.loadTranslation(context, 'exercises'),
                             style: TextStyle(fontSize: 20, color: Colors.white),
                           ),
                           const SizedBox(height: 24),
@@ -133,12 +134,6 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
           reps.isEmpty ||
           type.isEmpty ||
           jsonId.isEmpty) {
-        log('A');
-        log('name' + name);
-        log('sets' + sets);
-        log('reps' + reps);
-        log('jsonId' + jsonId);
-        log('type' + type);
         return;
       }
       exercises.add(Exercise(
