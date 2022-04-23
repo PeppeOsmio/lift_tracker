@@ -94,6 +94,7 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
         ),
       ));
     }
+    var date = Helper.dateToString(widget.workoutRecord.day);
     return GestureDetector(
       onTap: () {
         widget.onPressed.call();
@@ -144,7 +145,7 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
                             color: Colors.blueGrey),
                         const SizedBox(width: 16),
                         Text(
-                          Helper.dateToString(widget.workoutRecord.day),
+                          '${Helper.loadTranslation(context, date['month']!)} ${date['day']}, ${date['year']}',
                           style: const TextStyle(
                               color: Colors.white, fontSize: 20),
                         ),

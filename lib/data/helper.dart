@@ -134,38 +134,36 @@ class Helper {
     return Localization.of(context).getString(key);
   }
 
-  static String dateToString(DateTime date) {
+  static Map<String, String> dateToString(DateTime date) {
     String month;
     String year;
     String day;
     year = date.year.toString();
     List<String> months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December'
+      'january',
+      'february',
+      'march',
+      'april',
+      'may',
+      'june',
+      'july',
+      'august',
+      'september',
+      'october',
+      'november',
+      'december'
     ];
     List<String> days = [
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-      'Sunday'
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
     ];
     month = months[date.month - 1];
     day = date.day.toString();
-    String output = '';
-    output += month + ' ' + day + ', ' + year;
-    return output;
+    return {'month': month, 'day': day, 'year': year};
   }
 }

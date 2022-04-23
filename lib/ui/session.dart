@@ -44,6 +44,7 @@ class _SessionState extends State<Session> {
 
   @override
   Widget build(BuildContext context) {
+    var date = Helper.dateToString(widget.workoutRecord.day);
     List<Widget> items = buildExerciseCardList();
     return SafeArea(
       child: Scaffold(
@@ -52,7 +53,7 @@ class _SessionState extends State<Session> {
           children: [
             CustomAppBar(
                 middleText:
-                    '${Helper.loadTranslation(context, 'sessionOf')} ${widget.workoutRecord.workoutName} ${Helper.dateToString(widget.workoutRecord.day)}',
+                    '${Helper.loadTranslation(context, 'sessionOf')} ${widget.workoutRecord.workoutName} ${Helper.loadTranslation(context, date['month']!)} ${date['day']}, ${date['year']}',
                 onBack: () {
                   Navigator.pop(context);
                 },
