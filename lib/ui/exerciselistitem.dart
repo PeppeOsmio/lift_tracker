@@ -9,50 +9,33 @@ import 'colors.dart';
 import 'package:lift_tracker/localizations.dart';
 
 class ExerciseListItem extends StatefulWidget {
-  ExerciseListItem(this.exerciseNumber,
+  ExerciseListItem(
       {required this.onDelete,
       this.onMoveUp,
       this.onMoveDown,
+      required this.onNameFieldPress,
       this.initialExercise,
       this.exerciseData,
       Key? key})
       : super(key: key);
   ExerciseData? exerciseData;
-  int exerciseNumber;
-  int get number => exerciseNumber;
-  String get type {
-    if (exerciseData == null) {
-      return '';
-    } else {
-      return exerciseData!.type;
-    }
-  }
 
-  String get name {
-    if (exerciseData == null) {
-      return '';
-    } else {
-      return exerciseData!.name;
-    }
-  }
-
-  String get jsonId {
-    if (exerciseData == null) {
-      return '';
-    } else {
-      return exerciseData!.id.toString();
-    }
-  }
-
-  set exNumber(int num) => exerciseNumber = num;
   final TextEditingController nameController = TextEditingController();
   final TextEditingController setsController = TextEditingController();
   String get sets => setsController.text;
   final TextEditingController repsController = TextEditingController();
   String get reps => repsController.text;
-  final Function(int index) onDelete;
-  final Function(int index)? onMoveUp;
-  final Function(int index)? onMoveDown;
+  String get name {
+    if (exerciseData == null) {
+      return '';
+    }
+    return exerciseData!.name;
+  }
+
+  final Function onDelete;
+  final Function? onMoveUp;
+  final Function? onMoveDown;
+  final Function onNameFieldPress;
   final Exercise? initialExercise;
 
   @override
@@ -80,8 +63,10 @@ class _ExerciseListItemState extends State<ExerciseListItem> {
   @override
   Widget build(BuildContext context) {
     if (exerciseData != null) {
-      widget.nameController.text =
-          Helper.loadTranslation(context, exerciseData!.name);
+      Future.delayed(Duration.zero, () {
+        widget.nameController.text =
+            Helper.loadTranslation(context, exerciseData!.name);
+      });
     }
     return Padding(
       padding: const EdgeInsets.only(bottom: 24),
@@ -99,7 +84,7 @@ class _ExerciseListItemState extends State<ExerciseListItem> {
                     Expanded(
                       child: GestureDetector(
                         onTap: () async {
-                          log('tap');
+                          /*log('tap');
                           var result = await Navigator.push(context,
                               MaterialPageRoute(builder: (context) {
                             return SelectExercise();
@@ -108,7 +93,8 @@ class _ExerciseListItemState extends State<ExerciseListItem> {
                             exerciseData = result;
                             widget.exerciseData = result;
                             setState(() {});
-                          }
+                          }*/
+                          widget.onNameFieldPress();
                         },
                         child: Container(
                             padding: const EdgeInsets.only(left: 16, right: 16),
@@ -208,7 +194,7 @@ class _ExerciseListItemState extends State<ExerciseListItem> {
                     exerciseButton(
                         onTap: () {
                           if (widget.onMoveUp != null) {
-                            widget.onMoveUp!.call(widget.exerciseNumber - 1);
+                            widget.onMoveUp!.call();
                           }
                         },
                         color: Palette.elementsDark,
@@ -217,14 +203,14 @@ class _ExerciseListItemState extends State<ExerciseListItem> {
                     exerciseButton(
                         onTap: () {
                           if (widget.onMoveDown != null) {
-                            widget.onMoveDown!.call(widget.exerciseNumber - 1);
+                            widget.onMoveDown!.call();
                           }
                         },
                         color: Palette.elementsDark,
                         icon: Icons.expand_more_outlined),
                     const SizedBox(height: 16),
                     exerciseButton(
-                        onTap: () => widget.onDelete(widget.exerciseNumber - 1),
+                        onTap: () => widget.onDelete(),
                         color: Colors.red,
                         icon: Icons.remove_outlined),
                   ],

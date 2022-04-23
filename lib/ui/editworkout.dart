@@ -11,6 +11,7 @@ import 'package:lift_tracker/data/classes/exercise.dart';
 import 'package:lift_tracker/data/classes/workout.dart';
 import 'package:lift_tracker/ui/colors.dart';
 import 'package:lift_tracker/ui/exerciselistitem.dart';
+import 'package:lift_tracker/ui/selectexercise.dart';
 import 'package:lift_tracker/ui/widgets.dart';
 
 class EditWorkout extends ConsumerStatefulWidget {
@@ -23,6 +24,7 @@ class EditWorkout extends ConsumerStatefulWidget {
 
 class _EditWorkoutState extends ConsumerState<EditWorkout> {
   List<ExerciseListItem> exerciseWidgets = [];
+  List<ExerciseData?> exerciseDataList = [];
   List<Exercise> data = [];
   TextEditingController workoutName = TextEditingController();
   List<Exercise> initialExercises = [];
@@ -31,20 +33,33 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
   void initState() {
     super.initState();
     initialExercises.addAll(widget.workout.exercises);
-    workoutName.text = widget.workout.name;
-    for (int i = 0; i < widget.workout.exercises.length; i++) {
-      exerciseWidgets.add(ExerciseListItem(
-        i + 1,
-        onDelete: (index) => onDelete(index),
-        initialExercise: initialExercises[i],
-        onMoveDown: onMoveDown,
-        onMoveUp: onMoveUp,
-      ));
+    for (int i = 0; i < initialExercises.length; i++) {
+      exerciseDataList.add(null);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    workoutName.text = widget.workout.name;
+    for (int i = 0; i < widget.workout.exercises.length; i++) {
+      exerciseWidgets.add(ExerciseListItem(
+        exerciseData: exerciseDataList[i],
+        onDelete: (index) => onDelete(index),
+        onNameFieldPress: () async {
+          var result = await Navigator.push(context,
+              MaterialPageRoute(builder: (context) {
+            return SelectExercise();
+          }));
+          if (result != null) {
+            exerciseDataList[i] = result;
+            setState(() {});
+          }
+        },
+        initialExercise: initialExercises[i],
+        onMoveDown: onMoveDown,
+        onMoveUp: onMoveUp,
+      ));
+    }
     List<Widget> temp = [];
     for (int i = 0; i < exerciseWidgets.length; i++) {
       temp.add(Padding(
@@ -102,10 +117,11 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
                                           Radius.circular(10))),
                                   child: TextField(
                                     controller: workoutName,
-                                    decoration: const InputDecoration(
+                                    decoration: InputDecoration(
                                         hintStyle:
                                             TextStyle(color: Colors.grey),
-                                        hintText: 'Chest, Legs...',
+                                        hintText: Helper.loadTranslation(
+                                            context, 'workoutNameExample'),
                                         border: InputBorder.none),
                                     style: const TextStyle(
                                         color: Colors.white, fontSize: 16),
@@ -142,11 +158,16 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
     List<Exercise> exercises = [];
     for (int i = 0; i < exerciseWidgets.length; i++) {
       var exerciseWidget = exerciseWidgets[i];
-      String name = exerciseWidget.name;
       String sets = exerciseWidget.sets;
       String reps = exerciseWidget.reps;
-      String type = exerciseWidget.type;
-      String jsonId = exerciseWidget.jsonId;
+      String name = '';
+      String type = '';
+      String jsonId = '';
+      if (exerciseDataList[i] != null) {
+        name = exerciseDataList[i]!.name;
+        type = exerciseDataList[i]!.type;
+        jsonId = exerciseDataList[i]!.id.toString();
+      }
 
       log('name: ' + name);
       log('sets: ' + sets);
@@ -179,36 +200,29 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
 
   void onDelete(index) {
     if (exerciseWidgets.length > 1) {
-      setState(() {
-        exerciseWidgets.removeAt(index);
-        for (int i = 0; i < exerciseWidgets.length; i++) {
-          exerciseWidgets[i].exNumber = i + 1;
-        }
-      });
+      exerciseWidgets.removeAt(index);
+      exerciseDataList.removeAt(index);
+      setState(() {});
     }
   }
 
   void onMoveDown(index) {
-    if (index == exerciseWidgets.length - 1) {
+    if (exerciseWidgets[index] == exerciseWidgets.last) {
       return;
     }
-    var temp = exerciseWidgets[index + 1];
-    temp.exNumber = temp.exerciseNumber - 1;
-    exerciseWidgets[index].exNumber = exerciseWidgets[index].exerciseNumber + 1;
-    exerciseWidgets[index + 1] = exerciseWidgets[index];
-    exerciseWidgets[index] = temp;
+    var temp = exerciseWidgets[index];
+    exerciseWidgets[index] = exerciseWidgets[index + 1];
+    exerciseWidgets[index + 1] = temp;
     setState(() {});
   }
 
   void onMoveUp(index) {
-    if (index == 0) {
+    if (exerciseWidgets[index] == exerciseWidgets.first) {
       return;
     }
-    var temp = exerciseWidgets[index - 1];
-    temp.exNumber = temp.exerciseNumber + 1;
-    exerciseWidgets[index].exNumber = exerciseWidgets[index].exerciseNumber - 1;
-    exerciseWidgets[index - 1] = exerciseWidgets[index];
-    exerciseWidgets[index] = temp;
+    var temp = exerciseWidgets[index];
+    exerciseWidgets[index] = exerciseWidgets[index - 1];
+    exerciseWidgets[index - 1] = temp;
     setState(() {});
   }
 
@@ -225,11 +239,21 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
                 if (exerciseElement.name != '' &&
                     exerciseElement.sets != '' &&
                     exerciseElement.reps != '') {
+                  exerciseDataList.add(null);
                   exerciseWidgets.add(ExerciseListItem(
-                    exerciseWidgets.length + 1,
-                    onDelete: (index) => onDelete(index),
-                    onMoveDown: onMoveDown,
-                    onMoveUp: onMoveUp,
+                    onDelete: () => onDelete(exerciseWidgets.length - 1),
+                    onMoveDown: () => onMoveDown(exerciseWidgets.length - 1),
+                    onNameFieldPress: () async {
+                      var result = await Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return SelectExercise();
+                      }));
+                      if (result != null) {
+                        exerciseDataList[exerciseWidgets.length - 1] = result;
+                        setState(() {});
+                      }
+                    },
+                    onMoveUp: () => onMoveUp(exerciseWidgets.length - 1),
                   ));
                   setState(() {});
                 }
