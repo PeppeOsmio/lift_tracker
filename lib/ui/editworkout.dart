@@ -65,7 +65,8 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
               body: Column(
                 children: [
                   CustomAppBar(
-                      middleText: 'Edit workout',
+                      middleText:
+                          Helper.loadTranslation(context, 'editWorkout'),
                       onBack: () {
                         Navigator.pop(context);
                       },
@@ -83,8 +84,8 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Workout name',
+                              Text(
+                                Helper.loadTranslation(context, 'workoutName'),
                                 style: TextStyle(
                                     fontSize: 20, color: Colors.white),
                               ),
@@ -112,8 +113,8 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
                                 ),
                               ),
                               const SizedBox(height: 24),
-                              const Text(
-                                'Exercises',
+                              Text(
+                                Helper.loadTranslation(context, 'exercises'),
                                 style: TextStyle(
                                     fontSize: 20, color: Colors.white),
                               ),

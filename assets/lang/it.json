@@ -64,8 +64,8 @@
     "workoutListWelcome": "Premi il pulsante + per creare un allenamento",
     "historyWelcome": "Tutte le tue sessioni di allenamento verranno mostrate qui",
     "delete": "Elimina",
-    "editWorkout": "Modifica",
-    "startWorkout": "Inizia",
+    "edit": "Modifica",
+    "start": "Inizia",
     "profile": "Profilo",
     "settings": "Impostazioni",
     "help": "Aiuto",
@@ -83,5 +83,6 @@
     "workoutName": "Nome allenamento",
     "workoutNameExample": "Petto e tricipiti, Gambe...",
     "selectExercise": "Seleziona esercizio...",
-    "setsField": "Serie"
+    "setsField": "Serie",
+    "editWorkout": "Modifica allenamento"
 }

@@ -153,8 +153,7 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                                           widget.workoutCard.workout);
                                     }));
                                   },
-                                  text: Helper.loadTranslation(
-                                      context, 'editWorkout'),
+                                  text: Helper.loadTranslation(context, 'edit'),
                                   borderColor: Colors.amber,
                                   backgroundColor: Colors.amber.withAlpha(25)),
                             ),
@@ -169,8 +168,8 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                                     });
                                     Navigator.pushReplacement(context, route);
                                   },
-                                  text: Helper.loadTranslation(
-                                      context, 'startWorkout'),
+                                  text:
+                                      Helper.loadTranslation(context, 'start'),
                                   borderColor: Colors.green,
                                   backgroundColor: Colors.green.withAlpha(25)),
                             ),
