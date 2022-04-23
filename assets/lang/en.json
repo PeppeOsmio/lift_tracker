@@ -55,6 +55,8 @@
     "inclineBenchCurl": "Incline bench curl",
     "cableCrossover": "Cable crossover",
     "shoulderPress": "Shoulder press",
+    "legPress": "Leg press",
+    "legCurl": "Leg curl",
 
     "workouts": "Workouts",
     "history": "History",

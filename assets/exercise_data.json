@@ -310,5 +310,21 @@
         "secondMuscle": "latDelts",
         "thirdMuscle": "triceps",
         "type": "machine"
+    },
+    {
+        "id": 40,
+        "name": "legPress",
+        "firstMuscle": "quads",
+        "secondMuscle": "glutes",
+        "thirdMuscle": "calves",
+        "type": "machine"
+    },
+    {
+        "id": 41,
+        "name": "legCurl",
+        "firstMuscle": "hamstrings",
+        "secondMuscle": "glutes",
+        "thirdMuscle": "",
+        "type": "machine"
     }
 ]
