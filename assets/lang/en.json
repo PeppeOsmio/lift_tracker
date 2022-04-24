@@ -99,6 +99,8 @@
     "volume": "Volume",
     "reps": "Reps",
     "newWorkout": "New workout",
+    "noSetsError": "has 0 sets!",
+    "noRepsError": "has 0 reps!",
     "workoutName": "Workout name",
     "workoutNameExample": "Chest and triceps, Legs...",
     "selectExercise": "Select exercise...",

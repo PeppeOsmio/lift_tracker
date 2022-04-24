@@ -99,6 +99,8 @@
     "volume": "Volume",
     "reps": "Ripetizioni",
     "newWorkout": "Nuovo allenamento",
+    "noSetsError": "ha 0 serie!",
+    "noRepsError": "ha 0 ripetizioni!",
     "workoutName": "Nome allenamento",
     "workoutNameExample": "Petto e tricipiti, Gambe...",
     "selectExercise": "Seleziona esercizio...",

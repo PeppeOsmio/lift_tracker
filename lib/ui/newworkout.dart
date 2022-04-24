@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/data/classes/exercise.dart';
@@ -165,6 +166,22 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
           reps.isEmpty ||
           type.isEmpty ||
           jsonId.isEmpty) {
+        return;
+      }
+      if (sets == '0') {
+        Fluttertoast.showToast(
+            msg: Helper.loadTranslation(
+                    context, '${exerciseDataList[i]!.name}') +
+                ' ' +
+                Helper.loadTranslation(context, 'noSetsError'));
+        return;
+      }
+      if (reps == '0') {
+        Fluttertoast.showToast(
+            msg: Helper.loadTranslation(
+                    context, '${exerciseDataList[i]!.name}') +
+                ' ' +
+                Helper.loadTranslation(context, 'noRepsError'));
         return;
       }
       exercises.add(Exercise(
