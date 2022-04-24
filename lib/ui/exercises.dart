@@ -127,46 +127,46 @@ class _ExerciseCardState extends State<ExerciseCard> {
             flex: 100,
             child: Padding(
               padding: const EdgeInsets.only(left: 16),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Text(
                       Helper.loadTranslation(context, widget.exerciseData.name),
                       style: TextStyle(color: Colors.white, fontSize: 20),
                     ),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            buildMuscleBadge(
-                                Colors.red,
-                                Helper.loadTranslation(
-                                    context, widget.exerciseData.firstMuscle)),
-                            const SizedBox(
-                              width: 8,
-                            ),
-                            buildMuscleBadge(
-                                Colors.blue,
-                                Helper.loadTranslation(
-                                    context, widget.exerciseData.secondMuscle)),
-                            const SizedBox(
-                              width: 8,
-                            ),
-                            buildMuscleBadge(
-                                Colors.green,
-                                Helper.loadTranslation(
-                                    context, widget.exerciseData.thirdMuscle))
-                          ]),
-                    )
-                  ],
-                ),
+                  ),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          buildMuscleBadge(
+                              Colors.red,
+                              Helper.loadTranslation(
+                                  context, widget.exerciseData.firstMuscle)),
+                          const SizedBox(
+                            width: 8,
+                          ),
+                          buildMuscleBadge(
+                              Colors.blue,
+                              Helper.loadTranslation(
+                                  context, widget.exerciseData.secondMuscle)),
+                          const SizedBox(
+                            width: 8,
+                          ),
+                          buildMuscleBadge(
+                              Colors.green,
+                              Helper.loadTranslation(
+                                  context, widget.exerciseData.thirdMuscle))
+                        ]),
+                  )
+                ],
               ),
             ),
           )
