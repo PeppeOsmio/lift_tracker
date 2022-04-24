@@ -31,8 +31,12 @@ class _NewSessionState extends ConsumerState<NewSession>
     with WidgetsBindingObserver {
   List<ExerciseRecordItem> records = [];
   List<Exercise> data = [];
-  List<Widget> items = [];
   late SharedPreferences pref;
+  List<ExerciseData> exerciseDataList = [];
+  List<bool> tempList = [];
+  List<List<TextEditingController>> repsControllersLists = [];
+  List<List<TextEditingController>> weightControllersLists = [];
+  List<List<TextEditingController>> rpeControllersLists = [];
 
   @override
   void initState() {
@@ -44,26 +48,48 @@ class _NewSessionState extends ConsumerState<NewSession>
       pref = value;
       CustomDatabase.instance.removeCachedSession();
     });
-
     for (int i = 0; i < widget.workout.exercises.length; i++) {
-      List<TextEditingController> repsControllers = [];
-      List<TextEditingController> weightControllers = [];
-      List<TextEditingController> rpeControllers = [];
-
+      tempList.add(false);
+      Exercise exercise = widget.workout.exercises[i];
+      exerciseDataList.add(ExerciseData(
+          id: exercise.id, name: exercise.name, type: exercise.type));
+    }
+    for (int i = 0; i < widget.workout.exercises.length; i++) {
+      repsControllersLists.add([]);
+      weightControllersLists.add([]);
+      rpeControllersLists.add([]);
       for (int j = 0; j < widget.workout.exercises[i].sets; j++) {
-        repsControllers.add(TextEditingController());
-        weightControllers.add(TextEditingController());
-        rpeControllers.add(TextEditingController());
+        repsControllersLists[i].add(TextEditingController());
+        weightControllersLists[i].add(TextEditingController());
+        rpeControllersLists[i].add(TextEditingController());
       }
-      var exercise = widget.workout.exercises[i];
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    List<Widget> items = [];
+    records.clear();
+    for (int i = 0; i < widget.workout.exercises.length; i++) {
       records.add(ExerciseRecordItem(
         widget.workout.exercises[i],
-        repsControllers: repsControllers,
-        weightControllers: weightControllers,
-        rpeControllers: rpeControllers,
-        exerciseData: ExerciseData(
-            id: exercise.id, name: exercise.name, type: exercise.type),
-        onEditItem: () {},
+        onExerciseChange: () async {
+          var result = await Navigator.push(context,
+              MaterialPageRoute(builder: (context) {
+            return SelectExercise();
+          }));
+          if (result != null) {
+            if (exerciseDataList[i].id != result.id) {
+              tempList[i] = true;
+            }
+            exerciseDataList[i] = result;
+            setState(() {});
+          }
+        },
+        repsControllers: repsControllersLists[i],
+        weightControllers: weightControllersLists[i],
+        rpeControllers: rpeControllersLists[i],
+        exerciseData: exerciseDataList[i],
         startingRecord: widget.resumedSession != null
             ? widget.resumedSession!.exerciseRecords[i]
             : null,
@@ -75,10 +101,7 @@ class _NewSessionState extends ConsumerState<NewSession>
       ));
     }
     items.add(const SizedBox(height: 24));
-  }
 
-  @override
-  Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
         var currentFocus = FocusScope.of(context);
@@ -374,24 +397,22 @@ class _SetRowState extends State<SetRow> {
 }
 
 class ExerciseRecordItem extends StatefulWidget {
-  ExerciseRecordItem(this.exercise,
+  const ExerciseRecordItem(this.exercise,
       {required this.repsControllers,
       required this.weightControllers,
       required this.rpeControllers,
       required this.exerciseData,
-      required this.onEditItem,
+      required this.onExerciseChange,
       this.startingRecord,
-      this.temp = false,
       Key? key})
       : super(key: key);
-  final void Function() onEditItem;
   final Exercise exercise;
   final ExerciseRecord? startingRecord;
-  bool temp;
-  ExerciseData exerciseData;
-  List<TextEditingController> repsControllers;
-  List<TextEditingController> weightControllers;
-  List<TextEditingController> rpeControllers;
+  final Function onExerciseChange;
+  final ExerciseData exerciseData;
+  final List<TextEditingController> repsControllers;
+  final List<TextEditingController> weightControllers;
+  final List<TextEditingController> rpeControllers;
   ExerciseRecord? get exerciseRecord {
     List<ExerciseSet> setList = [];
     for (int i = 0; i < exercise.sets; i++) {
@@ -415,7 +436,7 @@ class ExerciseRecordItem extends StatefulWidget {
       }
     }
     return ExerciseRecord(exerciseData.name, setList,
-        exerciseId: exercise.id, type: exercise.type, temp: temp);
+        exerciseId: exercise.id, type: exercise.type);
   }
 
   ExerciseRecord get cacheExerciseRecord {
@@ -515,16 +536,8 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
                 width: 24,
               ),
               GestureDetector(
-                onTap: () async {
-                  var result = await Navigator.push(context,
-                      MaterialPageRoute(builder: (context) {
-                    return SelectExercise();
-                  }));
-                  if (widget.exerciseData != result) {
-                    widget.temp = true;
-                  }
-                  widget.exerciseData = result;
-                  setState(() {});
+                onTap: () {
+                  widget.onExerciseChange();
                 },
                 child: Row(
                   children: [
