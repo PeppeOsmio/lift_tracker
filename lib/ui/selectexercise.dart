@@ -15,6 +15,8 @@ class SelectExercise extends ConsumerStatefulWidget {
 }
 
 class _SelectExerciseState extends ConsumerState<SelectExercise> {
+  final TextEditingController searchController = TextEditingController();
+  List<ExerciseData> displayedData = Helper.exerciseDataGlobal;
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -31,51 +33,49 @@ class _SelectExerciseState extends ConsumerState<SelectExercise> {
           ),
           SearchBar(
             hint: Helper.loadTranslation(context, 'filter'),
-            textController: TextEditingController(),
+            textController: searchController,
+            onTextChange: (change) {
+              List<ExerciseData> temp = [];
+              if (change.isEmpty) {
+                displayedData = Helper.exerciseDataGlobal;
+                setState(() {});
+                return;
+              }
+              for (ExerciseData data in Helper.exerciseDataGlobal) {
+                if (Helper.loadTranslation(context, data.name)
+                    .contains(change)) {
+                  temp.add(data);
+                }
+              }
+              displayedData = temp;
+              setState(() {});
+            },
           ),
           Expanded(
-            child: FutureBuilder(
-                future: Helper.getExerciseData(),
-                builder: (context, ss) {
-                  if (ss.hasData) {
-                    List<ExerciseData> exerciseData =
-                        ss.data! as List<ExerciseData>;
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: ListView.separated(
-                          separatorBuilder: (context, index) {
-                            return SizedBox(
-                              height: 16,
-                            );
-                          },
-                          itemCount: exerciseData.length,
-                          itemBuilder: (context, index) {
-                            return GestureDetector(
-                              onTap: () {
-                                Navigator.pop(context, exerciseData[index]);
-                              },
-                              child: Padding(
-                                padding: EdgeInsets.only(
-                                    left: 16,
-                                    right: 16,
-                                    bottom: index == exerciseData.length - 1
-                                        ? 16
-                                        : 0),
-                                child: ExerciseCard(
-                                    exerciseData: exerciseData[index]),
-                              ),
-                            );
-                          }),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: ListView.separated(
+                  separatorBuilder: (context, index) {
+                    return SizedBox(
+                      height: 16,
                     );
-                  }
-                  if (ss.hasError) {
-                    return Expanded(
-                        child: Center(
-                      child: Text('Error'),
-                    ));
-                  }
-                  return SizedBox();
-                }),
+                  },
+                  itemCount: displayedData.length,
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context, displayedData[index]);
+                      },
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                            left: 16,
+                            right: 16,
+                            bottom: index == displayedData.length - 1 ? 16 : 0),
+                        child: ExerciseCard(exerciseData: displayedData[index]),
+                      ),
+                    );
+                  }),
+            ),
           )
         ]),
       ),

@@ -125,7 +125,6 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
   }
 
   PageRouteBuilder blurredMenuBuilder(WorkoutCard workoutCard, GlobalKey key) {
-    ref.read(Helper.blurProvider.notifier).setBlur(1);
     return PageRouteBuilder(
         opaque: false,
         pageBuilder: (context, a1, a2) {

@@ -176,7 +176,6 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
 
     List<Exercise> exercises = [];
     for (int i = 0; i < exerciseDataList.length; i++) {
-      var exerciseWidget = exerciseDataList[i];
       String sets = setsControllers[i].text;
       String reps = repsControllers[i].text;
       String name = '';
@@ -213,8 +212,8 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
     }
     await CustomDatabase.instance.editWorkout(
         Workout(widget.workout.id, workoutNameController.text, exercises));
-    Navigator.pop(context);
     ref.read(Helper.workoutsProvider.notifier).refreshWorkouts();
+    Navigator.pop(context);
   }
 
   void onDelete(index) {

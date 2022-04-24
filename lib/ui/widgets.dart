@@ -7,10 +7,15 @@ import 'package:lift_tracker/data/helper.dart';
 import 'colors.dart';
 
 class SearchBar extends StatefulWidget {
-  const SearchBar({Key? key, required this.hint, required this.textController})
+  const SearchBar(
+      {Key? key,
+      required this.hint,
+      required this.textController,
+      this.onTextChange})
       : super(key: key);
   final String hint;
   final TextEditingController textController;
+  final Function(String change)? onTextChange;
 
   @override
   State<SearchBar> createState() => _SearchBarState();
@@ -41,6 +46,11 @@ class _SearchBarState extends State<SearchBar> {
                 child: TextField(
               controller: widget.textController,
               readOnly: false,
+              onChanged: widget.onTextChange != null
+                  ? (change) {
+                      widget.onTextChange!(change);
+                    }
+                  : (change) {},
               decoration: InputDecoration(
                   border: InputBorder.none,
                   hintText: widget.hint,

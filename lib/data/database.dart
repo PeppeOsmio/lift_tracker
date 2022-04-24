@@ -112,7 +112,7 @@ class CustomDatabase {
 
   Future editWorkout(Workout workout) async {
     final db = await instance.database;
-    db.transaction((txn) async {
+    await db.transaction((txn) async {
       await txn.update('workout', {'name': workout.name},
           where: 'id=?', whereArgs: [workout.id]);
       await txn.delete('exercise',
@@ -171,7 +171,7 @@ class CustomDatabase {
   Future<int> removeWorkoutRecord(int workoutRecordId) async {
     final db = await instance.database;
     int? id;
-    db.transaction((txn) async {
+    await db.transaction((txn) async {
       List<Map<String, Object?>> query = await txn.query('exercise_record',
           columns: ['id'],
           where: 'fk_workout_record_id=?',
@@ -587,7 +587,7 @@ class CustomDatabase {
                 reps_weight_rpe[recordIndex].hasVolumeRecord = 1;
               }
               if (didSetWeightRecord) {
-                setBestWeightVolumeReps(
+                await setBestWeightVolumeReps(
                     exercise.id,
                     exercise.jsonId,
                     {
@@ -655,13 +655,14 @@ class CustomDatabase {
 
   Future removeWorkout(int id) async {
     final db = await instance.database;
-    db.transaction((txn) async {
+    await db.transaction((txn) async {
       await txn.delete('exercise', where: 'fk_workout_id=?', whereArgs: [id]);
       await txn.delete('workout', where: 'id=?', whereArgs: [id]);
     });
   }
 
   Future<List<Workout>> readWorkouts() async {
+    dev.log('Reading workouts');
     List<Workout> workoutList = [];
     final db = await instance.database;
     final queryWorkouts =
@@ -718,11 +719,11 @@ class CustomDatabase {
 
   Future createWorkout(String name, List<Exercise> exercises) async {
     final db = await instance.database;
-    db.transaction((txn) async {
+    await db.transaction((txn) async {
       final id = await txn.insert('workout', {'name': name});
       for (int i = 0; i < exercises.length; i++) {
         var exercise = exercises[i];
-        txn.insert('exercise', {
+        await txn.insert('exercise', {
           'json_id': exercise.jsonId,
           'sets': exercise.sets,
           'reps': exercise.reps,

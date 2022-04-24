@@ -76,8 +76,8 @@ class _AppState extends ConsumerState<App> {
 
   @override
   void initState() {
-    log(Platform.localeName);
     super.initState();
+    Helper.getExerciseData().then((value) => Helper.exerciseDataGlobal = value);
     Helper.pageStack.add(1);
     workoutList = WorkoutList();
     Future.delayed(Duration.zero, () async {

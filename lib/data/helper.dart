@@ -9,7 +9,6 @@ import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/classes/workout.dart';
 import 'package:lift_tracker/data/classes/workoutrecord.dart';
 import 'package:lift_tracker/localizations.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../ui/workoutlist/workoutlist.dart';
 
@@ -88,15 +87,6 @@ class Helper {
     return WorkoutRecordsNotifier();
   });
 
-  static final blurProvider =
-      StateNotifierProvider<BlurNotifier, double>(((ref) {
-    return BlurNotifier();
-  }));
-
-  static final sharedPreferencesProvider = Provider(((ref) {
-    return SharedPreferences.getInstance();
-  }));
-
   static Future<List<ExerciseData>> getExerciseData() async {
     String exerciseDataJson =
         await rootBundle.loadString('assets/exercise_data.json');
@@ -122,6 +112,7 @@ class Helper {
 
   static List<int> pageStack = [];
   static bool firstAppRun = false;
+  static List<ExerciseData> exerciseDataGlobal = [];
 
   static void unfocusTextFields(BuildContext context) {
     FocusScopeNode currentFocus = FocusScope.of(context);
@@ -130,7 +121,7 @@ class Helper {
     }
   }
 
-  static loadTranslation(BuildContext context, String key) {
+  static String loadTranslation(BuildContext context, String key) {
     return Localization.of(context).getString(key);
   }
 
