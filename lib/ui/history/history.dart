@@ -32,42 +32,13 @@ class _HistoryState extends ConsumerState<History> {
     return SafeArea(
       child: Column(
         children: [
-          SearchBar(
-              hint: Helper.loadTranslation(context, 'filter'),
-              textController: TextEditingController()),
           FutureBuilder(
             future: workoutRecords,
             builder: (context, ss) {
               if (ss.hasData) {
                 List<WorkoutRecord> records = ss.data! as List<WorkoutRecord>;
                 if (records.isNotEmpty) {
-                  int length = records.length;
-                  return Expanded(
-                    child: ListView.builder(
-                        itemBuilder: (context, i) {
-                          WorkoutRecordCard workoutRecordCard =
-                              WorkoutRecordCard(records[length - 1 - i], () {});
-                          GlobalKey key = GlobalKey();
-                          return Padding(
-                            padding: const EdgeInsets.all(16),
-                            child:
-                                WorkoutRecordCard(records[length - 1 - i], () {
-                              MaterialPageRoute route =
-                                  MaterialPageRoute(builder: (context) {
-                                return Session(records[length - 1 - i]);
-                              });
-                              Navigator.push(context, route);
-                            }, onLongPress: () async {
-                              await Navigator.push(
-                                  context,
-                                  blurredMenuBuilder(
-                                      workoutRecordCard, key, i));
-                            }),
-                            key: key,
-                          );
-                        },
-                        itemCount: length),
-                  );
+                  return Expanded(child: Body(records: records));
                 } else {
                   return Expanded(
                     child: Padding(
@@ -87,6 +58,79 @@ class _HistoryState extends ConsumerState<History> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class Body extends ConsumerStatefulWidget {
+  const Body({Key? key, required this.records}) : super(key: key);
+  final List<WorkoutRecord> records;
+
+  @override
+  ConsumerState<Body> createState() => _BodyState();
+}
+
+class _BodyState extends ConsumerState<Body> {
+  List<WorkoutRecord> records = [];
+  TextEditingController searchController = TextEditingController();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    records = widget.records;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    int length = records.length;
+    return Column(
+      children: [
+        SearchBar(
+          hint: Helper.loadTranslation(context, 'filter'),
+          textController: searchController,
+          onTextChange: (change) {
+            List<WorkoutRecord> temp = [];
+            if (change.isEmpty) {
+              records = widget.records;
+              setState(() {});
+              return;
+            }
+            for (WorkoutRecord data in widget.records) {
+              if (data.workoutName
+                  .toLowerCase()
+                  .contains(change.toLowerCase())) {
+                temp.add(data);
+              }
+            }
+            records = temp;
+            setState(() {});
+          },
+        ),
+        Expanded(
+          child: ListView.builder(
+              itemBuilder: (context, i) {
+                WorkoutRecordCard workoutRecordCard =
+                    WorkoutRecordCard(records[length - 1 - i], () {});
+                GlobalKey key = GlobalKey();
+                return Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: WorkoutRecordCard(records[length - 1 - i], () {
+                    MaterialPageRoute route =
+                        MaterialPageRoute(builder: (context) {
+                      return Session(records[length - 1 - i]);
+                    });
+                    Navigator.push(context, route);
+                  }, onLongPress: () async {
+                    await Navigator.push(
+                        context, blurredMenuBuilder(workoutRecordCard, key, i));
+                  }),
+                  key: key,
+                );
+              },
+              itemCount: length),
+        ),
+      ],
     );
   }
 

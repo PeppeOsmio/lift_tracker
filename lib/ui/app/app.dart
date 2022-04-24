@@ -77,7 +77,21 @@ class _AppState extends ConsumerState<App> {
   @override
   void initState() {
     super.initState();
-    Helper.getExerciseData().then((value) => Helper.exerciseDataGlobal = value);
+    Helper.getExerciseData().then((value) {
+      Helper.exerciseDataGlobal = value;
+      List<String> tempNames = [];
+      for (var e in Helper.exerciseDataGlobal) {
+        tempNames.add(Helper.loadTranslation(context, e.name));
+      }
+      tempNames.sort();
+      List<ExerciseData> temp = [];
+      for (var name in tempNames) {
+        temp.add(Helper.exerciseDataGlobal.firstWhere((element) =>
+            Helper.loadTranslation(context, element.name) == name));
+      }
+      Helper.exerciseDataGlobal.clear();
+      Helper.exerciseDataGlobal.addAll(temp);
+    });
     Helper.pageStack.add(1);
     workoutList = WorkoutList();
     Future.delayed(Duration.zero, () async {

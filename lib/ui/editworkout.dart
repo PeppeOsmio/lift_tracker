@@ -186,13 +186,13 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
         type = exerciseDataList[i]!.type;
         jsonId = exerciseDataList[i]!.id.toString();
       }
-
+      /*
       log('name: ' + name);
       log('sets: ' + sets);
       log('reps: ' + reps);
       log('type: ' + type);
       log('jsonId: ' + jsonId);
-
+      */
       if (name.isEmpty ||
           sets.isEmpty ||
           reps.isEmpty ||

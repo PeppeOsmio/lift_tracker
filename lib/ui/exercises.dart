@@ -34,7 +34,8 @@ class _ExercisesState extends State<Exercises> {
                 }
                 for (ExerciseData data in Helper.exerciseDataGlobal) {
                   if (Helper.loadTranslation(context, data.name)
-                      .contains(change)) {
+                      .toLowerCase()
+                      .contains(change.toLowerCase())) {
                     temp.add(data);
                   }
                 }

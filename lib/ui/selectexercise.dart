@@ -43,7 +43,8 @@ class _SelectExerciseState extends ConsumerState<SelectExercise> {
               }
               for (ExerciseData data in Helper.exerciseDataGlobal) {
                 if (Helper.loadTranslation(context, data.name)
-                    .contains(change)) {
+                    .toLowerCase()
+                    .contains(change.toLowerCase())) {
                   temp.add(data);
                 }
               }
