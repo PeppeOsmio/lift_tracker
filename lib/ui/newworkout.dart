@@ -21,18 +21,48 @@ class NewWorkout extends ConsumerStatefulWidget {
 }
 
 class _NewWorkoutState extends ConsumerState<NewWorkout> {
-  List<ExerciseListItem> exerciseWidgets = [];
   List<ExerciseData?> exerciseDataList = [];
   List<Exercise> data = [];
   TextEditingController workoutName = TextEditingController();
+  List<TextEditingController> repsControllers = [];
+  List<TextEditingController> setsControllers = [];
+  List<TextEditingController> nameControllers = [];
 
   @override
   void initState() {
     super.initState();
+    repsControllers.add(TextEditingController());
+    nameControllers.add(TextEditingController());
+    setsControllers.add(TextEditingController());
+    exerciseDataList.add(null);
   }
 
   @override
   Widget build(BuildContext context) {
+    List<ExerciseListItem> exerciseWidgets = [];
+    for (int i = 0; i < exerciseDataList.length; i++) {
+      exerciseWidgets.add(ExerciseListItem(
+        exerciseData: exerciseDataList[i],
+        onDelete: () => onDelete(i),
+        onNameFieldPress: () async {
+          var result = await Navigator.push(context,
+              MaterialPageRoute(builder: (context) {
+            return SelectExercise();
+          }));
+          if (result != null) {
+            exerciseDataList[i] = result;
+            nameControllers[i].text =
+                Helper.loadTranslation(context, result.name);
+            setState(() {});
+          }
+        },
+        repsController: repsControllers[i],
+        nameController: nameControllers[i],
+        setsController: setsControllers[i],
+        onMoveDown: () => onMoveDown(i),
+        onMoveUp: () => onMoveUp(i),
+      ));
+    }
     List<Widget> temp = [];
     for (int i = 0; i < exerciseWidgets.length; i++) {
       temp.add(Padding(
@@ -118,10 +148,9 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
       return;
     }
     List<Exercise> exercises = [];
-    for (int i = 0; i < exerciseWidgets.length; i++) {
-      var exerciseWidget = exerciseWidgets[i];
-      String sets = exerciseWidget.sets;
-      String reps = exerciseWidget.reps;
+    for (int i = 0; i < exerciseDataList.length; i++) {
+      String sets = setsControllers[i].text;
+      String reps = repsControllers[i].text;
       String name = '';
       String type = '';
       String jsonId = '';
@@ -153,30 +182,50 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
   }
 
   void onDelete(index) {
-    if (exerciseWidgets.length > 1) {
-      exerciseWidgets.removeAt(index);
+    if (exerciseDataList.length > 1) {
       exerciseDataList.removeAt(index);
+      repsControllers.removeAt(index);
+      setsControllers.removeAt(index);
+      nameControllers.removeAt(index);
       setState(() {});
     }
   }
 
   void onMoveDown(index) {
-    if (exerciseWidgets[index] == exerciseWidgets.last) {
+    if (exerciseDataList[index] == exerciseDataList.last) {
       return;
     }
-    var temp = exerciseWidgets[index];
-    exerciseWidgets[index] = exerciseWidgets[index + 1];
-    exerciseWidgets[index + 1] = temp;
+    var temp = exerciseDataList[index];
+    exerciseDataList[index] = exerciseDataList[index + 1];
+    exerciseDataList[index + 1] = temp;
+    var temp1 = repsControllers[index];
+    repsControllers[index] = repsControllers[index + 1];
+    repsControllers[index + 1] = temp1;
+    var temp2 = setsControllers[index];
+    setsControllers[index] = setsControllers[index + 1];
+    setsControllers[index + 1] = temp2;
+    var temp3 = nameControllers[index];
+    nameControllers[index] = nameControllers[index + 1];
+    nameControllers[index + 1] = temp3;
     setState(() {});
   }
 
   void onMoveUp(index) {
-    if (exerciseWidgets[index] == exerciseWidgets.first) {
+    if (exerciseDataList[index] == exerciseDataList.first) {
       return;
     }
-    var temp = exerciseWidgets[index];
-    exerciseWidgets[index] = exerciseWidgets[index - 1];
-    exerciseWidgets[index - 1] = temp;
+    var temp = exerciseDataList[index];
+    exerciseDataList[index] = exerciseDataList[index - 1];
+    exerciseDataList[index - 1] = temp;
+    var temp1 = repsControllers[index];
+    repsControllers[index] = repsControllers[index - 1];
+    repsControllers[index - 1] = temp1;
+    var temp2 = setsControllers[index];
+    setsControllers[index] = setsControllers[index - 1];
+    setsControllers[index - 1] = temp2;
+    var temp3 = nameControllers[index];
+    nameControllers[index] = nameControllers[index - 1];
+    nameControllers[index - 1] = temp3;
     setState(() {});
   }
 
@@ -188,27 +237,13 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
             child: FloatingActionButton(
               heroTag: null,
               onPressed: () {
-                var exerciseElement =
-                    exerciseWidgets[exerciseWidgets.length - 1];
-                if (exerciseElement.name != '' &&
-                    exerciseElement.sets != '' &&
-                    exerciseElement.reps != '') {
+                if (repsControllers.last.text != '' &&
+                    setsControllers.last.text != '' &&
+                    nameControllers.last.text != '') {
                   exerciseDataList.add(null);
-                  exerciseWidgets.add(ExerciseListItem(
-                    onDelete: () => onDelete(exerciseWidgets.length - 1),
-                    onMoveDown: () => onMoveDown(exerciseWidgets.length - 1),
-                    onNameFieldPress: () async {
-                      var result = await Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return SelectExercise();
-                      }));
-                      if (result != null) {
-                        exerciseDataList[exerciseWidgets.length - 1] = result;
-                        setState(() {});
-                      }
-                    },
-                    onMoveUp: () => onMoveUp(exerciseWidgets.length - 1),
-                  ));
+                  nameControllers.add(TextEditingController());
+                  setsControllers.add(TextEditingController());
+                  repsControllers.add(TextEditingController());
                   setState(() {});
                 }
               },

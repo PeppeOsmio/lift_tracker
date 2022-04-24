@@ -3,40 +3,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/helper.dart';
-import 'package:lift_tracker/ui/selectexercise.dart';
-import '../data/classes/exercise.dart';
 import 'colors.dart';
-import 'package:lift_tracker/localizations.dart';
 
 class ExerciseListItem extends StatefulWidget {
-  ExerciseListItem(
+  const ExerciseListItem(
       {required this.onDelete,
+      this.exerciseData,
       this.onMoveUp,
       this.onMoveDown,
       required this.onNameFieldPress,
-      this.initialExercise,
-      this.exerciseData,
+      required this.repsController,
+      required this.nameController,
+      required this.setsController,
       Key? key})
       : super(key: key);
-  ExerciseData? exerciseData;
 
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController setsController = TextEditingController();
+  final TextEditingController nameController;
+  final TextEditingController setsController;
   String get sets => setsController.text;
-  final TextEditingController repsController = TextEditingController();
+  final TextEditingController repsController;
   String get reps => repsController.text;
-  String get name {
-    if (exerciseData == null) {
-      return '';
-    }
-    return exerciseData!.name;
-  }
-
+  final ExerciseData? exerciseData;
   final Function onDelete;
   final Function? onMoveUp;
   final Function? onMoveDown;
   final Function onNameFieldPress;
-  final Exercise? initialExercise;
 
   @override
   _ExerciseListItemState createState() => _ExerciseListItemState();
@@ -48,26 +39,10 @@ class _ExerciseListItemState extends State<ExerciseListItem> {
   @override
   void initState() {
     super.initState();
-    if (widget.initialExercise != null) {
-      widget.exerciseData = ExerciseData(
-          id: widget.initialExercise!.jsonId,
-          name: widget.initialExercise!.name,
-          type: widget.initialExercise!.type);
-      widget.nameController.text = widget.initialExercise!.name;
-      widget.setsController.text = widget.initialExercise!.sets.toString();
-      widget.repsController.text = widget.initialExercise!.reps.toString();
-    }
-    exerciseData = widget.exerciseData;
   }
 
   @override
   Widget build(BuildContext context) {
-    if (exerciseData != null) {
-      Future.delayed(Duration.zero, () {
-        widget.nameController.text =
-            Helper.loadTranslation(context, exerciseData!.name);
-      });
-    }
     return Padding(
       padding: const EdgeInsets.only(bottom: 24),
       child: Row(
@@ -83,17 +58,7 @@ class _ExerciseListItemState extends State<ExerciseListItem> {
                   children: [
                     Expanded(
                       child: GestureDetector(
-                        onTap: () async {
-                          /*log('tap');
-                          var result = await Navigator.push(context,
-                              MaterialPageRoute(builder: (context) {
-                            return SelectExercise();
-                          }));
-                          if (result != null) {
-                            exerciseData = result;
-                            widget.exerciseData = result;
-                            setState(() {});
-                          }*/
+                        onTap: () {
                           widget.onNameFieldPress();
                         },
                         child: Container(
