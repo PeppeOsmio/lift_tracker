@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -69,7 +70,8 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
               future: workoutsFuture,
               builder: (context, ss) {
                 if (ss.hasData) {
-                  var workouts = ss.data! as List<Workout>;
+                  List<Workout> workouts = [];
+                  workouts.addAll(ss.data! as List<Workout>);
                   if (workouts.isNotEmpty) {
                     return Body(workouts: workouts);
                   } else {
@@ -115,10 +117,18 @@ class _BodyState extends ConsumerState<Body> {
   void initState() {
     super.initState();
     workouts = widget.workouts;
+    log('Initting body ' + widget.workouts.toString());
+  }
+
+  @override
+  void didUpdateWidget(covariant Body oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    workouts = widget.workouts;
   }
 
   @override
   Widget build(BuildContext context) {
+    log('Building body ' + widget.workouts.toString());
     List<Widget> columnContent = [
       SearchBar(
           hint: Helper.loadTranslation(context, 'filter'),
@@ -153,6 +163,7 @@ class _BodyState extends ConsumerState<Body> {
                 context, blurredMenuBuilder(workoutCard, cardKeys[i]));
           }, false, key: cardKeys[i])));
     }
+    log('Column content: ' + workouts.toString());
     return Expanded(
         child: SingleChildScrollView(
             child: Column(
@@ -173,6 +184,7 @@ class _BodyState extends ConsumerState<Body> {
                     .removeWorkout(workoutCard.workout.id);
                 ref.read(Helper.workoutsProvider.notifier).refreshWorkouts();
                 await Navigator.maybePop(context);
+                //somehow necessary to clear to trigger init state again...
                 return;
               },
               cancelOnPressed: () {

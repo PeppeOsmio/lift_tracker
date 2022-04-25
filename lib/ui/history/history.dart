@@ -76,8 +76,13 @@ class _BodyState extends ConsumerState<Body> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    records = widget.records;
+  }
+
+  @override
+  void didUpdateWidget(covariant Body oldWidget) {
+    super.didUpdateWidget(oldWidget);
     records = widget.records;
   }
 
