@@ -117,6 +117,7 @@ class _BodyState extends ConsumerState<Body> {
   void initState() {
     super.initState();
     workouts = widget.workouts;
+    log('Initting body ' + widget.workouts.toString());
   }
 
   @override
