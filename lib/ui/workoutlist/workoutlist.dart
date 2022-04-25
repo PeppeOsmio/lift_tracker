@@ -117,7 +117,6 @@ class _BodyState extends ConsumerState<Body> {
   void initState() {
     super.initState();
     workouts = widget.workouts;
-    log('Initting body ' + widget.workouts.toString());
   }
 
   @override
@@ -128,7 +127,6 @@ class _BodyState extends ConsumerState<Body> {
 
   @override
   Widget build(BuildContext context) {
-    log('Building body ' + widget.workouts.toString());
     List<Widget> columnContent = [
       SearchBar(
           hint: Helper.loadTranslation(context, 'filter'),
@@ -163,7 +161,6 @@ class _BodyState extends ConsumerState<Body> {
                 context, blurredMenuBuilder(workoutCard, cardKeys[i]));
           }, false, key: cardKeys[i])));
     }
-    log('Column content: ' + workouts.toString());
     return Expanded(
         child: SingleChildScrollView(
             child: Column(
