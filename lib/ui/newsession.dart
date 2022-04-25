@@ -133,8 +133,12 @@ class _NewSessionState extends ConsumerState<NewSession>
                     child: Padding(
                       padding: const EdgeInsets.only(
                           top: 8, left: 0, right: 0, bottom: 0),
-                      child:
-                          SingleChildScrollView(child: Column(children: items)),
+                      child: ListView.builder(
+                          itemCount: items.length,
+                          itemBuilder: ((context, index) {
+                            log('rendering $index');
+                            return items[index];
+                          })),
                     ),
                   ),
                 ],
