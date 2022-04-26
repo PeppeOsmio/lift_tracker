@@ -33,6 +33,7 @@ class _NewSessionState extends ConsumerState<NewSession>
   List<Exercise> data = [];
   late SharedPreferences pref;
   List<ExerciseData> exerciseDataList = [];
+  List<ExerciseData> originalExerciseDataList = [];
   List<bool> tempList = [];
   List<List<TextEditingController>> repsControllersLists = [];
   List<List<TextEditingController>> weightControllersLists = [];
@@ -70,6 +71,7 @@ class _NewSessionState extends ConsumerState<NewSession>
             id: exercise.id, name: exercise.name, type: exercise.type));
       }
     }
+    originalExerciseDataList = exerciseDataList;
     for (int i = 0; i < widget.workout.exercises.length; i++) {
       repsControllersLists.add([]);
       weightControllersLists.add([]);
@@ -114,8 +116,10 @@ class _NewSessionState extends ConsumerState<NewSession>
             return SelectExercise();
           }));
           if (result != null) {
-            if (exerciseDataList[i].id != result.id) {
+            if (originalExerciseDataList[i].id != result.id) {
               tempList[i] = true;
+            } else {
+              tempList[i] = false;
             }
             exerciseDataList[i] = result;
             setState(() {});
