@@ -48,11 +48,27 @@ class _NewSessionState extends ConsumerState<NewSession>
       pref = value;
       CustomDatabase.instance.removeCachedSession();
     });
-    for (int i = 0; i < widget.workout.exercises.length; i++) {
-      tempList.add(false);
-      Exercise exercise = widget.workout.exercises[i];
-      exerciseDataList.add(ExerciseData(
-          id: exercise.id, name: exercise.name, type: exercise.type));
+    if (widget.resumedSession == null) {
+      for (int i = 0; i < widget.workout.exercises.length; i++) {
+        tempList.add(false);
+        Exercise exercise = widget.workout.exercises[i];
+        exerciseDataList.add(ExerciseData(
+            id: exercise.id, name: exercise.name, type: exercise.type));
+      }
+    } else {
+      for (int i = 0; i < widget.resumedSession!.exerciseRecords.length; i++) {
+        tempList.add(false);
+        Exercise exercise = Exercise(
+            workoutId: widget.workout.id,
+            jsonId: widget.resumedSession!.exerciseRecords[i].exerciseId,
+            id: widget.resumedSession!.exerciseRecords[i].exerciseId,
+            name: widget.resumedSession!.exerciseRecords[i].exerciseName,
+            sets: widget.resumedSession!.exerciseRecords[i].sets.length,
+            reps: widget.workout.exercises[i].reps,
+            type: widget.resumedSession!.exerciseRecords[i].type);
+        exerciseDataList.add(ExerciseData(
+            id: exercise.id, name: exercise.name, type: exercise.type));
+      }
     }
     for (int i = 0; i < widget.workout.exercises.length; i++) {
       repsControllersLists.add([]);
@@ -62,6 +78,25 @@ class _NewSessionState extends ConsumerState<NewSession>
         repsControllersLists[i].add(TextEditingController());
         weightControllersLists[i].add(TextEditingController());
         rpeControllersLists[i].add(TextEditingController());
+      }
+    }
+    if (widget.resumedSession != null) {
+      for (int i = 0; i < widget.resumedSession!.exerciseRecords.length; i++) {
+        var exRecord = widget.resumedSession!.exerciseRecords[i];
+        if (repsControllersLists[i].length < exRecord.sets.length) {
+          log('reps controllers length: ' +
+              repsControllersLists[i].length.toString());
+          log('difference: ${-exRecord.sets.length + repsControllersLists.length}');
+          for (int j = 0;
+              j < repsControllersLists.length - exRecord.sets.length;
+              j++) {
+            repsControllersLists[i].add(TextEditingController());
+            weightControllersLists[i].add(TextEditingController());
+            rpeControllersLists[i].add(TextEditingController());
+          }
+          log('reps controllers length after: ' +
+              repsControllersLists[i].length.toString());
+        }
       }
     }
   }
@@ -448,7 +483,7 @@ class ExerciseRecordItem extends StatefulWidget {
       }
     }
     return ExerciseRecord(exerciseData.name, setList,
-        exerciseId: exercise.id, type: exercise.type);
+        exerciseId: exercise.id, type: exerciseData.type);
   }
 
   ExerciseRecord get cacheExerciseRecord {
@@ -478,7 +513,7 @@ class ExerciseRecordItem extends StatefulWidget {
       name = exercise.name;
     }
     return ExerciseRecord(name, setList,
-        exerciseId: exercise.id, type: exercise.type);
+        exerciseId: exercise.id, type: exerciseData.type);
   }
 
   @override
@@ -623,7 +658,7 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
                     padding:
                         const EdgeInsets.only(top: 24, bottom: 24, left: 8),
                     child: Text(
-                        widget.exercise.type != 'free'
+                        widget.exerciseData.type != 'free'
                             ? widget.exercise.bestWeight != null
                                 ? '${Helper.loadTranslation(context, 'bestWeight')}: ${widget.exercise.bestWeight} kg'
                                 : ''
@@ -651,6 +686,7 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
     startingRecord = widget.startingRecord;
     if (startingRecord != null) {
       var rwr = startingRecord!.sets;
+      log(rwr.length.toString());
       for (int i = 0; i < rwr.length; i++) {
         String initialReps = rwr[i].reps.toString();
         String initialWeight = rwr[i].weight.toString();
