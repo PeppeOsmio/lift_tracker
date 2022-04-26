@@ -479,7 +479,6 @@ class CustomDatabase {
       List<int> indexes = [];
 
       workoutRecord.exerciseRecords.removeWhere((element) {
-        print(element.reps_weight_rpe);
         if (element.reps_weight_rpe.isEmpty) {
           indexes.add(workoutRecord.exerciseRecords.indexOf(element));
           return true;

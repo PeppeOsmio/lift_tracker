@@ -86,6 +86,11 @@ class _NewSessionState extends ConsumerState<NewSession>
             setState(() {});
           }
         },
+        onAddSet: () {
+          repsControllersLists[i].add(TextEditingController());
+          weightControllersLists[i].add(TextEditingController());
+          rpeControllersLists[i].add(TextEditingController());
+        },
         repsControllers: repsControllersLists[i],
         weightControllers: weightControllersLists[i],
         rpeControllers: rpeControllersLists[i],
@@ -134,6 +139,7 @@ class _NewSessionState extends ConsumerState<NewSession>
                       padding: const EdgeInsets.only(
                           top: 8, left: 0, right: 0, bottom: 0),
                       child: ListView.builder(
+                          cacheExtent: 0,
                           itemCount: items.length,
                           itemBuilder: ((context, index) {
                             log('rendering $index');
@@ -407,6 +413,7 @@ class ExerciseRecordItem extends StatefulWidget {
       required this.rpeControllers,
       required this.exerciseData,
       required this.onExerciseChange,
+      required this.onAddSet,
       this.startingRecord,
       Key? key})
       : super(key: key);
@@ -417,9 +424,10 @@ class ExerciseRecordItem extends StatefulWidget {
   final List<TextEditingController> repsControllers;
   final List<TextEditingController> weightControllers;
   final List<TextEditingController> rpeControllers;
+  final Function() onAddSet;
   ExerciseRecord? get exerciseRecord {
     List<ExerciseSet> setList = [];
-    for (int i = 0; i < exercise.sets; i++) {
+    for (int i = 0; i < repsControllers.length; i++) {
       String reps = repsControllers[i].text;
       String weight = weightControllers[i].text;
       String rpe = rpeControllers[i].text;
@@ -446,7 +454,7 @@ class ExerciseRecordItem extends StatefulWidget {
   ExerciseRecord get cacheExerciseRecord {
     List<ExerciseSet> setList = [];
     String name = exerciseData.name;
-    for (int i = 0; i < exercise.sets; i++) {
+    for (int i = 0; i < repsControllers.length; i++) {
       String reps = repsControllers[i].text;
       String weight = weightControllers[i].text;
       String rpe = rpeControllers[i].text;
@@ -482,33 +490,39 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
 
   Widget buildAddSetButton() {
     return Center(
-        child: Container(
-      width: MediaQuery.of(context).size.width * 0.5,
-      padding: const EdgeInsets.all(8),
-      child: InkWell(
-        child: Material(
-          borderRadius: BorderRadius.circular(10),
-          color: Palette.elementsDark,
-          type: MaterialType.transparency,
-          child: Row(
-            children: const [
-              Icon(
-                Icons.add_outlined,
-                color: Colors.white,
-              ),
-              Spacer(),
-              Text(
-                'Add set',
-                style: TextStyle(color: Colors.white, fontSize: 16),
-              ),
-              Spacer(),
-            ],
+        child: IntrinsicWidth(
+      child: ElevatedButton(
+        style: ButtonStyle(
+          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+              RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          )),
+          elevation: MaterialStateProperty.resolveWith<double>((states) => 0),
+          backgroundColor: MaterialStateProperty.resolveWith<Color?>(
+            (Set<MaterialState> states) {
+              return Palette.elementsDark;
+            },
           ),
         ),
-      ),
-      decoration: BoxDecoration(
-        color: Palette.elementsDark,
-        borderRadius: BorderRadius.circular(10),
+        onPressed: () {
+          widget.onAddSet();
+          setState(() {});
+        },
+        child: Row(
+          children: const [
+            Icon(
+              Icons.add_outlined,
+              color: Colors.white,
+            ),
+            const SizedBox(
+              width: 8,
+            ),
+            Text(
+              'Add set',
+              style: TextStyle(color: Colors.white, fontSize: 16),
+            ),
+          ],
+        ),
       ),
     ));
   }
@@ -516,14 +530,13 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
   Widget buildExercise() {
     double width = MediaQuery.of(context).size.width;
     List<Widget> temp = [];
-    for (int i = 0; i < widget.exercise.sets; i++) {
+    for (int i = 0; i < widget.repsControllers.length; i++) {
       temp.add(SetRow(i + 1,
           repsController: widget.repsControllers[i],
           weightController: widget.weightControllers[i],
           rpeController: widget.rpeControllers[i]));
     }
-    //temp.add(buildAddSetButton());
-    //temp.add(const SizedBox(height: 24));
+    temp.add(buildAddSetButton());
     Column tempColumn = Column(children: temp);
     return SizedBox(
       width: width,

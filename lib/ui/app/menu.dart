@@ -28,11 +28,9 @@ class BlurredProfileMenuState extends State<BlurredProfileMenu> {
 
   Widget button(bool isOpen) {
     return Padding(
-      padding: const EdgeInsets.only(right: 16, top: 16),
+      padding: const EdgeInsets.only(right: 16, top: 20, bottom: 4),
       child: Container(
-          height: 6,
-          width: 60,
-          padding: const EdgeInsets.all(18),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
               boxShadow: [
                 BoxShadow(
@@ -42,12 +40,11 @@ class BlurredProfileMenuState extends State<BlurredProfileMenu> {
                     offset: Offset(1.0, 1.0)),
               ],
               color: Palette.elementsDark,
-              borderRadius: const BorderRadius.all(Radius.circular(20))),
+              borderRadius: const BorderRadius.all(Radius.circular(17.5))),
           child: FittedBox(
-              child: Icon(
-            isOpen ? Icons.more_horiz : Icons.person,
-            color: Colors.white,
-          ))),
+            child: Icon(isOpen ? Icons.more_horiz : Icons.person,
+                color: Colors.white, size: 20),
+          )),
     );
   }
 
