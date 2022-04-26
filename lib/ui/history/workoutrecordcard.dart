@@ -39,8 +39,8 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
     for (int i = 0; i < widget.workoutRecord.exerciseRecords.length; i++) {
       var exerciseRecord = widget.workoutRecord.exerciseRecords[i];
       bool hasRecord = false;
-      for (int j = 0; j < exerciseRecord.reps_weight_rpe.length; j++) {
-        var set = exerciseRecord.reps_weight_rpe;
+      for (int j = 0; j < exerciseRecord.sets.length; j++) {
+        var set = exerciseRecord.sets;
         double volume = (set[j].reps * set[j].weight);
         totalVolume += volume.round();
 
@@ -72,7 +72,7 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
               child: Row(
                 children: [
                   Text(
-                      '${exercises[i].reps_weight_rpe.length}  ×  ' +
+                      '${exercises[i].sets.length}  ×  ' +
                           Helper.loadTranslation(
                               context, exercises[i].exerciseName),
                       style:

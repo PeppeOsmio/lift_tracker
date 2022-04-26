@@ -25,8 +25,8 @@ class _SessionState extends State<Session> {
     for (int i = 0; i < widget.workoutRecord.exerciseRecords.length; i++) {
       var exerciseRecord = widget.workoutRecord.exerciseRecords[i];
       bool hasRecord = false;
-      for (int j = 0; j < exerciseRecord.reps_weight_rpe.length; j++) {
-        var set = exerciseRecord.reps_weight_rpe;
+      for (int j = 0; j < exerciseRecord.sets.length; j++) {
+        var set = exerciseRecord.sets;
         double volume = (set[j].reps * set[j].weight);
         totalVolume += volume.round();
 
@@ -158,16 +158,16 @@ class ExerciseRecordCard extends StatelessWidget {
   final ExerciseRecord exerciseRecord;
 
   TableRow buildSetRow(int index, BuildContext context) {
-    String weight = exerciseRecord.reps_weight_rpe[index].weight.toString();
-    String reps = exerciseRecord.reps_weight_rpe[index].reps.toString();
-    String rpe = exerciseRecord.reps_weight_rpe[index].rpe.toString();
-    String volume = (exerciseRecord.reps_weight_rpe[index].reps *
-            exerciseRecord.reps_weight_rpe[index].weight)
-        .round()
-        .toString();
-    int hasWeightRecord = exerciseRecord.reps_weight_rpe[index].hasWeightRecord;
-    int hasVolumeRecord = exerciseRecord.reps_weight_rpe[index].hasVolumeRecord;
-    int hasRepsRecord = exerciseRecord.reps_weight_rpe[index].hasRepsRecord;
+    String weight = exerciseRecord.sets[index].weight.toString();
+    String reps = exerciseRecord.sets[index].reps.toString();
+    String rpe = exerciseRecord.sets[index].rpe.toString();
+    String volume =
+        (exerciseRecord.sets[index].reps * exerciseRecord.sets[index].weight)
+            .round()
+            .toString();
+    int hasWeightRecord = exerciseRecord.sets[index].hasWeightRecord;
+    int hasVolumeRecord = exerciseRecord.sets[index].hasVolumeRecord;
+    int hasRepsRecord = exerciseRecord.sets[index].hasRepsRecord;
     double width = MediaQuery.of(context).size.width;
     return TableRow(children: [
       Padding(
@@ -307,7 +307,7 @@ class ExerciseRecordCard extends StatelessWidget {
 
     setRows.add(topRow);
 
-    for (int i = 0; i < exerciseRecord.reps_weight_rpe.length; i++) {
+    for (int i = 0; i < exerciseRecord.sets.length; i++) {
       setRows.add(buildSetRow(i, context));
     }
 
