@@ -76,29 +76,16 @@ class _NewSessionState extends ConsumerState<NewSession>
       repsControllersLists.add([]);
       weightControllersLists.add([]);
       rpeControllersLists.add([]);
-      for (int j = 0; j < widget.workout.exercises[i].sets; j++) {
+      int limit;
+      if (widget.resumedSession != null) {
+        limit = widget.resumedSession!.exerciseRecords[i].sets.length;
+      } else {
+        limit = widget.workout.exercises[i].sets;
+      }
+      for (int j = 0; j < limit; j++) {
         repsControllersLists[i].add(TextEditingController());
         weightControllersLists[i].add(TextEditingController());
         rpeControllersLists[i].add(TextEditingController());
-      }
-    }
-    if (widget.resumedSession != null) {
-      for (int i = 0; i < widget.resumedSession!.exerciseRecords.length; i++) {
-        var exRecord = widget.resumedSession!.exerciseRecords[i];
-        if (repsControllersLists[i].length < exRecord.sets.length) {
-          log('reps controllers length: ' +
-              repsControllersLists[i].length.toString());
-          log('difference: ${-exRecord.sets.length + repsControllersLists.length}');
-          for (int j = 0;
-              j < repsControllersLists.length - exRecord.sets.length;
-              j++) {
-            repsControllersLists[i].add(TextEditingController());
-            weightControllersLists[i].add(TextEditingController());
-            rpeControllersLists[i].add(TextEditingController());
-          }
-          log('reps controllers length after: ' +
-              repsControllersLists[i].length.toString());
-        }
       }
     }
   }
