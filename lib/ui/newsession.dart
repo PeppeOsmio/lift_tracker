@@ -325,12 +325,14 @@ class SetRow extends StatefulWidget {
       {required this.repsController,
       required this.weightController,
       required this.rpeController,
+      required this.exerciseType,
       Key? key})
       : super(key: key);
   final int rowIndex;
   final TextEditingController repsController;
   final TextEditingController weightController;
   final TextEditingController rpeController;
+  final String exerciseType;
 
   @override
   State<SetRow> createState() => _SetRowState();
@@ -398,8 +400,15 @@ class _SetRowState extends State<SetRow> {
                     controller: widget.weightController,
                     keyboardType: TextInputType.number,
                     style: const TextStyle(color: Colors.white, fontSize: 16),
-                    decoration: const InputDecoration(
-                      hintStyle: TextStyle(color: Colors.grey),
+                    readOnly: widget.exerciseType == 'free' ? true : false,
+                    decoration: InputDecoration(
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                        decoration: widget.exerciseType == 'free'
+                            ? TextDecoration.lineThrough
+                            : null,
+                        decorationThickness: 2,
+                      ),
                       hintText: 'Kg',
                       border: InputBorder.none,
                     ),
@@ -473,6 +482,9 @@ class ExerciseRecordItem extends StatefulWidget {
       String name = exerciseData.name;
       if (name.isEmpty) {
         throw Exception('missing_name');
+      }
+      if (exerciseData.type == 'free') {
+        weight = '0';
       }
       if (reps.isEmpty) {
         return null;
@@ -570,10 +582,13 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
     double width = MediaQuery.of(context).size.width;
     List<Widget> temp = [];
     for (int i = 0; i < widget.repsControllers.length; i++) {
-      temp.add(SetRow(i + 1,
-          repsController: widget.repsControllers[i],
-          weightController: widget.weightControllers[i],
-          rpeController: widget.rpeControllers[i]));
+      temp.add(SetRow(
+        i + 1,
+        repsController: widget.repsControllers[i],
+        weightController: widget.weightControllers[i],
+        rpeController: widget.rpeControllers[i],
+        exerciseType: widget.exerciseData.type,
+      ));
     }
     temp.add(buildAddSetButton());
     Column tempColumn = Column(children: temp);
