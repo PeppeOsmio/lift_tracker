@@ -43,7 +43,6 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
     List<ExerciseListItem> exerciseWidgets = [];
     for (int i = 0; i < exerciseDataList.length; i++) {
       exerciseWidgets.add(ExerciseListItem(
-        exerciseData: exerciseDataList[i],
         onDelete: () => onDelete(i),
         onNameFieldPress: () async {
           var result = await Navigator.push(context,
@@ -186,9 +185,9 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
       }
       exercises.add(Exercise(
           id: i,
-          jsonId: int.parse(jsonId),
+          exerciseData:
+              ExerciseData(id: int.parse(jsonId), type: type, name: ''),
           name: name,
-          type: type,
           sets: int.parse(sets),
           reps: int.parse(reps),
           workoutId: 0));

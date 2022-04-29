@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lift_tracker/data/classes/exercise.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'colors.dart';
@@ -8,7 +9,6 @@ import 'colors.dart';
 class ExerciseListItem extends StatefulWidget {
   const ExerciseListItem(
       {required this.onDelete,
-      this.exerciseData,
       this.onMoveUp,
       this.onMoveDown,
       required this.onNameFieldPress,
@@ -23,7 +23,6 @@ class ExerciseListItem extends StatefulWidget {
   String get sets => setsController.text;
   final TextEditingController repsController;
   String get reps => repsController.text;
-  final ExerciseData? exerciseData;
   final Function onDelete;
   final Function? onMoveUp;
   final Function? onMoveDown;

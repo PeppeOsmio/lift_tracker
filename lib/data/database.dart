@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 import 'dart:developer' as dev;
+import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/classes/exerciseset.dart';
 import 'package:lift_tracker/data/classes/workouthistory.dart';
 import 'package:lift_tracker/data/helper.dart';
@@ -51,6 +52,7 @@ class CustomDatabase {
       type VARCHAR(20) NOT NULL,
       sets INTEGER NOT NULL,
       reps INTEGER NOT NULL,
+      order_number INTEGER NOT NULL,
       notes VARCHAR(300),
       best_weight DOUBLE(5,2),
       best_volume INTEGER,
@@ -114,21 +116,47 @@ class CustomDatabase {
   Future editWorkout(Workout workout) async {
     final db = await instance.database;
     await db.transaction((txn) async {
+      List<int> idsToSpare = [];
       await txn.update('workout', {'name': workout.name},
           where: 'id=?', whereArgs: [workout.id]);
-      await txn.delete('exercise',
-          where: 'fk_workout_id=?', whereArgs: [workout.id]);
+      var currentExercisesQuery = await txn.query('exercise',
+          columns: ['id', 'json_id'],
+          where: 'fk_workout_id=?',
+          whereArgs: [workout.id]);
       for (int i = 0; i < workout.exercises.length; i++) {
         Exercise exercise = workout.exercises[i];
-        int reps = exercise.reps;
-        int sets = exercise.sets;
-        await txn.insert('exercise', {
-          'json_id': exercise.jsonId,
-          'reps': reps,
-          'sets': sets,
-          'fk_workout_id': workout.id,
-          'type': exercise.type
-        });
+        if (currentExercisesQuery.any((element) =>
+            element['id'] as int == exercise.id &&
+            element['json_id'] == exercise.exerciseData.id)) {
+          await txn.update(
+              'exercise',
+              {
+                'reps': exercise.reps,
+                'sets': exercise.sets,
+                'notes': exercise.notes,
+                'order_number': i
+              },
+              where: 'id=?',
+              whereArgs: [exercise.id]);
+          idsToSpare.add(exercise.id);
+        } else {
+          int id = await txn.insert('exercise', {
+            'json_id': exercise.exerciseData.id,
+            'reps': exercise.reps,
+            'sets': exercise.sets,
+            'fk_workout_id': workout.id,
+            'type': exercise.exerciseData.type,
+            'notes': exercise.notes,
+            'order_number': i
+          });
+          idsToSpare.add(id);
+        }
+      }
+      for (var e in currentExercisesQuery) {
+        if (!idsToSpare.any((element) => element == e['id'] as int)) {
+          await txn
+              .delete('exercise', where: 'id=?', whereArgs: [e['id'] as int]);
+        }
       }
     });
   }
@@ -576,7 +604,7 @@ class CustomDatabase {
             var sets = workoutRecord.exerciseRecords[i].sets;
             var previousRecords =
                 await getBestWeightVolumeReps(exercise.id, txn);
-            if (exercise.type == 'free') {
+            if (exercise.exerciseData.type == 'free') {
               int recordIndex = 0;
               int currentMaxReps = sets[0].reps;
               for (int j = 0; j < sets.length - 1; j++) {
@@ -595,7 +623,7 @@ class CustomDatabase {
                 sets[recordIndex].hasRepsRecord = 1;
                 await setBestWeightVolumeReps(
                     exercise.id,
-                    exercise.jsonId,
+                    exercise.exerciseData.id,
                     {
                       'best_weight': null,
                       'best_volume': null,
@@ -650,7 +678,7 @@ class CustomDatabase {
               if (didSetWeightRecord) {
                 await setBestWeightVolumeReps(
                     exercise.id,
-                    exercise.jsonId,
+                    exercise.id,
                     {
                       'best_weight': maxWeight,
                       'best_volume': maxVolume,
@@ -746,28 +774,29 @@ class CustomDatabase {
           ],
           where: 'fk_workout_id=?',
           whereArgs: [id],
-          orderBy: 'id');
+          orderBy: 'order_number');
       for (int j = 0; j < queryExercise.length; j++) {
         int exid = queryExercise[j]['id'] as int;
         int sets = queryExercise[j]['sets'] as int;
         int reps = queryExercise[j]['reps'] as int;
         int workoutId = queryExercise[j]['fk_workout_id'] as int;
         int jsonId = queryExercise[j]['json_id'] as int;
-        var exerciseData = await Helper.getExerciseData();
-        String exname =
-            exerciseData.where((element) => element.id == jsonId).first.name;
-        String type = queryExercise[j]['type'] as String;
+        var exerciseDataList = Helper.exerciseDataGlobal;
+        String exname = exerciseDataList
+            .where((element) => element.id == jsonId)
+            .first
+            .name;
         double? bestWeight = queryExercise[j]['best_weight'] as double?;
         int? bestVolume = queryExercise[j]['best_volume'] as int?;
         int? bestReps = queryExercise[j]['best_reps'] as int?;
-
+        ExerciseData exerciseData =
+            exerciseDataList.where((element) => element.id == jsonId).first;
         exerciseList.add(Exercise(
             id: exid,
-            jsonId: jsonId,
+            exerciseData: exerciseData,
             name: exname,
             sets: sets,
             reps: reps,
-            type: type,
             bestReps: bestReps,
             bestWeight: bestWeight,
             bestVolume: bestVolume,
@@ -785,11 +814,12 @@ class CustomDatabase {
       for (int i = 0; i < exercises.length; i++) {
         var exercise = exercises[i];
         await txn.insert('exercise', {
-          'json_id': exercise.jsonId,
+          'json_id': exercise.exerciseData.id,
           'sets': exercise.sets,
           'reps': exercise.reps,
+          'order_number': i,
           'fk_workout_id': id,
-          'type': exercise.type
+          'type': exercise.exerciseData.type
         });
       }
     });

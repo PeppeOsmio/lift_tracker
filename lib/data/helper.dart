@@ -88,6 +88,7 @@ class Helper {
   });
 
   static Future<List<ExerciseData>> getExerciseData() async {
+    log('before rootBundle');
     String exerciseDataJson =
         await rootBundle.loadString('assets/exercise_data.json');
     var mapData = jsonDecode(exerciseDataJson);
@@ -107,6 +108,7 @@ class Helper {
           thirdMuscle: thirdMuscle,
           type: type));
     }
+    log('after rootBundle');
     return exerciseDataList;
   }
 

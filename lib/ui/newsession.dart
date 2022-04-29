@@ -53,22 +53,23 @@ class _NewSessionState extends ConsumerState<NewSession>
       for (int i = 0; i < widget.workout.exercises.length; i++) {
         tempList.add(false);
         Exercise exercise = widget.workout.exercises[i];
-        exerciseDataList.add(ExerciseData(
-            id: exercise.id, name: exercise.name, type: exercise.type));
+        exerciseDataList.add(exercise.exerciseData);
       }
     } else {
       for (int i = 0; i < widget.resumedSession!.exerciseRecords.length; i++) {
         tempList.add(false);
         Exercise exercise = Exercise(
-            workoutId: widget.workout.id,
-            jsonId: widget.resumedSession!.exerciseRecords[i].exerciseId,
-            id: widget.resumedSession!.exerciseRecords[i].exerciseId,
-            name: widget.resumedSession!.exerciseRecords[i].exerciseName,
-            sets: widget.resumedSession!.exerciseRecords[i].sets.length,
-            reps: widget.workout.exercises[i].reps,
-            type: widget.resumedSession!.exerciseRecords[i].type);
-        exerciseDataList.add(ExerciseData(
-            id: exercise.id, name: exercise.name, type: exercise.type));
+          workoutId: widget.workout.id,
+          exerciseData: ExerciseData(
+              id: i,
+              type: widget.resumedSession!.exerciseRecords[i].type,
+              name: ''),
+          id: widget.resumedSession!.exerciseRecords[i].exerciseId,
+          name: widget.resumedSession!.exerciseRecords[i].exerciseName,
+          sets: widget.resumedSession!.exerciseRecords[i].sets.length,
+          reps: widget.workout.exercises[i].reps,
+        );
+        exerciseDataList.add(exercise.exerciseData);
       }
     }
     originalExerciseDataList = exerciseDataList;

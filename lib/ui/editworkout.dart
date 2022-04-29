@@ -1,10 +1,5 @@
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/data/classes/exercise.dart';
@@ -23,8 +18,7 @@ class EditWorkout extends ConsumerStatefulWidget {
 }
 
 class _EditWorkoutState extends ConsumerState<EditWorkout> {
-  List<ExerciseData?> exerciseDataList = [];
-  List<Exercise> data = [];
+  List<Exercise?> exerciseList = [];
   TextEditingController workoutNameController = TextEditingController();
   List<Exercise> initialExercises = [];
   List<TextEditingController> repsControllers = [];
@@ -38,8 +32,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
     initialExercises.addAll(widget.workout.exercises);
     for (int i = 0; i < initialExercises.length; i++) {
       var exercise = initialExercises[i];
-      exerciseDataList.add(ExerciseData(
-          id: exercise.jsonId, name: exercise.name, type: exercise.type));
+      exerciseList.add(exercise);
       repsControllers.add(TextEditingController());
       setsControllers.add(TextEditingController());
       nameControllers.add(TextEditingController());
@@ -55,9 +48,8 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
   @override
   Widget build(BuildContext context) {
     List<ExerciseListItem> exerciseWidgets = [];
-    for (int i = 0; i < exerciseDataList.length; i++) {
+    for (int i = 0; i < exerciseList.length; i++) {
       exerciseWidgets.add(ExerciseListItem(
-        exerciseData: exerciseDataList[i],
         onDelete: () => onDelete(i),
         onNameFieldPress: () async {
           var result = await Navigator.push(context,
@@ -65,7 +57,13 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
             return SelectExercise();
           }));
           if (result != null) {
-            exerciseDataList[i] = result;
+            exerciseList[i] = Exercise(
+                exerciseData: result,
+                id: 0,
+                name: result.name,
+                workoutId: widget.workout.id,
+                sets: -1,
+                reps: -1);
             nameControllers[i].text =
                 Helper.loadTranslation(context, result.name);
             setState(() {});
@@ -175,16 +173,16 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
     }
 
     List<Exercise> exercises = [];
-    for (int i = 0; i < exerciseDataList.length; i++) {
+    for (int i = 0; i < exerciseList.length; i++) {
       String sets = setsControllers[i].text;
       String reps = repsControllers[i].text;
       String name = '';
       String type = '';
       String jsonId = '';
-      if (exerciseDataList[i] != null) {
-        name = exerciseDataList[i]!.name;
-        type = exerciseDataList[i]!.type;
-        jsonId = exerciseDataList[i]!.id.toString();
+      if (exerciseList[i] != null) {
+        name = exerciseList[i]!.name;
+        type = exerciseList[i]!.exerciseData.type;
+        jsonId = exerciseList[i]!.exerciseData.id.toString();
       }
       /*
       log('name: ' + name);
@@ -201,14 +199,10 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
         return;
       }
 
-      exercises.add(Exercise(
-          id: i,
-          jsonId: int.parse(jsonId),
-          name: name,
-          type: type,
-          sets: int.parse(sets),
-          reps: int.parse(reps),
-          workoutId: widget.workout.id));
+      exerciseList[i]!.reps = int.parse(reps);
+      exerciseList[i]!.sets = int.parse(sets);
+
+      exercises.add(exerciseList[i]!);
     }
     await CustomDatabase.instance.editWorkout(
         Workout(widget.workout.id, workoutNameController.text, exercises));
@@ -217,8 +211,8 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
   }
 
   void onDelete(index) {
-    if (exerciseDataList.length > 1) {
-      exerciseDataList.removeAt(index);
+    if (exerciseList.length > 1) {
+      exerciseList.removeAt(index);
       repsControllers.removeAt(index);
       setsControllers.removeAt(index);
       nameControllers.removeAt(index);
@@ -227,12 +221,12 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
   }
 
   void onMoveDown(index) {
-    if (exerciseDataList[index] == exerciseDataList.last) {
+    if (exerciseList[index] == exerciseList.last) {
       return;
     }
-    var temp = exerciseDataList[index];
-    exerciseDataList[index] = exerciseDataList[index + 1];
-    exerciseDataList[index + 1] = temp;
+    var temp = exerciseList[index];
+    exerciseList[index] = exerciseList[index + 1];
+    exerciseList[index + 1] = temp;
     var temp1 = repsControllers[index];
     repsControllers[index] = repsControllers[index + 1];
     repsControllers[index + 1] = temp1;
@@ -246,12 +240,12 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
   }
 
   void onMoveUp(index) {
-    if (exerciseDataList[index] == exerciseDataList.first) {
+    if (exerciseList[index] == exerciseList.first) {
       return;
     }
-    var temp = exerciseDataList[index];
-    exerciseDataList[index] = exerciseDataList[index - 1];
-    exerciseDataList[index - 1] = temp;
+    var temp = exerciseList[index];
+    exerciseList[index] = exerciseList[index - 1];
+    exerciseList[index - 1] = temp;
     var temp1 = repsControllers[index];
     repsControllers[index] = repsControllers[index - 1];
     repsControllers[index - 1] = temp1;
@@ -275,7 +269,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
                 if (repsControllers.last.text != '' &&
                     setsControllers.last.text != '' &&
                     nameControllers.last.text != '') {
-                  exerciseDataList.add(null);
+                  exerciseList.add(null);
                   repsControllers.add(TextEditingController());
                   setsControllers.add(TextEditingController());
                   nameControllers.add(TextEditingController());

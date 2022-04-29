@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/localizations.dart';
 import 'package:lift_tracker/ui/app/app.dart';
 
-void main() {
+import 'ui/loading.dart';
+
+void main() async {
   runApp(ProviderScope(
       child: MaterialApp(
-    home: App(),
+    home: Loading(),
     supportedLocales: const [
       Locale('en', ''),
       Locale('it', ''),
