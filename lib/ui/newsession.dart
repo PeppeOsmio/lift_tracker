@@ -528,10 +528,11 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
   ExerciseRecord? startingRecord;
 
   Widget buildAddSetButton() {
-    return Center(
-        child: IntrinsicWidth(
+    return IntrinsicWidth(
       child: ElevatedButton(
         style: ButtonStyle(
+          padding: MaterialStateProperty.resolveWith(
+              (states) => EdgeInsets.only(left: 8, right: 14)),
           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
               RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
@@ -563,7 +564,7 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
           ],
         ),
       ),
-    ));
+    );
   }
 
   Widget buildExercise() {
@@ -578,7 +579,12 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
         exerciseType: widget.exerciseData.type,
       ));
     }
-    temp.add(buildAddSetButton());
+    temp.add(Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        buildAddSetButton(),
+      ],
+    ));
     Column tempColumn = Column(children: temp);
     return SizedBox(
       width: width,
