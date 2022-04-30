@@ -124,7 +124,8 @@ class _ExerciseChartState extends State<ExerciseChart> {
                               ],
                             )
                           : Text(
-                              'This exercise has not been performed yet in this workout',
+                              Helper.loadTranslation(
+                                  context, 'exerciseNotPerformed'),
                               style:
                                   TextStyle(color: Colors.white, fontSize: 16),
                             ),
