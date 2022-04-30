@@ -5,7 +5,7 @@ import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/data/classes/exercise.dart';
 import 'package:lift_tracker/data/classes/workout.dart';
 import 'package:lift_tracker/ui/colors.dart';
-import 'package:lift_tracker/ui/exerciselistitem.dart';
+import 'package:lift_tracker/ui/workouts/exerciselistitem.dart';
 import 'package:lift_tracker/ui/selectexercise.dart';
 import 'package:lift_tracker/ui/widgets.dart';
 

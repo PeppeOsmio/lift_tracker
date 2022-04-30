@@ -9,4 +9,18 @@ class ExerciseRecord {
   final int exerciseId;
   final String type;
   final bool temp;
+
+  double volume() {
+    double volume = 0;
+    if (type != 'free') {
+      for (var set in sets) {
+        volume += set.volume();
+      }
+      return volume;
+    }
+    for (var set in sets) {
+      volume += set.reps * 70;
+    }
+    return volume;
+  }
 }

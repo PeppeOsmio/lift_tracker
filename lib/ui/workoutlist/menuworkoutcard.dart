@@ -1,11 +1,10 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lift_tracker/data/classes/workouthistory.dart';
+import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/ui/workoutlist/workoutcard.dart';
-
+import 'package:lift_tracker/ui/workouthistory/workouthistorypage.dart';
 import '../../data/helper.dart';
-import '../editworkout.dart';
+import '../workouts/editworkout.dart';
 import '../newsession.dart';
 import '../widgets.dart';
 
@@ -141,6 +140,26 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                                 backgroundColor: Colors.red.withAlpha(25),
                                 width: 70,
                               ),
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(bottom: 8, right: 8),
+                              child: CardMenuButton(
+                                  onPressed: () async {
+                                    var history = await CustomDatabase.instance
+                                        .getWorkoutHistory(
+                                            widget.workoutCard.workout);
+                                    Navigator.pushReplacement(context,
+                                        MaterialPageRoute(builder: (context) {
+                                      return WorkoutHistoryPage(
+                                          workoutHistory: history);
+                                    }));
+                                  },
+                                  text: Helper.loadTranslation(
+                                      context, 'history'),
+                                  borderColor: Colors.lightBlue,
+                                  backgroundColor:
+                                      Colors.lightBlue.withAlpha(25)),
                             ),
                             Padding(
                               padding:

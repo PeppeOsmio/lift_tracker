@@ -506,10 +506,11 @@ class CustomDatabase {
         var queryExerciseRecord = await txn.query('exercise_record',
             columns: ['id', 'fk_exercise_id', 'exercise_name', 'type'],
             where: 'fk_workout_record_id=?',
-            whereArgs: [workoutRecordId]);
+            whereArgs: [workoutRecordId],
+            limit: 15);
         List<ExerciseRecord> exerciseRecords = [];
         for (int j = 0; j < queryExerciseRecord.length; j++) {
-          int exerciseRecordId = queryExerciseRecord[i]['id'] as int;
+          int exerciseRecordId = queryExerciseRecord[j]['id'] as int;
           var queryExerciseSet = await txn.query('exercise_set',
               columns: [
                 'weight',

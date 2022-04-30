@@ -1,18 +1,15 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/data/classes/exercise.dart';
 import 'package:lift_tracker/ui/colors.dart';
-import 'package:lift_tracker/ui/exerciselistitem.dart';
+import 'package:lift_tracker/ui/workouts/exerciselistitem.dart';
 import 'package:lift_tracker/ui/selectexercise.dart';
 import 'package:lift_tracker/ui/widgets.dart';
 
-import '../data/helper.dart';
+import '../../data/helper.dart';
 
 class NewWorkout extends ConsumerStatefulWidget {
   const NewWorkout({Key? key}) : super(key: key);

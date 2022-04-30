@@ -13,4 +13,8 @@ class ExerciseSet {
   int hasVolumeRecord;
   int hasWeightRecord;
   int hasRepsRecord;
+
+  double volume() {
+    return reps * weight;
+  }
 }

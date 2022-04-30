@@ -10,4 +10,12 @@ class WorkoutRecord {
   final String workoutName;
   final int workoutId;
   final List<ExerciseRecord> exerciseRecords;
+
+  double totalVolume() {
+    double volume = 0;
+    for (var exerciseRecord in exerciseRecords) {
+      volume += exerciseRecord.volume();
+    }
+    return volume;
+  }
 }

@@ -6,7 +6,7 @@ import 'package:lift_tracker/data/classes/workouthistory.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/data/classes/workout.dart';
-import 'package:lift_tracker/ui/newworkout.dart';
+import 'package:lift_tracker/ui/workouts/newworkout.dart';
 import 'package:lift_tracker/ui/widgets.dart';
 import 'package:lift_tracker/ui/workoutlist/workoutcard.dart';
 import 'package:lift_tracker/ui/workoutlist/menuworkoutcard.dart';
