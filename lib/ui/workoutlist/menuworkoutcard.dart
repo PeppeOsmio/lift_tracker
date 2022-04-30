@@ -15,6 +15,7 @@ class MenuWorkoutCard extends StatefulWidget {
       required this.workoutCard,
       required this.deleteOnPressed,
       required this.cancelOnPressed,
+      required this.hasHistory,
       Key? key})
       : super(key: key);
   final WorkoutCard workoutCard;
@@ -22,6 +23,7 @@ class MenuWorkoutCard extends StatefulWidget {
   final void Function() cancelOnPressed;
   final Duration positionedAnimationDuration;
   final GlobalKey workoutCardKey;
+  final bool hasHistory;
 
   @override
   _MenuWorkoutCardState createState() => _MenuWorkoutCardState();
@@ -141,26 +143,30 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                                 width: 70,
                               ),
                             ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(bottom: 8, right: 8),
-                              child: CardMenuButton(
-                                  onPressed: () async {
-                                    var history = await CustomDatabase.instance
-                                        .getWorkoutHistory(
-                                            widget.workoutCard.workout);
-                                    Navigator.pushReplacement(context,
-                                        MaterialPageRoute(builder: (context) {
-                                      return WorkoutHistoryPage(
-                                          workoutHistory: history);
-                                    }));
-                                  },
-                                  text: Helper.loadTranslation(
-                                      context, 'history'),
-                                  borderColor: Colors.lightBlue,
-                                  backgroundColor:
-                                      Colors.lightBlue.withAlpha(25)),
-                            ),
+                            widget.hasHistory
+                                ? Padding(
+                                    padding: const EdgeInsets.only(
+                                        bottom: 8, right: 8),
+                                    child: CardMenuButton(
+                                        onPressed: () async {
+                                          var history = await CustomDatabase
+                                              .instance
+                                              .getWorkoutHistory(
+                                                  widget.workoutCard.workout);
+                                          Navigator.pushReplacement(context,
+                                              MaterialPageRoute(
+                                                  builder: (context) {
+                                            return WorkoutHistoryPage(
+                                                workoutHistory: history);
+                                          }));
+                                        },
+                                        text: Helper.loadTranslation(
+                                            context, 'history'),
+                                        borderColor: Colors.lightBlue,
+                                        backgroundColor:
+                                            Colors.lightBlue.withAlpha(25)),
+                                  )
+                                : SizedBox(),
                             Padding(
                               padding:
                                   const EdgeInsets.only(bottom: 8, right: 8),

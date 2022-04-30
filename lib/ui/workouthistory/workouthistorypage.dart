@@ -24,6 +24,7 @@ class _WorkoutHistoryState extends State<WorkoutHistoryPage> {
   List<double> volumes = [];
   List<FlSpot> spots = [];
   late double ySpacing;
+  late String totalVolume;
 
   @override
   void initState() {
@@ -47,6 +48,12 @@ class _WorkoutHistoryState extends State<WorkoutHistoryPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (volumes.length > 1) {
+      totalVolume = Helper.loadTranslation(context, 'totalVolumeOf');
+      totalVolume = totalVolume.replaceFirst('#n', volumes.length.toString());
+    } else {
+      totalVolume = Helper.loadTranslation(context, 'totalVolumeOne');
+    }
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: true,
@@ -65,7 +72,7 @@ class _WorkoutHistoryState extends State<WorkoutHistoryPage> {
             padding: const EdgeInsets.only(top: 24),
             child: Center(
                 child: Text(
-              'Total volume of last 15 sessions',
+              totalVolume,
               style: TextStyle(color: Colors.white, fontSize: 18),
             )),
           ),

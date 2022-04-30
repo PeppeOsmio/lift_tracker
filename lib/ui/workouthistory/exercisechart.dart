@@ -23,6 +23,7 @@ class _ExerciseChartState extends State<ExerciseChart> {
   List<double> volumes = [];
   List<ExerciseRecord> exerciseRecords = [];
   List<DateTime> dates = [];
+  late String totalVolume;
 
   @override
   void initState() {
@@ -39,6 +40,14 @@ class _ExerciseChartState extends State<ExerciseChart> {
         dates.add(widget.workoutHistory.workoutRecords[i].day);
       } catch (e) {}
     }
+    Future.delayed(Duration.zero, () {
+      if (volumes.length > 1) {
+        totalVolume = Helper.loadTranslation(context, 'totalVolumeExercise');
+        totalVolume = totalVolume.replaceFirst('#n', volumes.length.toString());
+      } else {
+        totalVolume = Helper.loadTranslation(context, 'totalVolumeExerciseOne');
+      }
+    });
   }
 
   @override
@@ -73,59 +82,57 @@ class _ExerciseChartState extends State<ExerciseChart> {
             ),
           ],
         ),
-        IntrinsicHeight(
-          child: AnimatedSize(
-              duration: const Duration(milliseconds: 100),
-              child: isOpen
-                  ? Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: SizedBox(
-                        height: 150,
-                        child: volumes.isNotEmpty
-                            ? Column(
-                                children: [
-                                  Text(
-                                    'Total volume of last 15 sessions',
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 18),
-                                  ),
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(top: 16),
-                                      child: Chart(
-                                        color: Colors.green,
-                                        values: volumes,
-                                        getTooltips: (lineBarSpotList) {
-                                          List<LineTooltipItem> list = [];
-                                          for (var item in lineBarSpotList) {
-                                            var date = Helper.dateToString(
-                                                dates[(item.x).toInt()]);
-                                            String dateString =
-                                                '${Helper.loadTranslation(context, date['month']!)} ${date['day']}, ${date['year']}';
-                                            list.add(LineTooltipItem(
-                                                dateString +
-                                                    '\n${item.y.toStringAsFixed(0)} kg',
-                                                TextStyle(
-                                                    color: Colors.white)));
-                                          }
-                                          return list;
-                                        },
-                                      ),
+        AnimatedSize(
+            curve: Curves.decelerate,
+            duration: const Duration(milliseconds: 150),
+            child: isOpen
+                ? Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: SizedBox(
+                      height: 150,
+                      child: volumes.isNotEmpty
+                          ? Column(
+                              children: [
+                                Text(
+                                  totalVolume,
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 18),
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(top: 16),
+                                    child: Chart(
+                                      color: Colors.green,
+                                      values: volumes,
+                                      getTooltips: (lineBarSpotList) {
+                                        List<LineTooltipItem> list = [];
+                                        for (var item in lineBarSpotList) {
+                                          var date = Helper.dateToString(
+                                              dates[(item.x).toInt()]);
+                                          String dateString =
+                                              '${Helper.loadTranslation(context, date['month']!)} ${date['day']}, ${date['year']}';
+                                          list.add(LineTooltipItem(
+                                              dateString +
+                                                  '\n${item.y.toStringAsFixed(0)} kg',
+                                              TextStyle(color: Colors.white)));
+                                        }
+                                        return list;
+                                      },
                                     ),
                                   ),
-                                ],
-                              )
-                            : Text(
-                                'This exercise has not been performed yet in this workout',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 16),
-                              ),
-                      ),
-                    )
-                  : SizedBox(
-                      height: 0,
-                    )),
-        )
+                                ),
+                              ],
+                            )
+                          : Text(
+                              'This exercise has not been performed yet in this workout',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 16),
+                            ),
+                    ),
+                  )
+                : SizedBox(
+                    height: 0,
+                  ))
       ],
     );
   }

@@ -111,5 +111,9 @@
     "cancelSession": "Annullare questa sessione?",
     "cancelSessionBody": "Alcune serie sono vuote. Premi sì per annullare questa sessione",
     "fillAllFields": "Riempi tutti i campi",
-    "sessionCanceled": "Sessione annullata"
+    "sessionCanceled": "Sessione annullata",
+    "totalVolumeOf": "Volume totale delle ultime #n sessioni",
+    "totalVolumeOne": "Volume totale dell'ultima sessione",
+    "totalVolumeExercise": "Volume nelle ultime #n sessioni",
+    "totalVolumeExerciseOne": "Volume nell'ultima sessione"
 }

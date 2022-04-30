@@ -23,7 +23,7 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
   bool isButtonPressed = false;
   List<Size> cardSized = [];
   List<GlobalKey> cardKeys = [];
-
+  List<bool> hasHistory = [];
   @override
   void initState() {
     super.initState();
@@ -73,6 +73,7 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
                 if (ss.hasData) {
                   List<Workout> workouts = [];
                   workouts.addAll(ss.data! as List<Workout>);
+
                   if (workouts.isNotEmpty) {
                     return Body(workouts: workouts);
                   } else {
@@ -154,13 +155,15 @@ class _BodyState extends ConsumerState<Body> {
       columnContent.add(Padding(
           padding: const EdgeInsets.all(16.0),
           child: WorkoutCard(workouts[i], (startAsClosed) async {
+            bool hasHistory =
+                await CustomDatabase.instance.hasHistory(workouts[i].id);
             WorkoutCard workoutCard = WorkoutCard(
               workouts[i],
               (startAsClosed) async {},
               true,
             );
-            await Navigator.push(
-                context, blurredMenuBuilder(workoutCard, cardKeys[i]));
+            await Navigator.push(context,
+                blurredMenuBuilder(workoutCard, cardKeys[i], hasHistory));
           }, false, key: cardKeys[i])));
     }
     return Expanded(
@@ -170,11 +173,13 @@ class _BodyState extends ConsumerState<Body> {
     )));
   }
 
-  PageRouteBuilder blurredMenuBuilder(WorkoutCard workoutCard, GlobalKey key) {
+  PageRouteBuilder blurredMenuBuilder(
+      WorkoutCard workoutCard, GlobalKey key, bool hasHistory) {
     return PageRouteBuilder(
         opaque: false,
         pageBuilder: (context, a1, a2) {
           return MenuWorkoutCard(
+              hasHistory: hasHistory,
               positionedAnimationDuration: const Duration(milliseconds: 150),
               workoutCardKey: key,
               workoutCard: workoutCard,

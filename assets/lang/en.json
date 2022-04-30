@@ -110,5 +110,9 @@
     "cancelSession": "Cancel this session?",
     "cancelSessionBody": "Some sets are empty. Press Yes to cancel this session",
     "fillAllFields": "Fill all fields",
-    "sessionCanceled": "Session canceled"
+    "sessionCanceled": "Session canceled",
+    "totalVolumeOf": "Total volume of the last #n sessions",
+    "totalVolumeOne": "Total volume of the last session",
+    "totalVolumeExercise": "Volume in the last #n sessions",
+    "totalVolumeExerciseOne": "Volume in the last session"
 }

@@ -58,30 +58,13 @@ class Chart extends StatelessWidget {
       titlesData: FlTitlesData(
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
-                showTitles: false,
-                getTitlesWidget: (value, meta) {
-                  String text = '';
-                  return Text(
-                    text,
-                    style: TextStyle(color: Colors.white),
-                  );
-                }),
+              showTitles: false,
+            ),
           ),
           leftTitles: AxisTitles(
             sideTitles: SideTitles(
-                showTitles: false,
-                getTitlesWidget: (value, meta) {
-                  String text;
-                  if (value % 10 == 0) {
-                    text = value.toStringAsFixed(0) + ' kg';
-                  } else {
-                    text = '';
-                  }
-                  return Text(
-                    '',
-                    style: TextStyle(color: Colors.white),
-                  );
-                }),
+              showTitles: false,
+            ),
           ),
           topTitles: AxisTitles(
             sideTitles: SideTitles(showTitles: false),

@@ -492,6 +492,13 @@ class CustomDatabase {
         where: 'id=?', whereArgs: [exerciseId]);
   }
 
+  Future<bool> hasHistory(int workoutId) async {
+    final db = await instance.database;
+    var query = await db.query('workout_record',
+        where: 'fk_workout_id=?', whereArgs: [workoutId], limit: 1);
+    return query.isNotEmpty;
+  }
+
   Future<WorkoutHistory> getWorkoutHistory(Workout workout) async {
     final db = await instance.database;
     List<WorkoutRecord> workoutRecords = [];
