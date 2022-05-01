@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lift_tracker/data/classes/exercise.dart';
 import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/classes/workout.dart';
@@ -113,7 +114,6 @@ class Helper {
   }
 
   static List<int> pageStack = [];
-  static bool firstAppRun = false;
   static List<ExerciseData> exerciseDataGlobal = [];
 
   static void unfocusTextFields(BuildContext context) {
@@ -125,6 +125,110 @@ class Helper {
 
   static String loadTranslation(BuildContext context, String key) {
     return Localization.of(context).getString(key);
+  }
+
+  static Future addDebugWorkouts() async {
+    List<Exercise> pushExercises = [];
+    pushExercises.add(Exercise(
+        workoutId: 1,
+        id: 1,
+        sets: 4,
+        reps: 10,
+        exerciseData:
+            ExerciseData(id: 4, name: 'chestPressIncline', type: 'machine')));
+    pushExercises.add(Exercise(
+        workoutId: 1,
+        id: 1,
+        sets: 4,
+        reps: 10,
+        exerciseData:
+            ExerciseData(id: 38, name: 'cableCrossover', type: 'machine')));
+    pushExercises.add(Exercise(
+        workoutId: 1,
+        id: 1,
+        sets: 3,
+        reps: 10,
+        exerciseData: ExerciseData(id: 40, name: 'legPress', type: 'machine')));
+    pushExercises.add(Exercise(
+        workoutId: 1,
+        id: 1,
+        sets: 3,
+        reps: 10,
+        exerciseData:
+            ExerciseData(id: 28, name: 'legExtensions', type: 'machine')));
+    pushExercises.add(Exercise(
+        workoutId: 1,
+        id: 1,
+        sets: 3,
+        reps: 10,
+        exerciseData:
+            ExerciseData(id: 39, name: 'shoulderPress', type: 'machine')));
+    pushExercises.add(Exercise(
+        workoutId: 1,
+        id: 1,
+        sets: 4,
+        reps: 10,
+        exerciseData: ExerciseData(
+            id: 30, name: 'lateralRaisesDumbbell', type: 'dumbbell')));
+    pushExercises.add(Exercise(
+        workoutId: 1,
+        id: 1,
+        sets: 4,
+        reps: 10,
+        exerciseData:
+            ExerciseData(id: 18, name: 'pushdownRope', type: 'machine')));
+    pushExercises.add(Exercise(
+        workoutId: 1,
+        id: 1,
+        sets: 4,
+        reps: 10,
+        exerciseData:
+            ExerciseData(id: 19, name: 'pushdownBar', type: 'machine')));
+    await CustomDatabase.instance.createWorkout('Push', pushExercises);
+    List<Exercise> pullExercises = [];
+    pullExercises.add(Exercise(
+        workoutId: 1,
+        id: 1,
+        sets: 4,
+        reps: 10,
+        exerciseData:
+            ExerciseData(id: 36, name: 'latPulldown', type: 'machine')));
+    pullExercises.add(Exercise(
+        workoutId: 1,
+        id: 1,
+        sets: 4,
+        reps: 10,
+        exerciseData:
+            ExerciseData(id: 10, name: 'lowPulley', type: 'machine')));
+    pullExercises.add(Exercise(
+        workoutId: 1,
+        id: 1,
+        sets: 4,
+        reps: 10,
+        exerciseData: ExerciseData(
+            id: 27, name: 'stiffLegsDeadliftDumbbell', type: 'dumbbell')));
+    pullExercises.add(Exercise(
+        workoutId: 1,
+        id: 1,
+        sets: 5,
+        reps: 10,
+        exerciseData:
+            ExerciseData(id: 32, name: 'rearRaises', type: 'dumbbell')));
+    pullExercises.add(Exercise(
+        workoutId: 1,
+        id: 1,
+        sets: 4,
+        reps: 10,
+        exerciseData:
+            ExerciseData(id: 15, name: 'dumbbellCurl', type: 'dumbbell')));
+    pullExercises.add(Exercise(
+        workoutId: 1,
+        id: 1,
+        sets: 4,
+        reps: 10,
+        exerciseData:
+            ExerciseData(id: 17, name: 'hammerCurl', type: 'dumbbell')));
+    await CustomDatabase.instance.createWorkout('Pull', pullExercises);
   }
 
   static Map<String, String> dateToString(DateTime date) {

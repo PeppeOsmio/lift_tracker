@@ -6,7 +6,7 @@ import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/ui/app/menu.dart';
 import 'package:lift_tracker/ui/history/history.dart';
-import 'package:lift_tracker/ui/colors.dart';
+import 'package:lift_tracker/ui/styles.dart';
 import 'package:lift_tracker/ui/newsession.dart';
 import 'package:lift_tracker/ui/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';

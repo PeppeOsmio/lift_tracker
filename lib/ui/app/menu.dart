@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lift_tracker/data/helper.dart';
-import 'package:lift_tracker/ui/colors.dart';
+import 'package:lift_tracker/ui/styles.dart';
 import 'package:lift_tracker/ui/widgets.dart';
 
 class BlurredProfileMenu extends StatefulWidget {

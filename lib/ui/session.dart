@@ -3,7 +3,7 @@ import 'package:fluttericon/font_awesome5_icons.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/classes/exerciserecord.dart';
 import 'package:lift_tracker/data/classes/workoutrecord.dart';
-import 'package:lift_tracker/ui/colors.dart';
+import 'package:lift_tracker/ui/styles.dart';
 import 'package:lift_tracker/ui/widgets.dart';
 import 'package:lift_tracker/localizations.dart';
 

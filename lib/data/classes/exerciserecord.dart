@@ -10,8 +10,8 @@ class ExerciseRecord {
   final String type;
   final bool temp;
 
-  double volume() {
-    double volume = 0;
+  int volume() {
+    int volume = 0;
     if (type != 'free') {
       for (var set in sets) {
         volume += set.volume();

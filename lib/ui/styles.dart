@@ -6,3 +6,17 @@ class Palette {
   static Color elementsDark = const Color.fromARGB(255, 31, 31, 31);
   static Color lightGreyBlue = const Color.fromARGB(255, 57, 86, 101);
 }
+
+class Styles {
+  static TextStyle style(
+      {bool dark = true,
+      double? fontSize,
+      FontWeight? fontWeight,
+      FontStyle? fontStyle}) {
+    return TextStyle(
+        color: dark ? Colors.white : Colors.black,
+        fontSize: fontSize ?? 18,
+        fontWeight: fontWeight,
+        fontStyle: fontStyle);
+  }
+}

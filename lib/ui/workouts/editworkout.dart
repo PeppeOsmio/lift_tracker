@@ -4,7 +4,7 @@ import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/data/classes/exercise.dart';
 import 'package:lift_tracker/data/classes/workout.dart';
-import 'package:lift_tracker/ui/colors.dart';
+import 'package:lift_tracker/ui/styles.dart';
 import 'package:lift_tracker/ui/workouts/exerciselistitem.dart';
 import 'package:lift_tracker/ui/selectexercise.dart';
 import 'package:lift_tracker/ui/widgets.dart';
@@ -40,7 +40,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
       setsControllers[i].text = exercise.sets.toString();
       Future.delayed(Duration.zero, () {
         nameControllers[i].text =
-            Helper.loadTranslation(context, exercise.name);
+            Helper.loadTranslation(context, exercise.exerciseData.name);
       });
     }
   }
@@ -60,7 +60,6 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
             exerciseList[i] = Exercise(
                 exerciseData: result,
                 id: 0,
-                name: result.name,
                 workoutId: widget.workout.id,
                 sets: -1,
                 reps: -1);
@@ -180,7 +179,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
       String type = '';
       String jsonId = '';
       if (exerciseList[i] != null) {
-        name = exerciseList[i]!.name;
+        name = exerciseList[i]!.exerciseData.name;
         type = exerciseList[i]!.exerciseData.type;
         jsonId = exerciseList[i]!.exerciseData.id.toString();
       }

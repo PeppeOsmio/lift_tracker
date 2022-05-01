@@ -14,7 +14,7 @@ class ExerciseSet {
   int hasWeightRecord;
   int hasRepsRecord;
 
-  double volume() {
-    return reps * weight;
+  int volume() {
+    return (reps * weight).round();
   }
 }

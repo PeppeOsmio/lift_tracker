@@ -36,7 +36,6 @@ class CustomDatabase {
   }
 
   Future _createDB(Database db, int version) async {
-    Helper.firstAppRun = true;
     String sql = '''
     CREATE TABLE workout(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -790,10 +789,6 @@ class CustomDatabase {
         int workoutId = queryExercise[j]['fk_workout_id'] as int;
         int jsonId = queryExercise[j]['json_id'] as int;
         var exerciseDataList = Helper.exerciseDataGlobal;
-        String exname = exerciseDataList
-            .where((element) => element.id == jsonId)
-            .first
-            .name;
         double? bestWeight = queryExercise[j]['best_weight'] as double?;
         int? bestVolume = queryExercise[j]['best_volume'] as int?;
         int? bestReps = queryExercise[j]['best_reps'] as int?;
@@ -802,7 +797,6 @@ class CustomDatabase {
         exerciseList.add(Exercise(
             id: exid,
             exerciseData: exerciseData,
-            name: exname,
             sets: sets,
             reps: reps,
             bestReps: bestReps,

@@ -1,16 +1,23 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lift_tracker/data/classes/exercise.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
+import 'package:lift_tracker/data/classes/workout.dart';
+import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/ui/app/app.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class Loading extends StatefulWidget {
+class Loading extends ConsumerStatefulWidget {
   const Loading({Key? key}) : super(key: key);
 
   @override
-  State<Loading> createState() => _LoadingState();
+  ConsumerState<Loading> createState() => _LoadingState();
 }
 
-class _LoadingState extends State<Loading> {
+class _LoadingState extends ConsumerState<Loading> {
   @override
   void initState() {
     super.initState();
@@ -29,6 +36,12 @@ class _LoadingState extends State<Loading> {
         }
         Helper.exerciseDataGlobal.clear();
         Helper.exerciseDataGlobal.addAll(temp);
+        SharedPreferences sharedPreferences =
+            await SharedPreferences.getInstance();
+        if (sharedPreferences.getBool('firstAppRun') == null) {
+          await Helper.addDebugWorkouts();
+          sharedPreferences.setBool('firstAppRun', true);
+        }
         Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (context) {
           return App();

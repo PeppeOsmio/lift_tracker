@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:lift_tracker/data/classes/exercise.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/helper.dart';
-import '../colors.dart';
+import '../styles.dart';
 
 class ExerciseListItem extends StatefulWidget {
   const ExerciseListItem(

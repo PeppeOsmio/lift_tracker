@@ -4,7 +4,7 @@ import 'package:lift_tracker/data/classes/exercise.dart';
 import 'package:lift_tracker/data/classes/exerciserecord.dart';
 import 'package:lift_tracker/data/classes/workouthistory.dart';
 import 'package:lift_tracker/data/helper.dart';
-import 'package:lift_tracker/ui/colors.dart';
+import 'package:lift_tracker/ui/styles.dart';
 import 'package:lift_tracker/ui/workouthistory/chart.dart';
 
 class ExerciseChart extends StatefulWidget {
@@ -36,7 +36,7 @@ class _ExerciseChartState extends State<ExerciseChart> {
         var foundRecord = exerciseRecords
             .firstWhere((element) => element.exerciseId == widget.exercise.id);
         exerciseRecords.add(foundRecord);
-        volumes.add(foundRecord.volume());
+        volumes.add(foundRecord.volume().toDouble());
         dates.add(widget.workoutHistory.workoutRecords[i].day);
       } catch (e) {}
     }
@@ -57,7 +57,8 @@ class _ExerciseChartState extends State<ExerciseChart> {
         Row(
           children: [
             Text(
-              Helper.loadTranslation(context, widget.exercise.name),
+              Helper.loadTranslation(
+                  context, widget.exercise.exerciseData.name),
               style: TextStyle(color: Colors.white, fontSize: 20),
             ),
             Expanded(
@@ -102,7 +103,7 @@ class _ExerciseChartState extends State<ExerciseChart> {
                                   child: Padding(
                                     padding: const EdgeInsets.only(top: 16),
                                     child: Chart(
-                                      color: Colors.green,
+                                      color: Colors.blueGrey,
                                       values: volumes,
                                       getTooltips: (lineBarSpotList) {
                                         List<LineTooltipItem> list = [];

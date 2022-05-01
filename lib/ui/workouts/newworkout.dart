@@ -4,7 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/data/classes/exercise.dart';
-import 'package:lift_tracker/ui/colors.dart';
+import 'package:lift_tracker/ui/styles.dart';
 import 'package:lift_tracker/ui/workouts/exerciselistitem.dart';
 import 'package:lift_tracker/ui/selectexercise.dart';
 import 'package:lift_tracker/ui/widgets.dart';
@@ -184,7 +184,6 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
           id: i,
           exerciseData:
               ExerciseData(id: int.parse(jsonId), type: type, name: ''),
-          name: name,
           sets: int.parse(sets),
           reps: int.parse(reps),
           workoutId: 0));

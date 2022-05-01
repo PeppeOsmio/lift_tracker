@@ -4,7 +4,7 @@ import 'package:curved_animation_controller/curved_animation_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lift_tracker/data/helper.dart';
-import 'colors.dart';
+import 'styles.dart';
 
 class SearchBar extends StatefulWidget {
   const SearchBar(

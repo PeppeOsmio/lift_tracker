@@ -11,7 +11,7 @@ import 'package:lift_tracker/data/classes/exercise.dart';
 import 'package:lift_tracker/data/classes/exerciserecord.dart';
 import 'package:lift_tracker/data/classes/workout.dart';
 import 'package:lift_tracker/data/classes/workoutrecord.dart';
-import 'package:lift_tracker/ui/colors.dart';
+import 'package:lift_tracker/ui/styles.dart';
 import 'package:lift_tracker/ui/selectexercise.dart';
 import 'package:lift_tracker/ui/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -64,7 +64,6 @@ class _NewSessionState extends ConsumerState<NewSession>
               type: widget.resumedSession!.exerciseRecords[i].type,
               name: ''),
           id: widget.resumedSession!.exerciseRecords[i].exerciseId,
-          name: widget.resumedSession!.exerciseRecords[i].exerciseName,
           sets: widget.resumedSession!.exerciseRecords[i].sets.length,
           reps: widget.workout.exercises[i].reps,
         );
@@ -513,7 +512,7 @@ class ExerciseRecordItem extends StatefulWidget {
           rpe: int.parse(rpe)));
     }
     if (name.isEmpty) {
-      name = exercise.name;
+      name = exercise.exerciseData.name;
     }
     return ExerciseRecord(name, setList,
         exerciseId: exercise.id, type: exerciseData.type);

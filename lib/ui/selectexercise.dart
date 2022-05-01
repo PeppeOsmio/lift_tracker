@@ -5,7 +5,7 @@ import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/ui/exercises.dart';
 import 'package:lift_tracker/ui/widgets.dart';
 
-import 'colors.dart';
+import 'styles.dart';
 
 class SelectExercise extends ConsumerStatefulWidget {
   const SelectExercise({Key? key}) : super(key: key);

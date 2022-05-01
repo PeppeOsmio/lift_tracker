@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:lift_tracker/data/classes/workouthistory.dart';
 import 'package:lift_tracker/data/classes/workoutrecord.dart';
 import 'package:lift_tracker/data/helper.dart';
-import 'package:lift_tracker/ui/colors.dart';
+import 'package:lift_tracker/ui/styles.dart';
 import 'package:lift_tracker/ui/widgets.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:lift_tracker/ui/workouthistory/chart.dart';
@@ -39,7 +39,7 @@ class _WorkoutHistoryState extends State<WorkoutHistoryPage> {
       workoutRecords.addAll(temp);
     }
     for (var workoutRecord in workoutRecords) {
-      volumes.add(workoutRecord.totalVolume());
+      volumes.add(workoutRecord.totalVolume().toDouble());
     }
     for (int i = 0; i < volumes.length; i++) {
       spots.add(FlSpot(i.toDouble(), volumes[i]));
@@ -102,7 +102,7 @@ class _WorkoutHistoryState extends State<WorkoutHistoryPage> {
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(top: 24, left: 16, right: 16),
+              padding: const EdgeInsets.only(top: 12),
               child: ListView.separated(
                   separatorBuilder: ((context, index) {
                     return SizedBox(
@@ -113,9 +113,13 @@ class _WorkoutHistoryState extends State<WorkoutHistoryPage> {
                   itemBuilder: ((context, index) {
                     var exercise =
                         widget.workoutHistory.workout.exercises[index];
-                    return ExerciseChart(
-                        exercise: exercise,
-                        workoutHistory: widget.workoutHistory);
+                    return Padding(
+                      padding: EdgeInsets.only(
+                          left: 16, right: 16, top: index == 0 ? 12 : 0),
+                      child: ExerciseChart(
+                          exercise: exercise,
+                          workoutHistory: widget.workoutHistory),
+                    );
                   })),
             ),
           )

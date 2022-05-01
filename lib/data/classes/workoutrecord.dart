@@ -1,5 +1,3 @@
-import 'package:lift_tracker/data/classes/workout.dart';
-
 import 'exerciserecord.dart';
 
 class WorkoutRecord {
@@ -11,8 +9,8 @@ class WorkoutRecord {
   final int workoutId;
   final List<ExerciseRecord> exerciseRecords;
 
-  double totalVolume() {
-    double volume = 0;
+  int totalVolume() {
+    int volume = 0;
     for (var exerciseRecord in exerciseRecords) {
       volume += exerciseRecord.volume();
     }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lift_tracker/data/classes/workout.dart';
 
 import '../../data/helper.dart';
-import '../colors.dart';
+import '../styles.dart';
 
 class WorkoutCard extends StatefulWidget {
   const WorkoutCard(this.workout, this.onLongPress, this.removeMode, {Key? key})
@@ -53,7 +53,7 @@ class _WorkoutCardState extends State<WorkoutCard> {
       stop = exercises.length;
     }
     for (int i = 0; i < stop; i++) {
-      String name = exercises[i].name;
+      String name = exercises[i].exerciseData.name;
       exc.add(Padding(
           padding: const EdgeInsets.only(top: 6, bottom: 6),
           child: Row(
@@ -61,7 +61,7 @@ class _WorkoutCardState extends State<WorkoutCard> {
               Expanded(
                 flex: 5,
                 child: Text(Helper.loadTranslation(context, name),
-                    style: const TextStyle(fontSize: 15, color: Colors.white)),
+                    style: Styles.style(fontSize: 15, dark: true)),
               ),
               Expanded(
                 flex: 3,
@@ -69,15 +69,15 @@ class _WorkoutCardState extends State<WorkoutCard> {
                     exercises[i].sets.toString() +
                         '  ×  ' +
                         exercises[i].reps.toString(),
-                    style: const TextStyle(fontSize: 15, color: Colors.white)),
+                    style: Styles.style(fontSize: 15, dark: true)),
               ),
             ],
           )));
     }
     if (!isOpen && exercises.length > 5) {
-      exc.add(const Padding(
+      exc.add(Padding(
         padding: EdgeInsets.only(top: 6, bottom: 6),
-        child: Text('...', style: TextStyle(fontSize: 15, color: Colors.white)),
+        child: Text('...', style: Styles.style(fontSize: 15, dark: true)),
       ));
     }
     return WillPopScope(
@@ -127,8 +127,7 @@ class _WorkoutCardState extends State<WorkoutCard> {
                     Row(
                       children: [
                         Text(widget.workout.name,
-                            style: const TextStyle(
-                                fontSize: 24, color: Colors.white)),
+                            style: Styles.style(dark: true, fontSize: 24)),
                         const Spacer(),
                         _removeMode
                             ? InkWell(

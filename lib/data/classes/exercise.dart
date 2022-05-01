@@ -3,7 +3,6 @@ import 'package:lift_tracker/data/classes/exercisedata.dart';
 class Exercise {
   int id;
   int workoutId;
-  String name;
   ExerciseData exerciseData;
   int reps;
   int sets;
@@ -15,7 +14,6 @@ class Exercise {
   Exercise(
       {required this.workoutId,
       required this.id,
-      required this.name,
       required this.sets,
       required this.reps,
       required this.exerciseData,

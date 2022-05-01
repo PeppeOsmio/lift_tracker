@@ -5,7 +5,7 @@ import 'package:fluttericon/linearicons_free_icons.dart';
 import 'package:fluttericon/zocial_icons.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/classes/workoutrecord.dart';
-import 'package:lift_tracker/ui/colors.dart';
+import 'package:lift_tracker/ui/styles.dart';
 
 class WorkoutRecordCard extends StatefulWidget {
   const WorkoutRecordCard(this.workoutRecord, this.onPressed,
@@ -36,13 +36,12 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
         milliseconds:
             100 + (widget.workoutRecord.exerciseRecords.length - 5) * 20);
     // total volume of workout
+    totalVolume = widget.workoutRecord.totalVolume();
     for (int i = 0; i < widget.workoutRecord.exerciseRecords.length; i++) {
       var exerciseRecord = widget.workoutRecord.exerciseRecords[i];
       bool hasRecord = false;
       for (int j = 0; j < exerciseRecord.sets.length; j++) {
         var set = exerciseRecord.sets;
-        double volume = (set[j].reps * set[j].weight);
-        totalVolume += volume.round();
 
         if (set[j].hasRepsRecord == 1 ||
             set[j].hasWeightRecord == 1 ||

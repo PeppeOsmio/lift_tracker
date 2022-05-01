@@ -6,6 +6,7 @@ import 'package:lift_tracker/data/classes/workouthistory.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/database.dart';
 import 'package:lift_tracker/data/classes/workout.dart';
+import 'package:lift_tracker/ui/styles.dart';
 import 'package:lift_tracker/ui/workouts/newworkout.dart';
 import 'package:lift_tracker/ui/widgets.dart';
 import 'package:lift_tracker/ui/workoutlist/workoutcard.dart';
@@ -83,7 +84,7 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
                         child: Center(
                             child: Text(
                           Helper.loadTranslation(context, 'workoutListWelcome'),
-                          style: TextStyle(color: Colors.white, fontSize: 20),
+                          style: Styles.style(dark: true, fontSize: 20),
                           textAlign: TextAlign.center,
                         )),
                       ),
