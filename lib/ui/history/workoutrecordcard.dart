@@ -60,8 +60,11 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
   Widget build(BuildContext context) {
     var exercises = widget.workoutRecord.exerciseRecords;
     List<Widget> exc = [];
-
-    for (int i = 0; i < exercises.length; i++) {
+    int stop = 4;
+    if (exercises.length <= 5) {
+      stop = exercises.length;
+    }
+    for (int i = 0; i < stop; i++) {
       exc.add(Padding(
         padding: const EdgeInsets.only(bottom: 12),
         child: Row(
@@ -91,6 +94,12 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
             ),
           ],
         ),
+      ));
+    }
+    if (exercises.length >= 5) {
+      exc.add(Padding(
+        padding: EdgeInsets.only(top: 6, bottom: 6),
+        child: Text('...', style: Styles.style(fontSize: 15, dark: true)),
       ));
     }
     var date = Helper.dateToString(widget.workoutRecord.day);

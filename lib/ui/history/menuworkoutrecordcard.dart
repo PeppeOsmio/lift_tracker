@@ -39,10 +39,16 @@ class _MenuWorkoutRecordCardState extends State<MenuWorkoutRecordCard> {
     super.initState();
     originalHeight = getCardRenderBox().size.height;
     Future.delayed(Duration.zero, () {
-      finalCardY = (screenHeight - originalHeight) / 2;
-      setState(() {
+      if (originalHeight < screenHeight * 0.9) {
+        finalCardY = (screenHeight - originalHeight) / 2;
+        setState(() {
+          cardY = finalCardY;
+        });
+      } else {
+        finalCardY = 50;
         cardY = finalCardY;
-      });
+        setState(() {});
+      }
     });
   }
 
@@ -56,7 +62,9 @@ class _MenuWorkoutRecordCardState extends State<MenuWorkoutRecordCard> {
     if (firstTimeBuilding) {
       firstTimeBuilding = false;
       screenWidth = MediaQuery.of(context).size.width;
-      screenHeight = MediaQuery.of(context).size.height;
+      screenHeight = MediaQuery.of(context).size.height -
+          MediaQuery.of(context).padding.top -
+          MediaQuery.of(context).padding.bottom;
       startingY = getCardRenderBox().localToGlobal(Offset.zero).dy + 16;
       cardY = startingY;
     }
@@ -72,63 +80,66 @@ class _MenuWorkoutRecordCardState extends State<MenuWorkoutRecordCard> {
       },
       child: Scaffold(
           backgroundColor: Colors.transparent,
-          body: SizedBox(
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            child: Stack(
-              children: [
-                GestureDetector(
-                    onTap: () {
-                      Navigator.maybePop(context);
-                    },
-                    child: const DimmingBackground(
-                      blurred: false,
-                      duration: const Duration(milliseconds: 150),
-                      maxAlpha: 130,
-                    )),
-                AnimatedPositioned(
-                  curve: Curves.decelerate,
-                  duration: widget.positionedAnimationDuration,
-                  width: MediaQuery.of(context).size.width,
-                  top: cardY,
-                  child: AnimatedOpacity(
+          body: SafeArea(
+            child: SingleChildScrollView(
+              physics: originalHeight < screenHeight
+                  ? NeverScrollableScrollPhysics()
+                  : null,
+              child: Stack(
+                children: [
+                  GestureDetector(
+                      onTap: () {
+                        Navigator.maybePop(context);
+                      },
+                      child: const DimmingBackground(
+                        blurred: false,
+                        duration: const Duration(milliseconds: 150),
+                        maxAlpha: 130,
+                      )),
+                  AnimatedPositioned(
                     curve: Curves.decelerate,
-                    duration: const Duration(milliseconds: 150),
-                    opacity: opacity,
-                    child: Material(
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 16, right: 16),
-                          child: widget.workoutRecordCard,
-                        ),
-                        type: MaterialType.transparency),
-                  ),
-                ),
-                AnimatedPositioned(
-                  duration: const Duration(milliseconds: 100),
-                  curve: Curves.decelerate,
-                  right: 16,
-                  bottom: MediaQuery.of(context).size.height - cardY,
-                  child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 150),
-                    opacity: opacity,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: CardMenuButton(
-                              onPressed: widget.deleteOnPressed,
-                              text: Helper.loadTranslation(context, 'delete'),
-                              borderColor: Colors.red,
-                              backgroundColor: Colors.red.withAlpha(25),
-                              width: 70),
-                        )
-                      ],
+                    duration: widget.positionedAnimationDuration,
+                    width: MediaQuery.of(context).size.width,
+                    top: cardY,
+                    child: AnimatedOpacity(
+                      curve: Curves.decelerate,
+                      duration: const Duration(milliseconds: 150),
+                      opacity: opacity,
+                      child: Material(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 16, right: 16),
+                            child: widget.workoutRecordCard,
+                          ),
+                          type: MaterialType.transparency),
                     ),
                   ),
-                )
-              ],
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 100),
+                    curve: Curves.decelerate,
+                    right: 16,
+                    bottom: MediaQuery.of(context).size.height - cardY,
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 150),
+                      opacity: opacity,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: CardMenuButton(
+                                onPressed: widget.deleteOnPressed,
+                                text: Helper.loadTranslation(context, 'delete'),
+                                borderColor: Colors.red,
+                                backgroundColor: Colors.red.withAlpha(25),
+                                width: 70),
+                          )
+                        ],
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
           )),
     );

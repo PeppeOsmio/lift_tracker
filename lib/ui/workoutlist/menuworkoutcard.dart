@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:lift_tracker/data/classes/workouthistory.dart';
 import 'package:lift_tracker/data/database.dart';
@@ -44,10 +45,19 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
     super.initState();
     originalHeight = getCardRenderBox().size.height;
     Future.delayed(Duration.zero, () {
-      finalCardY = (screenHeight -
-              originalHeight -
-              (widget.workoutCard.workout.exercises.length - 5) * 30) /
-          2;
+      if ((originalHeight +
+              (widget.workoutCard.workout.exercises.length - 5) * 30) <
+          (screenHeight * 0.9)) {
+        log(originalHeight.toString());
+        log(screenHeight.toString());
+        finalCardY = (screenHeight -
+                originalHeight -
+                (widget.workoutCard.workout.exercises.length - 5) * 30) /
+            2;
+      } else {
+        finalCardY = 50;
+        setState(() {});
+      }
       setState(() {
         cardY = finalCardY;
         opacity = 1;
@@ -65,7 +75,9 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
     if (firstTimeBuilding) {
       firstTimeBuilding = false;
       screenWidth = MediaQuery.of(context).size.width;
-      screenHeight = MediaQuery.of(context).size.height;
+      screenHeight = MediaQuery.of(context).size.height -
+          MediaQuery.of(context).padding.top -
+          MediaQuery.of(context).padding.bottom;
       startingY = getCardRenderBox().localToGlobal(Offset.zero).dy;
       cardY = startingY;
     }
@@ -81,130 +93,141 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
       },
       child: Scaffold(
           backgroundColor: Colors.transparent,
-          body: SizedBox(
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            child: GestureDetector(
-                onTap: () {
-                  Navigator.maybePop(context);
-                },
-                child: Stack(
-                  children: [
-                    GestureDetector(
-                        onTap: () {
-                          Navigator.maybePop(context);
-                        },
-                        child: DimmingBackground(
-                          blurred: false,
-                          duration: widget.positionedAnimationDuration,
-                          maxAlpha: 130,
-                        )),
-                    AnimatedPositioned(
-                      curve: Curves.decelerate,
-                      duration: widget.positionedAnimationDuration,
-                      width: MediaQuery.of(context).size.width,
-                      top: cardY,
-                      child: AnimatedOpacity(
+          body: GestureDetector(
+              onTap: () {
+                Navigator.maybePop(context);
+              },
+              child: SafeArea(
+                child: SingleChildScrollView(
+                  physics: (originalHeight +
+                              (widget.workoutCard.workout.exercises.length -
+                                      5) *
+                                  30) <
+                          (screenHeight)
+                      ? NeverScrollableScrollPhysics()
+                      : null,
+                  child: Stack(
+                    children: [
+                      GestureDetector(
+                          onTap: () {
+                            Navigator.maybePop(context);
+                          },
+                          child: DimmingBackground(
+                            blurred: false,
+                            duration: widget.positionedAnimationDuration,
+                            maxAlpha: 130,
+                          )),
+                      AnimatedPositioned(
                         curve: Curves.decelerate,
                         duration: widget.positionedAnimationDuration,
-                        opacity: opacity,
-                        child: Material(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 16, right: 16),
-                              child: widget.workoutCard,
-                            ),
-                            type: MaterialType.transparency),
-                      ),
-                    ),
-                    AnimatedPositioned(
-                      duration: const Duration(milliseconds: 100),
-                      curve: Curves.decelerate,
-                      right: 16,
-                      bottom: MediaQuery.of(context).size.height - cardY,
-                      child: AnimatedOpacity(
-                        opacity: opacity,
-                        duration: const Duration(milliseconds: 100),
-                        curve: Curves.decelerate,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(bottom: 8, right: 8),
-                              child: CardMenuButton(
-                                onPressed: () {
-                                  widget.deleteOnPressed();
-                                },
-                                text: Helper.loadTranslation(context, 'delete'),
-                                borderColor: Colors.red,
-                                backgroundColor: Colors.red.withAlpha(25),
-                                width: 70,
+                        width: MediaQuery.of(context).size.width,
+                        top: cardY,
+                        child: AnimatedOpacity(
+                          curve: Curves.decelerate,
+                          duration: widget.positionedAnimationDuration,
+                          opacity: opacity,
+                          child: Material(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 16, right: 16),
+                                child: widget.workoutCard,
                               ),
-                            ),
-                            widget.hasHistory
-                                ? Padding(
-                                    padding: const EdgeInsets.only(
-                                        bottom: 8, right: 8),
-                                    child: CardMenuButton(
-                                        onPressed: () async {
-                                          var history = await CustomDatabase
-                                              .instance
-                                              .getWorkoutHistory(
-                                                  widget.workoutCard.workout);
-                                          Navigator.pushReplacement(context,
-                                              MaterialPageRoute(
-                                                  builder: (context) {
-                                            return WorkoutHistoryPage(
-                                                workoutHistory: history);
-                                          }));
-                                        },
-                                        text: Helper.loadTranslation(
-                                            context, 'history'),
-                                        borderColor: Colors.lightBlue,
-                                        backgroundColor:
-                                            Colors.lightBlue.withAlpha(25)),
-                                  )
-                                : SizedBox(),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(bottom: 8, right: 8),
-                              child: CardMenuButton(
-                                  onPressed: () {
-                                    Navigator.pushReplacement(context,
-                                        MaterialPageRoute(builder: (context) {
-                                      return EditWorkout(
-                                          widget.workoutCard.workout);
-                                    }));
-                                  },
-                                  text: Helper.loadTranslation(context, 'edit'),
-                                  borderColor: Colors.amber,
-                                  backgroundColor: Colors.amber.withAlpha(25)),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(bottom: 8),
-                              child: CardMenuButton(
-                                  onPressed: () {
-                                    Route route =
-                                        MaterialPageRoute(builder: (context) {
-                                      return NewSession(
-                                          widget.workoutCard.workout);
-                                    });
-                                    Navigator.pushReplacement(context, route);
-                                  },
-                                  text:
-                                      Helper.loadTranslation(context, 'start'),
-                                  borderColor: Colors.green,
-                                  backgroundColor: Colors.green.withAlpha(25)),
-                            ),
-                          ],
+                              type: MaterialType.transparency),
                         ),
                       ),
-                    )
-                  ],
-                )),
-          )),
+                      AnimatedPositioned(
+                        duration: const Duration(milliseconds: 100),
+                        curve: Curves.decelerate,
+                        right: 16,
+                        bottom: MediaQuery.of(context).size.height - cardY,
+                        child: AnimatedOpacity(
+                          opacity: opacity,
+                          duration: const Duration(milliseconds: 100),
+                          curve: Curves.decelerate,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(bottom: 8, right: 8),
+                                child: CardMenuButton(
+                                  onPressed: () {
+                                    widget.deleteOnPressed();
+                                  },
+                                  text:
+                                      Helper.loadTranslation(context, 'delete'),
+                                  borderColor: Colors.red,
+                                  backgroundColor: Colors.red.withAlpha(25),
+                                  width: 70,
+                                ),
+                              ),
+                              widget.hasHistory
+                                  ? Padding(
+                                      padding: const EdgeInsets.only(
+                                          bottom: 8, right: 8),
+                                      child: CardMenuButton(
+                                          onPressed: () async {
+                                            var history = await CustomDatabase
+                                                .instance
+                                                .getWorkoutHistory(
+                                                    widget.workoutCard.workout);
+                                            Navigator.pushReplacement(context,
+                                                MaterialPageRoute(
+                                                    builder: (context) {
+                                              return WorkoutHistoryPage(
+                                                  workoutHistory: history);
+                                            }));
+                                          },
+                                          text: Helper.loadTranslation(
+                                              context, 'history'),
+                                          borderColor: Colors.lightBlue,
+                                          backgroundColor:
+                                              Colors.lightBlue.withAlpha(25)),
+                                    )
+                                  : SizedBox(),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(bottom: 8, right: 8),
+                                child: CardMenuButton(
+                                    onPressed: () {
+                                      Navigator.pushReplacement(context,
+                                          MaterialPageRoute(builder: (context) {
+                                        return EditWorkout(
+                                            widget.workoutCard.workout);
+                                      }));
+                                    },
+                                    text:
+                                        Helper.loadTranslation(context, 'edit'),
+                                    borderColor: Colors.amber,
+                                    backgroundColor:
+                                        Colors.amber.withAlpha(25)),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(bottom: 8),
+                                child: CardMenuButton(
+                                    onPressed: () {
+                                      Route route =
+                                          MaterialPageRoute(builder: (context) {
+                                        return NewSession(
+                                            widget.workoutCard.workout);
+                                      });
+                                      Navigator.pushReplacement(context, route);
+                                    },
+                                    text: Helper.loadTranslation(
+                                        context, 'start'),
+                                    borderColor: Colors.green,
+                                    backgroundColor:
+                                        Colors.green.withAlpha(25)),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ))),
     );
   }
 }
