@@ -48,8 +48,6 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
       if ((originalHeight +
               (widget.workoutCard.workout.exercises.length - 5) * 30) <
           (screenHeight * 0.9)) {
-        log(originalHeight.toString());
-        log(screenHeight.toString());
         finalCardY = (screenHeight -
                 originalHeight -
                 (widget.workoutCard.workout.exercises.length - 5) * 30) /

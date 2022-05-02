@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lift_tracker/data/classes/workouthistory.dart';
 import 'package:lift_tracker/data/classes/workoutrecord.dart';
 import 'package:lift_tracker/data/helper.dart';
@@ -29,6 +30,10 @@ class _WorkoutHistoryState extends State<WorkoutHistoryPage> {
   @override
   void initState() {
     super.initState();
+    Future.delayed(Duration.zero, () {
+      Fluttertoast.showToast(
+          msg: Helper.loadTranslation(context, 'touchToSeeDetails'));
+    });
     workoutRecords = widget.workoutHistory.workoutRecords;
     if (workoutRecords.length > 15) {
       List<WorkoutRecord> temp = [];

@@ -115,5 +115,6 @@
     "totalVolumeOne": "Total volume of the last session",
     "totalVolumeExercise": "Volume in the last #n sessions",
     "totalVolumeExerciseOne": "Volume in the last session",
-    "exerciseNotPerformed": "This exercise has not been performed yet in this workout"
+    "exerciseNotPerformed": "This exercise has not been performed yet in this workout",
+    "touchToSeeDetails": "Touch the charts points to see details"
 }

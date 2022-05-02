@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lift_tracker/ui/styles.dart';
 
 class Chart extends StatelessWidget {
@@ -37,8 +38,10 @@ class Chart extends StatelessWidget {
     }
     ySpacing = values[0];
     return LineChart(LineChartData(
-      maxX: values.length > 2 ? values.length.toDouble() - 1 : 2,
-      minX: values.length > 1 ? 0 : -1,
+      maxX: values.length > 5
+          ? values.length.toDouble() - 1
+          : values.length.toDouble() - 0.5,
+      minX: values.length > 5 ? 0 : -0.5,
       maxY: values.reduce(max) + values.reduce(max) * 0.1,
       minY: values.length > 1 ? 0 : values[0] / 2,
       lineTouchData: LineTouchData(

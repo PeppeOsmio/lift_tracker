@@ -152,9 +152,24 @@ class _NewSessionState extends ConsumerState<NewSession>
                           Helper.loadTranslation(context, 'newSessionOf') +
                               ' ' +
                               widget.workout.name,
-                      onBack: () {
+                      onBack: () async {
+                        await showDimmedBackgroundDialog(context,
+                            rightText:
+                                Helper.loadTranslation(context, 'cancel'),
+                            leftText: Helper.loadTranslation(context, 'yes'),
+                            rightOnPressed: () => Navigator.maybePop(context),
+                            leftOnPressed: () {
+                              Navigator.pop(context);
+                              Navigator.maybePop(context);
+                              Fluttertoast.showToast(
+                                  msg: Helper.loadTranslation(
+                                      context, 'sessionCanceled'));
+                            },
+                            title: Helper.loadTranslation(
+                                context, 'cancelSession'),
+                            content: Helper.loadTranslation(
+                                context, 'cancelSessionBody'));
                         CustomDatabase.instance.removeCachedSession();
-                        Navigator.pop(context);
                       },
                       onSubmit: () => createWorkoutSession(),
                       backButton: true,
