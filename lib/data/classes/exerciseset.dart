@@ -17,4 +17,15 @@ class ExerciseSet {
   int volume() {
     return (reps * weight).round();
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'w': weight,
+      'reps': reps,
+      'rpe': rpe,
+      'hasVR': hasVolumeRecord,
+      'hasWR': hasWeightRecord,
+      'hasRR': hasRepsRecord
+    };
+  }
 }

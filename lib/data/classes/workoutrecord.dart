@@ -16,4 +16,13 @@ class WorkoutRecord {
     }
     return volume;
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'day': day.toString(),
+      'woN': workoutName,
+      'woId': workoutId,
+      'exRecs': exerciseRecords.map((e) => e.toMap()).toList()
+    };
+  }
 }

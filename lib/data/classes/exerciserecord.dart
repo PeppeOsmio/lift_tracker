@@ -23,4 +23,13 @@ class ExerciseRecord {
     }
     return volume;
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'n': exerciseName,
+      'sets': sets.map((e) => e.toMap()).toList(),
+      'exId': exerciseId,
+      'type': type,
+    };
+  }
 }

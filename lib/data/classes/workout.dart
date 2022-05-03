@@ -6,4 +6,12 @@ class Workout {
   int id;
 
   Workout(this.id, this.name, this.exercises);
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'n': name,
+      'ex': exercises.map((e) => e.toMap()).toList()
+    };
+  }
 }

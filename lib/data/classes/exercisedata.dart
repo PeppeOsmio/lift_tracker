@@ -13,4 +13,15 @@ class ExerciseData {
       this.firstMuscle = '',
       this.secondMuscle = '',
       this.thirdMuscle = ''});
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'n': name,
+      'type': type,
+      'fM': firstMuscle,
+      'sM': secondMuscle,
+      'tM': thirdMuscle
+    };
+  }
 }

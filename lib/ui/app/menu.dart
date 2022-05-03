@@ -1,4 +1,9 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:lift_tracker/data/backup.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/ui/styles.dart';
 import 'package:lift_tracker/ui/widgets.dart';
@@ -148,30 +153,78 @@ class _AnimatedMenuState extends State<AnimatedMenu> {
           child: Container(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.maybePop(context);
+              child: Consumer(
+                builder: (context, ref, child) {
+                  return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildMenuElement(
+                            Helper.loadTranslation(context, 'profile'),
+                            Icons.person,
+                            style, onPressed: () async {
+                          await showDimmedBackgroundDialog(context,
+                              title: Helper.loadTranslation(
+                                  context, 'restoreBackup'),
+                              rightText:
+                                  Helper.loadTranslation(context, 'cancel'),
+                              leftText: Helper.loadTranslation(context, 'yes'),
+                              rightOnPressed: () => Navigator.maybePop(context),
+                              leftOnPressed: () async {
+                                var back = await Backup.readBackup();
+                                if (back.isNotEmpty) {
+                                  Fluttertoast.showToast(
+                                      msg: Helper.loadTranslation(
+                                          context, 'backupRestored'));
+                                } else {
+                                  Fluttertoast.showToast(
+                                      msg: Helper.loadTranslation(
+                                          context, 'noBackup'));
+                                }
+                                ref.refresh(Helper.workoutsProvider);
+                                ref.refresh(Helper.workoutRecordsProvider);
+                                Navigator.maybePop(context);
+                              });
+                          Navigator.maybePop(context);
+                        }),
+                        SizedBox(
+                          height: 16,
+                        ),
+                        buildMenuElement(
+                            Helper.loadTranslation(context, 'settings'),
+                            Icons.settings,
+                            style, onPressed: () async {
+                          await showDimmedBackgroundDialog(context,
+                              title: Helper.loadTranslation(
+                                  context, 'createBackup'),
+                              rightText:
+                                  Helper.loadTranslation(context, 'cancel'),
+                              leftText: Helper.loadTranslation(context, 'yes'),
+                              rightOnPressed: () => Navigator.maybePop(context),
+                              leftOnPressed: () async {
+                                bool created = await Backup.createBackup();
+                                if (created) {
+                                  Fluttertoast.showToast(
+                                      msg: Helper.loadTranslation(
+                                          context, 'createdBackup'));
+                                } else {
+                                  Fluttertoast.showToast(
+                                      msg: Helper.loadTranslation(
+                                          context, 'didntCreateBackup'));
+                                }
+                                Navigator.maybePop(context);
+                              });
+                          Navigator.maybePop(context);
+                        }),
+                        SizedBox(
+                          height: 16,
+                        ),
+                        buildMenuElement(
+                            Helper.loadTranslation(context, 'help'),
+                            Icons.help,
+                            style,
+                            onPressed: () => Navigator.maybePop(context))
+                      ]);
                 },
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildMenuElement(
-                          Helper.loadTranslation(context, 'profile'),
-                          Icons.person,
-                          style),
-                      SizedBox(
-                        height: 16,
-                      ),
-                      buildMenuElement(
-                          Helper.loadTranslation(context, 'settings'),
-                          Icons.settings,
-                          style),
-                      SizedBox(
-                        height: 16,
-                      ),
-                      buildMenuElement(Helper.loadTranslation(context, 'help'),
-                          Icons.help, style)
-                    ]),
               ),
             ),
             decoration: BoxDecoration(
@@ -183,23 +236,31 @@ class _AnimatedMenuState extends State<AnimatedMenu> {
     );
   }
 
-  Widget buildMenuElement(String text, IconData icon, TextStyle style) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Text(
-          text,
-          style: style,
-        ),
-        Spacer(),
-        const SizedBox(
-          width: 8,
-        ),
-        Icon(
-          icon,
-          color: Colors.white,
-        )
-      ],
+  Widget buildMenuElement(String text, IconData icon, TextStyle style,
+      {Function? onPressed}) {
+    return GestureDetector(
+      onTap: () {
+        if (onPressed != null) {
+          onPressed();
+        }
+      },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Text(
+            text,
+            style: style,
+          ),
+          Spacer(),
+          const SizedBox(
+            width: 8,
+          ),
+          Icon(
+            icon,
+            color: Colors.white,
+          )
+        ],
+      ),
     );
   }
 }

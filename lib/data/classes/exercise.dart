@@ -21,4 +21,18 @@ class Exercise {
       this.bestVolume,
       this.bestReps,
       this.notes});
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'wId': workoutId,
+      'exD': exerciseData.toMap(),
+      'reps': reps,
+      'sets': sets,
+      'bestW': bestWeight,
+      'bestV': bestVolume,
+      'bestR': bestReps,
+      'notes': notes
+    };
+  }
 }

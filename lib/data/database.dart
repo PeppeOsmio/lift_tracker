@@ -565,7 +565,7 @@ class CustomDatabase {
   }
 
   Future<bool> addWorkoutRecord(WorkoutRecord workoutRecord, Workout workout,
-      {bool cacheMode = false}) async {
+      {bool cacheMode = false, bool backupMode = false}) async {
     // delete all exercise records with empty sets
     // and track their indexes
     //await removeCachedSession();
@@ -593,6 +593,18 @@ class CustomDatabase {
       // and will not be saved
       if (workoutRecord.exerciseRecords.isEmpty) {
         throw Exception('empty_exercises');
+      }
+
+      if (backupMode) {
+        tempExercises.removeWhere((element) {
+          bool isContained = workoutRecord.exerciseRecords.any((e) {
+            print(e.exerciseId);
+            print(element.id);
+            return e.exerciseId == element.id;
+          });
+          print(isContained);
+          return !isContained;
+        });
       }
 
       // from the workout schedule, delete all the exercises that were
