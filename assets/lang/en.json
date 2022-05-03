@@ -122,5 +122,7 @@
     "backupRestored": "Backup restored",
     "noBackup": "No backup found",
     "createdBackup": "Backup created",
-    "didntCreateBackup": "Backup failed"
+    "didntCreateBackup": "Backup failed",
+    "createBackupMenu": "Create backup",
+    "restoreBackupMenu": "Restore backup"
 }

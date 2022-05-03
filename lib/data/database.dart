@@ -839,10 +839,17 @@ class CustomDatabase {
     });
   }
 
-  Future clearWorkouts() async {
+  Future clearAll() async {
     final db = await instance.database;
-    await db.delete('exercise');
-    await db.delete('workout');
+    await db.transaction((txn) async {
+      await txn.delete('workout');
+      await txn.delete('exercise');
+      await txn.delete('workout_record');
+      await txn.delete('exercise_record');
+      await txn.delete('exercise_set');
+      await txn.delete('best_weight_volume_reps');
+    });
+    await db.execute('vacuum');
   }
 
   Future close() async {

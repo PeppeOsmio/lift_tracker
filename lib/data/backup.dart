@@ -83,6 +83,7 @@ class Backup {
             exerciseRecords,
             workoutId: workoutRecord['woId']));
       }
+      await CustomDatabase.instance.clearAll();
       for (var workout in workouts) {
         await CustomDatabase.instance
             .createWorkout(workout.name, workout.exercises);
@@ -94,6 +95,7 @@ class Backup {
                 .firstWhere((element) => element.id == workoutRecord.workoutId),
             backupMode: true);
       }
+
       return decode;
     }
     return {};

@@ -159,8 +159,9 @@ class _AnimatedMenuState extends State<AnimatedMenu> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildMenuElement(
-                            Helper.loadTranslation(context, 'profile'),
-                            Icons.person,
+                            Helper.loadTranslation(
+                                context, 'restoreBackupMenu'),
+                            Icons.settings_backup_restore,
                             style, onPressed: () async {
                           await showDimmedBackgroundDialog(context,
                               title: Helper.loadTranslation(
@@ -190,8 +191,8 @@ class _AnimatedMenuState extends State<AnimatedMenu> {
                           height: 16,
                         ),
                         buildMenuElement(
-                            Helper.loadTranslation(context, 'settings'),
-                            Icons.settings,
+                            Helper.loadTranslation(context, 'createBackupMenu'),
+                            Icons.save,
                             style, onPressed: () async {
                           await showDimmedBackgroundDialog(context,
                               title: Helper.loadTranslation(
