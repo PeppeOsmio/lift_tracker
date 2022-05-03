@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:lift_tracker/data/classes/exercise.dart';
@@ -21,7 +22,11 @@ class Backup {
         'workouts': workouts.map((e) => e.toMap()).toList(),
         'workoutRecords': workoutRecords.map((e) => e.toMap()).toList()
       };
-      await file.writeAsString(jsonEncode(map), flush: true);
+      try {
+        await file.writeAsString(jsonEncode(map), flush: true);
+      } catch (_) {
+        return false;
+      }
       return true;
     }
     return false;
@@ -36,6 +41,8 @@ class Backup {
       var decode = jsonDecode(await file.readAsString());
       List<Workout> workouts = [];
       List<WorkoutRecord> workoutRecords = [];
+      List<Map<String, int>> idsMap = [];
+
       for (var workout in decode['workouts']) {
         List<Exercise> exercises = [];
         for (var exercise in workout['ex']) {
@@ -57,6 +64,14 @@ class Backup {
         }
         workouts.add(Workout(workout['id'], workout['n'], exercises));
       }
+      await CustomDatabase.instance.clearAll();
+      for (var workout in workouts) {
+        idsMap.add({
+          'realId': await CustomDatabase.instance
+              .createWorkout(workout.name, workout.exercises),
+          'prevId': workout.id
+        });
+      }
 
       for (var workoutRecord in decode['workoutRecords']) {
         List<ExerciseRecord> exerciseRecords = [];
@@ -75,27 +90,26 @@ class Backup {
               exerciseId: exerciseRecord['exId'],
               type: exerciseRecord['type']));
         }
+        int workoutId;
+        try {
+          workoutId = idsMap.firstWhere((element) =>
+              element['prevId'] == workoutRecord['woId'])['realId']!;
+        } catch (_) {
+          workoutId = 0;
+        }
 
         workoutRecords.add(WorkoutRecord(
             0,
             DateTime.parse(workoutRecord['day']),
             workoutRecord['woN'],
             exerciseRecords,
-            workoutId: workoutRecord['woId']));
-      }
-      await CustomDatabase.instance.clearAll();
-      for (var workout in workouts) {
-        await CustomDatabase.instance
-            .createWorkout(workout.name, workout.exercises);
-      }
-      for (var workoutRecord in workoutRecords) {
-        await CustomDatabase.instance.addWorkoutRecord(
-            workoutRecord,
-            workouts
-                .firstWhere((element) => element.id == workoutRecord.workoutId),
-            backupMode: true);
+            workoutId: workoutId));
       }
 
+      for (var workoutRecord in workoutRecords) {
+        await CustomDatabase.instance
+            .addWorkoutRecord(workoutRecord, backupMode: true);
+      }
       return decode;
     }
     return {};

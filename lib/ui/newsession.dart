@@ -205,7 +205,7 @@ class _NewSessionState extends ConsumerState<NewSession>
     if (cacheMode) {
       workoutRecord = getWorkoutRecord(cacheMode: true);
       await CustomDatabase.instance
-          .addWorkoutRecord(workoutRecord!, widget.workout, cacheMode: true);
+          .addWorkoutRecord(workoutRecord!, cacheMode: true);
       return;
     }
 
@@ -237,8 +237,8 @@ class _NewSessionState extends ConsumerState<NewSession>
     try {
       //inform the addWorkoutRecord function that the cache has been deleted already
       await pref.setBool('didCacheSession', false);
-      bool didSetRecord = await CustomDatabase.instance
-          .addWorkoutRecord(workoutRecord, widget.workout);
+      bool didSetRecord =
+          await CustomDatabase.instance.addWorkoutRecord(workoutRecord);
       if (didSetRecord) {
         ref.read(Helper.workoutsProvider.notifier).refreshWorkouts();
       }

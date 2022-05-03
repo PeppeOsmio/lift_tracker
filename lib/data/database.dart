@@ -434,8 +434,8 @@ class CustomDatabase {
     };
   }
 
-  Future setBestWeightVolumeReps(int exerciseId, int exerciseJsonId,
-      Map<String, dynamic> data, Transaction txn) async {
+  Future setBestWeightVolumeReps(
+      int exerciseId, Map<String, dynamic> data, Transaction txn) async {
     double? bestWeight = data['best_weight'];
     int? bestVolume = data['best_volume'];
     int? bestReps = data['best_reps'];
@@ -452,7 +452,7 @@ class CustomDatabase {
     var query = await txn.query('best_weight_volume_reps',
         columns: ['best_weight', 'best_volume', 'best_reps']);
 
-    if (query.isEmpty) {
+    /*if (query.isEmpty) {
       await txn.insert('best_weight_volume_reps', {
         'json_id': exerciseJsonId,
         'best_weight': bestWeight,
@@ -482,7 +482,7 @@ class CustomDatabase {
         queryCopy['best_reps'] = prevReps;
       }
     }
-    await txn.update('best_weight_volume_reps', query[0]);
+    await txn.update('best_weight_volume_reps', query[0]);*/
   }
 
   Future setWeightRecord(
@@ -564,7 +564,7 @@ class CustomDatabase {
     return WorkoutHistory(workout: workout, workoutRecords: workoutRecords);
   }
 
-  Future<bool> addWorkoutRecord(WorkoutRecord workoutRecord, Workout workout,
+  Future<bool> addWorkoutRecord(WorkoutRecord workoutRecord,
       {bool cacheMode = false, bool backupMode = false}) async {
     // delete all exercise records with empty sets
     // and track their indexes
@@ -572,21 +572,6 @@ class CustomDatabase {
     final db = await instance.database;
     bool didSetWeightRecord = false;
     await db.transaction((txn) async {
-      List<Exercise> tempExercises = [];
-      // addAll to prevent exercises disappearing in Workouts page
-
-      tempExercises.addAll(workout.exercises);
-
-      List<int> indexes = [];
-
-      workoutRecord.exerciseRecords.removeWhere((element) {
-        if (element.sets.isEmpty) {
-          indexes.add(workoutRecord.exerciseRecords.indexOf(element));
-          return true;
-        }
-        return false;
-      });
-
       var pref = await SharedPreferences.getInstance();
 
       // if every exercise record has been deleted, the session is not valid
@@ -595,35 +580,17 @@ class CustomDatabase {
         throw Exception('empty_exercises');
       }
 
-      if (backupMode) {
-        tempExercises.removeWhere((element) {
-          bool isContained = workoutRecord.exerciseRecords.any((e) {
-            print(e.exerciseId);
-            print(element.id);
-            return e.exerciseId == element.id;
-          });
-          print(isContained);
-          return !isContained;
-        });
-      }
-
-      // from the workout schedule, delete all the exercises that were
-      // not excecuted in this session
-      for (int i = 0; i < indexes.length; i++) {
-        tempExercises.removeAt(i);
-      }
-
       // don't save any weight records if in cache mode
       if (!cacheMode) {
         // check if there were weight records in this session
         // among all the exercises that were excecuted
-        for (int i = 0; i < tempExercises.length; i++) {
-          Exercise exercise = tempExercises[i];
+        for (int i = 0; i < workoutRecord.exerciseRecords.length; i++) {
+          ExerciseRecord exerciseRecord = workoutRecord.exerciseRecords[i];
           if (!workoutRecord.exerciseRecords[i].temp) {
             var sets = workoutRecord.exerciseRecords[i].sets;
             var previousRecords =
-                await getBestWeightVolumeReps(exercise.id, txn);
-            if (exercise.exerciseData.type == 'free') {
+                await getBestWeightVolumeReps(exerciseRecord.exerciseId, txn);
+            if (exerciseRecord.type == 'free') {
               int recordIndex = 0;
               int currentMaxReps = sets[0].reps;
               for (int j = 0; j < sets.length - 1; j++) {
@@ -641,8 +608,7 @@ class CustomDatabase {
                 didSetWeightRecord = true;
                 sets[recordIndex].hasRepsRecord = 1;
                 await setBestWeightVolumeReps(
-                    exercise.id,
-                    exercise.exerciseData.id,
+                    exerciseRecord.exerciseId,
                     {
                       'best_weight': null,
                       'best_volume': null,
@@ -696,8 +662,7 @@ class CustomDatabase {
               }
               if (didSetWeightRecord) {
                 await setBestWeightVolumeReps(
-                    exercise.id,
-                    exercise.id,
+                    exerciseRecord.exerciseId,
                     {
                       'best_weight': maxWeight,
                       'best_volume': maxVolume,
@@ -821,10 +786,11 @@ class CustomDatabase {
     return workoutList;
   }
 
-  Future createWorkout(String name, List<Exercise> exercises) async {
+  Future<int> createWorkout(String name, List<Exercise> exercises) async {
     final db = await instance.database;
+    int id = -1;
     await db.transaction((txn) async {
-      final id = await txn.insert('workout', {'name': name});
+      id = await txn.insert('workout', {'name': name});
       for (int i = 0; i < exercises.length; i++) {
         var exercise = exercises[i];
         await txn.insert('exercise', {
@@ -837,6 +803,7 @@ class CustomDatabase {
         });
       }
     });
+    return id;
   }
 
   Future clearAll() async {

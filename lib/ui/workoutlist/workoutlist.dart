@@ -131,26 +131,7 @@ class _BodyState extends ConsumerState<Body> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> columnContent = [
-      SearchBar(
-          hint: Helper.loadTranslation(context, 'filter'),
-          textController: searchController,
-          onTextChange: (change) {
-            List<Workout> temp = [];
-            if (change.isEmpty) {
-              workouts = widget.workouts;
-              setState(() {});
-              return;
-            }
-            for (Workout data in widget.workouts) {
-              if (data.name.toLowerCase().contains(change.toLowerCase())) {
-                temp.add(data);
-              }
-            }
-            workouts = temp;
-            setState(() {});
-          })
-    ];
+    List<Widget> columnContent = [];
     for (int i = 0; i < workouts.length; i++) {
       cardKeys.add(GlobalKey());
       columnContent.add(Padding(
@@ -168,10 +149,35 @@ class _BodyState extends ConsumerState<Body> {
           }, false, key: cardKeys[i])));
     }
     return Expanded(
-        child: SingleChildScrollView(
-            child: Column(
-      children: columnContent,
-    )));
+        child: Column(
+      children: [
+        SearchBar(
+            hint: Helper.loadTranslation(context, 'filter'),
+            textController: searchController,
+            onTextChange: (change) {
+              List<Workout> temp = [];
+              if (change.isEmpty) {
+                workouts = widget.workouts;
+                setState(() {});
+                return;
+              }
+              for (Workout data in widget.workouts) {
+                if (data.name.toLowerCase().contains(change.toLowerCase())) {
+                  temp.add(data);
+                }
+              }
+              workouts = temp;
+              setState(() {});
+            }),
+        Expanded(
+          child: ListView.builder(
+              itemCount: columnContent.length,
+              itemBuilder: (context, index) {
+                return columnContent[index];
+              }),
+        )
+      ],
+    ));
   }
 
   PageRouteBuilder blurredMenuBuilder(
