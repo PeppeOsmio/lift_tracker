@@ -119,7 +119,7 @@
     "exerciseNotPerformed": "Questo esercizio non è ancora stato eseguito in questo allenamento",
     "touchToSeeDetails": "Tocca i punti dei grafici per vedere i dettagli",
     "createBackup": "Vuoi creare un backup?",
-    "restoreBackup": "Vuoi ripristinare l'ultimo backup?",
+    "restoreBackup": "Vuoi ripristinare un backup?",
     "backupRestored": "Backup ripristinato",
     "noBackup": "Nessun backup trovato",
     "createdBackup": "Backup creato",

@@ -118,7 +118,7 @@
     "exerciseNotPerformed": "This exercise has not been performed yet in this workout",
     "touchToSeeDetails": "Touch the charts points to see details",
     "createBackup": "Do you want to create a backup?",
-    "restoreBackup": "Do you want to restore last backup?",
+    "restoreBackup": "Do you want to restore a backup?",
     "backupRestored": "Backup restored",
     "noBackup": "No backup found",
     "createdBackup": "Backup created",
