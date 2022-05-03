@@ -609,33 +609,43 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              const Spacer(),
+              const Spacer(
+                flex: 5,
+              ),
               const SizedBox(
                 width: 24,
               ),
-              GestureDetector(
-                onTap: () {
-                  widget.onExerciseChange();
-                },
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.edit,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                    SizedBox(width: 8),
-                    IntrinsicWidth(
-                      child: Text(
-                        Helper.loadTranslation(
-                            context, widget.exerciseData.name),
-                        style: TextStyle(color: Colors.white, fontSize: 20),
+              Expanded(
+                flex: 100,
+                child: GestureDetector(
+                  onTap: () {
+                    widget.onExerciseChange();
+                  },
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.edit,
+                        color: Colors.white,
+                        size: 20,
                       ),
-                    ),
-                  ],
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Text(
+                            Helper.loadTranslation(
+                                context, widget.exerciseData.name),
+                            style: TextStyle(color: Colors.white, fontSize: 20),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              const Spacer(),
+              const Spacer(
+                flex: 1,
+              ),
               GestureDetector(
                 onTap: () {
                   for (var e in widget.repsControllers) {
