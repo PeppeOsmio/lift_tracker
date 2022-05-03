@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:lift_tracker/data/classes/exercise.dart';
@@ -32,13 +34,21 @@ class _ExerciseChartState extends State<ExerciseChart> {
     for (int i = 0; i < widget.workoutHistory.workoutRecords.length; i++) {
       List<ExerciseRecord> exerciseRecords =
           widget.workoutHistory.workoutRecords[i].exerciseRecords;
+      for (var record in exerciseRecords) {
+        log('exRecordName: ${record.exerciseId}');
+      }
+      for (var exercise in widget.workoutHistory.workout.exercises) {
+        log('exName: ${exercise.id}');
+      }
       try {
         var foundRecord = exerciseRecords
             .firstWhere((element) => element.exerciseId == widget.exercise.id);
         exerciseRecords.add(foundRecord);
         volumes.add(foundRecord.volume().toDouble());
         dates.add(widget.workoutHistory.workoutRecords[i].day);
-      } catch (e) {}
+      } catch (e) {
+        log(e.toString());
+      }
     }
     Future.delayed(Duration.zero, () {
       if (volumes.length > 1) {

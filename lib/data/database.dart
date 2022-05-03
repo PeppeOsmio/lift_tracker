@@ -786,24 +786,36 @@ class CustomDatabase {
     return workoutList;
   }
 
-  Future<int> createWorkout(String name, List<Exercise> exercises) async {
+  Future<Map<String, dynamic>> createWorkout(
+      String name, List<Exercise> exercises,
+      {backupMode = false, workoutId = 0}) async {
     final db = await instance.database;
     int id = -1;
+    List exIds = [];
     await db.transaction((txn) async {
-      id = await txn.insert('workout', {'name': name});
+      Map<String, dynamic> woMap = {'name': name};
+      if (backupMode) {
+        woMap.putIfAbsent('id', () => workoutId);
+      }
+      id = await txn.insert('workout', woMap);
       for (int i = 0; i < exercises.length; i++) {
         var exercise = exercises[i];
-        await txn.insert('exercise', {
+        var map = {
           'json_id': exercise.exerciseData.id,
           'sets': exercise.sets,
           'reps': exercise.reps,
           'order_number': i,
           'fk_workout_id': id,
           'type': exercise.exerciseData.type
-        });
+        };
+        if (backupMode) {
+          map.putIfAbsent('id', () => exercise.id);
+        }
+        int exId = await txn.insert('exercise', map);
+        exIds.add(exId);
       }
     });
-    return id;
+    return {'workoutId': id, 'exerciseIds': exIds};
   }
 
   Future clearAll() async {

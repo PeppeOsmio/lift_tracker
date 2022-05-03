@@ -67,7 +67,6 @@ class Backup {
       var decode = jsonDecode(await file.readAsString());
       List<Workout> workouts = [];
       List<WorkoutRecord> workoutRecords = [];
-      List<Map<String, int>> idsMap = [];
 
       for (var workout in decode['workouts']) {
         List<Exercise> exercises = [];
@@ -92,11 +91,9 @@ class Backup {
       }
       await CustomDatabase.instance.clearAll();
       for (var workout in workouts) {
-        idsMap.add({
-          'realId': await CustomDatabase.instance
-              .createWorkout(workout.name, workout.exercises),
-          'prevId': workout.id
-        });
+        await CustomDatabase.instance.createWorkout(
+            workout.name, workout.exercises,
+            backupMode: true, workoutId: workout.id);
       }
 
       for (var workoutRecord in decode['workoutRecords']) {
@@ -116,20 +113,13 @@ class Backup {
               exerciseId: exerciseRecord['exId'],
               type: exerciseRecord['type']));
         }
-        int workoutId;
-        try {
-          workoutId = idsMap.firstWhere((element) =>
-              element['prevId'] == workoutRecord['woId'])['realId']!;
-        } catch (_) {
-          workoutId = 0;
-        }
 
         workoutRecords.add(WorkoutRecord(
             0,
             DateTime.parse(workoutRecord['day']),
             workoutRecord['woN'],
             exerciseRecords,
-            workoutId: workoutId));
+            workoutId: workoutRecord['woId']));
       }
 
       for (var workoutRecord in workoutRecords) {
