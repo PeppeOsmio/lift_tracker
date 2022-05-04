@@ -59,10 +59,9 @@ class _NewSessionState extends ConsumerState<NewSession>
         tempList.add(false);
         Exercise exercise = Exercise(
           workoutId: widget.workout.id,
-          exerciseData: ExerciseData(
-              id: i,
-              type: widget.resumedSession!.exerciseRecords[i].type,
-              name: ''),
+          exerciseData: Helper.exerciseDataGlobal.firstWhere((element) =>
+              element.name ==
+              widget.resumedSession!.exerciseRecords[i].exerciseName),
           id: widget.resumedSession!.exerciseRecords[i].exerciseId,
           sets: widget.resumedSession!.exerciseRecords[i].sets.length,
           reps: exercises[i].reps,
