@@ -29,7 +29,6 @@ class NewSession extends ConsumerStatefulWidget {
 class _NewSessionState extends ConsumerState<NewSession>
     with WidgetsBindingObserver {
   List<ExerciseRecordItem> records = [];
-  List<Exercise> data = [];
   late SharedPreferences pref;
   List<ExerciseData> exerciseDataList = [];
   List<ExerciseData> originalExerciseDataList = [];
@@ -37,21 +36,22 @@ class _NewSessionState extends ConsumerState<NewSession>
   List<List<TextEditingController>> repsControllersLists = [];
   List<List<TextEditingController>> weightControllersLists = [];
   List<List<TextEditingController>> rpeControllersLists = [];
+  List<Exercise> exercises = [];
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
-
+    exercises.addAll(widget.workout.exercises);
     //remove cached sessions
     SharedPreferences.getInstance().then((value) async {
       pref = value;
       CustomDatabase.instance.removeCachedSession();
     });
     if (widget.resumedSession == null) {
-      for (int i = 0; i < widget.workout.exercises.length; i++) {
+      for (int i = 0; i < exercises.length; i++) {
         tempList.add(false);
-        Exercise exercise = widget.workout.exercises[i];
+        Exercise exercise = exercises[i];
         exerciseDataList.add(exercise.exerciseData);
       }
     } else {
@@ -65,13 +65,13 @@ class _NewSessionState extends ConsumerState<NewSession>
               name: ''),
           id: widget.resumedSession!.exerciseRecords[i].exerciseId,
           sets: widget.resumedSession!.exerciseRecords[i].sets.length,
-          reps: widget.workout.exercises[i].reps,
+          reps: exercises[i].reps,
         );
         exerciseDataList.add(exercise.exerciseData);
       }
     }
-    originalExerciseDataList = exerciseDataList;
-    for (int i = 0; i < widget.workout.exercises.length; i++) {
+    originalExerciseDataList.addAll(exerciseDataList);
+    for (int i = 0; i < exercises.length; i++) {
       repsControllersLists.add([]);
       weightControllersLists.add([]);
       rpeControllersLists.add([]);
@@ -79,7 +79,7 @@ class _NewSessionState extends ConsumerState<NewSession>
       if (widget.resumedSession != null) {
         limit = widget.resumedSession!.exerciseRecords[i].sets.length;
       } else {
-        limit = widget.workout.exercises[i].sets;
+        limit = exercises[i].sets;
       }
       for (int j = 0; j < limit; j++) {
         repsControllersLists[i].add(TextEditingController());
@@ -93,19 +93,22 @@ class _NewSessionState extends ConsumerState<NewSession>
   Widget build(BuildContext context) {
     List<Widget> items = [];
     records.clear();
-    for (int i = 0; i < widget.workout.exercises.length; i++) {
+    for (int i = 0; i < exercises.length; i++) {
       records.add(ExerciseRecordItem(
-        widget.workout.exercises[i],
+        exercises[i],
+        temp: tempList[i],
         onExerciseChange: () async {
           var result = await Navigator.push(context,
               MaterialPageRoute(builder: (context) {
             return SelectExercise();
           }));
           if (result != null) {
-            if (originalExerciseDataList[i].id != result.id) {
-              tempList[i] = true;
-            } else {
-              tempList[i] = false;
+            if (i < originalExerciseDataList.length) {
+              if (originalExerciseDataList[i].id != result.id) {
+                tempList[i] = true;
+              } else {
+                tempList[i] = false;
+              }
             }
             exerciseDataList[i] = result;
             setState(() {});
@@ -132,64 +135,68 @@ class _NewSessionState extends ConsumerState<NewSession>
     }
     items.add(const SizedBox(height: 24));
 
-    return GestureDetector(
-      onTap: () {
-        var currentFocus = FocusScope.of(context);
-        if (!currentFocus.hasPrimaryFocus) {
-          currentFocus.unfocus();
-        }
+    return WillPopScope(
+      onWillPop: () async {
+        bool willPop = false;
+        await showDimmedBackgroundDialog(context,
+            rightText: Helper.loadTranslation(context, 'cancel'),
+            leftText: Helper.loadTranslation(context, 'yes'),
+            rightOnPressed: () => Navigator.maybePop(context),
+            leftOnPressed: () async {
+              Navigator.pop(context);
+              Navigator.pop(context);
+              await CustomDatabase.instance.removeCachedSession();
+              willPop = true;
+              Fluttertoast.showToast(
+                  msg: Helper.loadTranslation(context, 'sessionCanceled'));
+            },
+            title: Helper.loadTranslation(context, 'cancelSession'),
+            content: Helper.loadTranslation(context, 'cancelSessionBody'));
+        return willPop;
       },
-      child: SafeArea(
-        child: Scaffold(
-            resizeToAvoidBottomInset: true,
-            backgroundColor: Palette.backgroundDark,
-            body: SizedBox(
-              height: MediaQuery.of(context).size.height,
-              child: Column(
-                children: [
-                  CustomAppBar(
-                      middleText:
-                          Helper.loadTranslation(context, 'newSessionOf') +
-                              ' ' +
-                              widget.workout.name,
-                      onBack: () async {
-                        await showDimmedBackgroundDialog(context,
-                            rightText:
-                                Helper.loadTranslation(context, 'cancel'),
-                            leftText: Helper.loadTranslation(context, 'yes'),
-                            rightOnPressed: () => Navigator.maybePop(context),
-                            leftOnPressed: () {
-                              Navigator.pop(context);
-                              Navigator.maybePop(context);
-                              Fluttertoast.showToast(
-                                  msg: Helper.loadTranslation(
-                                      context, 'sessionCanceled'));
-                            },
-                            title: Helper.loadTranslation(
-                                context, 'cancelSession'),
-                            content: Helper.loadTranslation(
-                                context, 'cancelSessionBody'));
-                        CustomDatabase.instance.removeCachedSession();
-                      },
-                      onSubmit: () => createWorkoutSession(),
-                      backButton: true,
-                      submitButton: true),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                          top: 8, left: 0, right: 0, bottom: 0),
-                      child: ListView.builder(
-                          cacheExtent: 0,
-                          itemCount: items.length,
-                          itemBuilder: ((context, index) {
-                            log('rendering $index');
-                            return items[index];
-                          })),
+      child: GestureDetector(
+        onTap: () {
+          var currentFocus = FocusScope.of(context);
+          if (!currentFocus.hasPrimaryFocus) {
+            currentFocus.unfocus();
+          }
+        },
+        child: SafeArea(
+          child: Scaffold(
+              resizeToAvoidBottomInset: true,
+              backgroundColor: Palette.backgroundDark,
+              body: SizedBox(
+                height: MediaQuery.of(context).size.height,
+                child: Column(
+                  children: [
+                    CustomAppBar(
+                        middleText:
+                            Helper.loadTranslation(context, 'newSessionOf') +
+                                ' ' +
+                                widget.workout.name,
+                        onBack: () => Navigator.maybePop(context),
+                        onSubmit: () => createWorkoutSession(),
+                        backButton: true,
+                        submitButton: true),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            top: 8, left: 0, right: 0, bottom: 0),
+                        child: ListView.builder(
+                            cacheExtent: 0,
+                            itemCount: items.length + 1,
+                            itemBuilder: ((context, index) {
+                              if (index == items.length) {
+                                return addExerciseButton();
+                              }
+                              return items[index];
+                            })),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            )),
+                  ],
+                ),
+              )),
+        ),
       ),
     );
   }
@@ -269,7 +276,7 @@ class _NewSessionState extends ConsumerState<NewSession>
   WorkoutRecord? getWorkoutRecord({bool cacheMode = false}) {
     if (cacheMode) {
       List<ExerciseRecord> exerciseRecords = [];
-      for (int i = 0; i < widget.workout.exercises.length; i++) {
+      for (int i = 0; i < exercises.length; i++) {
         ExerciseRecord exerciseRecord;
         exerciseRecord = records[i].cacheExerciseRecord;
 
@@ -284,7 +291,7 @@ class _NewSessionState extends ConsumerState<NewSession>
           workoutId: widget.workout.id);
     }
     List<ExerciseRecord?> exerciseRecords = [];
-    for (int i = 0; i < widget.workout.exercises.length; i++) {
+    for (int i = 0; i < exercises.length; i++) {
       ExerciseRecord? exerciseRecord;
       try {
         exerciseRecord = records[i].exerciseRecord;
@@ -294,6 +301,7 @@ class _NewSessionState extends ConsumerState<NewSession>
       if (exerciseRecord == null) {
         return null;
       }
+      exerciseRecord.temp = tempList[i];
       exerciseRecords.add(exerciseRecord);
     }
     List<ExerciseRecord> temp = [];
@@ -318,6 +326,48 @@ class _NewSessionState extends ConsumerState<NewSession>
       //create a cached session
       await createWorkoutSession(cacheMode: true);
     }
+  }
+
+  Widget addExerciseButton() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Center(
+          child: SizedBox(
+              height: 65,
+              width: 65,
+              child: FloatingActionButton(
+                heroTag: null,
+                onPressed: () async {
+                  var result = await Navigator.push(context,
+                      MaterialPageRoute(builder: (context) {
+                    return SelectExercise();
+                  }));
+                  if (result == null) {
+                    return;
+                  }
+                  tempList.add(true);
+                  exercises.add(Exercise(
+                      exerciseData: result,
+                      id: 0,
+                      workoutId: widget.workout.id,
+                      sets: 1,
+                      reps: 10));
+                  exerciseDataList.add(result);
+                  repsControllersLists.add([TextEditingController()]);
+                  weightControllersLists.add([TextEditingController()]);
+                  rpeControllersLists.add([TextEditingController()]);
+
+                  setState(() {});
+                },
+                backgroundColor: const Color.fromARGB(255, 31, 31, 31),
+                elevation: 0,
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(20))),
+                child: const FittedBox(
+                  child: Icon(Icons.add_outlined),
+                ),
+              ))),
+    );
   }
 }
 
@@ -464,6 +514,7 @@ class ExerciseRecordItem extends StatefulWidget {
       required this.onExerciseChange,
       required this.onAddSet,
       this.startingRecord,
+      this.temp = false,
       Key? key})
       : super(key: key);
   final Exercise exercise;
@@ -474,6 +525,7 @@ class ExerciseRecordItem extends StatefulWidget {
   final List<TextEditingController> weightControllers;
   final List<TextEditingController> rpeControllers;
   final Function() onAddSet;
+  final bool temp;
   ExerciseRecord? get exerciseRecord {
     List<ExerciseSet> setList = [];
     for (int i = 0; i < repsControllers.length; i++) {
@@ -539,6 +591,7 @@ class ExerciseRecordItem extends StatefulWidget {
 
 class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
   ExerciseRecord? startingRecord;
+  late bool tempBool;
 
   Widget buildAddSetButton() {
     return IntrinsicWidth(
@@ -681,11 +734,9 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
                 flex: 5,
                 child: Padding(
                     padding: const EdgeInsets.only(top: 24, bottom: 24),
-                    child: FittedBox(
-                      child: Text(
-                        '${Helper.loadTranslation(context, 'repsGoal')}: ${widget.exercise.reps}',
-                        style: const TextStyle(color: Colors.white),
-                      ),
+                    child: Text(
+                      '${Helper.loadTranslation(context, 'repsGoal')}: ${widget.exercise.reps}',
+                      style: const TextStyle(color: Colors.white),
                     )),
               ),
               Expanded(
@@ -693,15 +744,17 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
                 child: Padding(
                     padding:
                         const EdgeInsets.only(top: 24, bottom: 24, left: 8),
-                    child: Text(
-                        widget.exerciseData.type != 'free'
-                            ? widget.exercise.bestWeight != null
-                                ? '${Helper.loadTranslation(context, 'bestWeight')}: ${widget.exercise.bestWeight} kg'
-                                : ''
-                            : widget.exercise.bestReps != null
-                                ? '${Helper.loadTranslation(context, 'bestReps')}: ${widget.exercise.bestReps}'
-                                : '',
-                        style: const TextStyle(color: Colors.white))),
+                    child: tempBool
+                        ? SizedBox()
+                        : Text(
+                            widget.exerciseData.type != 'free'
+                                ? widget.exercise.bestWeight != null
+                                    ? '${Helper.loadTranslation(context, 'bestWeight')}: ${widget.exercise.bestWeight} kg'
+                                    : ''
+                                : widget.exercise.bestReps != null
+                                    ? '${Helper.loadTranslation(context, 'bestReps')}: ${widget.exercise.bestReps}'
+                                    : '',
+                            style: const TextStyle(color: Colors.white))),
               ),
             ],
           ),
@@ -719,6 +772,7 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
   @override
   void initState() {
     super.initState();
+    tempBool = widget.temp;
     startingRecord = widget.startingRecord;
     if (startingRecord != null) {
       var rwr = startingRecord!.sets;
@@ -746,5 +800,11 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
   @override
   Widget build(BuildContext context) {
     return buildExercise();
+  }
+
+  @override
+  void didUpdateWidget(covariant ExerciseRecordItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    tempBool = widget.temp;
   }
 }

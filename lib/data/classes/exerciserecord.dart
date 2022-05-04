@@ -8,7 +8,7 @@ class ExerciseRecord {
   final List<ExerciseSet> sets;
   final int exerciseId;
   final String type;
-  final bool temp;
+  bool temp;
 
   int volume() {
     int volume = 0;
