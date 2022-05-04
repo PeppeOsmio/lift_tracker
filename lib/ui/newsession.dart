@@ -42,13 +42,14 @@ class _NewSessionState extends ConsumerState<NewSession>
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
-    exercises.addAll(widget.workout.exercises);
+
     //remove cached sessions
     SharedPreferences.getInstance().then((value) async {
       pref = value;
       CustomDatabase.instance.removeCachedSession();
     });
     if (widget.resumedSession == null) {
+      exercises.addAll(widget.workout.exercises);
       for (int i = 0; i < exercises.length; i++) {
         tempList.add(false);
         Exercise exercise = exercises[i];
@@ -57,6 +58,8 @@ class _NewSessionState extends ConsumerState<NewSession>
     } else {
       for (int i = 0; i < widget.resumedSession!.exerciseRecords.length; i++) {
         tempList.add(false);
+        log('exlenbefore: ' +
+            widget.resumedSession!.exerciseRecords.length.toString());
         Exercise exercise = Exercise(
           workoutId: widget.workout.id,
           exerciseData: Helper.exerciseDataGlobal.firstWhere((element) =>
@@ -64,12 +67,16 @@ class _NewSessionState extends ConsumerState<NewSession>
               widget.resumedSession!.exerciseRecords[i].exerciseName),
           id: widget.resumedSession!.exerciseRecords[i].exerciseId,
           sets: widget.resumedSession!.exerciseRecords[i].sets.length,
-          reps: exercises[i].reps,
+          reps: i < widget.workout.exercises.length
+              ? widget.workout.exercises[i].reps
+              : 10,
         );
+        exercises.add(exercise);
         exerciseDataList.add(exercise.exerciseData);
       }
     }
-    originalExerciseDataList.addAll(exerciseDataList);
+    originalExerciseDataList
+        .addAll(exerciseDataList.getRange(0, widget.workout.exercises.length));
     for (int i = 0; i < exercises.length; i++) {
       repsControllersLists.add([]);
       weightControllersLists.add([]);
@@ -123,7 +130,9 @@ class _NewSessionState extends ConsumerState<NewSession>
         rpeControllers: rpeControllersLists[i],
         exerciseData: exerciseDataList[i],
         startingRecord: widget.resumedSession != null
-            ? widget.resumedSession!.exerciseRecords[i]
+            ? i < widget.resumedSession!.exerciseRecords.length
+                ? widget.resumedSession!.exerciseRecords[i]
+                : null
             : null,
       ));
 
@@ -133,7 +142,7 @@ class _NewSessionState extends ConsumerState<NewSession>
       ));
     }
     items.add(const SizedBox(height: 24));
-
+    log('exlen: ${exercises.length}');
     return WillPopScope(
       onWillPop: () async {
         bool willPop = false;
@@ -278,15 +287,11 @@ class _NewSessionState extends ConsumerState<NewSession>
       for (int i = 0; i < exercises.length; i++) {
         ExerciseRecord exerciseRecord;
         exerciseRecord = records[i].cacheExerciseRecord;
-
+        exerciseRecord.temp = true;
         exerciseRecords.add(exerciseRecord);
       }
-      List<ExerciseRecord> temp = [];
-      for (int j = 0; j < exerciseRecords.length; j++) {
-        ExerciseRecord record = exerciseRecords[j];
-        temp.add(record);
-      }
-      return WorkoutRecord(0, DateTime.now(), widget.workout.name, temp,
+      return WorkoutRecord(
+          0, DateTime.now(), widget.workout.name, exerciseRecords,
           workoutId: widget.workout.id);
     }
     List<ExerciseRecord?> exerciseRecords = [];
