@@ -163,32 +163,28 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Expanded(
-              child: GestureDetector(
-                onTap: () {
-                  widget.onExerciseChange();
-                },
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.edit,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Text(
-                          Helper.loadTranslation(
-                              context, widget.exerciseData.name),
-                          style: TextStyle(color: Colors.white, fontSize: 20),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+            GestureDetector(
+              onTap: () {
+                widget.onExerciseChange();
+              },
+              child: Icon(
+                Icons.edit,
+                color: Colors.white,
+                size: 20,
               ),
+            ),
+            const SizedBox(
+              width: 16,
+            ),
+            Expanded(
+              child: Text(
+                Helper.loadTranslation(context, widget.exerciseData.name),
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+            ),
+            const SizedBox(
+              width: 16,
             ),
             GestureDetector(
               onTap: () {
