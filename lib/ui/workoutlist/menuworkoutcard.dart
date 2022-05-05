@@ -1,12 +1,12 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:lift_tracker/data/classes/workouthistory.dart';
-import 'package:lift_tracker/data/database.dart';
+import 'package:lift_tracker/data/database/database.dart';
 import 'package:lift_tracker/ui/workoutlist/workoutcard.dart';
 import 'package:lift_tracker/ui/workouthistory/workouthistorypage.dart';
 import '../../data/helper.dart';
 import '../workouts/editworkout.dart';
-import '../newsession.dart';
+import '../newsession/newsession.dart';
 import '../widgets.dart';
 
 class MenuWorkoutCard extends StatefulWidget {

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lift_tracker/data/classes/workouthistory.dart';
 import 'package:lift_tracker/data/helper.dart';
-import 'package:lift_tracker/data/database.dart';
+import 'package:lift_tracker/data/database/database.dart';
 import 'package:lift_tracker/data/classes/workout.dart';
 import 'package:lift_tracker/ui/styles.dart';
 import 'package:lift_tracker/ui/workouts/newworkout.dart';
