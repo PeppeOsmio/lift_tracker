@@ -57,7 +57,11 @@ class _NewSessionState extends ConsumerState<NewSession>
       }
     } else {
       for (int i = 0; i < widget.resumedSession!.exerciseRecords.length; i++) {
-        tempList.add(false);
+        if (i < widget.workout.exercises.length) {
+          tempList.add(false);
+        } else {
+          tempList.add(true);
+        }
         log('exlenbefore: ' +
             widget.resumedSession!.exerciseRecords.length.toString());
         Exercise exercise = Exercise(
