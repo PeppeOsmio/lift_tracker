@@ -602,8 +602,8 @@ class CustomDatabase {
           }
         }
       }
-      DateTime now = DateTime.now();
-      String day = '${now.year}-${now.month}-${now.day}';
+      DateTime date = workoutRecord.day;
+      String day = '${date.year}-${date.month}-${date.day}';
       Map<String, Object?> values = {
         'day': day,
         'workout_name': workoutRecord.workoutName,
