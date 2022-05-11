@@ -239,23 +239,13 @@ class _NewSessionState extends ConsumerState<NewSession>
     }
     if (workoutRecord == null) {
       log('Null workout record');
-      await showDimmedBackgroundDialog(context,
-          rightText: Helper.loadTranslation(context, 'cancel'),
-          leftText: Helper.loadTranslation(context, 'yes'),
-          rightOnPressed: () => Navigator.maybePop(context),
-          leftOnPressed: () {
-            Navigator.pop(context);
-            Navigator.maybePop(context);
-            Fluttertoast.showToast(
-                msg: Helper.loadTranslation(context, 'sessionCanceled'));
-          },
-          title: Helper.loadTranslation(context, 'cancelSession'),
-          content: Helper.loadTranslation(context, 'cancelSessionBody'));
+      Navigator.maybePop(context);
       return;
     }
     try {
       //inform the addWorkoutRecord function that the cache has been deleted already
       await pref.setBool('didCacheSession', false);
+
       bool didSetRecord =
           await CustomDatabase.instance.addWorkoutRecord(workoutRecord);
       if (didSetRecord) {
@@ -263,22 +253,7 @@ class _NewSessionState extends ConsumerState<NewSession>
       }
     } catch (e) {
       log(e.toString());
-      await showDimmedBackgroundDialog(context,
-          leftText: Helper.loadTranslation(context, 'yes'),
-          rightText: Helper.loadTranslation(context, 'cancel'),
-          leftOnPressed: () {
-        ref
-            .read(Helper.workoutRecordsProvider.notifier)
-            .refreshWorkoutRecords();
-
-        Navigator.pop(context);
-        Navigator.maybePop(context);
-        Fluttertoast.showToast(msg: 'Session canceled');
-      }, rightOnPressed: () {
-        Navigator.maybePop(context);
-      },
-          title: Helper.loadTranslation(context, 'cancelSession'),
-          content: Helper.loadTranslation(context, 'cancelSessionBody'));
+      Navigator.maybePop(context);
       return;
     }
     Navigator.pop(context);

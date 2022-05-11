@@ -495,6 +495,7 @@ class CustomDatabase {
     //await removeCachedSession();
     final db = await instance.database;
     bool didSetWeightRecord = false;
+
     await db.transaction((txn) async {
       var pref = await SharedPreferences.getInstance();
 
@@ -506,8 +507,11 @@ class CustomDatabase {
 
       // don't save any weight records if in cache mode
       if (!cacheMode) {
+        workoutRecord.exerciseRecords
+            .removeWhere((element) => element.sets.isEmpty);
         // check if there were weight records in this session
         // among all the exercises that were excecuted
+
         for (int i = 0; i < workoutRecord.exerciseRecords.length; i++) {
           ExerciseRecord exerciseRecord = workoutRecord.exerciseRecords[i];
           if (!workoutRecord.exerciseRecords[i].temp) {
