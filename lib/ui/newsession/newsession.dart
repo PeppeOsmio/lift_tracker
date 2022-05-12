@@ -40,7 +40,7 @@ class _NewSessionState extends ConsumerState<NewSession>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
 
     //remove cached sessions
     SharedPreferences.getInstance().then((value) async {
@@ -298,7 +298,7 @@ class _NewSessionState extends ConsumerState<NewSession>
 
   @override
   void dispose() {
-    WidgetsBinding.instance!.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
