@@ -499,16 +499,15 @@ class CustomDatabase {
     await db.transaction((txn) async {
       var pref = await SharedPreferences.getInstance();
 
-      // if every exercise record has been deleted, the session is not valid
-      // and will not be saved
-      if (workoutRecord.exerciseRecords.isEmpty) {
-        throw Exception('empty_exercises');
-      }
-
       // don't save any weight records if in cache mode
       if (!cacheMode) {
         workoutRecord.exerciseRecords
             .removeWhere((element) => element.sets.isEmpty);
+        // if every exercise record has been deleted, the session is not valid
+        // and will not be saved
+        if (workoutRecord.exerciseRecords.isEmpty) {
+          throw Exception('empty_exercises');
+        }
         // check if there were weight records in this session
         // among all the exercises that were excecuted
 
