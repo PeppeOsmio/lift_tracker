@@ -124,6 +124,7 @@ class AnimatedMenu extends StatefulWidget {
 
 class _AnimatedMenuState extends State<AnimatedMenu> {
   double menuOpacity = 0;
+  bool isRestoring = false;
 
   @override
   void initState() {
@@ -169,22 +170,31 @@ class _AnimatedMenuState extends State<AnimatedMenu> {
                               rightText:
                                   Helper.loadTranslation(context, 'cancel'),
                               leftText: Helper.loadTranslation(context, 'yes'),
-                              rightOnPressed: () => Navigator.maybePop(context),
-                              leftOnPressed: () async {
-                                var back = await Backup.readBackup();
-                                if (back.isNotEmpty) {
-                                  Fluttertoast.showToast(
-                                      msg: Helper.loadTranslation(
-                                          context, 'backupRestored'));
-                                } else {
-                                  Fluttertoast.showToast(
-                                      msg: Helper.loadTranslation(
-                                          context, 'noBackup'));
-                                }
-                                ref.refresh(Helper.workoutsProvider);
-                                ref.refresh(Helper.workoutRecordsProvider);
-                                Navigator.maybePop(context);
-                              });
+                              rightOnPressed: () {
+                            if (isRestoring) {
+                              return;
+                            }
+                            Navigator.maybePop(context);
+                          }, leftOnPressed: () async {
+                            if (isRestoring) {
+                              return;
+                            }
+                            isRestoring = true;
+                            var back = await Backup.readBackup();
+                            if (back.isNotEmpty) {
+                              Fluttertoast.showToast(
+                                  msg: Helper.loadTranslation(
+                                      context, 'backupRestored'));
+                            } else {
+                              Fluttertoast.showToast(
+                                  msg: Helper.loadTranslation(
+                                      context, 'noBackup'));
+                            }
+                            ref.refresh(Helper.workoutsProvider);
+                            ref.refresh(Helper.workoutRecordsProvider);
+                            isRestoring = false;
+                            Navigator.maybePop(context);
+                          });
                           Navigator.maybePop(context);
                         }),
                         SizedBox(
