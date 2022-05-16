@@ -746,7 +746,8 @@ class CustomDatabase {
     final db = await instance.database;
     await db.transaction((txn) async {
       await txn.update('exercise',
-          {'best_weight': null, 'best_reps': null, 'best_volume': null});
+          {'best_weight': null, 'best_reps': null, 'best_volume': null},
+          where: 'id=?', whereArgs: [exerciseId]);
     });
   }
 
