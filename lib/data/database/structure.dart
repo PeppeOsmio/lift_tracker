@@ -51,7 +51,7 @@ Future createDB(Database db, int version) async {
   sql = '''
     CREATE TABLE exercise_record(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      exercise_name VARCHAR(33) NOT NULL,
+      json_id INTEGER NOT NULL,
       fk_workout_record_id INTEGER NOT NULL,
       fk_exercise_id INTEGER NOT NULL,
       type VARCHAR(20) NOT NULL,

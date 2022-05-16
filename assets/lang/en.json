@@ -106,6 +106,7 @@
     "workoutNameExample": "Chest and triceps, Legs...",
     "selectExercise": "Select exercise...",
     "setsField": "Sets",
+    "editWorkout": "Edit workout",
     "selectExerciseTitle": "Select an exercise",
     "cancelSession": "Cancel this session?",
     "cancelSessionBody": "Some sets are empty. Press Yes to cancel this session",

@@ -11,12 +11,14 @@ class MenuWorkoutRecordCard extends StatefulWidget {
       required this.heroTag,
       required this.deleteOnPressed,
       required this.cancelOnPressed,
+      required this.editOnPressed,
       Key? key})
       : super(key: key);
   final WorkoutRecordCard workoutRecordCard;
   final int heroTag;
   final void Function() deleteOnPressed;
   final void Function() cancelOnPressed;
+  final void Function() editOnPressed;
   final Duration positionedAnimationDuration;
   final GlobalKey workoutCardKey;
 
@@ -118,24 +120,29 @@ class _MenuWorkoutRecordCardState extends State<MenuWorkoutRecordCard> {
                     curve: Curves.decelerate,
                     right: 16,
                     bottom: MediaQuery.of(context).size.height - cardY,
-                    child: AnimatedOpacity(
-                      duration: const Duration(milliseconds: 150),
-                      opacity: opacity,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 8),
-                            child: CardMenuButton(
-                                onPressed: widget.deleteOnPressed,
-                                text: Helper.loadTranslation(context, 'delete'),
-                                borderColor: Colors.red,
-                                backgroundColor: Colors.red.withAlpha(25),
-                                width: 70),
-                          )
-                        ],
-                      ),
+                    child: Row(
+                      children: [
+                        AnimatedOpacity(
+                          duration: const Duration(milliseconds: 150),
+                          opacity: opacity,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: CardMenuButton(
+                                  onPressed: widget.deleteOnPressed,
+                                  text:
+                                      Helper.loadTranslation(context, 'delete'),
+                                  borderColor: Colors.red,
+                                  backgroundColor: Colors.red.withAlpha(25),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   )
                 ],

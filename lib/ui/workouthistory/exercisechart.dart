@@ -34,12 +34,6 @@ class _ExerciseChartState extends State<ExerciseChart> {
     for (int i = 0; i < widget.workoutHistory.workoutRecords.length; i++) {
       List<ExerciseRecord> exerciseRecords =
           widget.workoutHistory.workoutRecords[i].exerciseRecords;
-      for (var record in exerciseRecords) {
-        log('exRecordName: ${record.exerciseId}');
-      }
-      for (var exercise in widget.workoutHistory.workout.exercises) {
-        log('exName: ${exercise.id}');
-      }
       try {
         var foundRecord = exerciseRecords
             .firstWhere((element) => element.exerciseId == widget.exercise.id);

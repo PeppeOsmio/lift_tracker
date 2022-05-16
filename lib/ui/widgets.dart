@@ -213,17 +213,21 @@ class CardMenuButton extends StatelessWidget {
       required this.text,
       required this.borderColor,
       required this.backgroundColor,
-      this.width,
       Key? key})
       : super(key: key);
   final Function onPressed;
   final String text;
   final Color borderColor;
   final Color backgroundColor;
-  final double? width;
 
   @override
   Widget build(BuildContext context) {
+    double? width;
+    if (text.length < 6) {
+      width = 50;
+    } else {
+      width = null;
+    }
     return GestureDetector(
       onTap: () => onPressed(),
       child: Container(

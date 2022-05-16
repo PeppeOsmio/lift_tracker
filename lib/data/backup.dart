@@ -7,6 +7,7 @@ import 'package:lift_tracker/data/classes/exerciserecord.dart';
 import 'package:lift_tracker/data/classes/exerciseset.dart';
 import 'package:lift_tracker/data/classes/workoutrecord.dart';
 import 'package:lift_tracker/data/database/database.dart';
+import 'package:lift_tracker/data/helper.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:file_picker/file_picker.dart';
 
@@ -106,7 +107,7 @@ class Backup {
                 hasVolumeRecord: set['hasVR'],
                 hasWeightRecord: set['hasWR']));
           }
-          exerciseRecords.add(ExerciseRecord(exerciseRecord['n'], sets,
+          exerciseRecords.add(ExerciseRecord(exerciseRecord['jsonId'], sets,
               exerciseId: exerciseRecord['exId'],
               type: exerciseRecord['type']));
         }

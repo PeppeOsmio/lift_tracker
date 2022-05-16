@@ -61,13 +61,10 @@ class _NewSessionState extends ConsumerState<NewSession>
         } else {
           tempList.add(true);
         }
-        log('exlenbefore: ' +
-            widget.resumedSession!.exerciseRecords.length.toString());
         Exercise exercise = Exercise(
           workoutId: widget.workout.id,
           exerciseData: Helper.exerciseDataGlobal.firstWhere((element) =>
-              element.name ==
-              widget.resumedSession!.exerciseRecords[i].exerciseName),
+              element.id == widget.resumedSession!.exerciseRecords[i].jsonId),
           id: widget.resumedSession!.exerciseRecords[i].exerciseId,
           sets: widget.resumedSession!.exerciseRecords[i].sets.length,
           reps: i < widget.workout.exercises.length

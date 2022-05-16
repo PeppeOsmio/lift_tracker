@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lift_tracker/data/backup.dart';
 import 'package:lift_tracker/data/helper.dart';
+import 'package:lift_tracker/ui/profile/profile.dart';
 import 'package:lift_tracker/ui/styles.dart';
 import 'package:lift_tracker/ui/widgets.dart';
 
@@ -153,12 +154,22 @@ class _AnimatedMenuState extends State<AnimatedMenu> {
         child: IntrinsicWidth(
           child: Container(
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding:
+                  const EdgeInsets.only(left: 12, right: 12, bottom: 8, top: 8),
               child: Consumer(
                 builder: (context, ref, child) {
                   return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        buildMenuElement(
+                            Helper.loadTranslation(context, 'profile'),
+                            Icons.person,
+                            style, onPressed: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return Profile();
+                          }));
+                        }),
                         buildMenuElement(
                             Helper.loadTranslation(
                                 context, 'restoreBackupMenu'),
@@ -197,9 +208,6 @@ class _AnimatedMenuState extends State<AnimatedMenu> {
                           });
                           Navigator.maybePop(context);
                         }),
-                        SizedBox(
-                          height: 16,
-                        ),
                         buildMenuElement(
                             Helper.loadTranslation(context, 'createBackupMenu'),
                             Icons.save,
@@ -226,9 +234,6 @@ class _AnimatedMenuState extends State<AnimatedMenu> {
                               });
                           Navigator.maybePop(context);
                         }),
-                        SizedBox(
-                          height: 16,
-                        ),
                         buildMenuElement(
                             Helper.loadTranslation(context, 'help'),
                             Icons.help,
@@ -249,28 +254,32 @@ class _AnimatedMenuState extends State<AnimatedMenu> {
 
   Widget buildMenuElement(String text, IconData icon, TextStyle style,
       {Function? onPressed}) {
-    return GestureDetector(
-      onTap: () {
-        if (onPressed != null) {
-          onPressed();
-        }
-      },
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Text(
-            text,
-            style: style,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          if (onPressed != null) {
+            onPressed();
+          }
+        },
+        child: Padding(
+          padding: EdgeInsets.only(top: 8, bottom: 8, left: 4, right: 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(
+                text,
+                style: style,
+              ),
+              SizedBox(width: 8),
+              Spacer(),
+              Icon(
+                icon,
+                color: Colors.white,
+              )
+            ],
           ),
-          Spacer(),
-          const SizedBox(
-            width: 8,
-          ),
-          Icon(
-            icon,
-            color: Colors.white,
-          )
-        ],
+        ),
       ),
     );
   }

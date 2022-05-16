@@ -322,7 +322,12 @@ class ExerciseRecordCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(left: 32),
                 child: Text(
-                  Helper.loadTranslation(context, exerciseRecord.exerciseName),
+                  Helper.loadTranslation(
+                      context,
+                      Helper.exerciseDataGlobal
+                          .firstWhere(
+                              (element) => exerciseRecord.jsonId == element.id)
+                          .name),
                   style: const TextStyle(color: Colors.white, fontSize: 20),
                 ),
               ),

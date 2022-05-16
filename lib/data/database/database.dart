@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'dart:developer' as dev;
@@ -164,7 +165,7 @@ class CustomDatabase {
 
     List<Map<String, Object?>> queryCachedExerciseRecords = await db.query(
         'exercise_record',
-        columns: ['id', 'exercise_name', 'type', 'fk_exercise_id'],
+        columns: ['id', 'json_id', 'type', 'fk_exercise_id'],
         where: 'fk_workout_record_id=?',
         whereArgs: [cachedWorkoutRecordId],
         orderBy: 'id');
@@ -172,8 +173,7 @@ class CustomDatabase {
       List<ExerciseSet> cachedSets = [];
 
       int id = queryCachedExerciseRecords[i]['id'] as int;
-      String exerciseName =
-          queryCachedExerciseRecords[i]['exercise_name'] as String;
+      int jsonId = queryCachedExerciseRecords[i]['json_id'] as int;
       int exerciseId = queryCachedExerciseRecords[i]['fk_exercise_id'] as int;
       String type = queryCachedExerciseRecords[i]['type'] as String;
 
@@ -191,7 +191,7 @@ class CustomDatabase {
         cachedSets.add(ExerciseSet(weight: weight, reps: reps, rpe: rpe));
       }
 
-      cachedExerciseRecords.add(ExerciseRecord(exerciseName, cachedSets,
+      cachedExerciseRecords.add(ExerciseRecord(jsonId, cachedSets,
           exerciseId: exerciseId, type: type));
     }
 
@@ -234,7 +234,7 @@ class CustomDatabase {
       int workoutRecordId = queryWorkoutRecords[i]['id'] as int;
       List<Map<String, Object?>> queryExerciseRecords = await db.query(
           'exercise_record',
-          columns: ['id', 'exercise_name', 'fk_exercise_id', 'type'],
+          columns: ['id', 'json_id', 'fk_exercise_id', 'type'],
           where: 'fk_workout_record_id=?',
           whereArgs: [workoutRecordId],
           orderBy: 'id');
@@ -276,12 +276,10 @@ class CustomDatabase {
               hasRepsRecord: hasRepsRecord));
         }
         //we create the exercise record and add it to the list
-        String exerciseName =
-            queryExerciseRecords[j]['exercise_name'] as String;
+        int jsonId = queryExerciseRecords[j]['json_id'] as int;
         int exerciseId = queryExerciseRecords[j]['fk_exercise_id'] as int;
         String type = queryExerciseRecords[j]['type'] as String;
-        ExerciseRecord exerciseRecord = ExerciseRecord(
-            exerciseName, repsWeightRpes,
+        ExerciseRecord exerciseRecord = ExerciseRecord(jsonId, repsWeightRpes,
             exerciseId: exerciseId, type: type);
         exerciseRecords.add(exerciseRecord);
       }
@@ -434,7 +432,7 @@ class CustomDatabase {
       for (int i = 0; i < queryWorkoutRecord.length; i++) {
         int workoutRecordId = queryWorkoutRecord[i]['id'] as int;
         var queryExerciseRecord = await txn.query('exercise_record',
-            columns: ['id', 'fk_exercise_id', 'exercise_name', 'type'],
+            columns: ['id', 'fk_exercise_id', 'json_id', 'type'],
             where: 'fk_workout_record_id=?',
             whereArgs: [workoutRecordId],
             limit: 15);
@@ -470,12 +468,11 @@ class CustomDatabase {
                 hasVolumeRecord: hasVolumeRecord,
                 hasWeightRecord: hasWeightRecord));
           }
-          String exerciseName =
-              queryExerciseRecord[j]['exercise_name'] as String;
+          int jsonId = queryExerciseRecord[j]['json_id'] as int;
           int exerciseId = queryExerciseRecord[j]['fk_exercise_id'] as int;
           String type = queryExerciseRecord[j]['type'] as String;
-          exerciseRecords.add(ExerciseRecord(exerciseName, sets,
-              exerciseId: exerciseId, type: type));
+          exerciseRecords.add(
+              ExerciseRecord(jsonId, sets, exerciseId: exerciseId, type: type));
         }
         DateTime day = DateTime.parse(
             sqlToDartDate(queryWorkoutRecord[i]['day'] as String));
@@ -618,7 +615,7 @@ class CustomDatabase {
 
         values = {
           'fk_workout_record_id': workoutRecordId,
-          'exercise_name': workoutRecord.exerciseRecords[i].exerciseName,
+          'json_id': workoutRecord.exerciseRecords[i].jsonId,
           'fk_exercise_id': workoutRecord.exerciseRecords[i].exerciseId,
           'type': workoutRecord.exerciseRecords[i].type
         };

@@ -157,7 +157,6 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                                       Helper.loadTranslation(context, 'delete'),
                                   borderColor: Colors.red,
                                   backgroundColor: Colors.red.withAlpha(25),
-                                  width: 70,
                                 ),
                               ),
                               widget.hasHistory

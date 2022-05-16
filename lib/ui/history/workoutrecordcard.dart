@@ -76,7 +76,11 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
                   Text(
                       '${exercises[i].sets.length}  ×  ' +
                           Helper.loadTranslation(
-                              context, exercises[i].exerciseName),
+                              context,
+                              Helper.exerciseDataGlobal
+                                  .firstWhere((element) =>
+                                      exercises[i].jsonId == element.id)
+                                  .name),
                       style:
                           const TextStyle(fontSize: 15, color: Colors.white)),
                   recordExercisesIndexes.contains(i)

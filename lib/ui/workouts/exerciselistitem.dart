@@ -1,7 +1,6 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:lift_tracker/data/classes/exercise.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/helper.dart';
 import '../styles.dart';
@@ -9,6 +8,7 @@ import '../styles.dart';
 class ExerciseListItem extends StatefulWidget {
   const ExerciseListItem(
       {required this.onDelete,
+      this.resetIcon = false,
       this.onMoveUp,
       this.onMoveDown,
       required this.onNameFieldPress,
@@ -27,6 +27,7 @@ class ExerciseListItem extends StatefulWidget {
   final Function? onMoveUp;
   final Function? onMoveDown;
   final Function onNameFieldPress;
+  final bool resetIcon;
 
   @override
   _ExerciseListItemState createState() => _ExerciseListItemState();
@@ -53,36 +54,57 @@ class _ExerciseListItemState extends State<ExerciseListItem> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                Stack(
+                  clipBehavior: Clip.none,
                   children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          widget.onNameFieldPress();
-                        },
-                        child: Container(
-                            padding: const EdgeInsets.only(left: 16, right: 16),
-                            //width: MediaQuery.of(context).size.width,
-                            decoration: const BoxDecoration(
-                                color: Color.fromARGB(255, 31, 31, 31),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10))),
-                            child: IgnorePointer(
-                              child: TextFormField(
-                                readOnly: true,
-                                controller: widget.nameController,
-                                style: const TextStyle(
-                                    color: Colors.white, fontSize: 16),
-                                decoration: InputDecoration(
-                                  hintStyle: TextStyle(color: Colors.grey),
-                                  hintText: Helper.loadTranslation(
-                                      context, 'selectExercise'),
-                                  border: InputBorder.none,
-                                ),
-                              ),
-                            )),
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              widget.onNameFieldPress();
+                            },
+                            child: Container(
+                                padding:
+                                    const EdgeInsets.only(left: 16, right: 16),
+                                //width: MediaQuery.of(context).size.width,
+                                decoration: const BoxDecoration(
+                                    color: Color.fromARGB(255, 31, 31, 31),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(10))),
+                                child: IgnorePointer(
+                                  child: TextFormField(
+                                    readOnly: true,
+                                    controller: widget.nameController,
+                                    style: const TextStyle(
+                                        color: Colors.white, fontSize: 16),
+                                    decoration: InputDecoration(
+                                      hintStyle: TextStyle(color: Colors.grey),
+                                      hintText: Helper.loadTranslation(
+                                          context, 'selectExercise'),
+                                      border: InputBorder.none,
+                                    ),
+                                  ),
+                                )),
+                          ),
+                        ),
+                      ],
                     ),
+                    Positioned(
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(24),
+                          onTap: () {},
+                          child: Icon(
+                            Icons.restart_alt,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      top: -8,
+                      right: -8,
+                    )
                   ],
                 ),
                 const SizedBox(height: 24),

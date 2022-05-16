@@ -150,6 +150,7 @@ class _BodyState extends ConsumerState<Body> {
               workoutCardKey: key,
               workoutRecordCard: workoutRecordCard,
               heroTag: tag,
+              editOnPressed: () {},
               deleteOnPressed: () async {
                 await CustomDatabase.instance
                     .removeWorkoutRecord(workoutRecordCard.workoutRecord.id);
