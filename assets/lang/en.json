@@ -125,5 +125,8 @@
     "createdBackup": "Backup created",
     "didntCreateBackup": "Backup failed",
     "createBackupMenu": "Create backup",
-    "restoreBackupMenu": "Restore backup"
+    "restoreBackupMenu": "Restore backup",
+    "resetStats": "Do you want to reset this exercise's stats?",
+    "resetSuccessful": "Stats reset",
+    "loseChanges": "Do you want to cancel all changes?"
 }

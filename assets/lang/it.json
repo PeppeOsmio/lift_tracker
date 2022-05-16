@@ -125,5 +125,8 @@
     "createdBackup": "Backup creato",
     "didntCreateBackup": "Creazione backup fallita",
     "createBackupMenu": "Crea backup",
-    "restoreBackupMenu": "Ripristina backup"
+    "restoreBackupMenu": "Ripristina backup",
+    "resetStats": "Vuoi azzerare le statistiche di questo esercizio?",
+    "resetSuccessful": "Statistiche azzerate",
+    "loseChanges": "Vuoi annullare tutte le modifiche?"
 }

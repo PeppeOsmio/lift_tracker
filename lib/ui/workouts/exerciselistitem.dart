@@ -11,6 +11,7 @@ class ExerciseListItem extends StatefulWidget {
       this.resetIcon = false,
       this.onMoveUp,
       this.onMoveDown,
+      this.onReset,
       required this.onNameFieldPress,
       required this.repsController,
       required this.nameController,
@@ -28,6 +29,7 @@ class ExerciseListItem extends StatefulWidget {
   final Function? onMoveDown;
   final Function onNameFieldPress;
   final bool resetIcon;
+  final Function? onReset;
 
   @override
   _ExerciseListItemState createState() => _ExerciseListItemState();
@@ -90,21 +92,27 @@ class _ExerciseListItemState extends State<ExerciseListItem> {
                         ),
                       ],
                     ),
-                    Positioned(
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(24),
-                          onTap: () {},
-                          child: Icon(
-                            Icons.restart_alt,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                      top: -8,
-                      right: -8,
-                    )
+                    widget.resetIcon
+                        ? Positioned(
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(24),
+                                onTap: () {
+                                  if (widget.onReset != null) {
+                                    widget.onReset!();
+                                  }
+                                },
+                                child: Icon(
+                                  Icons.restart_alt,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            top: -8,
+                            right: -8,
+                          )
+                        : SizedBox()
                   ],
                 ),
                 const SizedBox(height: 24),

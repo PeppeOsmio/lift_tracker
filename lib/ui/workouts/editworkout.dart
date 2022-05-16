@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/database/database.dart';
 import 'package:lift_tracker/data/classes/exercise.dart';
@@ -50,6 +51,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
     List<ExerciseListItem> exerciseWidgets = [];
     for (int i = 0; i < exerciseList.length; i++) {
       exerciseWidgets.add(ExerciseListItem(
+        resetIcon: exerciseList[i] != null,
         onDelete: () => onDelete(i),
         onNameFieldPress: () async {
           var result = await Navigator.push(context,
@@ -68,6 +70,20 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
             setState(() {});
           }
         },
+        onReset: () async {
+          await showDimmedBackgroundDialog(context,
+              title: Helper.loadTranslation(context, 'resetStats'),
+              rightText: Helper.loadTranslation(context, 'cancel'),
+              leftText: Helper.loadTranslation(context, 'yes'),
+              rightOnPressed: () => Navigator.pop(context),
+              leftOnPressed: () async {
+                await CustomDatabase.instance.resetStats(exerciseList[i]!.id);
+                Fluttertoast.showToast(
+                    msg: Helper.loadTranslation(context, 'resetSuccessful'));
+                ref.refresh(Helper.workoutsProvider);
+                Navigator.pop(context);
+              });
+        },
         repsController: repsControllers[i],
         nameController: nameControllers[i],
         setsController: setsControllers[i],
@@ -85,7 +101,15 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
     }
     return WillPopScope(
       onWillPop: () async {
-        Navigator.pop(context);
+        await showDimmedBackgroundDialog(context,
+            title: Helper.loadTranslation(context, 'loseChanges'),
+            rightText: Helper.loadTranslation(context, 'cancel'),
+            leftText: Helper.loadTranslation(context, 'yes'),
+            rightOnPressed: () => Navigator.pop(context),
+            leftOnPressed: () {
+              Navigator.pop(context);
+              Navigator.pop(context);
+            });
         return false;
       },
       child: SafeArea(
@@ -98,7 +122,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
                       middleText:
                           Helper.loadTranslation(context, 'editWorkout'),
                       onBack: () {
-                        Navigator.pop(context);
+                        Navigator.maybePop(context);
                       },
                       onSubmit: () => editWorkout(),
                       backButton: true,

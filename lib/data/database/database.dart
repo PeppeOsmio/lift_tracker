@@ -742,6 +742,14 @@ class CustomDatabase {
     return {'workoutId': id, 'exerciseIds': exIds};
   }
 
+  Future resetStats(int exerciseId) async {
+    final db = await instance.database;
+    await db.transaction((txn) async {
+      await txn.update('exercise',
+          {'best_weight': null, 'best_reps': null, 'best_volume': null});
+    });
+  }
+
   Future clearAll() async {
     final db = await instance.database;
     await db.transaction((txn) async {
