@@ -10,6 +10,8 @@ import 'package:lift_tracker/ui/workouts/exerciselistitem.dart';
 import 'package:lift_tracker/ui/selectexercise.dart';
 import 'package:lift_tracker/ui/widgets.dart';
 
+import '../../data/classes/exercisedata.dart';
+
 class EditWorkout extends ConsumerStatefulWidget {
   const EditWorkout(this.workout, {Key? key}) : super(key: key);
   final Workout workout;
@@ -24,6 +26,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
   List<Exercise> initialExercises = [];
   List<TextEditingController> repsControllers = [];
   List<TextEditingController> setsControllers = [];
+  List<ExerciseData> originalDataList = [];
   List<TextEditingController> nameControllers = [];
 
   @override
@@ -33,6 +36,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
     initialExercises.addAll(widget.workout.exercises);
     for (int i = 0; i < initialExercises.length; i++) {
       var exercise = initialExercises[i];
+      originalDataList.add(exercise.exerciseData);
       exerciseList.add(exercise);
       repsControllers.add(TextEditingController());
       setsControllers.add(TextEditingController());
@@ -50,8 +54,16 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
   Widget build(BuildContext context) {
     List<ExerciseListItem> exerciseWidgets = [];
     for (int i = 0; i < exerciseList.length; i++) {
+      bool resetIcon = true;
+      if (exerciseList[i] == null) {
+        resetIcon = false;
+      } else if (exerciseList[i]!.bestReps == null &&
+          exerciseList[i]!.bestWeight == null &&
+          exerciseList[i]!.bestVolume == null) {
+        resetIcon = false;
+      }
       exerciseWidgets.add(ExerciseListItem(
-        resetIcon: exerciseList[i] != null,
+        resetIcon: resetIcon,
         onDelete: () => onDelete(i),
         onNameFieldPress: () async {
           var result = await Navigator.push(context,
@@ -59,6 +71,10 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
             return SelectExercise();
           }));
           if (result != null) {
+            if (exerciseList[i] != null &&
+                result == exerciseList[i]!.exerciseData) {
+              return;
+            }
             exerciseList[i] = Exercise(
                 exerciseData: result,
                 id: 0,
@@ -70,20 +86,53 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
             setState(() {});
           }
         },
-        onReset: () async {
-          await showDimmedBackgroundDialog(context,
-              title: Helper.loadTranslation(context, 'resetStats'),
-              rightText: Helper.loadTranslation(context, 'cancel'),
-              leftText: Helper.loadTranslation(context, 'yes'),
-              rightOnPressed: () => Navigator.pop(context),
-              leftOnPressed: () async {
-                await CustomDatabase.instance.resetStats(exerciseList[i]!.id);
-                Fluttertoast.showToast(
-                    msg: Helper.loadTranslation(context, 'resetSuccessful'));
-                ref.refresh(Helper.workoutsProvider);
-                Navigator.pop(context);
-              });
-        },
+        onReset: resetIcon
+            ? () async {
+                Exercise exercise = exerciseList[i]!;
+                String bestVolume;
+                String bestReps;
+                String bestWeight;
+                String content;
+                if (exercise.bestReps == null) {
+                  bestReps = 'no record';
+                } else {
+                  bestReps = exercise.bestReps.toString();
+                }
+                if (exercise.bestWeight == null) {
+                  bestWeight = 'no record';
+                } else {
+                  bestWeight = exercise.bestWeight.toString();
+                }
+                if (exercise.bestVolume == null) {
+                  bestVolume = 'no record';
+                } else {
+                  bestVolume = exercise.bestVolume.toString();
+                }
+
+                if (exercise.exerciseData.type == 'free') {
+                  content = 'Best reps: $bestReps';
+                } else {
+                  content =
+                      'Best weight: $bestWeight kg\nBest volume: $bestVolume kg';
+                }
+
+                await showDimmedBackgroundDialog(context,
+                    title: Helper.loadTranslation(context, 'resetStats'),
+                    content: content,
+                    rightText: Helper.loadTranslation(context, 'cancel'),
+                    leftText: Helper.loadTranslation(context, 'yes'),
+                    rightOnPressed: () => Navigator.pop(context),
+                    leftOnPressed: () async {
+                      await CustomDatabase.instance
+                          .resetStats(exerciseList[i]!.id);
+                      Fluttertoast.showToast(
+                          msg: Helper.loadTranslation(
+                              context, 'resetSuccessful'));
+                      ref.refresh(Helper.workoutsProvider);
+                      Navigator.pop(context);
+                    });
+              }
+            : () {},
         repsController: repsControllers[i],
         nameController: nameControllers[i],
         setsController: setsControllers[i],

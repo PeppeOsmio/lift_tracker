@@ -109,8 +109,8 @@ class _ExerciseListItemState extends State<ExerciseListItem> {
                                 ),
                               ),
                             ),
-                            top: -8,
-                            right: -8,
+                            top: 0,
+                            right: 0,
                           )
                         : SizedBox()
                   ],
