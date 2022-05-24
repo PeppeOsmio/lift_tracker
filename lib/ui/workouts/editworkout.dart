@@ -23,10 +23,9 @@ class EditWorkout extends ConsumerStatefulWidget {
 class _EditWorkoutState extends ConsumerState<EditWorkout> {
   List<Exercise?> exerciseList = [];
   TextEditingController workoutNameController = TextEditingController();
-  List<Exercise> initialExercises = [];
+  List<Exercise?> initialExercises = [];
   List<TextEditingController> repsControllers = [];
   List<TextEditingController> setsControllers = [];
-  List<ExerciseData> originalDataList = [];
   List<TextEditingController> nameControllers = [];
 
   @override
@@ -36,12 +35,11 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
     initialExercises.addAll(widget.workout.exercises);
     for (int i = 0; i < initialExercises.length; i++) {
       var exercise = initialExercises[i];
-      originalDataList.add(exercise.exerciseData);
       exerciseList.add(exercise);
       repsControllers.add(TextEditingController());
       setsControllers.add(TextEditingController());
       nameControllers.add(TextEditingController());
-      repsControllers[i].text = exercise.reps.toString();
+      repsControllers[i].text = exercise!.reps.toString();
       setsControllers[i].text = exercise.sets.toString();
       Future.delayed(Duration.zero, () {
         nameControllers[i].text =
@@ -72,7 +70,11 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
           }));
           if (result != null) {
             if (exerciseList[i] != null &&
-                result == exerciseList[i]!.exerciseData) {
+                result == initialExercises[i]!.exerciseData) {
+              exerciseList[i] = initialExercises[i]!;
+              nameControllers[i].text =
+                  Helper.loadTranslation(context, result.name);
+              setState(() {});
               return;
             }
             exerciseList[i] = Exercise(
@@ -110,10 +112,11 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
                 }
 
                 if (exercise.exerciseData.type == 'free') {
-                  content = 'Best reps: $bestReps';
+                  content =
+                      '${Helper.loadTranslation(context, 'bestReps')}: $bestReps';
                 } else {
                   content =
-                      'Best weight: $bestWeight kg\nBest volume: $bestVolume kg';
+                      '${Helper.loadTranslation(context, 'bestWeight')}: $bestWeight kg\n${Helper.loadTranslation(context, 'bestVolume')}: $bestVolume kg';
                 }
 
                 await showDimmedBackgroundDialog(context,
@@ -129,6 +132,9 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
                           msg: Helper.loadTranslation(
                               context, 'resetSuccessful'));
                       ref.refresh(Helper.workoutsProvider);
+                      exerciseList[i]!.bestReps = null;
+                      exerciseList[i]!.bestWeight = null;
+                      exerciseList[i]!.bestVolume = null;
                       Navigator.pop(context);
                     });
               }
@@ -281,6 +287,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
       repsControllers.removeAt(index);
       setsControllers.removeAt(index);
       nameControllers.removeAt(index);
+      initialExercises.removeAt(index);
       setState(() {});
     }
   }
@@ -301,6 +308,9 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
     var temp3 = nameControllers[index];
     nameControllers[index] = nameControllers[index + 1];
     nameControllers[index + 1] = temp3;
+    var temp4 = initialExercises[index];
+    initialExercises[index] = initialExercises[index + 1];
+    initialExercises[index + 1] = temp4;
     setState(() {});
   }
 
@@ -320,6 +330,9 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
     var temp3 = nameControllers[index];
     nameControllers[index] = nameControllers[index - 1];
     nameControllers[index - 1] = temp3;
+    var temp4 = initialExercises[index];
+    initialExercises[index] = initialExercises[index - 1];
+    initialExercises[index - 1] = temp4;
     setState(() {});
   }
 
@@ -335,6 +348,8 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
                     setsControllers.last.text != '' &&
                     nameControllers.last.text != '') {
                   exerciseList.add(null);
+                  initialExercises.add(null);
+                  initialExercises.add(null);
                   repsControllers.add(TextEditingController());
                   setsControllers.add(TextEditingController());
                   nameControllers.add(TextEditingController());
