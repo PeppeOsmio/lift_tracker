@@ -97,28 +97,16 @@ class CustomDatabase {
     return workout!;
   }
 
-  Future<int> removeCachedSession() async {
+  Future removeCachedSession() async {
+    final db = await instance.database;
     var pref = await SharedPreferences.getInstance();
-    bool? temp = await pref.getBool('didCacheSession');
-    bool cached = false;
-    if (temp != null) {
-      await pref.setBool('didCacheSession', false);
-      cached = temp;
+    int? id = (await db.query('workout_record',
+        columns: ['id'], limit: 1, orderBy: 'id DESC'))[0]['id'] as int?;
+    dev.log('id: ' + id.toString());
+    if (id != null) {
+      await removeWorkoutRecord(id);
+      pref.setBool('didCacheSession', false);
     }
-    if (cached) {
-      final db = await instance.database;
-      var idQuery = await db.query('workout_record',
-          columns: ['id'], orderBy: 'id DESC', limit: 1);
-      if (idQuery.isNotEmpty) {
-        int? id = idQuery[0]['id'] as int?;
-        if (id != null) {
-          int iid = await removeWorkoutRecord(id);
-          return iid;
-        }
-      }
-      return -1;
-    }
-    return -1;
   }
 
   Future<int> removeWorkoutRecord(int workoutRecordId) async {
@@ -371,8 +359,6 @@ class CustomDatabase {
         },
         where: 'id=?',
         whereArgs: [exerciseId]);
-    var query = await txn.query('best_weight_volume_reps',
-        columns: ['best_weight', 'best_volume', 'best_reps']);
 
     /*if (query.isEmpty) {
       await txn.insert('best_weight_volume_reps', {
@@ -492,9 +478,43 @@ class CustomDatabase {
     //await removeCachedSession();
     final db = await instance.database;
     bool didSetWeightRecord = false;
-
+    var pref = await SharedPreferences.getInstance();
     await db.transaction((txn) async {
-      var pref = await SharedPreferences.getInstance();
+      bool? temp = await pref.getBool('didCacheSession');
+      bool cached = false;
+      if (temp != null) {
+        cached = temp;
+      }
+      if (cached) {
+        var idQuery = await txn.query('workout_record',
+            columns: ['id'], orderBy: 'id DESC', limit: 1);
+        if (idQuery.isNotEmpty) {
+          int? id = idQuery[0]['id'] as int?;
+          if (id != null) {
+            List<Map<String, Object?>> query = await txn.query(
+                'exercise_record',
+                columns: ['id'],
+                where: 'fk_workout_record_id=?',
+                whereArgs: [id],
+                orderBy: 'id DESC');
+            List<int> exerciseRecordIds = [];
+            for (int i = 0; i < query.length; i++) {
+              exerciseRecordIds.add(query[i]['id'] as int);
+            }
+            for (int i = 0; i < exerciseRecordIds.length; i++) {
+              await txn.delete('exercise_set',
+                  where: 'fk_exercise_record_id=?',
+                  whereArgs: [exerciseRecordIds[i]]);
+            }
+            for (int i = 0; i < query.length; i++) {
+              await txn.delete('exercise_record',
+                  where: 'fk_workout_record_id=?', whereArgs: [id]);
+            }
+            id = await txn
+                .delete('workout_record', where: 'id=?', whereArgs: [id]);
+          }
+        }
+      }
 
       // don't save any weight records if in cache mode
       if (!cacheMode) {
@@ -642,11 +662,8 @@ class CustomDatabase {
           await txn.insert('exercise_set', values);
         }
       }
-
-      if (cacheMode) {
-        await pref.setBool('didCacheSession', true);
-      }
     });
+    await pref.setBool('didCacheSession', cacheMode);
     return didSetWeightRecord;
   }
 

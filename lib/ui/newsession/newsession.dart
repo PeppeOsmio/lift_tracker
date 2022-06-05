@@ -41,12 +41,7 @@ class _NewSessionState extends ConsumerState<NewSession>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-
-    //remove cached sessions
-    SharedPreferences.getInstance().then((value) async {
-      pref = value;
-      CustomDatabase.instance.removeCachedSession();
-    });
+    SharedPreferences.getInstance().then((value) => pref = value);
     if (widget.resumedSession == null) {
       exercises.addAll(widget.workout.exercises);
       for (int i = 0; i < exercises.length; i++) {
@@ -154,7 +149,6 @@ class _NewSessionState extends ConsumerState<NewSession>
             leftOnPressed: () async {
               Navigator.pop(context);
               Navigator.pop(context);
-              await CustomDatabase.instance.removeCachedSession();
               willPop = true;
               Fluttertoast.showToast(
                   msg: Helper.loadTranslation(context, 'sessionCanceled'));
@@ -212,11 +206,6 @@ class _NewSessionState extends ConsumerState<NewSession>
 
   Future createWorkoutSession({bool cacheMode = false}) async {
     WorkoutRecord? workoutRecord;
-    // remove cached sessions
-    int id = await CustomDatabase.instance.removeCachedSession();
-    if (id != -1) {
-      log('createWorkoutSession: removed cached session.');
-    }
     // create cached session
     if (cacheMode) {
       workoutRecord = getWorkoutRecord(cacheMode: true);
@@ -241,7 +230,6 @@ class _NewSessionState extends ConsumerState<NewSession>
     }
     try {
       //inform the addWorkoutRecord function that the cache has been deleted already
-      await pref.setBool('didCacheSession', false);
 
       bool didSetRecord =
           await CustomDatabase.instance.addWorkoutRecord(workoutRecord);
