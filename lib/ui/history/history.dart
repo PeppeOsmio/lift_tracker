@@ -20,6 +20,7 @@ class History extends ConsumerStatefulWidget {
 
 class _HistoryState extends ConsumerState<History> {
   late Future<List<WorkoutRecord>> workoutRecords;
+  List<WorkoutRecord> workoutRecordsList = [];
 
   @override
   void initState() {
@@ -36,9 +37,12 @@ class _HistoryState extends ConsumerState<History> {
             future: workoutRecords,
             builder: (context, ss) {
               if (ss.hasData) {
-                List<WorkoutRecord> records = ss.data! as List<WorkoutRecord>;
-                if (records.isNotEmpty) {
-                  return Expanded(child: Body(records: records));
+                workoutRecordsList = ss.data! as List<WorkoutRecord>;
+                if (workoutRecordsList.isNotEmpty) {
+                  return Expanded(
+                      child: Body(
+                    records: workoutRecordsList,
+                  ));
                 } else {
                   return Expanded(
                     child: Padding(
@@ -53,7 +57,11 @@ class _HistoryState extends ConsumerState<History> {
                   );
                 }
               }
-              return const SizedBox();
+              return Expanded(
+                child: Center(
+                  child: CircularProgressIndicator.adaptive(),
+                ),
+              );
             },
           ),
         ],

@@ -52,7 +52,7 @@ class WorkoutRecordsNotifier
   WorkoutRecordsNotifier()
       : super(CustomDatabase.instance.readWorkoutRecords());
 
-  void refreshWorkoutRecords() {
+  void refreshWorkoutRecords({bool next = false}) {
     state = CustomDatabase.instance.readWorkoutRecords();
   }
 }

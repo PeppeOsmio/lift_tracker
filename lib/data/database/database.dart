@@ -212,9 +212,10 @@ class CustomDatabase {
 
     //we get all the workout records
     List<Map<String, Object?>> queryWorkoutRecords = await db.query(
-        'workout_record',
-        columns: ['id', 'day', 'workout_name', 'fk_workout_id'],
-        orderBy: 'id');
+      'workout_record',
+      columns: ['id', 'day', 'workout_name', 'fk_workout_id'],
+      orderBy: 'id DESC',
+    );
 
     //we get all the exercise records
     for (int i = 0; i < queryWorkoutRecords.length; i++) {

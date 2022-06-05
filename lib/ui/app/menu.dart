@@ -202,7 +202,9 @@ class _AnimatedMenuState extends State<AnimatedMenu> {
                                       context, 'noBackup'));
                             }
                             ref.refresh(Helper.workoutsProvider);
-                            ref.refresh(Helper.workoutRecordsProvider);
+                            ref
+                                .read(Helper.workoutRecordsProvider.notifier)
+                                .refreshWorkoutRecords();
                             isRestoring = false;
                             Navigator.maybePop(context);
                           });
