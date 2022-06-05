@@ -7,7 +7,6 @@ import 'package:lift_tracker/data/classes/exerciserecord.dart';
 import 'package:lift_tracker/data/classes/exerciseset.dart';
 import 'package:lift_tracker/data/classes/workoutrecord.dart';
 import 'package:lift_tracker/data/database/database.dart';
-import 'package:lift_tracker/data/helper.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:file_picker/file_picker.dart';
 
@@ -24,7 +23,11 @@ class Backup {
       try {
         String date = DateTime.now().toString().replaceAll(' ', '');
         date = date.replaceAll(':', '');
-        file = File('/storage/emulated/0/Documents/${date}.ltbackup');
+        String? path = await FilePicker.platform.getDirectoryPath();
+        if (path == null) {
+          return false;
+        }
+        file = File('$path/${date}.ltbackup');
       } catch (_) {
         log(_.toString());
         return false;
