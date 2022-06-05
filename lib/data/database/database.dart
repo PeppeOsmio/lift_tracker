@@ -214,7 +214,6 @@ class CustomDatabase {
     List<Map<String, Object?>> queryWorkoutRecords = await db.query(
       'workout_record',
       columns: ['id', 'day', 'workout_name', 'fk_workout_id'],
-      orderBy: 'id DESC',
     );
 
     //we get all the exercise records
@@ -222,29 +221,29 @@ class CustomDatabase {
       List<ExerciseRecord> exerciseRecords = [];
       int workoutRecordId = queryWorkoutRecords[i]['id'] as int;
       List<Map<String, Object?>> queryExerciseRecords = await db.query(
-          'exercise_record',
-          columns: ['id', 'json_id', 'fk_exercise_id', 'type'],
-          where: 'fk_workout_record_id=?',
-          whereArgs: [workoutRecordId],
-          orderBy: 'id');
+        'exercise_record',
+        columns: ['id', 'json_id', 'fk_exercise_id', 'type'],
+        where: 'fk_workout_record_id=?',
+        whereArgs: [workoutRecordId],
+      );
 
       //we get all the exercise sets
       for (int j = 0; j < queryExerciseRecords.length; j++) {
         int exerciseRecordId = queryExerciseRecords[j]['id'] as int;
-        List<Map<String, Object?>> queryExerciseSets =
-            await db.query('exercise_set',
-                columns: [
-                  'id',
-                  'reps',
-                  'weight',
-                  'rpe',
-                  'has_volume_record',
-                  'has_weight_record',
-                  'has_reps_record'
-                ],
-                where: 'fk_exercise_record_id=?',
-                whereArgs: [exerciseRecordId],
-                orderBy: 'id');
+        List<Map<String, Object?>> queryExerciseSets = await db.query(
+          'exercise_set',
+          columns: [
+            'id',
+            'reps',
+            'weight',
+            'rpe',
+            'has_volume_record',
+            'has_weight_record',
+            'has_reps_record'
+          ],
+          where: 'fk_exercise_record_id=?',
+          whereArgs: [exerciseRecordId],
+        );
         //we get the information about every exercise set
         List<ExerciseSet> repsWeightRpes = [];
         for (int k = 0; k < queryExerciseSets.length; k++) {
