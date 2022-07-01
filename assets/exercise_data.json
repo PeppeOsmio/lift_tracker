@@ -326,5 +326,21 @@
         "secondMuscle": "glutes",
         "thirdMuscle": "",
         "type": "machine"
+    },
+    {
+        "id": 42,
+        "name": "lowCableCrossover",
+        "firstMuscle": "chest",
+        "secondMuscle": "antDelts",
+        "thirdMuscle": "",
+        "type": "machine"
+    },
+    {
+        "id": 43,
+        "name": "ropePulldown",
+        "firstMuscle": "lats",
+        "secondMuscle": "triceps",
+        "thirdMuscle": "rearDelts",
+        "type": "machine"
     }
 ]

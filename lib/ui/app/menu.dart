@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lift_tracker/data/backup.dart';
+import 'package:lift_tracker/data/database/database.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/ui/profile/profile.dart';
 import 'package:lift_tracker/ui/styles.dart';
 import 'package:lift_tracker/ui/widgets.dart';
+import 'package:restart_app/restart_app.dart';
 
 class BlurredProfileMenu extends StatefulWidget {
   const BlurredProfileMenu({Key? key}) : super(key: key);
@@ -196,15 +198,12 @@ class _AnimatedMenuState extends State<AnimatedMenu> {
                               Fluttertoast.showToast(
                                   msg: Helper.loadTranslation(
                                       context, 'backupRestored'));
+                              Restart.restartApp();
                             } else {
                               Fluttertoast.showToast(
                                   msg: Helper.loadTranslation(
                                       context, 'noBackup'));
                             }
-                            ref.refresh(Helper.workoutsProvider);
-                            ref
-                                .read(Helper.workoutRecordsProvider.notifier)
-                                .refreshWorkoutRecords();
                             isRestoring = false;
                             Navigator.maybePop(context);
                           });

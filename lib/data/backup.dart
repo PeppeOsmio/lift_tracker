@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lift_tracker/data/classes/exercise.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/classes/exerciserecord.dart';
@@ -9,7 +10,6 @@ import 'package:lift_tracker/data/classes/workoutrecord.dart';
 import 'package:lift_tracker/data/database/database.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:file_picker/file_picker.dart';
-
 import 'classes/workout.dart';
 
 class Backup {
@@ -28,22 +28,25 @@ class Backup {
           return false;
         }
         file = File('$path/${date}.ltbackup');
-      } catch (_) {
-        log(_.toString());
+      } catch (e) {
+        Fluttertoast.showToast(msg: 'backup: ' + e.toString());
+        log(e.toString());
         return false;
       }
 
-      List<Workout> workouts = await CustomDatabase.instance.readWorkouts();
+      List<Workout> workouts =
+          await CustomDatabase.instance.readWorkouts(readAll: true);
       List<WorkoutRecord> workoutRecords =
-          await CustomDatabase.instance.readWorkoutRecords();
+          await CustomDatabase.instance.readWorkoutRecords(readAll: true);
       Map<String, dynamic> map = {
         'workouts': workouts.map((e) => e.toMap()).toList(),
         'workoutRecords': workoutRecords.map((e) => e.toMap()).toList()
       };
       try {
         await file.writeAsString(jsonEncode(map), flush: true);
-      } catch (_) {
-        log(_.toString());
+      } catch (e) {
+        Fluttertoast.showToast(msg: 'backup: ' + e.toString());
+        log(e.toString());
         return false;
       }
       return true;

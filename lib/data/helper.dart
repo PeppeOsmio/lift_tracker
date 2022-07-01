@@ -39,25 +39,82 @@ class PagesNotifier extends StateNotifier<List<Widget>> {
   }
 }
 
-class WorkoutsNotifier extends StateNotifier<Future<List<Workout>>> {
-  WorkoutsNotifier() : super(CustomDatabase.instance.readWorkouts());
+class WorkoutsNotifier extends StateNotifier<List<Workout>> {
+  WorkoutsNotifier() : super([]);
 
-  void refreshWorkouts() {
-    state = CustomDatabase.instance.readWorkouts();
+  void addWorkouts(List<Workout> workouts) {
+    state = [...state, ...workouts];
+  }
+
+  void addWorkout(Workout workout) {
+    state = [workout, ...state];
+  }
+
+  void removeWorkout(int workoutId) {
+    List<Workout> newState = [...state];
+    newState.removeWhere((workout) => workout.id == workoutId);
+    state = newState;
+  }
+
+  void replaceWorkout(Workout newWorkout) {
+    var newState = [...state];
+    int index = newState.indexWhere((workout) {
+      return newWorkout.id == workout.id;
+    });
+    log(index.toString());
+    newState[index] = newWorkout;
+    state = newState;
   }
 }
 
-class WorkoutRecordsNotifier
-    extends StateNotifier<Future<List<WorkoutRecord>>> {
-  WorkoutRecordsNotifier()
-      : super(CustomDatabase.instance.readWorkoutRecords());
+class WorkoutRecordsNotifier extends StateNotifier<List<WorkoutRecord>> {
+  WorkoutRecordsNotifier() : super([]);
 
-  void refreshWorkoutRecords({bool next = false}) {
-    state = CustomDatabase.instance.readWorkoutRecords();
+  void addWorkoutRecords(List<WorkoutRecord> workoutRecords) {
+    state = [...state, ...workoutRecords];
+  }
+
+  void addWorkoutRecord(WorkoutRecord workoutRecord) {
+    state = [workoutRecord, ...state];
+  }
+
+  void removeWorkoutRecord(int workoutRecordId) {
+    List<WorkoutRecord> newState = [...state];
+    newState
+        .removeWhere((workoutRecord) => workoutRecord.id == workoutRecordId);
+    state = newState;
+  }
+
+  void replaceWorkoutRecord(WorkoutRecord newWorkoutRecord) {
+    var newState = [...state];
+    int index = newState.indexWhere((workoutRecord) {
+      return newWorkoutRecord.id == workoutRecord.id;
+    });
+    newState[index] = newWorkoutRecord;
+    state = newState;
+  }
+}
+
+class WorkoutsOffsetNotifier extends StateNotifier<int> {
+  WorkoutsOffsetNotifier() : super(0);
+
+  void incrementOffset() {
+    state = state + 1;
+  }
+}
+
+class WorkoutRecordsOffsetNotifier extends StateNotifier<int> {
+  WorkoutRecordsOffsetNotifier() : super(0);
+
+  void incrementOffset() {
+    state = state + 1;
   }
 }
 
 class Helper {
+  static final instance = Helper._init();
+
+  Helper._init();
   // Providers
 
   // Provides the index that indicates the current displayed page
@@ -77,15 +134,29 @@ class Helper {
   // Provides the future of the saved workouts. This future will be
   // resolved in the Workouts page's FutureBuilder
   static final workoutsProvider =
-      StateNotifierProvider<WorkoutsNotifier, Future<List<Workout>>>(((ref) {
+      StateNotifierProvider<WorkoutsNotifier, List<Workout>>(((ref) {
     return WorkoutsNotifier();
   }));
 
   // Provides the future of the saved workout records. this future will be
   // resolved in the History page's future builder
-  static final workoutRecordsProvider = StateNotifierProvider<
-      WorkoutRecordsNotifier, Future<List<WorkoutRecord>>>((ref) {
+  static final workoutRecordsProvider =
+      StateNotifierProvider<WorkoutRecordsNotifier, List<WorkoutRecord>>((ref) {
     return WorkoutRecordsNotifier();
+  });
+
+  static final workoutsOffsetProvider =
+      StateNotifierProvider<WorkoutsOffsetNotifier, int>((ref) {
+    return WorkoutsOffsetNotifier();
+  });
+
+  static final workoutRecordsOffsetProvider =
+      StateNotifierProvider<WorkoutRecordsOffsetNotifier, int>((ref) {
+    return WorkoutRecordsOffsetNotifier();
+  });
+
+  static final searchLimitProvider = Provider<int>((ref) {
+    return 3;
   });
 
   static Future<List<ExerciseData>> getExerciseData() async {
@@ -113,6 +184,9 @@ class Helper {
 
   static List<int> pageStack = [];
   static List<ExerciseData> exerciseDataGlobal = [];
+  int workoutsOffset = 0;
+  int workoutRecordsOffset = 0;
+  final int searchLimit = 3;
 
   static void unfocusTextFields(BuildContext context) {
     FocusScopeNode currentFocus = FocusScope.of(context);

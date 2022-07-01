@@ -261,7 +261,6 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
     startingRecord = widget.startingRecord;
     if (startingRecord != null) {
       var rwr = startingRecord!.sets;
-      log(rwr.length.toString());
       for (int i = 0; i < rwr.length; i++) {
         String initialReps = rwr[i].reps.toString();
         String initialWeight = rwr[i].weight.toString();

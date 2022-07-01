@@ -8,7 +8,6 @@ import 'package:lift_tracker/data/classes/workouthistory.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/classes/exerciserecord.dart';
 import 'package:lift_tracker/data/classes/workoutrecord.dart';
-import 'package:lift_tracker/ui/exercises.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import '../classes/exercise.dart';
@@ -37,11 +36,12 @@ class CustomDatabase {
     return await openDatabase(path, version: 1, onCreate: createDB);
   }
 
-  Future editWorkout(Workout workout) async {
+  Future<bool> editWorkout(Workout workout) async {
     final db = await instance.database;
+    int count = -1;
     await db.transaction((txn) async {
       List<int> idsToSpare = [];
-      await txn.update('workout', {'name': workout.name},
+      count = await txn.update('workout', {'name': workout.name},
           where: 'id=?', whereArgs: [workout.id]);
       var currentExercisesQuery = await txn.query('exercise',
           columns: ['id', 'json_id'],
@@ -83,6 +83,7 @@ class CustomDatabase {
         }
       }
     });
+    return count > 0;
   }
 
   Future<Workout> getCachedWorkout(int workoutId) async {
@@ -102,16 +103,15 @@ class CustomDatabase {
     var pref = await SharedPreferences.getInstance();
     int? id = (await db.query('workout_record',
         columns: ['id'], limit: 1, orderBy: 'id DESC'))[0]['id'] as int?;
-    dev.log('id: ' + id.toString());
     if (id != null) {
       await removeWorkoutRecord(id);
       pref.setBool('didCacheSession', false);
     }
   }
 
-  Future<int> removeWorkoutRecord(int workoutRecordId) async {
+  Future<bool> removeWorkoutRecord(int workoutRecordId) async {
     final db = await instance.database;
-    int? id;
+    int id = -1;
     await db.transaction((txn) async {
       List<Map<String, Object?>> query = await txn.query('exercise_record',
           columns: ['id'],
@@ -134,11 +134,7 @@ class CustomDatabase {
       id = await txn.delete('workout_record',
           where: 'id=?', whereArgs: [workoutRecordId]);
     });
-    if (id == null) {
-      return -1;
-    } else {
-      return id!;
-    }
+    return id > 0;
   }
 
   Future<WorkoutRecord> getCachedSession() async {
@@ -193,7 +189,9 @@ class CustomDatabase {
   }
 
   Future<List<WorkoutRecord>> readWorkoutRecords(
-      {bool cacheMode = false}) async {
+      {bool cacheMode = false,
+      int? workoutRecordId,
+      bool readAll = false}) async {
     bool cached = false;
 
     final db = await instance.database;
@@ -209,22 +207,43 @@ class CustomDatabase {
     }
 
     List<WorkoutRecord> workoutRecords = [];
+    List<Map<String, Object?>> queryWorkoutRecords;
 
-    //we get all the workout records
-    List<Map<String, Object?>> queryWorkoutRecords = await db.query(
-      'workout_record',
-      columns: ['id', 'day', 'workout_name', 'fk_workout_id'],
-    );
+    int? limit = Helper.instance.searchLimit;
+    int offset = Helper.instance.workoutRecordsOffset;
+    Helper.instance.workoutRecordsOffset += 1;
 
+    if (readAll) {
+      limit = null;
+      offset = 0;
+      Helper.instance.workoutRecordsOffset = 0;
+    }
+
+    if (workoutRecordId == null) {
+      //we get all the workout records
+      queryWorkoutRecords = await db.query('workout_record',
+          columns: ['id', 'day', 'workout_name', 'fk_workout_id'],
+          offset: limit != null ? offset * limit : null,
+          orderBy: 'id DESC',
+          limit: limit);
+    } else {
+      queryWorkoutRecords = await db.query('workout_record',
+          columns: ['id', 'day', 'workout_name', 'fk_workout_id'],
+          offset: 0,
+          limit: 1,
+          orderBy: 'id DESC',
+          where: 'id=?',
+          whereArgs: [workoutRecordId]);
+    }
     //we get all the exercise records
     for (int i = 0; i < queryWorkoutRecords.length; i++) {
       List<ExerciseRecord> exerciseRecords = [];
-      int workoutRecordId = queryWorkoutRecords[i]['id'] as int;
+      int woRecordId = queryWorkoutRecords[i]['id'] as int;
       List<Map<String, Object?>> queryExerciseRecords = await db.query(
         'exercise_record',
         columns: ['id', 'json_id', 'fk_exercise_id', 'type'],
         where: 'fk_workout_record_id=?',
-        whereArgs: [workoutRecordId],
+        whereArgs: [woRecordId],
       );
 
       //we get all the exercise sets
@@ -277,7 +296,7 @@ class CustomDatabase {
       DateTime day = DateTime.parse(sqlToDartDate(dayString));
       int workoutId = queryWorkoutRecords[i]['fk_workout_id'] as int;
       workoutRecords.add(WorkoutRecord(
-          workoutRecordId, day, workoutName, exerciseRecords,
+          woRecordId, day, workoutName, exerciseRecords,
           workoutId: workoutId));
     }
 
@@ -471,12 +490,13 @@ class CustomDatabase {
     return WorkoutHistory(workout: workout, workoutRecords: workoutRecords);
   }
 
-  Future<bool> addWorkoutRecord(WorkoutRecord workoutRecord,
+  Future<Map<String, int>> addWorkoutRecord(WorkoutRecord workoutRecord,
       {bool cacheMode = false, bool backupMode = false}) async {
     // delete all exercise records with empty sets
     // and track their indexes
     //await removeCachedSession();
     final db = await instance.database;
+    int workoutRecordId = -1;
     bool didSetWeightRecord = false;
     var pref = await SharedPreferences.getInstance();
     await db.transaction((txn) async {
@@ -625,7 +645,7 @@ class CustomDatabase {
         'workout_name': workoutRecord.workoutName,
         'fk_workout_id': workoutRecord.workoutId,
       };
-      int workoutRecordId = await txn.insert('workout_record', values);
+      workoutRecordId = await txn.insert('workout_record', values);
       values.clear();
 
       // save that we saved a cache session right after saving the workout_record row
@@ -664,23 +684,54 @@ class CustomDatabase {
       }
     });
     await pref.setBool('didCacheSession', cacheMode);
-    return didSetWeightRecord;
+    return {
+      'workoutRecordId': workoutRecordId,
+      'didSetRecord': didSetWeightRecord ? 1 : 0
+    };
   }
 
-  Future removeWorkout(int id) async {
+  Future<bool> removeWorkout(int workoutId) async {
     final db = await instance.database;
+    int id = -1;
     await db.transaction((txn) async {
-      await txn.delete('exercise', where: 'fk_workout_id=?', whereArgs: [id]);
-      await txn.delete('workout', where: 'id=?', whereArgs: [id]);
+      await txn
+          .delete('exercise', where: 'fk_workout_id=?', whereArgs: [workoutId]);
+      id = await txn.delete('workout', where: 'id=?', whereArgs: [workoutId]);
     });
+    return id > 0;
   }
 
-  Future<List<Workout>> readWorkouts() async {
-    dev.log('Reading workouts');
+  Future<List<Workout>> readWorkouts(
+      {int? workoutId, bool readAll = false}) async {
     List<Workout> workoutList = [];
     final db = await instance.database;
-    final queryWorkouts =
-        await db.query('workout', columns: ['id', 'name'], orderBy: 'id');
+    var queryWorkouts;
+
+    int? limit = Helper.instance.searchLimit;
+    int offset = Helper.instance.workoutsOffset;
+    Helper.instance.workoutsOffset += 1;
+
+    if (readAll) {
+      limit = null;
+      offset = 0;
+      Helper.instance.workoutsOffset = 0;
+    }
+
+    if (workoutId == null) {
+      queryWorkouts = await db.query('workout',
+          columns: ['id', 'name'],
+          orderBy: 'id DESC',
+          offset: limit != null ? offset * limit : null,
+          limit: limit);
+    } else {
+      queryWorkouts = await db.query('workout',
+          columns: ['id', 'name'],
+          orderBy: 'id DESC',
+          offset: 0,
+          limit: 1,
+          where: 'id=?',
+          whereArgs: [workoutId]);
+    }
     for (int i = 0; i < queryWorkouts.length; i++) {
       int id = queryWorkouts[i]['id'] as int;
       String name = queryWorkouts[i]['name'] as String;
@@ -727,8 +778,7 @@ class CustomDatabase {
     return workoutList;
   }
 
-  Future<Map<String, dynamic>> createWorkout(
-      String name, List<Exercise> exercises,
+  Future<int> createWorkout(String name, List<Exercise> exercises,
       {backupMode = false, workoutId = 0}) async {
     final db = await instance.database;
     int id = -1;
@@ -756,7 +806,7 @@ class CustomDatabase {
         exIds.add(exId);
       }
     });
-    return {'workoutId': id, 'exerciseIds': exIds};
+    return id;
   }
 
   Future resetStats(int exerciseId) async {

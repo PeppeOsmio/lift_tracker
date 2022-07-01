@@ -41,7 +41,11 @@ class _NewSessionState extends ConsumerState<NewSession>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    SharedPreferences.getInstance().then((value) => pref = value);
+    SharedPreferences.getInstance()
+        .then((value) => pref = value)
+        .catchError((error) {
+      Fluttertoast.showToast(msg: 'newsession: ' + error.toString());
+    });
     if (widget.resumedSession == null) {
       exercises.addAll(widget.workout.exercises);
       for (int i = 0; i < exercises.length; i++) {
@@ -230,19 +234,42 @@ class _NewSessionState extends ConsumerState<NewSession>
     }
     try {
       //inform the addWorkoutRecord function that the cache has been deleted already
-
-      bool didSetRecord =
-          await CustomDatabase.instance.addWorkoutRecord(workoutRecord);
-      if (didSetRecord) {
-        ref.read(Helper.workoutsProvider.notifier).refreshWorkouts();
+      var newWorkoutRecordInfo = await CustomDatabase.instance
+          .addWorkoutRecord(workoutRecord)
+          .catchError((error) {
+        Fluttertoast.showToast(msg: 'newsession: ' + error.toString());
+      });
+      bool didSetRecord = newWorkoutRecordInfo['didSetRecord'] == 1;
+      int newId = newWorkoutRecordInfo['workoutRecordId']!;
+      // if a record was set, read the new workout and replace the old one
+      if (didSetRecord && newId > 0) {
+        CustomDatabase.instance
+            .readWorkouts(workoutId: workoutRecord.workoutId)
+            .then((workouts) {
+          ref
+              .read(Helper.workoutsProvider.notifier)
+              .replaceWorkout(workouts[0]);
+        }).catchError((error) {
+          Fluttertoast.showToast(msg: 'newsession: ' + error.toString());
+        });
       }
+      CustomDatabase.instance
+          .readWorkoutRecords(
+              workoutRecordId: newWorkoutRecordInfo['workoutRecordId'])
+          .then((workoutRecords) {
+        ref
+            .read(Helper.workoutRecordsProvider.notifier)
+            .addWorkoutRecord(workoutRecords[0]);
+      }).catchError((error) {
+        Fluttertoast.showToast(msg: 'newsession: ' + error.toString());
+      });
     } catch (e) {
       log(e.toString());
+      Fluttertoast.showToast(msg: 'newsession: ' + e.toString());
       Navigator.maybePop(context);
       return;
     }
     Navigator.pop(context);
-    ref.read(Helper.workoutRecordsProvider.notifier).refreshWorkoutRecords();
   }
 
   WorkoutRecord? getWorkoutRecord({bool cacheMode = false}) {
@@ -264,6 +291,7 @@ class _NewSessionState extends ConsumerState<NewSession>
       try {
         exerciseRecord = records[i].exerciseRecord;
       } catch (e) {
+        Fluttertoast.showToast(msg: 'newsession: ' + e.toString());
         throw Exception();
       }
       if (exerciseRecord == null) {

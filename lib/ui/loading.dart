@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lift_tracker/data/classes/exercise.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/classes/workout.dart';
@@ -46,6 +47,8 @@ class _LoadingState extends ConsumerState<Loading> {
             MaterialPageRoute(builder: (context) {
           return App();
         }));
+      }).catchError((error) {
+        Fluttertoast.showToast(msg: 'laoding: ' + error.toString());
       });
     });
   }

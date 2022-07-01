@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lift_tracker/data/database/database.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/ui/history/menuworkoutrecordcard.dart';
@@ -19,12 +22,12 @@ class History extends ConsumerStatefulWidget {
 }
 
 class _HistoryState extends ConsumerState<History> {
-  late Future<List<WorkoutRecord>> workoutRecords;
-  List<WorkoutRecord> workoutRecordsList = [];
+  List<WorkoutRecord> workoutRecords = [];
 
   @override
   void initState() {
     super.initState();
+    readMoreAndUpdateUI();
   }
 
   @override
@@ -33,46 +36,44 @@ class _HistoryState extends ConsumerState<History> {
     return SafeArea(
       child: Column(
         children: [
-          FutureBuilder(
-            future: workoutRecords,
-            builder: (context, ss) {
-              if (ss.hasData) {
-                workoutRecordsList = ss.data! as List<WorkoutRecord>;
-                if (workoutRecordsList.isNotEmpty) {
-                  return Expanded(
-                      child: Body(
-                    records: workoutRecordsList,
-                  ));
-                } else {
-                  return Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Center(
-                          child: Text(
-                        Helper.loadTranslation(context, 'historyWelcome'),
-                        style: TextStyle(color: Colors.white, fontSize: 20),
-                        textAlign: TextAlign.center,
-                      )),
-                    ),
-                  );
-                }
-              }
-              return Expanded(
-                child: Center(
-                  child: CircularProgressIndicator.adaptive(),
-                ),
-              );
-            },
-          ),
+          workoutRecords.isNotEmpty
+              ? Expanded(
+                  child: Body(
+                  records: workoutRecords,
+                  readMoreCallback: readMoreAndUpdateUI,
+                ))
+              : Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Center(
+                        child: Text(
+                      Helper.loadTranslation(context, 'historyWelcome'),
+                      style: TextStyle(color: Colors.white, fontSize: 20),
+                      textAlign: TextAlign.center,
+                    )),
+                  ),
+                )
         ],
       ),
     );
   }
+
+  void readMoreAndUpdateUI() {
+    CustomDatabase.instance.readWorkoutRecords().then((workoutRecords) {
+      ref
+          .read(Helper.workoutRecordsProvider.notifier)
+          .addWorkoutRecords(workoutRecords);
+    }).catchError((error) {
+      Fluttertoast.showToast(msg: 'history: ' + error.toString());
+    });
+  }
 }
 
 class Body extends ConsumerStatefulWidget {
-  const Body({Key? key, required this.records}) : super(key: key);
+  const Body({Key? key, required this.records, required this.readMoreCallback})
+      : super(key: key);
   final List<WorkoutRecord> records;
+  final Function readMoreCallback;
 
   @override
   ConsumerState<Body> createState() => _BodyState();
@@ -123,15 +124,20 @@ class _BodyState extends ConsumerState<Body> {
         Expanded(
           child: ListView.builder(
               itemBuilder: (context, i) {
+                if ((i + 1).remainder(Helper.instance.searchLimit) == 0 &&
+                    (i + 1) ~/ Helper.instance.searchLimit >
+                        (Helper.instance.workoutRecordsOffset - 1)) {
+                  widget.readMoreCallback();
+                }
                 WorkoutRecordCard workoutRecordCard =
-                    WorkoutRecordCard(records[length - 1 - i], () {});
+                    WorkoutRecordCard(records[i], () {});
                 GlobalKey key = GlobalKey();
                 return Padding(
                   padding: const EdgeInsets.all(16),
-                  child: WorkoutRecordCard(records[length - 1 - i], () {
+                  child: WorkoutRecordCard(records[i], () {
                     MaterialPageRoute route =
                         MaterialPageRoute(builder: (context) {
-                      return Session(records[length - 1 - i]);
+                      return Session(records[i]);
                     });
                     Navigator.push(context, route);
                   }, onLongPress: () async {
@@ -160,11 +166,12 @@ class _BodyState extends ConsumerState<Body> {
               heroTag: tag,
               editOnPressed: () {},
               deleteOnPressed: () async {
-                await CustomDatabase.instance
-                    .removeWorkoutRecord(workoutRecordCard.workoutRecord.id);
-                ref
-                    .read(Helper.workoutRecordsProvider.notifier)
-                    .refreshWorkoutRecords();
+                if (await CustomDatabase.instance
+                    .removeWorkoutRecord(workoutRecordCard.workoutRecord.id)) {
+                  ref
+                      .read(Helper.workoutRecordsProvider.notifier)
+                      .removeWorkoutRecord(workoutRecordCard.workoutRecord.id);
+                }
                 await Navigator.maybePop(context);
               },
               cancelOnPressed: () {

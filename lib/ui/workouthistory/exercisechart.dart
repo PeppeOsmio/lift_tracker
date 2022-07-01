@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lift_tracker/data/classes/exercise.dart';
 import 'package:lift_tracker/data/classes/exerciserecord.dart';
 import 'package:lift_tracker/data/classes/workouthistory.dart';
@@ -41,6 +42,7 @@ class _ExerciseChartState extends State<ExerciseChart> {
         volumes.add(foundRecord.volume().toDouble());
         dates.add(widget.workoutHistory.workoutRecords[i].day);
       } catch (e) {
+        Fluttertoast.showToast(msg: 'exercisechart: ' + e.toString());
         log(e.toString());
       }
     }

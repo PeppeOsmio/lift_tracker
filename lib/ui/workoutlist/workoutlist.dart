@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lift_tracker/data/classes/workouthistory.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/database/database.dart';
@@ -20,7 +21,7 @@ class WorkoutList extends ConsumerStatefulWidget {
 }
 
 class _WorkoutListState extends ConsumerState<WorkoutList> {
-  late Future<List<Workout>> workoutsFuture;
+  List<Workout> workouts = [];
   bool isButtonPressed = false;
   List<Size> cardSized = [];
   List<GlobalKey> cardKeys = [];
@@ -28,6 +29,11 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
   @override
   void initState() {
     super.initState();
+    CustomDatabase.instance.readWorkouts().then((workouts) {
+      ref.read(Helper.workoutsProvider.notifier).addWorkouts(workouts);
+    }).catchError((error) {
+      Fluttertoast.showToast(msg: 'workoutlist: ' + error.toString());
+    });
   }
 
   Widget buildFAB() {
@@ -42,12 +48,10 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
               Helper.unfocusTextFields(context);
               var route =
                   MaterialPageRoute(builder: (context) => const NewWorkout());
-              await Navigator.push(context, route).then((value) {
-                CustomDatabase.instance.readWorkouts().then((value) {
-                  setState(() {
-                    workoutsFuture = CustomDatabase.instance.readWorkouts();
-                  });
-                });
+              await Navigator.push(context, route)
+                  .then((value) {})
+                  .catchError((error) {
+                Fluttertoast.showToast(msg: 'workoutlist: ' + error.toString());
               });
             },
             backgroundColor: Colors.blueGrey.withAlpha(125),
@@ -63,49 +67,46 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
 
   @override
   Widget build(BuildContext context) {
-    workoutsFuture = ref.watch(Helper.workoutsProvider);
+    workouts = ref.watch(Helper.workoutsProvider);
     return Stack(
       children: [
         Column(
           children: [
-            FutureBuilder(
-              future: workoutsFuture,
-              builder: (context, ss) {
-                if (ss.hasData) {
-                  List<Workout> workouts = [];
-                  workouts.addAll(ss.data! as List<Workout>);
-
-                  if (workouts.isNotEmpty) {
-                    return Body(workouts: workouts);
-                  } else {
-                    return Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Center(
-                            child: Text(
-                          Helper.loadTranslation(context, 'workoutListWelcome'),
-                          style: Styles.style(dark: true, fontSize: 20),
-                          textAlign: TextAlign.center,
-                        )),
-                      ),
-                    );
-                  }
-                } else {
-                  return const SizedBox();
-                }
-              },
-            ),
+            workouts.isNotEmpty
+                ? Body(
+                    workouts: workouts, readMoreCallback: readMoreAndUpdateUI)
+                : Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Center(
+                          child: Text(
+                        Helper.loadTranslation(context, 'workoutListWelcome'),
+                        style: Styles.style(dark: true, fontSize: 20),
+                        textAlign: TextAlign.center,
+                      )),
+                    ),
+                  )
           ],
         ),
         Positioned(bottom: 16, right: 16, child: buildFAB()),
       ],
     );
   }
+
+  void readMoreAndUpdateUI() {
+    CustomDatabase.instance.readWorkouts().then((workouts) {
+      ref.read(Helper.workoutsProvider.notifier).addWorkouts(workouts);
+    }).catchError((error) {
+      Fluttertoast.showToast(msg: 'workoutlist: ' + error.toString());
+    });
+  }
 }
 
 class Body extends ConsumerStatefulWidget {
-  const Body({Key? key, required this.workouts}) : super(key: key);
+  const Body({Key? key, required this.workouts, required this.readMoreCallback})
+      : super(key: key);
   final List<Workout> workouts;
+  final Function readMoreCallback;
 
   @override
   ConsumerState<Body> createState() => _BodyState();
@@ -171,8 +172,13 @@ class _BodyState extends ConsumerState<Body> {
         Expanded(
           child: ListView.builder(
               itemCount: columnContent.length,
-              itemBuilder: (context, index) {
-                return columnContent[index];
+              itemBuilder: (context, i) {
+                if ((i + 1).remainder(Helper.instance.searchLimit) == 0 &&
+                    (i + 1) ~/ Helper.instance.searchLimit >
+                        (Helper.instance.workoutsOffset - 1)) {
+                  widget.readMoreCallback();
+                }
+                return columnContent[i];
               }),
         )
       ],
@@ -190,12 +196,21 @@ class _BodyState extends ConsumerState<Body> {
               workoutCardKey: key,
               workoutCard: workoutCard,
               deleteOnPressed: () async {
+                bool didRemove = false;
                 await CustomDatabase.instance
-                    .removeWorkout(workoutCard.workout.id);
-                ref.read(Helper.workoutsProvider.notifier).refreshWorkouts();
+                    .removeWorkout(workoutCard.workout.id)
+                    .then((response) {
+                  didRemove = response;
+                }).catchError((error) {
+                  Fluttertoast.showToast(
+                      msg: 'workoutlist: ' + error.toString());
+                });
+                if (didRemove) {
+                  ref
+                      .read(Helper.workoutsProvider.notifier)
+                      .removeWorkout(workoutCard.workout.id);
+                }
                 await Navigator.maybePop(context);
-                //somehow necessary to clear to trigger init state again...
-                return;
               },
               cancelOnPressed: () {
                 Navigator.maybePop(context);

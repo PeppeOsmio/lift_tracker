@@ -275,9 +275,17 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
 
       exercises.add(exerciseList[i]!);
     }
-    await CustomDatabase.instance.editWorkout(
-        Workout(widget.workout.id, workoutNameController.text, exercises));
-    ref.read(Helper.workoutsProvider.notifier).refreshWorkouts();
+    bool didEdit = false;
+    Workout workout =
+        Workout(widget.workout.id, workoutNameController.text, exercises);
+    await CustomDatabase.instance.editWorkout(workout).then((response) {
+      didEdit = response;
+    }).catchError((error) {
+      Fluttertoast.showToast(msg: 'ediworkout: ' + error.toString());
+    });
+    if (didEdit) {
+      ref.read(Helper.workoutsProvider.notifier).replaceWorkout(workout);
+    }
     Navigator.pop(context);
   }
 

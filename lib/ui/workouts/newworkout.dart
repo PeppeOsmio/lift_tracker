@@ -188,8 +188,26 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
           reps: int.parse(reps),
           workoutId: 0));
     }
-    await CustomDatabase.instance.createWorkout(workoutName.text, exercises);
-    ref.read(Helper.workoutsProvider.notifier).refreshWorkouts();
+    bool didCreateWorkout = false;
+    int workoutId = -1;
+    await CustomDatabase.instance
+        .createWorkout(workoutName.text, exercises)
+        .then((id) {
+      workoutId = id;
+      didCreateWorkout = id > 0;
+    }).catchError((error) {
+      Fluttertoast.showToast(msg: 'newworkout: ' + error.toString());
+    });
+    if (didCreateWorkout && workoutId > 0) {
+      CustomDatabase.instance
+          .readWorkouts(workoutId: workoutId)
+          .then((workouts) {
+        print(workouts);
+        ref.read(Helper.workoutsProvider.notifier).addWorkout(workouts[0]);
+      }).catchError((error) {
+        Fluttertoast.showToast(msg: 'newworkout: ' + error.toString());
+      });
+    }
     Navigator.pop(context);
   }
 
