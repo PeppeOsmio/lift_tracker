@@ -186,7 +186,7 @@ class Helper {
   static List<ExerciseData> exerciseDataGlobal = [];
   int workoutsOffset = 0;
   int workoutRecordsOffset = 0;
-  final int searchLimit = 3;
+  final int searchLimit = 10;
 
   static void unfocusTextFields(BuildContext context) {
     FocusScopeNode currentFocus = FocusScope.of(context);
