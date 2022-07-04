@@ -114,18 +114,6 @@ class Backup {
         workouts.add(Workout(workout['id'], workout['n'], exercises,
             hasCache: workout['has_cache']));
       }
-      bool isValid = validateBackup(workouts, workoutRecords);
-      if (!isValid) {
-        return Future.error('Invalid backup.');
-      }
-      await CustomDatabase.instance.clearAll();
-      for (var workout in workouts) {
-        await CustomDatabase.instance.createWorkout(
-            workout.name, workout.exercises,
-            backupMode: true,
-            workoutId: workout.id,
-            hasCache: workout.hasCache);
-      }
 
       for (var workoutRecord in decode['workoutRecords']) {
         List<ExerciseRecord> exerciseRecords = [];
@@ -153,6 +141,21 @@ class Backup {
             workoutId: workoutRecord['woId'],
             isCache: workoutRecord['is_cache']));
       }
+
+      bool isValid = validateBackup(workouts, workoutRecords);
+      if (!isValid) {
+        return Future.error('Invalid backup.');
+      }
+      await CustomDatabase.instance.clearAll();
+
+      for (var workout in workouts) {
+        await CustomDatabase.instance.createWorkout(
+            workout.name, workout.exercises,
+            backupMode: true,
+            workoutId: workout.id,
+            hasCache: workout.hasCache);
+      }
+
       for (var workoutRecord in workoutRecords) {
         await CustomDatabase.instance
             .addWorkoutRecord(workoutRecord, backupMode: true);

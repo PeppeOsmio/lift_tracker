@@ -193,15 +193,16 @@ class _AnimatedMenuState extends State<AnimatedMenu> {
                               return;
                             }
                             isRestoring = true;
-                            var back = await (Backup.readBackup()
-                                .then((value) {})
-                                .catchError((error) {
+                            var back;
+                            await (Backup.readBackup().then((value) {
+                              back = value;
+                            }).catchError((error) {
                               Fluttertoast.showToast(
                                   msg: 'menu: ' + error.toString());
                             }));
                             if (back == null) {
                               Fluttertoast.showToast(
-                                  msg: 'backup: Invalid backup.');
+                                  msg: 'menu: Invalid backup.');
                             } else {
                               if (back.isNotEmpty) {
                                 Fluttertoast.showToast(
