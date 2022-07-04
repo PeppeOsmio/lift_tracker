@@ -86,8 +86,8 @@ class CustomDatabase {
     return count > 0;
   }
 
-  Future<Workout> getCachedWorkout(int workoutId) async {
-    var list = await readWorkouts();
+  /*Future<Workout> getCachedWorkout(int workoutId) async {
+    var list = await readWorkouts(readAll: true);
     Workout? workout;
     for (Workout wk in list) {
       if (wk.id == workoutId) {
@@ -96,18 +96,18 @@ class CustomDatabase {
       }
     }
     return workout!;
-  }
+  }*/
 
-  Future removeCachedSession() async {
+  /*Future removeCachedSession() async {
     final db = await instance.database;
     var pref = await SharedPreferences.getInstance();
     int? id = (await db.query('workout_record',
-        columns: ['id'], limit: 1, orderBy: 'id DESC'))[0]['id'] as int?;
+        columns: ['id'], limit: 1, orderBy: 'day DESC'))[0]['id'] as int?;
     if (id != null) {
       await removeWorkoutRecord(id);
       pref.setBool('didCacheSession', false);
     }
-  }
+  }*/
 
   Future<bool> removeWorkoutRecord(int workoutRecordId) async {
     final db = await instance.database;
@@ -137,13 +137,13 @@ class CustomDatabase {
     return id > 0;
   }
 
-  Future<WorkoutRecord> getCachedSession() async {
+  /*Future<WorkoutRecord> getCachedSession() async {
     final db = await instance.database;
     List<ExerciseRecord> cachedExerciseRecords = [];
     List<Map<String, Object?>> queryCachedWorkoutRecord = await db.query(
         'workout_record',
         columns: ['id', 'day', 'workout_name', 'fk_workout_id'],
-        orderBy: 'id DESC',
+        orderBy: 'day DESC',
         limit: 1);
     int cachedWorkoutRecordId = queryCachedWorkoutRecord[0]['id'] as int;
 
@@ -179,61 +179,58 @@ class CustomDatabase {
           exerciseId: exerciseId, type: type));
     }
 
-    DateTime day = DateTime.parse(
-        sqlToDartDate(queryCachedWorkoutRecord[0]['day'] as String));
+    DateTime day = DateTime.fromMillisecondsSinceEpoch(
+        queryCachedWorkoutRecord[0]['day'] as int);
     String workoutName = queryCachedWorkoutRecord[0]['workout_name'] as String;
     int workoutId = queryCachedWorkoutRecord[0]['fk_workout_id'] as int;
     return WorkoutRecord(
         cachedWorkoutRecordId, day, workoutName, cachedExerciseRecords,
         workoutId: workoutId);
-  }
+  }*/
 
   Future<List<WorkoutRecord>> readWorkoutRecords(
       {bool cacheMode = false,
       int? workoutRecordId,
-      bool readAll = false}) async {
-    bool cached = false;
-
+      bool readAll = false,
+      int? workoutId}) async {
     final db = await instance.database;
-
-    if (cacheMode) {}
-
-    var pref = await SharedPreferences.getInstance();
-    if (!cacheMode) {
-      bool? temp = await pref.getBool('didCacheSession');
-      if (temp != null) {
-        cached = temp;
-      }
-    }
 
     List<WorkoutRecord> workoutRecords = [];
     List<Map<String, Object?>> queryWorkoutRecords;
 
     int? limit = Helper.instance.searchLimit;
     int offset = Helper.instance.workoutRecordsOffset;
-    Helper.instance.workoutRecordsOffset += 1;
 
     if (readAll) {
-      limit = null;
-      offset = 0;
-      Helper.instance.workoutRecordsOffset = 0;
-    }
-
-    if (workoutRecordId == null) {
-      //we get all the workout records
+      queryWorkoutRecords = await db.query('workout_record',
+          columns: ['id', 'day', 'workout_name', 'fk_workout_id', 'is_cache'],
+          orderBy: 'day DESC');
+    } else if (cacheMode) {
       queryWorkoutRecords = await db.query('workout_record',
           columns: ['id', 'day', 'workout_name', 'fk_workout_id'],
-          offset: limit != null ? offset * limit : null,
-          orderBy: 'id DESC',
-          limit: limit);
+          orderBy: 'day DESC',
+          where: 'is_cache=? AND fk_workout_id=?',
+          whereArgs: [1, workoutId],
+          limit: 1);
     } else {
-      queryWorkoutRecords = await db.query('workout_record',
-          columns: ['id', 'day', 'workout_name', 'fk_workout_id'],
-          offset: 0,
-          limit: 1,
-          orderBy: 'id DESC',
-          where: 'id=?',
-          whereArgs: [workoutRecordId]);
+      if (workoutRecordId == null) {
+        Helper.instance.workoutRecordsOffset += 1;
+        queryWorkoutRecords = await db.query('workout_record',
+            columns: ['id', 'day', 'workout_name', 'fk_workout_id'],
+            offset: limit != null ? offset * limit : null,
+            orderBy: 'day DESC',
+            where: 'is_cache=?',
+            whereArgs: [0],
+            limit: limit);
+      } else {
+        queryWorkoutRecords = await db.query('workout_record',
+            columns: ['id', 'day', 'workout_name', 'fk_workout_id'],
+            offset: 0,
+            orderBy: 'day DESC',
+            where: 'id=? AND is_cache=?',
+            whereArgs: [workoutRecordId, 0],
+            limit: 1);
+      }
     }
     //we get all the exercise records
     for (int i = 0; i < queryWorkoutRecords.length; i++) {
@@ -292,27 +289,18 @@ class CustomDatabase {
       }
       //we get the information about the workout
       String workoutName = queryWorkoutRecords[i]['workout_name'] as String;
-      String dayString = queryWorkoutRecords[i]['day'] as String;
-      DateTime day = DateTime.parse(sqlToDartDate(dayString));
+      DateTime day = DateTime.fromMillisecondsSinceEpoch(
+          queryWorkoutRecords[i]['day'] as int);
       int workoutId = queryWorkoutRecords[i]['fk_workout_id'] as int;
+      int? isCache;
+      if (readAll) {
+        isCache = queryWorkoutRecords[i]['is_cache'] as int;
+      }
       workoutRecords.add(WorkoutRecord(
           woRecordId, day, workoutName, exerciseRecords,
-          workoutId: workoutId));
+          workoutId: workoutId, isCache: isCache ?? 0));
     }
 
-    //if didFailCache is true, the caching process was started but not finished
-    //and it is necessary to remove the corrupted cache
-    bool? temp = await pref.getBool('didFailCache');
-    if (temp != null) {
-      if (temp) {
-        int id = workoutRecords.removeLast().id;
-        await removeWorkoutRecord(id);
-        pref.setBool('didFailCache', false);
-      }
-    }
-    if (!cacheMode && cached && workoutRecords.length > 0) {
-      workoutRecords.removeLast();
-    }
     return workoutRecords;
   }
 
@@ -479,8 +467,8 @@ class CustomDatabase {
           exerciseRecords.add(
               ExerciseRecord(jsonId, sets, exerciseId: exerciseId, type: type));
         }
-        DateTime day = DateTime.parse(
-            sqlToDartDate(queryWorkoutRecord[i]['day'] as String));
+        DateTime day = DateTime.fromMillisecondsSinceEpoch(
+            queryWorkoutRecord[i]['day'] as int);
         String workoutName = workout.name;
         workoutRecords.add(WorkoutRecord(
             workoutRecordId, day, workoutName, exerciseRecords,
@@ -498,16 +486,20 @@ class CustomDatabase {
     final db = await instance.database;
     int workoutRecordId = -1;
     bool didSetWeightRecord = false;
-    var pref = await SharedPreferences.getInstance();
     await db.transaction((txn) async {
-      bool? temp = await pref.getBool('didCacheSession');
-      bool cached = false;
-      if (temp != null) {
-        cached = temp;
-      }
+      var hasCacheQuery = await txn.query('workout',
+          columns: ['id', 'has_cache'],
+          where: 'id=?',
+          limit: 1,
+          whereArgs: [workoutRecord.workoutId]);
+      bool cached = (hasCacheQuery[0]['has_cache'] as int) == 1;
       if (cached) {
         var idQuery = await txn.query('workout_record',
-            columns: ['id'], orderBy: 'id DESC', limit: 1);
+            columns: ['id'],
+            orderBy: 'day DESC',
+            limit: 1,
+            where: 'is_cache=? AND fk_workout_id=?',
+            whereArgs: [1, hasCacheQuery[0]['id'] as int]);
         if (idQuery.isNotEmpty) {
           int? id = idQuery[0]['id'] as int?;
           if (id != null) {
@@ -639,16 +631,27 @@ class CustomDatabase {
         }
       }
       DateTime date = workoutRecord.day;
-      String day = '${date.year}-${date.month}-${date.day}';
+      int day = date.millisecondsSinceEpoch;
       Map<String, Object?> values = {
         'day': day,
         'workout_name': workoutRecord.workoutName,
         'fk_workout_id': workoutRecord.workoutId,
+        'is_cache': cacheMode ? 1 : 0
       };
+      if (backupMode) {
+        values['is_cache'] = workoutRecord.isCache;
+      }
       workoutRecordId = await txn.insert('workout_record', values);
+      if (!backupMode) {
+        if (cacheMode) {
+          await txn.update('workout', {'has_cache': 1},
+              where: 'id=?', whereArgs: [workoutRecord.workoutId]);
+        } else if (cached) {
+          await txn.update('workout', {'has_cache': 0},
+              where: 'id=?', whereArgs: [workoutRecord.workoutId]);
+        }
+      }
       values.clear();
-
-      // save that we saved a cache session right after saving the workout_record row
 
       for (int i = 0; i < workoutRecord.exerciseRecords.length; i++) {
         ExerciseRecord exerciseRecord = workoutRecord.exerciseRecords[i];
@@ -683,11 +686,42 @@ class CustomDatabase {
         }
       }
     });
-    await pref.setBool('didCacheSession', cacheMode);
     return {
       'workoutRecordId': workoutRecordId,
       'didSetRecord': didSetWeightRecord ? 1 : 0
     };
+  }
+
+  Future<bool> removeCachedSession(int workoutId) async {
+    final db = await instance.database;
+    int deleted = 0;
+    await db.transaction((txn) async {
+      var workoutRecordIdQuery = await txn.query('workout_record',
+          columns: ['id'],
+          where: 'fk_workout_id=? AND is_cache=?',
+          whereArgs: [workoutId, 1]);
+      if (workoutRecordIdQuery.isEmpty) {
+        return;
+      }
+      int workoutRecordId = workoutRecordIdQuery[0]['id'] as int;
+
+      deleted = await txn.delete('workout_record',
+          where: 'fk_workout_id=? AND is_cache=?', whereArgs: [workoutId, 1]);
+      var exRecordsQuery = await txn.query('exercise_record',
+          columns: ['id'],
+          where: 'fk_workout_record_id=?',
+          whereArgs: [workoutRecordId]);
+      for (int i = 0; i < exRecordsQuery.length; i++) {
+        int exerciseRecordId = exRecordsQuery[i]['id'] as int;
+        await txn.delete('exercise_set',
+            where: 'fk_exercise_record_id=?', whereArgs: [exerciseRecordId]);
+        await txn.delete('exercise_record',
+            where: 'id=?', whereArgs: [exerciseRecordId]);
+      }
+      await txn.update('workout', {'has_cache': 0},
+          where: 'id=?', whereArgs: [workoutId]);
+    });
+    return deleted >= 1;
   }
 
   Future<bool> removeWorkout(int workoutId) async {
@@ -709,7 +743,6 @@ class CustomDatabase {
 
     int? limit = Helper.instance.searchLimit;
     int offset = Helper.instance.workoutsOffset;
-    Helper.instance.workoutsOffset += 1;
 
     if (readAll) {
       limit = null;
@@ -718,14 +751,15 @@ class CustomDatabase {
     }
 
     if (workoutId == null) {
+      Helper.instance.workoutsOffset += 1;
       queryWorkouts = await db.query('workout',
-          columns: ['id', 'name'],
+          columns: ['id', 'name', 'has_cache'],
           orderBy: 'id DESC',
           offset: limit != null ? offset * limit : null,
           limit: limit);
     } else {
       queryWorkouts = await db.query('workout',
-          columns: ['id', 'name'],
+          columns: ['id', 'name', 'has_cache'],
           orderBy: 'id DESC',
           offset: 0,
           limit: 1,
@@ -735,6 +769,7 @@ class CustomDatabase {
     for (int i = 0; i < queryWorkouts.length; i++) {
       int id = queryWorkouts[i]['id'] as int;
       String name = queryWorkouts[i]['name'] as String;
+      int hasCache = queryWorkouts[i]['has_cache'] as int;
       List<Exercise> exerciseList = [];
       final queryExercise = await db.query('exercise',
           columns: [
@@ -773,13 +808,13 @@ class CustomDatabase {
             bestVolume: bestVolume,
             workoutId: workoutId));
       }
-      workoutList.add(Workout(id, name, exerciseList));
+      workoutList.add(Workout(id, name, exerciseList, hasCache: hasCache));
     }
     return workoutList;
   }
 
   Future<int> createWorkout(String name, List<Exercise> exercises,
-      {backupMode = false, workoutId = 0}) async {
+      {backupMode = false, workoutId = 0, int hasCache = 0}) async {
     final db = await instance.database;
     int id = -1;
     List exIds = [];
@@ -787,6 +822,7 @@ class CustomDatabase {
       Map<String, dynamic> woMap = {'name': name};
       if (backupMode) {
         woMap.putIfAbsent('id', () => workoutId);
+        woMap.putIfAbsent('has_cache', () => hasCache);
       }
       id = await txn.insert('workout', woMap);
       for (int i = 0; i < exercises.length; i++) {

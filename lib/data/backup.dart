@@ -91,13 +91,16 @@ class Backup {
               bestVolume: exercise['bestV'],
               notes: exercise['notes']));
         }
-        workouts.add(Workout(workout['id'], workout['n'], exercises));
+        workouts.add(Workout(workout['id'], workout['n'], exercises,
+            hasCache: workout['has_cache']));
       }
       await CustomDatabase.instance.clearAll();
       for (var workout in workouts) {
         await CustomDatabase.instance.createWorkout(
             workout.name, workout.exercises,
-            backupMode: true, workoutId: workout.id);
+            backupMode: true,
+            workoutId: workout.id,
+            hasCache: workout.hasCache);
       }
 
       for (var workoutRecord in decode['workoutRecords']) {
@@ -123,7 +126,8 @@ class Backup {
             DateTime.parse(workoutRecord['day']),
             workoutRecord['woN'],
             exerciseRecords,
-            workoutId: workoutRecord['woId']));
+            workoutId: workoutRecord['woId'],
+            isCache: workoutRecord['is_cache']));
       }
 
       for (var workoutRecord in workoutRecords) {

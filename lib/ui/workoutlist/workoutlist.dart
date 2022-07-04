@@ -192,6 +192,7 @@ class _BodyState extends ConsumerState<Body> {
         pageBuilder: (context, a1, a2) {
           return MenuWorkoutCard(
               hasHistory: hasHistory,
+              hasCache: workoutCard.workout.hasCache,
               positionedAnimationDuration: const Duration(milliseconds: 150),
               workoutCardKey: key,
               workoutCard: workoutCard,

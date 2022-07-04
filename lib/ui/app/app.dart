@@ -78,34 +78,15 @@ class _AppState extends ConsumerState<App> {
     super.initState();
     Helper.pageStack.add(1);
     workoutList = WorkoutList();
-    Future.delayed(Duration.zero, () async {
-      pref = await SharedPreferences.getInstance();
-      bool? temp = await pref.getBool('didCacheSession');
-      bool cached = false;
-      if (temp != null) {
-        cached = temp;
-      }
-      if (cached) {
-        log('App: cached mode = true');
-        var cachedRecord = await CustomDatabase.instance.getCachedSession();
-        var cachedWorkout = await CustomDatabase.instance
-            .getCachedWorkout(cachedRecord.workoutId);
-        showDimmedBackgroundDialog(context,
-            rightText: Helper.loadTranslation(context, 'cancel'),
-            leftText: Helper.loadTranslation(context, 'resume'),
-            rightOnPressed: () async {
-          await CustomDatabase.instance.removeCachedSession();
-          Navigator.maybePop(context);
-        }, leftOnPressed: () async {
-          Route route = MaterialPageRoute(builder: (context) {
-            return NewSession(cachedWorkout, resumedSession: cachedRecord);
-          });
-          Navigator.pushReplacement(context, route);
-        }, onDispose: () async {
-          await CustomDatabase.instance.removeCachedSession();
-        },
-            title:
-                '${Helper.loadTranslation(context, 'resumeWorkoutSession')} ${cachedWorkout.name}?');
+    Future.delayed(Duration.zero, () async {});
+    CustomDatabase.instance.readWorkoutRecords(readAll: true).then((value) {
+      log('Complete cached list:');
+      for (var wor in value) {
+        log(wor.id.toString() +
+            ': ' +
+            wor.workoutId.toString() +
+            ' cached: ' +
+            wor.isCache.toString());
       }
     });
   }

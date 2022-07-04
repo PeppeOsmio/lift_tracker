@@ -1,6 +1,8 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lift_tracker/data/classes/workouthistory.dart';
+import 'package:lift_tracker/data/classes/workoutrecord.dart';
 import 'package:lift_tracker/data/database/database.dart';
 import 'package:lift_tracker/ui/workoutlist/workoutcard.dart';
 import 'package:lift_tracker/ui/workouthistory/workouthistorypage.dart';
@@ -17,6 +19,7 @@ class MenuWorkoutCard extends StatefulWidget {
       required this.deleteOnPressed,
       required this.cancelOnPressed,
       required this.hasHistory,
+      required this.hasCache,
       Key? key})
       : super(key: key);
   final WorkoutCard workoutCard;
@@ -25,6 +28,7 @@ class MenuWorkoutCard extends StatefulWidget {
   final Duration positionedAnimationDuration;
   final GlobalKey workoutCardKey;
   final bool hasHistory;
+  final int hasCache;
 
   @override
   _MenuWorkoutCardState createState() => _MenuWorkoutCardState();
@@ -200,23 +204,57 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                                     backgroundColor:
                                         Colors.amber.withAlpha(25)),
                               ),
-                              Padding(
-                                padding: EdgeInsets.only(bottom: 8),
-                                child: CardMenuButton(
-                                    onPressed: () {
-                                      Route route =
-                                          MaterialPageRoute(builder: (context) {
-                                        return NewSession(
-                                            widget.workoutCard.workout);
-                                      });
-                                      Navigator.pushReplacement(context, route);
-                                    },
-                                    text: Helper.loadTranslation(
-                                        context, 'start'),
-                                    borderColor: Colors.green,
-                                    backgroundColor:
-                                        Colors.green.withAlpha(25)),
-                              ),
+                              widget.hasCache == 0
+                                  ? Padding(
+                                      padding: EdgeInsets.only(bottom: 8),
+                                      child: CardMenuButton(
+                                          onPressed: () {
+                                            Route route = MaterialPageRoute(
+                                                builder: (context) {
+                                              return NewSession(
+                                                  widget.workoutCard.workout);
+                                            });
+                                            Navigator.pushReplacement(
+                                                context, route);
+                                          },
+                                          text: Helper.loadTranslation(
+                                              context, 'start'),
+                                          borderColor: Colors.green,
+                                          backgroundColor:
+                                              Colors.green.withAlpha(25)),
+                                    )
+                                  : Padding(
+                                      padding: EdgeInsets.only(bottom: 8),
+                                      child: CardMenuButton(
+                                          onPressed: () async {
+                                            WorkoutRecord? cachedSession;
+                                            await CustomDatabase.instance
+                                                .readWorkoutRecords(
+                                                    cacheMode: true,
+                                                    workoutId: widget
+                                                        .workoutCard.workout.id)
+                                                .then((workoutRecords) {
+                                              cachedSession = workoutRecords[0];
+                                            }).catchError((error) {
+                                              Fluttertoast.showToast(
+                                                  msg: 'menuworkoutcard: ' +
+                                                      error.toString());
+                                            });
+                                            Route route = MaterialPageRoute(
+                                                builder: (context) {
+                                              return NewSession(
+                                                  widget.workoutCard.workout,
+                                                  resumedSession:
+                                                      cachedSession);
+                                            });
+                                            Navigator.pushReplacement(
+                                                context, route);
+                                          },
+                                          text: 'Resume',
+                                          borderColor: Colors.orange,
+                                          backgroundColor:
+                                              Colors.orange.withAlpha(25)),
+                                    )
                             ],
                           ),
                         ),

@@ -4,7 +4,8 @@ Future createDB(Database db, int version) async {
   String sql = '''
     CREATE TABLE workout(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name VARCHAR(33) NOT NULL
+      name VARCHAR(33) NOT NULL,
+      has_cache BIT DEFAULT 0
     );
     ''';
   await db.execute(sql);
@@ -40,9 +41,10 @@ Future createDB(Database db, int version) async {
   sql = '''
     CREATE TABLE workout_record(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      day DATE NOT NULL,
+      day INTEGER NOT NULL,
       workout_name VARCHAR(33) NOT NULL,
       fk_workout_id INTEGER NOT NULL,
+      is_cache BIT DEFAULT 0,
       FOREIGN KEY (fk_workout_id) REFERENCES workout(id)
     );
     ''';

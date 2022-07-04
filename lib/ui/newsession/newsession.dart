@@ -41,11 +41,6 @@ class _NewSessionState extends ConsumerState<NewSession>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    SharedPreferences.getInstance()
-        .then((value) => pref = value)
-        .catchError((error) {
-      Fluttertoast.showToast(msg: 'newsession: ' + error.toString());
-    });
     if (widget.resumedSession == null) {
       exercises.addAll(widget.workout.exercises);
       for (int i = 0; i < exercises.length; i++) {
@@ -151,6 +146,12 @@ class _NewSessionState extends ConsumerState<NewSession>
             leftText: Helper.loadTranslation(context, 'yes'),
             rightOnPressed: () => Navigator.maybePop(context),
             leftOnPressed: () async {
+              bool success = await CustomDatabase.instance
+                  .removeCachedSession(widget.workout.id);
+              if (success) {
+                log(success.toString());
+                widget.workout.hasCache = 0;
+              }
               Navigator.pop(context);
               Navigator.pop(context);
               willPop = true;
@@ -233,7 +234,6 @@ class _NewSessionState extends ConsumerState<NewSession>
       return;
     }
     try {
-      //inform the addWorkoutRecord function that the cache has been deleted already
       var newWorkoutRecordInfo = await CustomDatabase.instance
           .addWorkoutRecord(workoutRecord)
           .catchError((error) {
@@ -243,7 +243,7 @@ class _NewSessionState extends ConsumerState<NewSession>
       int newId = newWorkoutRecordInfo['workoutRecordId']!;
       // if a record was set, read the new workout and replace the old one
       if (didSetRecord && newId > 0) {
-        CustomDatabase.instance
+        await CustomDatabase.instance
             .readWorkouts(workoutId: workoutRecord.workoutId)
             .then((workouts) {
           ref
@@ -253,16 +253,22 @@ class _NewSessionState extends ConsumerState<NewSession>
           Fluttertoast.showToast(msg: 'newsession: ' + error.toString());
         });
       }
-      CustomDatabase.instance
-          .readWorkoutRecords(
-              workoutRecordId: newWorkoutRecordInfo['workoutRecordId'])
-          .then((workoutRecords) {
-        ref
-            .read(Helper.workoutRecordsProvider.notifier)
-            .addWorkoutRecord(workoutRecords[0]);
-      }).catchError((error) {
-        Fluttertoast.showToast(msg: 'newsession: ' + error.toString());
-      });
+      widget.workout.hasCache = 0;
+      if (ref.read(Helper.workoutRecordsProvider).isNotEmpty) {
+        await CustomDatabase.instance
+            .readWorkoutRecords(
+                workoutRecordId: newWorkoutRecordInfo['workoutRecordId'])
+            .then((workoutRecords) {
+          ref
+              .read(Helper.workoutRecordsProvider.notifier)
+              .addWorkoutRecord(workoutRecords[0]);
+        }).catchError((error) {
+          Fluttertoast.showToast(msg: 'newsession: ' + error.toString());
+        });
+      }
+      if (newId > 0) {
+        await CustomDatabase.instance.removeCachedSession(newId);
+      }
     } catch (e) {
       log(e.toString());
       Fluttertoast.showToast(msg: 'newsession: ' + e.toString());
@@ -310,7 +316,7 @@ class _NewSessionState extends ConsumerState<NewSession>
   }
 
   @override
-  void dispose() {
+  void dispose() async {
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }

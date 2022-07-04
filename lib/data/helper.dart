@@ -95,22 +95,6 @@ class WorkoutRecordsNotifier extends StateNotifier<List<WorkoutRecord>> {
   }
 }
 
-class WorkoutsOffsetNotifier extends StateNotifier<int> {
-  WorkoutsOffsetNotifier() : super(0);
-
-  void incrementOffset() {
-    state = state + 1;
-  }
-}
-
-class WorkoutRecordsOffsetNotifier extends StateNotifier<int> {
-  WorkoutRecordsOffsetNotifier() : super(0);
-
-  void incrementOffset() {
-    state = state + 1;
-  }
-}
-
 class Helper {
   static final instance = Helper._init();
 
@@ -143,16 +127,6 @@ class Helper {
   static final workoutRecordsProvider =
       StateNotifierProvider<WorkoutRecordsNotifier, List<WorkoutRecord>>((ref) {
     return WorkoutRecordsNotifier();
-  });
-
-  static final workoutsOffsetProvider =
-      StateNotifierProvider<WorkoutsOffsetNotifier, int>((ref) {
-    return WorkoutsOffsetNotifier();
-  });
-
-  static final workoutRecordsOffsetProvider =
-      StateNotifierProvider<WorkoutRecordsOffsetNotifier, int>((ref) {
-    return WorkoutRecordsOffsetNotifier();
   });
 
   static final searchLimitProvider = Provider<int>((ref) {
@@ -205,40 +179,34 @@ class Helper {
         workoutId: 1,
         id: 1,
         sets: 4,
+        reps: 8,
+        exerciseData:
+            ExerciseData(id: 1, name: 'benchPressBarebell', type: 'barebell')));
+    pushExercises.add(Exercise(
+        workoutId: 1,
+        id: 1,
+        sets: 3,
         reps: 10,
         exerciseData:
             ExerciseData(id: 4, name: 'chestPressIncline', type: 'machine')));
     pushExercises.add(Exercise(
         workoutId: 1,
         id: 1,
-        sets: 4,
+        sets: 3,
         reps: 10,
         exerciseData:
             ExerciseData(id: 38, name: 'cableCrossover', type: 'machine')));
     pushExercises.add(Exercise(
         workoutId: 1,
         id: 1,
-        sets: 3,
-        reps: 10,
-        exerciseData: ExerciseData(id: 40, name: 'legPress', type: 'machine')));
-    pushExercises.add(Exercise(
-        workoutId: 1,
-        id: 1,
-        sets: 3,
-        reps: 10,
-        exerciseData:
-            ExerciseData(id: 28, name: 'legExtensions', type: 'machine')));
-    pushExercises.add(Exercise(
-        workoutId: 1,
-        id: 1,
-        sets: 3,
-        reps: 10,
+        sets: 4,
+        reps: 8,
         exerciseData:
             ExerciseData(id: 39, name: 'shoulderPress', type: 'machine')));
     pushExercises.add(Exercise(
         workoutId: 1,
         id: 1,
-        sets: 4,
+        sets: 5,
         reps: 10,
         exerciseData: ExerciseData(
             id: 30, name: 'lateralRaisesDumbbell', type: 'dumbbell')));
@@ -263,26 +231,25 @@ class Helper {
         id: 1,
         sets: 4,
         reps: 10,
-        exerciseData:
-            ExerciseData(id: 36, name: 'latPulldown', type: 'machine')));
-    pullExercises.add(Exercise(
-        workoutId: 1,
-        id: 1,
-        sets: 4,
-        reps: 10,
-        exerciseData:
-            ExerciseData(id: 10, name: 'lowPulley', type: 'machine')));
+        exerciseData: ExerciseData(id: 9, name: 'chinUps', type: 'free')));
     pullExercises.add(Exercise(
         workoutId: 1,
         id: 1,
         sets: 4,
         reps: 10,
         exerciseData: ExerciseData(
-            id: 27, name: 'stiffLegsDeadliftDumbbell', type: 'dumbbell')));
+            id: 7, name: 'bentOverRowDumbbell', type: 'dumbbell')));
     pullExercises.add(Exercise(
         workoutId: 1,
         id: 1,
-        sets: 5,
+        sets: 4,
+        reps: 10,
+        exerciseData:
+            ExerciseData(id: 43, name: 'ropePulldown', type: 'machine')));
+    pullExercises.add(Exercise(
+        workoutId: 1,
+        id: 1,
+        sets: 6,
         reps: 10,
         exerciseData:
             ExerciseData(id: 32, name: 'rearRaises', type: 'dumbbell')));
@@ -296,10 +263,17 @@ class Helper {
     pullExercises.add(Exercise(
         workoutId: 1,
         id: 1,
-        sets: 4,
+        sets: 3,
         reps: 10,
         exerciseData:
             ExerciseData(id: 17, name: 'hammerCurl', type: 'dumbbell')));
+    pullExercises.add(Exercise(
+        workoutId: 1,
+        id: 1,
+        sets: 3,
+        reps: 10,
+        exerciseData:
+            ExerciseData(id: 37, name: 'inclineBenchCurl', type: 'dumbbell')));
     await CustomDatabase.instance.createWorkout('Pull', pullExercises);
   }
 
