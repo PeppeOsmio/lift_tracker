@@ -254,7 +254,9 @@ class _NewSessionState extends ConsumerState<NewSession>
         });
       }
       widget.workout.hasCache = 0;
-      if (ref.read(Helper.workoutRecordsProvider).isNotEmpty) {
+      // if the workout sessions list was never loaded from the DB,
+      // don't add the new session to the Provider
+      if (Helper.instance.workoutRecordsOffset > 0) {
         await CustomDatabase.instance
             .readWorkoutRecords(
                 workoutRecordId: newWorkoutRecordInfo['workoutRecordId'])
