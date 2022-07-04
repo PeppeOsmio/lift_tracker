@@ -198,109 +198,121 @@ class CustomDatabase {
     List<WorkoutRecord> workoutRecords = [];
     List<Map<String, Object?>> queryWorkoutRecords;
 
-    int? limit = Helper.instance.searchLimit;
-    int offset = Helper.instance.workoutRecordsOffset;
-
-    if (readAll) {
-      queryWorkoutRecords = await db.query('workout_record',
-          columns: ['id', 'day', 'workout_name', 'fk_workout_id', 'is_cache'],
-          orderBy: 'day DESC');
-    } else if (cacheMode) {
-      queryWorkoutRecords = await db.query('workout_record',
-          columns: ['id', 'day', 'workout_name', 'fk_workout_id'],
-          orderBy: 'day DESC',
-          where: 'is_cache=? AND fk_workout_id=?',
-          whereArgs: [1, workoutId],
-          limit: 1);
-    } else {
-      if (workoutRecordId == null) {
-        Helper.instance.workoutRecordsOffset += 1;
-        queryWorkoutRecords = await db.query('workout_record',
-            columns: ['id', 'day', 'workout_name', 'fk_workout_id'],
-            offset: limit != null ? offset * limit : null,
-            orderBy: 'day DESC',
-            where: 'is_cache=?',
-            whereArgs: [0],
-            limit: limit);
-      } else {
-        queryWorkoutRecords = await db.query('workout_record',
-            columns: ['id', 'day', 'workout_name', 'fk_workout_id'],
-            offset: 0,
-            orderBy: 'day DESC',
-            where: 'id=? AND is_cache=?',
-            whereArgs: [workoutRecordId, 0],
-            limit: 1);
-      }
-    }
-
-    //we get all the exercise records
-    for (int i = 0; i < queryWorkoutRecords.length; i++) {
-      List<ExerciseRecord> exerciseRecords = [];
-      int woRecordId = queryWorkoutRecords[i]['id'] as int;
-      List<Map<String, Object?>> queryExerciseRecords = await db.query(
-        'exercise_record',
-        columns: ['id', 'json_id', 'fk_exercise_id', 'type'],
-        where: 'fk_workout_record_id=?',
-        whereArgs: [woRecordId],
-      );
-
-      //we get all the exercise sets
-      for (int j = 0; j < queryExerciseRecords.length; j++) {
-        int exerciseRecordId = queryExerciseRecords[j]['id'] as int;
-        List<Map<String, Object?>> queryExerciseSets = await db.query(
-          'exercise_set',
-          columns: [
-            'id',
-            'reps',
-            'weight',
-            'rpe',
-            'has_volume_record',
-            'has_weight_record',
-            'has_reps_record'
-          ],
-          where: 'fk_exercise_record_id=?',
-          whereArgs: [exerciseRecordId],
-        );
-        //we get the information about every exercise set
-        List<ExerciseSet> repsWeightRpes = [];
-        for (int k = 0; k < queryExerciseSets.length; k++) {
-          int reps = queryExerciseSets[k]['reps'] as int;
-          double weight = queryExerciseSets[k]['weight'] as double;
-          int? rpe = queryExerciseSets[k]['rpe'] as int?;
-          int hasVolumeRecord =
-              queryExerciseSets[k]['has_volume_record'] as int;
-          int hasWeightRecord =
-              queryExerciseSets[k]['has_weight_record'] as int;
-          int hasRepsRecord = queryExerciseSets[k]['has_reps_record'] as int;
-          repsWeightRpes.add(ExerciseSet(
-              weight: weight,
-              reps: reps,
-              rpe: rpe,
-              hasVolumeRecord: hasVolumeRecord,
-              hasWeightRecord: hasWeightRecord,
-              hasRepsRecord: hasRepsRecord));
-        }
-        //we create the exercise record and add it to the list
-        int jsonId = queryExerciseRecords[j]['json_id'] as int;
-        int exerciseId = queryExerciseRecords[j]['fk_exercise_id'] as int;
-        String type = queryExerciseRecords[j]['type'] as String;
-        ExerciseRecord exerciseRecord = ExerciseRecord(jsonId, repsWeightRpes,
-            exerciseId: exerciseId, type: type);
-        exerciseRecords.add(exerciseRecord);
-      }
-      //we get the information about the workout
-      String workoutName = queryWorkoutRecords[i]['workout_name'] as String;
-      DateTime day = DateTime.fromMillisecondsSinceEpoch(
-          queryWorkoutRecords[i]['day'] as int);
-      int workoutId = queryWorkoutRecords[i]['fk_workout_id'] as int;
-      int? isCache;
+    await db.transaction((txn) async {
+      int? limit = Helper.instance.searchLimit;
+      int offset = Helper.instance.workoutRecordsOffset;
+      bool shouldContinue = true;
       if (readAll) {
-        isCache = queryWorkoutRecords[i]['is_cache'] as int;
+        queryWorkoutRecords = await txn.query('workout_record',
+            columns: ['id', 'day', 'workout_name', 'fk_workout_id', 'is_cache'],
+            orderBy: 'day DESC');
+      } else if (cacheMode) {
+        queryWorkoutRecords = await txn.query('workout_record',
+            columns: ['id', 'day', 'workout_name', 'fk_workout_id'],
+            orderBy: 'day DESC',
+            where: 'is_cache=? AND fk_workout_id=?',
+            whereArgs: [1, workoutId],
+            limit: 1);
+        if (queryWorkoutRecords.isEmpty) {
+          int updated = await txn.update('workout', {'has_cache': 0},
+              where: 'id=?', whereArgs: [workoutId]);
+          dev.log('Updated: ' + updated.toString());
+          shouldContinue = false;
+        }
+      } else {
+        if (workoutRecordId == null) {
+          Helper.instance.workoutRecordsOffset += 1;
+          queryWorkoutRecords = await txn.query('workout_record',
+              columns: ['id', 'day', 'workout_name', 'fk_workout_id'],
+              offset: limit != null ? offset * limit : null,
+              orderBy: 'day DESC',
+              where: 'is_cache=?',
+              whereArgs: [0],
+              limit: limit);
+        } else {
+          queryWorkoutRecords = await txn.query('workout_record',
+              columns: ['id', 'day', 'workout_name', 'fk_workout_id'],
+              offset: 0,
+              orderBy: 'day DESC',
+              where: 'id=? AND is_cache=?',
+              whereArgs: [workoutRecordId, 0],
+              limit: 1);
+        }
       }
-      workoutRecords.add(WorkoutRecord(
-          woRecordId, day, workoutName, exerciseRecords,
-          workoutId: workoutId, isCache: isCache ?? 0));
-    }
+
+      if (shouldContinue) {
+        //we get all the exercise records
+        for (int i = 0; i < queryWorkoutRecords.length; i++) {
+          List<ExerciseRecord> exerciseRecords = [];
+          int woRecordId = queryWorkoutRecords[i]['id'] as int;
+          List<Map<String, Object?>> queryExerciseRecords = await txn.query(
+            'exercise_record',
+            columns: ['id', 'json_id', 'fk_exercise_id', 'type'],
+            where: 'fk_workout_record_id=?',
+            whereArgs: [woRecordId],
+          );
+
+          //we get all the exercise sets
+          for (int j = 0; j < queryExerciseRecords.length; j++) {
+            int exerciseRecordId = queryExerciseRecords[j]['id'] as int;
+            List<Map<String, Object?>> queryExerciseSets = await txn.query(
+              'exercise_set',
+              columns: [
+                'id',
+                'reps',
+                'weight',
+                'rpe',
+                'has_volume_record',
+                'has_weight_record',
+                'has_reps_record'
+              ],
+              where: 'fk_exercise_record_id=?',
+              whereArgs: [exerciseRecordId],
+            );
+            //we get the information about every exercise set
+            List<ExerciseSet> repsWeightRpes = [];
+            for (int k = 0; k < queryExerciseSets.length; k++) {
+              int reps = queryExerciseSets[k]['reps'] as int;
+              double weight = queryExerciseSets[k]['weight'] as double;
+              int? rpe = queryExerciseSets[k]['rpe'] as int?;
+              int hasVolumeRecord =
+                  queryExerciseSets[k]['has_volume_record'] as int;
+              int hasWeightRecord =
+                  queryExerciseSets[k]['has_weight_record'] as int;
+              int hasRepsRecord =
+                  queryExerciseSets[k]['has_reps_record'] as int;
+              repsWeightRpes.add(ExerciseSet(
+                  weight: weight,
+                  reps: reps,
+                  rpe: rpe,
+                  hasVolumeRecord: hasVolumeRecord,
+                  hasWeightRecord: hasWeightRecord,
+                  hasRepsRecord: hasRepsRecord));
+            }
+            //we create the exercise record and add it to the list
+            int jsonId = queryExerciseRecords[j]['json_id'] as int;
+            int exerciseId = queryExerciseRecords[j]['fk_exercise_id'] as int;
+            String type = queryExerciseRecords[j]['type'] as String;
+            ExerciseRecord exerciseRecord = ExerciseRecord(
+                jsonId, repsWeightRpes,
+                exerciseId: exerciseId, type: type);
+            exerciseRecords.add(exerciseRecord);
+          }
+          //we get the information about the workout
+          String workoutName = queryWorkoutRecords[i]['workout_name'] as String;
+          DateTime day = DateTime.fromMillisecondsSinceEpoch(
+              queryWorkoutRecords[i]['day'] as int);
+          int workoutId = queryWorkoutRecords[i]['fk_workout_id'] as int;
+          int? isCache;
+          if (readAll) {
+            isCache = queryWorkoutRecords[i]['is_cache'] as int;
+          }
+          workoutRecords.add(WorkoutRecord(
+              woRecordId, day, workoutName, exerciseRecords,
+              workoutId: workoutId, isCache: isCache ?? 0));
+        }
+      }
+    });
 
     return workoutRecords;
   }

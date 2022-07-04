@@ -193,16 +193,26 @@ class _AnimatedMenuState extends State<AnimatedMenu> {
                               return;
                             }
                             isRestoring = true;
-                            var back = await Backup.readBackup();
-                            if (back.isNotEmpty) {
+                            var back = await (Backup.readBackup()
+                                .then((value) {})
+                                .catchError((error) {
                               Fluttertoast.showToast(
-                                  msg: Helper.loadTranslation(
-                                      context, 'backupRestored'));
-                              Restart.restartApp();
+                                  msg: 'menu: ' + error.toString());
+                            }));
+                            if (back == null) {
+                              Fluttertoast.showToast(
+                                  msg: 'backup: Invalid backup.');
                             } else {
-                              Fluttertoast.showToast(
-                                  msg: Helper.loadTranslation(
-                                      context, 'noBackup'));
+                              if (back.isNotEmpty) {
+                                Fluttertoast.showToast(
+                                    msg: Helper.loadTranslation(
+                                        context, 'backupRestored'));
+                                Restart.restartApp();
+                              } else {
+                                Fluttertoast.showToast(
+                                    msg: Helper.loadTranslation(
+                                        context, 'noBackup'));
+                              }
                             }
                             isRestoring = false;
                             Navigator.maybePop(context);
@@ -221,7 +231,11 @@ class _AnimatedMenuState extends State<AnimatedMenu> {
                               leftText: Helper.loadTranslation(context, 'yes'),
                               rightOnPressed: () => Navigator.maybePop(context),
                               leftOnPressed: () async {
-                                bool created = await Backup.createBackup();
+                                bool created = await Backup.createBackup()
+                                    .catchError((error) {
+                                  Fluttertoast.showToast(
+                                      msg: 'menu: ' + error.toString());
+                                });
                                 if (created) {
                                   Fluttertoast.showToast(
                                       msg: Helper.loadTranslation(

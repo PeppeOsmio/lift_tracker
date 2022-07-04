@@ -54,6 +54,26 @@ class Backup {
     return false;
   }
 
+  static bool validateBackup(
+      List<Workout> workouts, List<WorkoutRecord> workoutRecords) {
+    for (Workout workout in workouts) {
+      if (workout.hasCache == 1) {
+        bool found = false;
+        for (var workoutRecord in workoutRecords) {
+          if (workoutRecord.workoutId == workout.id &&
+              workoutRecord.isCache == 1) {
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
   static Future<Map<String, dynamic>> readBackup() async {
     if (Platform.isAndroid) {
       var status = await Permission.storage.status;
@@ -93,6 +113,10 @@ class Backup {
         }
         workouts.add(Workout(workout['id'], workout['n'], exercises,
             hasCache: workout['has_cache']));
+      }
+      bool isValid = validateBackup(workouts, workoutRecords);
+      if (!isValid) {
+        return Future.error('Invalid backup.');
       }
       await CustomDatabase.instance.clearAll();
       for (var workout in workouts) {
