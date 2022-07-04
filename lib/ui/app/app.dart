@@ -79,16 +79,6 @@ class _AppState extends ConsumerState<App> {
     Helper.pageStack.add(1);
     workoutList = WorkoutList();
     Future.delayed(Duration.zero, () async {});
-    CustomDatabase.instance.readWorkoutRecords(readAll: true).then((value) {
-      log('Complete cached list:');
-      for (var wor in value) {
-        log(wor.id.toString() +
-            ': ' +
-            wor.workoutId.toString() +
-            ' cached: ' +
-            wor.isCache.toString());
-      }
-    });
   }
 
   @override

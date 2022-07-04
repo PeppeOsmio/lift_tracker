@@ -65,7 +65,7 @@ class Backup {
       if (result != null) {
         file = File(result.files.single.path!);
       } else {
-        // User ca nceled the picker
+        // User canceled the picker
         return {};
       }
       var decode = jsonDecode(await file.readAsString());
@@ -109,9 +109,9 @@ class Backup {
           List<ExerciseSet> sets = [];
           for (var set in exerciseRecord['sets']) {
             sets.add(ExerciseSet(
-                weight: set['w'],
-                reps: set['reps'],
-                rpe: set['rpe'],
+                weight: double.parse(set['w']),
+                reps: int.parse(set['reps']),
+                rpe: int.parse(set['rpe']),
                 hasRepsRecord: set['hasRR'],
                 hasVolumeRecord: set['hasVR'],
                 hasWeightRecord: set['hasWR']));
@@ -129,7 +129,6 @@ class Backup {
             workoutId: workoutRecord['woId'],
             isCache: workoutRecord['is_cache']));
       }
-
       for (var workoutRecord in workoutRecords) {
         await CustomDatabase.instance
             .addWorkoutRecord(workoutRecord, backupMode: true);

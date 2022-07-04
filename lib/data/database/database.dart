@@ -232,6 +232,7 @@ class CustomDatabase {
             limit: 1);
       }
     }
+
     //we get all the exercise records
     for (int i = 0; i < queryWorkoutRecords.length; i++) {
       List<ExerciseRecord> exerciseRecords = [];
@@ -642,6 +643,8 @@ class CustomDatabase {
         values['is_cache'] = workoutRecord.isCache;
       }
       workoutRecordId = await txn.insert('workout_record', values);
+      var temp = await txn
+          .query('workout_record', columns: ['workout_name', 'is_cache']);
       if (!backupMode) {
         if (cacheMode) {
           await txn.update('workout', {'has_cache': 1},

@@ -20,9 +20,9 @@ class ExerciseSet {
 
   Map<String, dynamic> toMap() {
     return {
-      'w': weight,
-      'reps': reps,
-      'rpe': rpe,
+      'w': weight.toString(),
+      'reps': reps.toString(),
+      'rpe': rpe.toString(),
       'hasVR': hasVolumeRecord,
       'hasWR': hasWeightRecord,
       'hasRR': hasRepsRecord
