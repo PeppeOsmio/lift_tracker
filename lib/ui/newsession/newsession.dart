@@ -143,21 +143,28 @@ class _NewSessionState extends ConsumerState<NewSession>
         bool willPop = false;
         await showDimmedBackgroundDialog(context,
             rightText: Helper.loadTranslation(context, 'cancel'),
-            leftText: Helper.loadTranslation(context, 'yes'),
-            rightOnPressed: () => Navigator.maybePop(context),
+            leftText: Helper.loadTranslation(context, 'save'),
             leftOnPressed: () async {
-              bool success = await CustomDatabase.instance
-                  .removeCachedSession(widget.workout.id);
-              if (success) {
-                log(success.toString());
-                widget.workout.hasCache = 0;
-              }
-              Navigator.pop(context);
-              Navigator.pop(context);
-              willPop = true;
-              Fluttertoast.showToast(
-                  msg: Helper.loadTranslation(context, 'sessionCanceled'));
-            },
+          createWorkoutSession(cacheMode: true).then((value) {
+            widget.workout.hasCache = 1;
+            Navigator.pop(context);
+            Navigator.pop(context);
+          }).catchError((error) {
+            Fluttertoast.showToast(msg: 'newsession: ' + error.toString());
+          });
+        }, rightOnPressed: () async {
+          bool success = await CustomDatabase.instance
+              .removeCachedSession(widget.workout.id);
+          if (success) {
+            log(success.toString());
+            widget.workout.hasCache = 0;
+          }
+          Navigator.pop(context);
+          Navigator.pop(context);
+          willPop = true;
+          Fluttertoast.showToast(
+              msg: Helper.loadTranslation(context, 'sessionCanceled'));
+        },
             title: Helper.loadTranslation(context, 'cancelSession'),
             content: Helper.loadTranslation(context, 'cancelSessionBody'));
         return willPop;

@@ -250,7 +250,8 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                                             Navigator.pushReplacement(
                                                 context, route);
                                           },
-                                          text: 'Resume',
+                                          text: Helper.loadTranslation(
+                                              context, 'resume'),
                                           borderColor: Colors.orange,
                                           backgroundColor:
                                               Colors.orange.withAlpha(25)),

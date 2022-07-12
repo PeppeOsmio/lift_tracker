@@ -123,7 +123,7 @@ class Backup {
             sets.add(ExerciseSet(
                 weight: double.parse(set['w']),
                 reps: int.parse(set['reps']),
-                rpe: int.parse(set['rpe']),
+                rpe: int.tryParse(set['rpe']),
                 hasRepsRecord: set['hasRR'],
                 hasVolumeRecord: set['hasVR'],
                 hasWeightRecord: set['hasWR']));
