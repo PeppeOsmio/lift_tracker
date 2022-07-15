@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
+import 'package:lift_tracker/data/classes/exerciseset.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/database/database.dart';
 import 'package:lift_tracker/data/classes/exercise.dart';
@@ -87,6 +88,31 @@ class _NewSessionState extends ConsumerState<NewSession>
         rpeControllersLists[i].add(TextEditingController());
       }
     }
+
+    if (widget.resumedSession != null) {
+      for (int i = 0; i < widget.resumedSession!.exerciseRecords.length; i++) {
+        ExerciseRecord exerciseRecord =
+            widget.resumedSession!.exerciseRecords[i];
+        List<ExerciseSet> sets = exerciseRecord.sets;
+        for (int j = 0; j < sets.length; j++) {
+          String initialReps = sets[j].reps.toString();
+          String initialWeight = sets[j].weight.toString();
+          String initialRpe = sets[j].rpe.toString();
+          if (initialReps == '-1') {
+            initialReps = '';
+          }
+          if (initialWeight == '-1.0') {
+            initialWeight = '';
+          }
+          if (initialRpe == '-1') {
+            initialRpe = '';
+          }
+          repsControllersLists[i][j].text = initialReps;
+          weightControllersLists[i][j].text = initialWeight;
+          rpeControllersLists[i][j].text = initialRpe;
+        }
+      }
+    }
   }
 
   @override
@@ -123,11 +149,6 @@ class _NewSessionState extends ConsumerState<NewSession>
         weightControllers: weightControllersLists[i],
         rpeControllers: rpeControllersLists[i],
         exerciseData: exerciseDataList[i],
-        startingRecord: widget.resumedSession != null
-            ? i < widget.resumedSession!.exerciseRecords.length
-                ? widget.resumedSession!.exerciseRecords[i]
-                : null
-            : null,
       ));
 
       items.add(Padding(

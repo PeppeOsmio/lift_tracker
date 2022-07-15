@@ -17,12 +17,10 @@ class ExerciseRecordItem extends StatefulWidget {
       required this.exerciseData,
       required this.onExerciseChange,
       required this.onAddSet,
-      this.startingRecord,
       this.temp = false,
       Key? key})
       : super(key: key);
   final Exercise exercise;
-  final ExerciseRecord? startingRecord;
   final Function onExerciseChange;
   final ExerciseData exerciseData;
   final List<TextEditingController> repsControllers;
@@ -258,27 +256,6 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
   void initState() {
     super.initState();
     tempBool = widget.temp;
-    startingRecord = widget.startingRecord;
-    if (startingRecord != null) {
-      var rwr = startingRecord!.sets;
-      for (int i = 0; i < rwr.length; i++) {
-        String initialReps = rwr[i].reps.toString();
-        String initialWeight = rwr[i].weight.toString();
-        String initialRpe = rwr[i].rpe.toString();
-        if (initialReps == '-1') {
-          initialReps = '';
-        }
-        if (initialWeight == '-1.0') {
-          initialWeight = '';
-        }
-        if (initialRpe == '-1') {
-          initialRpe = '';
-        }
-        widget.repsControllers[i].text = initialReps;
-        widget.weightControllers[i].text = initialWeight;
-        widget.rpeControllers[i].text = initialRpe;
-      }
-    }
   }
 
   @override
