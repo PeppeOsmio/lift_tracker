@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 import 'dart:developer' as dev;
 import 'package:lift_tracker/data/classes/exercisedata.dart';
@@ -8,7 +6,6 @@ import 'package:lift_tracker/data/classes/workouthistory.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/classes/exerciserecord.dart';
 import 'package:lift_tracker/data/classes/workoutrecord.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import '../classes/exercise.dart';
 import '../classes/workout.dart';
@@ -18,6 +15,10 @@ class CustomDatabase {
   static final instance = CustomDatabase._init();
 
   static Database? _database;
+
+  int workoutsOffset = 0;
+  int workoutRecordsOffset = 0;
+  final int searchLimit = 10;
 
   CustomDatabase._init();
 
@@ -86,29 +87,6 @@ class CustomDatabase {
     return count > 0;
   }
 
-  /*Future<Workout> getCachedWorkout(int workoutId) async {
-    var list = await readWorkouts(readAll: true);
-    Workout? workout;
-    for (Workout wk in list) {
-      if (wk.id == workoutId) {
-        workout = wk;
-        break;
-      }
-    }
-    return workout!;
-  }*/
-
-  /*Future removeCachedSession() async {
-    final db = await instance.database;
-    var pref = await SharedPreferences.getInstance();
-    int? id = (await db.query('workout_record',
-        columns: ['id'], limit: 1, orderBy: 'day DESC'))[0]['id'] as int?;
-    if (id != null) {
-      await removeWorkoutRecord(id);
-      pref.setBool('didCacheSession', false);
-    }
-  }*/
-
   Future<bool> removeWorkoutRecord(int workoutRecordId) async {
     final db = await instance.database;
     int id = -1;
@@ -137,57 +115,6 @@ class CustomDatabase {
     return id > 0;
   }
 
-  /*Future<WorkoutRecord> getCachedSession() async {
-    final db = await instance.database;
-    List<ExerciseRecord> cachedExerciseRecords = [];
-    List<Map<String, Object?>> queryCachedWorkoutRecord = await db.query(
-        'workout_record',
-        columns: ['id', 'day', 'workout_name', 'fk_workout_id'],
-        orderBy: 'day DESC',
-        limit: 1);
-    int cachedWorkoutRecordId = queryCachedWorkoutRecord[0]['id'] as int;
-
-    List<Map<String, Object?>> queryCachedExerciseRecords = await db.query(
-        'exercise_record',
-        columns: ['id', 'json_id', 'type', 'fk_exercise_id'],
-        where: 'fk_workout_record_id=?',
-        whereArgs: [cachedWorkoutRecordId],
-        orderBy: 'id');
-    for (int i = 0; i < queryCachedExerciseRecords.length; i++) {
-      List<ExerciseSet> cachedSets = [];
-
-      int id = queryCachedExerciseRecords[i]['id'] as int;
-      int jsonId = queryCachedExerciseRecords[i]['json_id'] as int;
-      int exerciseId = queryCachedExerciseRecords[i]['fk_exercise_id'] as int;
-      String type = queryCachedExerciseRecords[i]['type'] as String;
-
-      List<Map<String, Object?>> queryCachedExerciseSets = await db.query(
-          'exercise_set',
-          columns: ['reps', 'weight', 'rpe'],
-          where: 'fk_exercise_record_id=?',
-          whereArgs: [id],
-          orderBy: 'id');
-
-      for (int j = 0; j < queryCachedExerciseSets.length; j++) {
-        int reps = queryCachedExerciseSets[j]['reps'] as int;
-        double weight = queryCachedExerciseSets[j]['weight'] as double;
-        int? rpe = queryCachedExerciseSets[j]['rpe'] as int?;
-        cachedSets.add(ExerciseSet(weight: weight, reps: reps, rpe: rpe));
-      }
-
-      cachedExerciseRecords.add(ExerciseRecord(jsonId, cachedSets,
-          exerciseId: exerciseId, type: type));
-    }
-
-    DateTime day = DateTime.fromMillisecondsSinceEpoch(
-        queryCachedWorkoutRecord[0]['day'] as int);
-    String workoutName = queryCachedWorkoutRecord[0]['workout_name'] as String;
-    int workoutId = queryCachedWorkoutRecord[0]['fk_workout_id'] as int;
-    return WorkoutRecord(
-        cachedWorkoutRecordId, day, workoutName, cachedExerciseRecords,
-        workoutId: workoutId);
-  }*/
-
   Future<List<WorkoutRecord>> readWorkoutRecords(
       {bool cacheMode = false,
       int? workoutRecordId,
@@ -199,8 +126,7 @@ class CustomDatabase {
     List<Map<String, Object?>> queryWorkoutRecords;
 
     await db.transaction((txn) async {
-      int? limit = Helper.instance.searchLimit;
-      int offset = Helper.instance.workoutRecordsOffset;
+      int? limit = searchLimit;
       bool shouldContinue = true;
       if (readAll) {
         queryWorkoutRecords = await txn.query('workout_record',
@@ -221,10 +147,10 @@ class CustomDatabase {
         }
       } else {
         if (workoutRecordId == null) {
-          Helper.instance.workoutRecordsOffset += 1;
+          workoutRecordsOffset += 1;
           queryWorkoutRecords = await txn.query('workout_record',
               columns: ['id', 'day', 'workout_name', 'fk_workout_id'],
-              offset: limit != null ? offset * limit : null,
+              offset: limit != null ? workoutRecordsOffset * limit : null,
               orderBy: 'day DESC',
               where: 'is_cache=?',
               whereArgs: [0],
@@ -379,38 +305,6 @@ class CustomDatabase {
         },
         where: 'id=?',
         whereArgs: [exerciseId]);
-
-    /*if (query.isEmpty) {
-      await txn.insert('best_weight_volume_reps', {
-        'json_id': exerciseJsonId,
-        'best_weight': bestWeight,
-        'best_volume': bestVolume,
-        'best_reps': bestReps
-      });
-      return;
-    }
-    double prevWeight = query[0]['best_weight'] as double? ?? -1;
-    int prevVolume = query[0]['best_volume'] as int? ?? -1;
-    int prevReps = query[0]['best_reps'] as int? ?? -1;
-
-    var queryCopy = {};
-    queryCopy.addAll(query[0]);
-    if (bestWeight != null) {
-      if (bestWeight > prevWeight) {
-        queryCopy['best_weight'] = bestWeight;
-      }
-    }
-    if (bestVolume != null) {
-      if (bestVolume > prevVolume) {
-        queryCopy['best_volume'] = bestVolume;
-      }
-    }
-    if (bestReps != null) {
-      if (bestReps > prevReps) {
-        queryCopy['best_reps'] = prevReps;
-      }
-    }
-    await txn.update('best_weight_volume_reps', query[0]);*/
   }
 
   Future setWeightRecord(
@@ -756,21 +650,19 @@ class CustomDatabase {
     final db = await instance.database;
     var queryWorkouts;
 
-    int? limit = Helper.instance.searchLimit;
-    int offset = Helper.instance.workoutsOffset;
+    int? limit = searchLimit;
 
     if (readAll) {
       limit = null;
-      offset = 0;
-      Helper.instance.workoutsOffset = 0;
+      workoutsOffset = 0;
     }
 
     if (workoutId == null) {
-      Helper.instance.workoutsOffset += 1;
+      workoutsOffset += 1;
       queryWorkouts = await db.query('workout',
           columns: ['id', 'name', 'has_cache'],
           orderBy: 'id DESC',
-          offset: limit != null ? offset * limit : null,
+          offset: limit != null ? workoutsOffset * limit : null,
           limit: limit);
     } else {
       queryWorkouts = await db.query('workout',

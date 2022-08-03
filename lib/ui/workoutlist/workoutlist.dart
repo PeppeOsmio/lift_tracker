@@ -173,9 +173,10 @@ class _BodyState extends ConsumerState<Body> {
           child: ListView.builder(
               itemCount: columnContent.length,
               itemBuilder: (context, i) {
-                if ((i + 1).remainder(Helper.instance.searchLimit) == 0 &&
-                    (i + 1) ~/ Helper.instance.searchLimit >
-                        (Helper.instance.workoutsOffset - 1)) {
+                if ((i + 1).remainder(CustomDatabase.instance.searchLimit) ==
+                        0 &&
+                    (i + 1) ~/ CustomDatabase.instance.searchLimit >
+                        (CustomDatabase.instance.workoutsOffset - 1)) {
                   widget.readMoreCallback();
                 }
                 return columnContent[i];

@@ -124,9 +124,10 @@ class _BodyState extends ConsumerState<Body> {
         Expanded(
           child: ListView.builder(
               itemBuilder: (context, i) {
-                if ((i + 1).remainder(Helper.instance.searchLimit) == 0 &&
-                    (i + 1) ~/ Helper.instance.searchLimit >
-                        (Helper.instance.workoutRecordsOffset - 1)) {
+                if ((i + 1).remainder(CustomDatabase.instance.searchLimit) ==
+                        0 &&
+                    (i + 1) ~/ CustomDatabase.instance.searchLimit >
+                        (CustomDatabase.instance.workoutRecordsOffset - 1)) {
                   widget.readMoreCallback();
                 }
                 WorkoutRecordCard workoutRecordCard =
