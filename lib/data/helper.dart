@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,7 +12,7 @@ import 'package:lift_tracker/data/classes/workout.dart';
 import 'package:lift_tracker/data/classes/workoutrecord.dart';
 import 'package:lift_tracker/localizations.dart';
 
-import '../ui/workoutlist/workoutlist.dart';
+import '../old_ui/workoutlist/workoutlist.dart';
 
 class BlurNotifier extends StateNotifier<double> {
   BlurNotifier() : super(0);
@@ -25,17 +26,6 @@ class IndexNotifier extends StateNotifier<int> {
   IndexNotifier() : super(1);
   void setIndex(int index) {
     state = index;
-  }
-}
-
-class PagesNotifier extends StateNotifier<List<Widget>> {
-  PagesNotifier() : super([SizedBox(), WorkoutList(), SizedBox()]);
-
-  void addPage(Widget page, int index) {
-    var temp = <Widget>[];
-    temp.addAll(state);
-    temp[index] = page;
-    state = temp;
   }
 }
 
@@ -108,13 +98,6 @@ class Helper {
     return IndexNotifier();
   }));
 
-  // Provides the History, Workouts and Exercises pages
-  // in order to keep their states
-  static final pagesProvider =
-      StateNotifierProvider<PagesNotifier, List<Widget>>((ref) {
-    return PagesNotifier();
-  });
-
   // Provides the future of the saved workouts. This future will be
   // resolved in the Workouts page's FutureBuilder
   static final workoutsProvider =
@@ -132,6 +115,11 @@ class Helper {
   static final searchLimitProvider = Provider<int>((ref) {
     return 3;
   });
+  static bool isAppLoaded = false;
+  ColorScheme colorSchemeLight = ColorScheme.fromSeed(
+      seedColor: Colors.orange, brightness: Brightness.light);
+  ColorScheme colorSchemeDark = ColorScheme.fromSeed(
+      seedColor: Colors.orange, brightness: Brightness.dark);
 
   static Future<List<ExerciseData>> getExerciseData() async {
     String exerciseDataJson =
@@ -170,7 +158,14 @@ class Helper {
     return Localization.of(context).getString(key);
   }
 
-  static Future addDebugWorkouts() async {
+  static void showSnackBar(
+      {required BuildContext context, required dynamic msg}) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(msg.toString())));
+  }
+
+  static Future<List<int>> addDebugWorkouts() async {
+    List<int> returns = [];
     List<Exercise> pushExercises = [];
     pushExercises.add(Exercise(
         workoutId: 1,
@@ -221,7 +216,8 @@ class Helper {
         reps: 10,
         exerciseData:
             ExerciseData(id: 19, name: 'pushdownBar', type: 'machine')));
-    await CustomDatabase.instance.createWorkout('Push', pushExercises);
+    returns.add(
+        await CustomDatabase.instance.createWorkout('Push', pushExercises));
     List<Exercise> pullExercises = [];
     pullExercises.add(Exercise(
         workoutId: 1,
@@ -271,7 +267,9 @@ class Helper {
         reps: 10,
         exerciseData:
             ExerciseData(id: 37, name: 'inclineBenchCurl', type: 'dumbbell')));
-    await CustomDatabase.instance.createWorkout('Pull', pullExercises);
+    returns.add(
+        await CustomDatabase.instance.createWorkout('Pull', pullExercises));
+    return returns;
   }
 
   static Map<String, String> dateToString(DateTime date) {

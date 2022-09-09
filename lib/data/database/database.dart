@@ -658,12 +658,15 @@ class CustomDatabase {
     }
 
     if (workoutId == null) {
-      workoutsOffset += 1;
+      int? offset = limit != null ? workoutsOffset * limit : null;
       queryWorkouts = await db.query('workout',
           columns: ['id', 'name', 'has_cache'],
           orderBy: 'id DESC',
-          offset: limit != null ? workoutsOffset * limit : null,
+          offset: offset,
           limit: limit);
+      workoutsOffset += 1;
+      dev.log('Reading workouts... (Limit: $limit, offset: ${offset})');
+      dev.log('Workout from database: ' + queryWorkouts.toString());
     } else {
       queryWorkouts = await db.query('workout',
           columns: ['id', 'name', 'has_cache'],
