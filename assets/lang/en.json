@@ -85,7 +85,10 @@
     "profile": "Profile",
     "settings": "Settings",
     "help": "Help",
-    "exit": "Exit",
+    "exit": "Quit",
+    "exitContent": "Quit the app?",
+    "exitNo": "Yes, quit the app",
+    "exitYes": "No, dont't quit",
     "yes": "Yes",
     "cancel": "Cancel",
     "resumeWorkoutSession": "Resume last session of",
@@ -140,6 +143,6 @@
     "error": "Ops, we messed up something...",
     "discard": "Discard",
     "discardContent": "Discard all changes?",
-    "keepThem": "No, keep them",
-    "yesDiscard": "Yes, discard"
+    "discardNo": "No, keep them",
+    "discardYes": "Yes, discard"
 }

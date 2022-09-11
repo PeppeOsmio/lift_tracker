@@ -2,7 +2,7 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lift_tracker/android_ui/app.dart';
+import 'package:lift_tracker/android_ui/exercises/app/app.dart';
 import 'package:lift_tracker/localizations.dart';
 
 class Loading extends ConsumerStatefulWidget {

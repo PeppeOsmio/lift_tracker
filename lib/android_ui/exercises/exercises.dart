@@ -6,11 +6,11 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:lift_tracker/android_ui/app.dart';
+import 'package:lift_tracker/android_ui/exercises/app/app.dart';
 import 'package:lift_tracker/android_ui/exercises/exercisedatacard.dart';
 import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/android_ui/widgets/customanimatedicon.dart';
-import 'package:lift_tracker/android_ui/widgets/customdrawer.dart';
+import 'package:lift_tracker/android_ui/exercises/app/customdrawer.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/gym_icons_icons.dart';
@@ -26,6 +26,8 @@ class _ExercisesState extends State<Exercises> {
   List<ExerciseData> exerciseDatas = [];
   bool isSearchBarActivated = false;
   TextEditingController searchController = TextEditingController();
+  FocusNode searchFocusNode = FocusNode();
+  String searchString = '';
 
   @override
   void initState() {
@@ -69,9 +71,14 @@ class _ExercisesState extends State<Exercises> {
             child: Row(children: [
               IconButton(
                   onPressed: () {
-                    setState(() {
-                      isSearchBarActivated = true;
-                    });
+                    if (isSearchBarActivated) {
+                      setState(() {
+                        searchController.text = '';
+                        searchString = '';
+                      });
+                    } else {
+                      openSearchBar();
+                    }
                   },
                   icon: Icon(isSearchBarActivated ? Icons.close : Icons.search))
             ]),
@@ -81,7 +88,13 @@ class _ExercisesState extends State<Exercises> {
           curve: Curves.decelerate,
           duration: Duration(milliseconds: 150),
           child: isSearchBarActivated
-              ? TextFormField(
+              ? TextField(
+                  onChanged: (newValue) {
+                    setState(() {
+                      searchString = newValue;
+                    });
+                  },
+                  focusNode: searchFocusNode,
                   controller: searchController,
                   decoration: InputDecoration(
                       hintText: UIUtilities.loadTranslation(
@@ -102,9 +115,28 @@ class _ExercisesState extends State<Exercises> {
         child: ListView.builder(
             itemCount: exerciseDatas.length,
             itemBuilder: (context, index) {
-              return ExerciseDataCard(exerciseData: exerciseDatas[index]);
+              if (UIUtilities.loadTranslation(
+                      context, exerciseDatas[index].name)
+                  .toLowerCase()
+                  .contains(searchString.toLowerCase())) {
+                return GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context, exerciseDatas[index]);
+                    },
+                    child:
+                        ExerciseDataCard(exerciseData: exerciseDatas[index]));
+              } else {
+                return SizedBox();
+              }
             }),
       ),
     );
+  }
+
+  void openSearchBar() {
+    setState(() {
+      isSearchBarActivated = true;
+      searchFocusNode.requestFocus();
+    });
   }
 }

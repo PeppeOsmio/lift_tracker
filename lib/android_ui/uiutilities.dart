@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
 import 'package:lift_tracker/android_ui/widgets/dimmingbackground.dart';
 import 'package:lift_tracker/localizations.dart';
@@ -14,7 +12,8 @@ class UIUtilities {
   }
 
   static Color getSelectedAppBarColor(BuildContext context) {
-    return Theme.of(context).colorScheme.primaryContainer;
+    return Color.lerp(Theme.of(context).colorScheme.primaryContainer,
+        Theme.of(context).colorScheme.surface, 0.45)!;
   }
 
   static Color getSelectedTextColor(BuildContext context) {
@@ -32,6 +31,10 @@ class UIUtilities {
   static Color getSelectedWidgetColor(BuildContext context) {
     return Color.lerp(getSelectedAppBarColor(context),
         Theme.of(context).colorScheme.surface, 0.45)!;
+  }
+
+  static Color getDialogBackgroundColor(BuildContext context) {
+    return Theme.of(context).colorScheme.background;
   }
 
   static void unfocusTextFields(BuildContext context) {
@@ -88,6 +91,7 @@ class UIUtilities {
                     maxAlpha: 138,
                   )),
               AlertDialog(
+                backgroundColor: getDialogBackgroundColor(context),
                 title: title != null ? Text(title) : null,
                 content: content != null ? Text(content) : null,
                 actions: [

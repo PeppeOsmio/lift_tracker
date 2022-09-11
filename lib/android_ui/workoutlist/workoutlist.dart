@@ -1,11 +1,12 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lift_tracker/android_ui/app.dart';
+import 'package:lift_tracker/android_ui/exercises/app/app.dart';
 import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/android_ui/widgets/customanimatedicon.dart';
-import 'package:lift_tracker/android_ui/widgets/customdrawer.dart';
+import 'package:lift_tracker/android_ui/exercises/app/customdrawer.dart';
 import 'package:lift_tracker/android_ui/workoutlist/workoutcard.dart';
+import 'package:lift_tracker/android_ui/workouts/newworkout.dart';
 import 'package:lift_tracker/data/classes/workout.dart';
 import 'package:lift_tracker/data/database/database.dart';
 import 'package:lift_tracker/data/helper.dart';
@@ -34,6 +35,8 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
   bool isAppBarSelected = false;
   bool isSearchBarActivated = false;
   TextEditingController searchController = TextEditingController();
+  String searchString = '';
+  FocusNode searchFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -116,7 +119,14 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
                     : [
                         IconButton(
                             onPressed: () {
-                              openSearchBar();
+                              if (isSearchBarActivated) {
+                                setState(() {
+                                  searchController.text = '';
+                                  searchString = '';
+                                });
+                              } else {
+                                openSearchBar();
+                              }
                             },
                             icon: Icon(isSearchBarActivated
                                 ? Icons.close
@@ -128,7 +138,13 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
           curve: Curves.decelerate,
           duration: Duration(milliseconds: 150),
           child: isSearchBarActivated && !isAppBarSelected
-              ? TextFormField(
+              ? TextField(
+                  onChanged: (newValue) {
+                    setState(() {
+                      searchString = newValue;
+                    });
+                  },
+                  focusNode: searchFocusNode,
                   controller: searchController,
                   decoration: InputDecoration(
                       hintText: UIUtilities.loadTranslation(
@@ -151,6 +167,12 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
         child: ListView.builder(
             itemCount: workouts.length,
             itemBuilder: (context, index) {
+              if (!workouts[index]
+                  .name
+                  .toLowerCase()
+                  .contains(searchString.toLowerCase())) {
+                return SizedBox();
+              }
               return WorkoutCard(
                   color: openIndex == index
                       ? UIUtilities.getSelectedWidgetColor(context)
@@ -169,6 +191,16 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
                   });
             }),
       ),
+      floatingActionButton: FloatingActionButton(
+        heroTag: -4,
+        onPressed: () async {
+          await Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) {
+            return NewWorkout();
+          }));
+        },
+        child: Icon(Icons.add),
+      ),
     );
   }
 
@@ -183,6 +215,7 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
   void openSearchBar() {
     setState(() {
       isSearchBarActivated = true;
+      searchFocusNode.requestFocus();
     });
   }
 

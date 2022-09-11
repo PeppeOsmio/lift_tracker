@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:dynamic_color/dynamic_color.dart';
@@ -8,7 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lift_tracker/android_ui/workouts/newworkout.dart';
 import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/android_ui/widgets/appbardata.dart';
-import 'package:lift_tracker/android_ui/widgets/customdrawer.dart';
+import 'package:lift_tracker/android_ui/exercises/app/customdrawer.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/database/database.dart';
 import 'package:lift_tracker/data/helper.dart';
@@ -36,57 +37,60 @@ class _AppState extends ConsumerState<App> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        key: mainScaffoldKey,
-        drawer: CustomDrawer(),
-        body: Stack(children: [
-          Offstage(offstage: pageIndex != 0, child: History()),
-          Offstage(
-            offstage: pageIndex != 1,
-            child: WorkoutList(
-              onCardTap:
-                  ((onDelete, onHistory, onEdit, onStart, workoutName) {}),
-              onCardClose: () {},
+    return WillPopScope(
+      onWillPop: () async {
+        UIUtilities.showDimmedBackgroundDialog(context,
+            title: UIUtilities.loadTranslation(context, 'exit'),
+            content: UIUtilities.loadTranslation(context, 'exitContent'),
+            leftText: UIUtilities.loadTranslation(context, 'exitNo'),
+            rightText: UIUtilities.loadTranslation(context, 'exitYes'),
+            leftOnPressed: () {
+          Navigator.maybePop(context);
+        }, rightOnPressed: () {
+          SystemNavigator.pop(animated: true);
+        });
+        return false;
+      },
+      child: Scaffold(
+          key: mainScaffoldKey,
+          drawer: CustomDrawer(),
+          body: Stack(children: [
+            Offstage(offstage: pageIndex != 0, child: History()),
+            Offstage(
+              offstage: pageIndex != 1,
+              child: WorkoutList(
+                onCardTap:
+                    ((onDelete, onHistory, onEdit, onStart, workoutName) {}),
+                onCardClose: () {},
+              ),
             ),
-          ),
-          Offstage(offstage: pageIndex != 2, child: Exercises())
-        ]),
-        floatingActionButton: pageIndex == 1
-            ? FloatingActionButton(
-                heroTag: -4,
-                onPressed: () async {
-                  await Navigator.of(context)
-                      .push(MaterialPageRoute(builder: (context) {
-                    return NewWorkout();
-                  }));
-                },
-                child: Icon(Icons.add),
-              )
-            : null,
-        bottomNavigationBar: BottomNavBar(
-          index: pageIndex,
-          useMaterial3: widget.useMaterial3,
-          navigationItems: [
-            NavigationItem(
-                icon: Icon(Icons.timer),
-                label: UIUtilities.loadTranslation(context, 'history')),
-            NavigationItem(
-                icon: Icon(Icons.create),
-                label: UIUtilities.loadTranslation(context, 'workouts')),
-            NavigationItem(
-                icon: Icon(Icons.fitness_center),
-                label: UIUtilities.loadTranslation(context, 'exercises'))
-          ],
-          onItemSelected: (index) {
-            if (index == pageIndex) {
-              return;
-            }
-            setState(() {
-              actions = [];
-              pageIndex = index;
-            });
-          },
-        ));
+            Offstage(offstage: pageIndex != 2, child: Exercises())
+          ]),
+          bottomNavigationBar: BottomNavBar(
+            index: pageIndex,
+            useMaterial3: widget.useMaterial3,
+            navigationItems: [
+              NavigationItem(
+                  icon: Icon(Icons.timer),
+                  label: UIUtilities.loadTranslation(context, 'history')),
+              NavigationItem(
+                  icon: Icon(Icons.create),
+                  label: UIUtilities.loadTranslation(context, 'workouts')),
+              NavigationItem(
+                  icon: Icon(Icons.fitness_center),
+                  label: UIUtilities.loadTranslation(context, 'exercises'))
+            ],
+            onItemSelected: (index) {
+              if (index == pageIndex) {
+                return;
+              }
+              setState(() {
+                actions = [];
+                pageIndex = index;
+              });
+            },
+          )),
+    );
   }
 
   @override

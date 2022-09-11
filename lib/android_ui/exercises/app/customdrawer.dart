@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:lift_tracker/android_ui/exercises/app/app.dart';
 import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/helper.dart';
 
@@ -32,7 +33,10 @@ class CustomDrawer extends Drawer {
           ListTile(
             leading: Icon(Icons.exit_to_app),
             title: Text(UIUtilities.loadTranslation(context, 'exit')),
-            onTap: () {},
+            onTap: () {
+              mainScaffoldKey.currentState!.closeDrawer();
+              Navigator.maybePop(context);
+            },
           )
         ],
       ),

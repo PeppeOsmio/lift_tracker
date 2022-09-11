@@ -32,90 +32,96 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
   @override
   Widget build(BuildContext context) {
     List<Widget> bodyWidgets = body();
-    return Scaffold(
-      backgroundColor: UIUtilities.getScaffoldBackgroundColor(context),
-      appBar: AppBar(
-        backgroundColor: UIUtilities.getAppBarColor(context),
-        leading: IconButton(
-          icon: Icon(Icons.close),
-          onPressed: () {
-            UIUtilities.showDimmedBackgroundDialog(context,
-                title: UIUtilities.loadTranslation(context, 'discard'),
-                content: UIUtilities.loadTranslation(context, 'discardContent'),
-                leftText: UIUtilities.loadTranslation(context, 'keepThem'),
-                rightText: UIUtilities.loadTranslation(context, 'yesDiscard'),
-                leftOnPressed: () {
+    return WillPopScope(
+      onWillPop: () async {
+        UIUtilities.showDimmedBackgroundDialog(context,
+            title: UIUtilities.loadTranslation(context, 'discard'),
+            content: UIUtilities.loadTranslation(context, 'discardContent'),
+            leftText: UIUtilities.loadTranslation(context, 'discardNo'),
+            rightText: UIUtilities.loadTranslation(context, 'discardYes'),
+            leftOnPressed: () {
+          Navigator.maybePop(context);
+        }, rightOnPressed: () {
+          Navigator.pop(context);
+          Navigator.pop(context);
+        });
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: UIUtilities.getScaffoldBackgroundColor(context),
+        appBar: AppBar(
+          backgroundColor: UIUtilities.getAppBarColor(context),
+          leading: IconButton(
+            icon: Icon(Icons.close),
+            onPressed: () {
               Navigator.maybePop(context);
-            }, rightOnPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-            });
-            /*showDialog(
-                useRootNavigator: false,
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title:
-                        Text(UIUtilities.loadTranslation(context, 'discard')),
-                    content: Text(
-                        UIUtilities.loadTranslation(context, 'discardContent')),
-                    actions: [
-                      TextButton(
-                          onPressed: () {
+              /*showDialog(
+                  useRootNavigator: false,
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title:
+                          Text(UIUtilities.loadTranslation(context, 'discard')),
+                      content: Text(
+                          UIUtilities.loadTranslation(context, 'discardContent')),
+                      actions: [
+                        TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(UIUtilities.loadTranslation(
+                                context, 'keepThem'))),
+                        TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              Navigator.pop(context);
+                            },
+                            child: Text(UIUtilities.loadTranslation(
+                                context, 'yesDiscard')))
+                      ],
+                    );
+                  });*/
+            },
+          ),
+          title: Text("${UIUtilities.loadTranslation(context, 'newWorkout')}"),
+          actions: [
+            AnimatedSize(
+              duration: Duration(milliseconds: 150),
+              curve: Curves.decelerate,
+              child: Row(children: [
+                canSave
+                    ? IconButton(
+                        tooltip: 'Save',
+                        onPressed: () {
+                          saveWorkout().then((value) {
                             Navigator.pop(context);
-                          },
-                          child: Text(UIUtilities.loadTranslation(
-                              context, 'keepThem'))),
-                      TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            Navigator.pop(context);
-                          },
-                          child: Text(UIUtilities.loadTranslation(
-                              context, 'yesDiscard')))
-                    ],
-                  );
-                });*/
-          },
+                          }).catchError((error) {
+                            UIUtilities.showSnackBar(
+                                context: context,
+                                msg: UIUtilities.loadTranslation(
+                                        context, 'error') +
+                                    ': $error');
+                          });
+                        },
+                        icon: Icon(Icons.done))
+                    : SizedBox()
+              ]),
+            )
+          ],
         ),
-        title: Text("${UIUtilities.loadTranslation(context, 'newWorkout')}"),
-        actions: [
-          AnimatedSize(
-            duration: Duration(milliseconds: 150),
-            curve: Curves.decelerate,
-            child: Row(children: [
-              canSave
-                  ? IconButton(
-                      tooltip: 'Save',
-                      onPressed: () {
-                        saveWorkout().then((value) {
-                          Navigator.pop(context);
-                        }).catchError((error) {
-                          UIUtilities.showSnackBar(
-                              context: context,
-                              msg: UIUtilities.loadTranslation(
-                                      context, 'error') +
-                                  ': $error');
-                        });
-                      },
-                      icon: Icon(Icons.done))
-                  : SizedBox()
-            ]),
-          )
-        ],
-      ),
-      body: GestureDetector(
-        onTap: () {
-          UIUtilities.unfocusTextFields(context);
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ListView.builder(
-              cacheExtent: 0,
-              itemCount: bodyWidgets.length,
-              itemBuilder: (context, index) {
-                return bodyWidgets[index];
-              }),
+        body: GestureDetector(
+          onTap: () {
+            UIUtilities.unfocusTextFields(context);
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ListView.builder(
+                cacheExtent: 0,
+                itemCount: bodyWidgets.length,
+                itemBuilder: (context, index) {
+                  return bodyWidgets[index];
+                }),
+          ),
         ),
       ),
     );
@@ -196,7 +202,18 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
             setState(() {
               exerciseDataList.add(null);
               setsControllers.add(TextEditingController());
+              setsControllers.last.addListener(() {
+                setState(() {
+                  canSave = getCanSave();
+                });
+              });
               repsControllers.add(TextEditingController());
+              repsControllers.last.addListener(() {
+                setState(() {
+                  canSave = getCanSave();
+                });
+              });
+              canSave = false;
             });
           }
         },
@@ -229,8 +246,8 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
 
   List<PopupMenuItem<MoveOrRemoveMenuOption>> menuItems(int index) {
     List<PopupMenuItem<MoveOrRemoveMenuOption>> menuItems = [];
-    if (exerciseDataList[index] == null) {
-      return [];
+    if (exerciseDataList.length == 1 && exerciseDataList.first == null) {
+      return menuItems;
     }
     if (index > 0) {
       menuItems.add(PopupMenuItem<MoveOrRemoveMenuOption>(
@@ -244,6 +261,7 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
         child: Text(UIUtilities.loadTranslation(context, 'moveDown')),
       ));
     }
+    // since the first element is always null
     if (exerciseDataList.isNotEmpty) {
       menuItems.add(PopupMenuItem<MoveOrRemoveMenuOption>(
         value: MoveOrRemoveMenuOption.remove,
@@ -302,16 +320,19 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
 
   void remove(int index) {
     if (exerciseDataList.length <= 1) {
-      setsControllers[index].text = '';
-      repsControllers[index].text = '';
-      exerciseDataList[index] = null;
-      setState(() {});
+      setState(() {
+        setsControllers[index].text = '';
+        repsControllers[index].text = '';
+        exerciseDataList[index] = null;
+      });
       return;
     }
     setsControllers.removeAt(index);
     repsControllers.removeAt(index);
     exerciseDataList.removeAt(index);
-    setState(() {});
+    setState(() {
+      canSave = getCanSave();
+    });
   }
 
   Future saveWorkout() async {

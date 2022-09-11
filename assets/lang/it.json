@@ -85,6 +85,9 @@
     "profile": "Profilo",
     "settings": "Impostazioni",
     "exit": "Esci",
+    "exitContent": "Uscire dall'app?",
+    "exitYes": "Sì, esci dall'app",
+    "exitNo": "No, rimani nell'app",
     "yes": "Sì",
     "cancel": "Annulla",
     "resumeWorkoutSession": "Riprendere l'ultima sessione di",
@@ -140,6 +143,6 @@
     "error": "Ops, abbiamo sbagliato qualcosa...",
     "discard": "Abbandona",
     "discardContent": "Vuoi abbandonare le modifiche?",
-    "keepThem": "No, mantienile",
-    "yesDiscard": "Si, abbandonale"
+    "discardNo": "No, mantienile",
+    "discardYes": "Si, abbandonale"
 }

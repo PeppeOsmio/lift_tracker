@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:lift_tracker/android_ui/app.dart';
+import 'package:lift_tracker/android_ui/exercises/app/app.dart';
 import 'package:lift_tracker/android_ui/exercises/exercisedatacard.dart';
 import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/android_ui/widgets/customanimatedicon.dart';
-import 'package:lift_tracker/android_ui/widgets/customdrawer.dart';
+import 'package:lift_tracker/android_ui/exercises/app/customdrawer.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/gym_icons_icons.dart';
@@ -25,6 +25,7 @@ class _SelectExercisesState extends State<SelectExercise> {
   List<ExerciseData> exerciseDatas = [];
   bool isSearchBarActivated = false;
   TextEditingController searchController = TextEditingController();
+  FocusNode searchFocusNode = FocusNode();
   String searchString = '';
 
   @override
@@ -75,9 +76,7 @@ class _SelectExercisesState extends State<SelectExercise> {
                           searchString = '';
                         });
                       } else {
-                        setState(() {
-                          isSearchBarActivated = true;
-                        });
+                        openSearchBar();
                       }
                     },
                     icon:
@@ -89,12 +88,13 @@ class _SelectExercisesState extends State<SelectExercise> {
             curve: Curves.decelerate,
             duration: Duration(milliseconds: 150),
             child: isSearchBarActivated
-                ? TextFormField(
+                ? TextField(
                     onChanged: (newValue) {
                       setState(() {
                         searchString = newValue;
                       });
                     },
+                    focusNode: searchFocusNode,
                     controller: searchController,
                     decoration: InputDecoration(
                         hintText: UIUtilities.loadTranslation(
@@ -133,5 +133,12 @@ class _SelectExercisesState extends State<SelectExercise> {
         ),
       ),
     );
+  }
+
+  void openSearchBar() {
+    setState(() {
+      isSearchBarActivated = true;
+      searchFocusNode.requestFocus();
+    });
   }
 }
