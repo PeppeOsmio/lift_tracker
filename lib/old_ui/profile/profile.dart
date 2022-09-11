@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/old_ui/styles.dart';
 import 'package:lift_tracker/old_ui/widgets.dart';
@@ -19,7 +20,7 @@ class _ProfileState extends ConsumerState<Profile> {
         backgroundColor: Palette.backgroundDark,
         body: Column(children: [
           CustomAppBar(
-              middleText: Helper.loadTranslation(context, 'profile'),
+              middleText: UIUtilities.loadTranslation(context, 'profile'),
               onBack: () => Navigator.pop(context),
               onSubmit: () {},
               backButton: true,

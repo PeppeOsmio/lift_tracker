@@ -1,19 +1,9 @@
-import 'dart:io';
-
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lift_tracker/android_ui/app.dart';
-import 'package:lift_tracker/data/classes/exercisedata.dart';
-import 'package:lift_tracker/data/database/database.dart';
-import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/localizations.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Loading extends ConsumerStatefulWidget {
   const Loading({Key? key}) : super(key: key);

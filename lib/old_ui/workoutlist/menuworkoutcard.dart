@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/classes/workouthistory.dart';
 import 'package:lift_tracker/data/classes/workoutrecord.dart';
 import 'package:lift_tracker/data/database/database.dart';
@@ -158,8 +159,8 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                                   onPressed: () {
                                     widget.deleteOnPressed();
                                   },
-                                  text:
-                                      Helper.loadTranslation(context, 'delete'),
+                                  text: UIUtilities.loadTranslation(
+                                      context, 'delete'),
                                   borderColor: colorScheme.error,
                                   backgroundColor:
                                       colorScheme.error.withAlpha(25),
@@ -182,7 +183,7 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                                                   workoutHistory: history);
                                             }));
                                           },
-                                          text: Helper.loadTranslation(
+                                          text: UIUtilities.loadTranslation(
                                               context, 'history'),
                                           borderColor: colorScheme.tertiary,
                                           backgroundColor: colorScheme.tertiary
@@ -200,8 +201,8 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                                             widget.workoutCard.workout);
                                       }));
                                     },
-                                    text:
-                                        Helper.loadTranslation(context, 'edit'),
+                                    text: UIUtilities.loadTranslation(
+                                        context, 'edit'),
                                     borderColor: colorScheme.inversePrimary,
                                     backgroundColor: colorScheme.inversePrimary
                                         .withAlpha(25)),
@@ -219,7 +220,7 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                                             Navigator.pushReplacement(
                                                 context, route);
                                           },
-                                          text: Helper.loadTranslation(
+                                          text: UIUtilities.loadTranslation(
                                               context, 'start'),
                                           borderColor: colorScheme.primary,
                                           backgroundColor: colorScheme.primary
@@ -252,7 +253,7 @@ class _MenuWorkoutCardState extends State<MenuWorkoutCard> {
                                             Navigator.pushReplacement(
                                                 context, route);
                                           },
-                                          text: Helper.loadTranslation(
+                                          text: UIUtilities.loadTranslation(
                                               context, 'resume'),
                                           borderColor: Colors.orange,
                                           backgroundColor:

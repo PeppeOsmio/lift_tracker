@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/gym_icons_icons.dart';
@@ -15,7 +16,7 @@ class Exercises extends StatefulWidget {
 }
 
 class _ExercisesState extends State<Exercises> {
-  List<ExerciseData> displayedData = Helper.exerciseDataGlobal;
+  List<ExerciseData> displayedData = Helper.instance.exerciseDataGlobal;
   TextEditingController searchController = TextEditingController();
   @override
   Widget build(BuildContext context) {
@@ -23,17 +24,17 @@ class _ExercisesState extends State<Exercises> {
       child: Column(
         children: [
           SearchBar(
-              hint: Helper.loadTranslation(context, 'filter'),
+              hint: UIUtilities.loadTranslation(context, 'filter'),
               textController: searchController,
               onTextChange: (change) {
                 List<ExerciseData> temp = [];
                 if (change.isEmpty) {
-                  displayedData = Helper.exerciseDataGlobal;
+                  displayedData = Helper.instance.exerciseDataGlobal;
                   setState(() {});
                   return;
                 }
-                for (ExerciseData data in Helper.exerciseDataGlobal) {
-                  if (Helper.loadTranslation(context, data.name)
+                for (ExerciseData data in Helper.instance.exerciseDataGlobal) {
+                  if (UIUtilities.loadTranslation(context, data.name)
                       .toLowerCase()
                       .contains(change.toLowerCase())) {
                     temp.add(data);
@@ -137,7 +138,8 @@ class _ExerciseCardState extends State<ExerciseCard> {
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Text(
-                      Helper.loadTranslation(context, widget.exerciseData.name),
+                      UIUtilities.loadTranslation(
+                          context, widget.exerciseData.name),
                       style: TextStyle(color: Colors.white, fontSize: 20),
                     ),
                   ),
@@ -151,21 +153,21 @@ class _ExerciseCardState extends State<ExerciseCard> {
                         children: [
                           buildMuscleBadge(
                               Colors.red,
-                              Helper.loadTranslation(
+                              UIUtilities.loadTranslation(
                                   context, widget.exerciseData.firstMuscle)),
                           const SizedBox(
                             width: 8,
                           ),
                           buildMuscleBadge(
                               Colors.blue,
-                              Helper.loadTranslation(
+                              UIUtilities.loadTranslation(
                                   context, widget.exerciseData.secondMuscle)),
                           const SizedBox(
                             width: 8,
                           ),
                           buildMuscleBadge(
                               Colors.green,
-                              Helper.loadTranslation(
+                              UIUtilities.loadTranslation(
                                   context, widget.exerciseData.thirdMuscle))
                         ]),
                   )

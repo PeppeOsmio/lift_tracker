@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/old_ui/exercises.dart';
@@ -16,7 +17,7 @@ class SelectExercise extends ConsumerStatefulWidget {
 
 class _SelectExerciseState extends ConsumerState<SelectExercise> {
   final TextEditingController searchController = TextEditingController();
-  List<ExerciseData> displayedData = Helper.exerciseDataGlobal;
+  List<ExerciseData> displayedData = Helper.instance.exerciseDataGlobal;
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -25,24 +26,25 @@ class _SelectExerciseState extends ConsumerState<SelectExercise> {
         backgroundColor: Palette.backgroundDark,
         body: Column(children: [
           CustomAppBar(
-            middleText: Helper.loadTranslation(context, 'selectExerciseTitle'),
+            middleText:
+                UIUtilities.loadTranslation(context, 'selectExerciseTitle'),
             onBack: () => Navigator.pop(context),
             onSubmit: () {},
             backButton: true,
             submitButton: false,
           ),
           SearchBar(
-            hint: Helper.loadTranslation(context, 'filter'),
+            hint: UIUtilities.loadTranslation(context, 'filter'),
             textController: searchController,
             onTextChange: (change) {
               List<ExerciseData> temp = [];
               if (change.isEmpty) {
-                displayedData = Helper.exerciseDataGlobal;
+                displayedData = Helper.instance.exerciseDataGlobal;
                 setState(() {});
                 return;
               }
-              for (ExerciseData data in Helper.exerciseDataGlobal) {
-                if (Helper.loadTranslation(context, data.name)
+              for (ExerciseData data in Helper.instance.exerciseDataGlobal) {
+                if (UIUtilities.loadTranslation(context, data.name)
                     .toLowerCase()
                     .contains(change.toLowerCase())) {
                   temp.add(data);

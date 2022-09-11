@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/classes/workout.dart';
 import 'package:lift_tracker/data/helper.dart';
 
@@ -48,7 +49,7 @@ class _WorkoutCardState extends State<WorkoutCard> with WidgetsBindingObserver {
             children: [
               Expanded(
                 flex: 5,
-                child: Text(Helper.loadTranslation(context, name),
+                child: Text(UIUtilities.loadTranslation(context, name),
                     style: TextStyle(color: widget.textColor, fontSize: 15)),
               ),
               Expanded(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
+import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/classes/exerciserecord.dart';
 import 'package:lift_tracker/data/classes/workoutrecord.dart';
@@ -53,7 +54,7 @@ class _SessionState extends State<Session> {
           children: [
             CustomAppBar(
                 middleText:
-                    '${Helper.loadTranslation(context, 'sessionOf')} ${widget.workoutRecord.workoutName} ${Helper.loadTranslation(context, date['month']!)} ${date['day']}, ${date['year']}',
+                    '${UIUtilities.loadTranslation(context, 'sessionOf')} ${widget.workoutRecord.workoutName} ${UIUtilities.loadTranslation(context, date['month']!)} ${date['day']}, ${date['year']}',
                 onBack: () {
                   Navigator.pop(context);
                 },
@@ -99,7 +100,7 @@ class _SessionState extends State<Session> {
                     width: 4,
                   ),
                   Text(
-                    '${Helper.loadTranslation(context, 'volume')}: $totalVolume kg',
+                    '${UIUtilities.loadTranslation(context, 'volume')}: $totalVolume kg',
                     style: TextStyle(
                         color: Colors.amber,
                         fontSize: 14,
@@ -275,7 +276,7 @@ class ExerciseRecordCard extends StatelessWidget {
           padding: EdgeInsets.only(top: 24, bottom: 12),
           child: Center(
             child: Text(
-              Helper.loadTranslation(context, 'set'),
+              UIUtilities.loadTranslation(context, 'set'),
               style: const TextStyle(color: Colors.white),
             ),
           )),
@@ -283,7 +284,7 @@ class ExerciseRecordCard extends StatelessWidget {
           padding: const EdgeInsets.only(top: 24, bottom: 12),
           child: Center(
             child: Text(
-              Helper.loadTranslation(context, 'reps'),
+              UIUtilities.loadTranslation(context, 'reps'),
               style: const TextStyle(color: Colors.white),
             ),
           )),
@@ -291,7 +292,7 @@ class ExerciseRecordCard extends StatelessWidget {
           padding: EdgeInsets.only(top: 24, bottom: 12),
           child: Center(
             child: Text(
-              '${Helper.loadTranslation(context, 'weight')} (kg)',
+              '${UIUtilities.loadTranslation(context, 'weight')} (kg)',
               style: TextStyle(color: Colors.white),
             ),
           )),
@@ -299,7 +300,7 @@ class ExerciseRecordCard extends StatelessWidget {
           padding: EdgeInsets.only(top: 24, bottom: 12, left: 8),
           child: Center(
             child: Text(
-              '${Helper.loadTranslation(context, 'volume')} (kg)',
+              '${UIUtilities.loadTranslation(context, 'volume')} (kg)',
               style: TextStyle(color: Colors.white),
             ),
           )),
@@ -322,9 +323,9 @@ class ExerciseRecordCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(left: 32),
                 child: Text(
-                  Helper.loadTranslation(
+                  UIUtilities.loadTranslation(
                       context,
-                      Helper.exerciseDataGlobal
+                      Helper.instance.exerciseDataGlobal
                           .firstWhere(
                               (element) => exerciseRecord.jsonId == element.id)
                           .name),

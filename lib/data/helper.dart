@@ -93,28 +93,24 @@ class Helper {
 
   // Provides the index that indicates the current displayed page
   // among History, Workouts or Exercises
-  static final pageIndexProvider =
-      StateNotifierProvider<IndexNotifier, int>(((ref) {
+  final pageIndexProvider = StateNotifierProvider<IndexNotifier, int>(((ref) {
     return IndexNotifier();
   }));
 
   // Provides the future of the saved workouts. This future will be
   // resolved in the Workouts page's FutureBuilder
-  static final workoutsProvider =
+  final workoutsProvider =
       StateNotifierProvider<WorkoutsNotifier, List<Workout>>(((ref) {
     return WorkoutsNotifier();
   }));
 
   // Provides the future of the saved workout records. this future will be
   // resolved in the History page's future builder
-  static final workoutRecordsProvider =
+  final workoutRecordsProvider =
       StateNotifierProvider<WorkoutRecordsNotifier, List<WorkoutRecord>>((ref) {
     return WorkoutRecordsNotifier();
   });
 
-  static final searchLimitProvider = Provider<int>((ref) {
-    return 3;
-  });
   static bool isAppLoaded = false;
   ColorScheme colorSchemeLight = ColorScheme.fromSeed(
       seedColor: Colors.orange, brightness: Brightness.light);
@@ -145,24 +141,7 @@ class Helper {
   }
 
   static List<int> pageStack = [];
-  static List<ExerciseData> exerciseDataGlobal = [];
-
-  static void unfocusTextFields(BuildContext context) {
-    FocusScopeNode currentFocus = FocusScope.of(context);
-    if (!currentFocus.hasPrimaryFocus) {
-      currentFocus.unfocus();
-    }
-  }
-
-  static String loadTranslation(BuildContext context, String key) {
-    return Localization.of(context).getString(key);
-  }
-
-  static void showSnackBar(
-      {required BuildContext context, required dynamic msg}) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(msg.toString())));
-  }
+  List<ExerciseData> exerciseDataGlobal = [];
 
   static Future<List<int>> addDebugWorkouts() async {
     List<int> returns = [];
@@ -216,8 +195,8 @@ class Helper {
         reps: 10,
         exerciseData:
             ExerciseData(id: 19, name: 'pushdownBar', type: 'machine')));
-    returns.add(
-        await CustomDatabase.instance.createWorkout('Push', pushExercises));
+    returns.add(await CustomDatabase.instance
+        .saveWorkout(Workout(0, 'Push', pushExercises)));
     List<Exercise> pullExercises = [];
     pullExercises.add(Exercise(
         workoutId: 1,
@@ -267,8 +246,8 @@ class Helper {
         reps: 10,
         exerciseData:
             ExerciseData(id: 37, name: 'inclineBenchCurl', type: 'dumbbell')));
-    returns.add(
-        await CustomDatabase.instance.createWorkout('Pull', pullExercises));
+    returns.add(await CustomDatabase.instance
+        .saveWorkout(Workout(0, 'Pull', pullExercises)));
     return returns;
   }
 

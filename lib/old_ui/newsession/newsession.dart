@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/classes/exerciseset.dart';
 import 'package:lift_tracker/data/helper.dart';
@@ -58,8 +59,10 @@ class _NewSessionState extends ConsumerState<NewSession>
         }
         Exercise exercise = Exercise(
           workoutId: widget.workout.id,
-          exerciseData: Helper.exerciseDataGlobal.firstWhere((element) =>
-              element.id == widget.resumedSession!.exerciseRecords[i].jsonId),
+          exerciseData: Helper.instance.exerciseDataGlobal.firstWhere(
+              (element) =>
+                  element.id ==
+                  widget.resumedSession!.exerciseRecords[i].jsonId),
           id: widget.resumedSession!.exerciseRecords[i].exerciseId,
           sets: widget.resumedSession!.exerciseRecords[i].sets.length,
           reps: i < widget.workout.exercises.length
@@ -163,8 +166,8 @@ class _NewSessionState extends ConsumerState<NewSession>
       onWillPop: () async {
         bool willPop = false;
         await showDimmedBackgroundDialog(context,
-            rightText: Helper.loadTranslation(context, 'cancel'),
-            leftText: Helper.loadTranslation(context, 'save'),
+            rightText: UIUtilities.loadTranslation(context, 'cancel'),
+            leftText: UIUtilities.loadTranslation(context, 'save'),
             leftOnPressed: () async {
           createWorkoutSession(cacheMode: true).then((value) {
             widget.workout.hasCache = 1;
@@ -184,10 +187,10 @@ class _NewSessionState extends ConsumerState<NewSession>
           Navigator.pop(context);
           willPop = true;
           Fluttertoast.showToast(
-              msg: Helper.loadTranslation(context, 'sessionCanceled'));
+              msg: UIUtilities.loadTranslation(context, 'sessionCanceled'));
         },
-            title: Helper.loadTranslation(context, 'cancelSession'),
-            content: Helper.loadTranslation(context, 'cancelSessionBody'));
+            title: UIUtilities.loadTranslation(context, 'cancelSession'),
+            content: UIUtilities.loadTranslation(context, 'cancelSessionBody'));
         return willPop;
       },
       child: GestureDetector(
@@ -206,10 +209,10 @@ class _NewSessionState extends ConsumerState<NewSession>
                 child: Column(
                   children: [
                     CustomAppBar(
-                        middleText:
-                            Helper.loadTranslation(context, 'newSessionOf') +
-                                ' ' +
-                                widget.workout.name,
+                        middleText: UIUtilities.loadTranslation(
+                                context, 'newSessionOf') +
+                            ' ' +
+                            widget.workout.name,
                         onBack: () => Navigator.maybePop(context),
                         onSubmit: () => createWorkoutSession(),
                         backButton: true,
@@ -253,7 +256,7 @@ class _NewSessionState extends ConsumerState<NewSession>
     } catch (e) {
       print(e);
       Fluttertoast.showToast(
-          msg: Helper.loadTranslation(context, 'fillAllFields'));
+          msg: UIUtilities.loadTranslation(context, 'fillAllFields'));
       return;
     }
     if (workoutRecord == null) {
@@ -275,7 +278,7 @@ class _NewSessionState extends ConsumerState<NewSession>
             .readWorkouts(workoutId: workoutRecord.workoutId)
             .then((workouts) {
           ref
-              .read(Helper.workoutsProvider.notifier)
+              .read(Helper.instance.workoutsProvider.notifier)
               .replaceWorkout(workouts[0]);
         }).catchError((error) {
           Fluttertoast.showToast(msg: 'newsession: ' + error.toString());
@@ -290,7 +293,7 @@ class _NewSessionState extends ConsumerState<NewSession>
                 workoutRecordId: newWorkoutRecordInfo['workoutRecordId'])
             .then((workoutRecords) {
           ref
-              .read(Helper.workoutRecordsProvider.notifier)
+              .read(Helper.instance.workoutRecordsProvider.notifier)
               .addWorkoutRecord(workoutRecords[0]);
         }).catchError((error) {
           Fluttertoast.showToast(msg: 'newsession: ' + error.toString());

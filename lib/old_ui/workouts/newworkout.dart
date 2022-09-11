@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
+import 'package:lift_tracker/data/classes/workout.dart';
 import 'package:lift_tracker/data/database/database.dart';
 import 'package:lift_tracker/data/classes/exercise.dart';
 import 'package:lift_tracker/old_ui/styles.dart';
@@ -49,7 +51,7 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
           if (result != null) {
             exerciseDataList[i] = result;
             nameControllers[i].text =
-                Helper.loadTranslation(context, result.name);
+                UIUtilities.loadTranslation(context, result.name);
             setState(() {});
           }
         },
@@ -71,7 +73,7 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
     return SafeArea(
       child: GestureDetector(
         onTap: () {
-          Helper.unfocusTextFields(context);
+          UIUtilities.unfocusTextFields(context);
         },
         child: Scaffold(
             resizeToAvoidBottomInset: true,
@@ -79,7 +81,8 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
             body: Column(
               children: [
                 CustomAppBar(
-                    middleText: Helper.loadTranslation(context, 'newWorkout'),
+                    middleText:
+                        UIUtilities.loadTranslation(context, 'newWorkout'),
                     onBack: () => Navigator.pop(context),
                     onSubmit: () => createWorkout(),
                     backButton: true,
@@ -94,7 +97,7 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            Helper.loadTranslation(context, 'workoutName'),
+                            UIUtilities.loadTranslation(context, 'workoutName'),
                             style: TextStyle(fontSize: 20, color: Colors.white),
                           ),
                           Padding(
@@ -112,7 +115,7 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
                                 controller: workoutName,
                                 decoration: InputDecoration(
                                     hintStyle: TextStyle(color: Colors.grey),
-                                    hintText: Helper.loadTranslation(
+                                    hintText: UIUtilities.loadTranslation(
                                         context, 'workoutNameExample'),
                                     border: InputBorder.none),
                                 style: const TextStyle(
@@ -122,7 +125,7 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
                           ),
                           const SizedBox(height: 24),
                           Text(
-                            Helper.loadTranslation(context, 'exercises'),
+                            UIUtilities.loadTranslation(context, 'exercises'),
                             style: TextStyle(fontSize: 20, color: Colors.white),
                           ),
                           const SizedBox(height: 24),
@@ -166,18 +169,18 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
       }
       if (sets == '0') {
         Fluttertoast.showToast(
-            msg: Helper.loadTranslation(
+            msg: UIUtilities.loadTranslation(
                     context, '${exerciseDataList[i]!.name}') +
                 ' ' +
-                Helper.loadTranslation(context, 'noSetsError'));
+                UIUtilities.loadTranslation(context, 'noSetsError'));
         return;
       }
       if (reps == '0') {
         Fluttertoast.showToast(
-            msg: Helper.loadTranslation(
+            msg: UIUtilities.loadTranslation(
                     context, '${exerciseDataList[i]!.name}') +
                 ' ' +
-                Helper.loadTranslation(context, 'noRepsError'));
+                UIUtilities.loadTranslation(context, 'noRepsError'));
         return;
       }
       exercises.add(Exercise(
@@ -191,7 +194,7 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
     bool didCreateWorkout = false;
     int workoutId = -1;
     await CustomDatabase.instance
-        .createWorkout(workoutName.text, exercises)
+        .saveWorkout(Workout(0, workoutName.text, exercises))
         .then((id) {
       workoutId = id;
       didCreateWorkout = id > 0;
@@ -203,7 +206,9 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
           .readWorkouts(workoutId: workoutId)
           .then((workouts) {
         print(workouts);
-        ref.read(Helper.workoutsProvider.notifier).addWorkout(workouts[0]);
+        ref
+            .read(Helper.instance.workoutsProvider.notifier)
+            .addWorkout(workouts[0]);
       }).catchError((error) {
         Fluttertoast.showToast(msg: 'newworkout: ' + error.toString());
       });

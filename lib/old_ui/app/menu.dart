@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/backup.dart';
 import 'package:lift_tracker/data/database/database.dart';
 import 'package:lift_tracker/data/helper.dart';
@@ -66,7 +67,7 @@ class BlurredProfileMenuState extends State<BlurredProfileMenu> {
     return GestureDetector(
       child: SizedBox(key: containerKey, child: button(false)),
       onTap: () {
-        Helper.unfocusTextFields(context);
+        UIUtilities.unfocusTextFields(context);
         PageRouteBuilder pageRouteBuilder = PageRouteBuilder(
             opaque: false,
             pageBuilder: (context, _, __) {
@@ -164,7 +165,7 @@ class _AnimatedMenuState extends State<AnimatedMenu> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildMenuElement(
-                            Helper.loadTranslation(context, 'profile'),
+                            UIUtilities.loadTranslation(context, 'profile'),
                             Icons.person,
                             style, onPressed: () {
                           Navigator.push(context,
@@ -173,16 +174,17 @@ class _AnimatedMenuState extends State<AnimatedMenu> {
                           }));
                         }),
                         buildMenuElement(
-                            Helper.loadTranslation(
+                            UIUtilities.loadTranslation(
                                 context, 'restoreBackupMenu'),
                             Icons.settings_backup_restore,
                             style, onPressed: () async {
                           await showDimmedBackgroundDialog(context,
-                              title: Helper.loadTranslation(
+                              title: UIUtilities.loadTranslation(
                                   context, 'restoreBackup'),
-                              rightText:
-                                  Helper.loadTranslation(context, 'cancel'),
-                              leftText: Helper.loadTranslation(context, 'yes'),
+                              rightText: UIUtilities.loadTranslation(
+                                  context, 'cancel'),
+                              leftText:
+                                  UIUtilities.loadTranslation(context, 'yes'),
                               rightOnPressed: () {
                             if (isRestoring) {
                               return;
@@ -207,12 +209,12 @@ class _AnimatedMenuState extends State<AnimatedMenu> {
                             } else {
                               if (back.isNotEmpty) {
                                 Fluttertoast.showToast(
-                                    msg: Helper.loadTranslation(
+                                    msg: UIUtilities.loadTranslation(
                                         context, 'backupRestored'));
                                 Restart.restartApp();
                               } else {
                                 Fluttertoast.showToast(
-                                    msg: Helper.loadTranslation(
+                                    msg: UIUtilities.loadTranslation(
                                         context, 'noBackup'));
                               }
                             }
@@ -222,15 +224,17 @@ class _AnimatedMenuState extends State<AnimatedMenu> {
                           Navigator.maybePop(context);
                         }),
                         buildMenuElement(
-                            Helper.loadTranslation(context, 'createBackupMenu'),
+                            UIUtilities.loadTranslation(
+                                context, 'createBackupMenu'),
                             Icons.save,
                             style, onPressed: () async {
                           await showDimmedBackgroundDialog(context,
-                              title: Helper.loadTranslation(
+                              title: UIUtilities.loadTranslation(
                                   context, 'createBackup'),
-                              rightText:
-                                  Helper.loadTranslation(context, 'cancel'),
-                              leftText: Helper.loadTranslation(context, 'yes'),
+                              rightText: UIUtilities.loadTranslation(
+                                  context, 'cancel'),
+                              leftText:
+                                  UIUtilities.loadTranslation(context, 'yes'),
                               rightOnPressed: () => Navigator.maybePop(context),
                               leftOnPressed: () async {
                                 bool created = await Backup.createBackup()
@@ -240,11 +244,11 @@ class _AnimatedMenuState extends State<AnimatedMenu> {
                                 });
                                 if (created) {
                                   Fluttertoast.showToast(
-                                      msg: Helper.loadTranslation(
+                                      msg: UIUtilities.loadTranslation(
                                           context, 'createdBackup'));
                                 } else {
                                   Fluttertoast.showToast(
-                                      msg: Helper.loadTranslation(
+                                      msg: UIUtilities.loadTranslation(
                                           context, 'didntCreateBackup'));
                                 }
                                 Navigator.maybePop(context);
@@ -252,7 +256,7 @@ class _AnimatedMenuState extends State<AnimatedMenu> {
                           Navigator.maybePop(context);
                         }),
                         buildMenuElement(
-                            Helper.loadTranslation(context, 'help'),
+                            UIUtilities.loadTranslation(context, 'help'),
                             Icons.help,
                             style,
                             onPressed: () => Navigator.maybePop(context))

@@ -702,7 +702,7 @@ class CustomDatabase {
         int reps = queryExercise[j]['reps'] as int;
         int workoutId = queryExercise[j]['fk_workout_id'] as int;
         int jsonId = queryExercise[j]['json_id'] as int;
-        var exerciseDataList = Helper.exerciseDataGlobal;
+        var exerciseDataList = Helper.instance.exerciseDataGlobal;
         double? bestWeight = queryExercise[j]['best_weight'] as double?;
         int? bestVolume = queryExercise[j]['best_volume'] as int?;
         int? bestReps = queryExercise[j]['best_reps'] as int?;
@@ -723,20 +723,20 @@ class CustomDatabase {
     return workoutList;
   }
 
-  Future<int> createWorkout(String name, List<Exercise> exercises,
+  Future<int> saveWorkout(Workout workout,
       {backupMode = false, workoutId = 0, int hasCache = 0}) async {
     final db = await instance.database;
     int id = -1;
     List exIds = [];
     await db.transaction((txn) async {
-      Map<String, dynamic> woMap = {'name': name};
+      Map<String, dynamic> woMap = {'name': workout.name};
       if (backupMode) {
         woMap.putIfAbsent('id', () => workoutId);
         woMap.putIfAbsent('has_cache', () => hasCache);
       }
       id = await txn.insert('workout', woMap);
-      for (int i = 0; i < exercises.length; i++) {
-        var exercise = exercises[i];
+      for (int i = 0; i < workout.exercises.length; i++) {
+        var exercise = workout.exercises[i];
         var map = {
           'json_id': exercise.exerciseData.id,
           'sets': exercise.sets,

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/database/database.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/old_ui/history/menuworkoutrecordcard.dart';
@@ -32,7 +33,7 @@ class _HistoryState extends ConsumerState<History> {
 
   @override
   Widget build(BuildContext context) {
-    workoutRecords = ref.watch(Helper.workoutRecordsProvider);
+    workoutRecords = ref.watch(Helper.instance.workoutRecordsProvider);
     return SafeArea(
       child: Column(
         children: [
@@ -47,7 +48,7 @@ class _HistoryState extends ConsumerState<History> {
                     padding: const EdgeInsets.all(16.0),
                     child: Center(
                         child: Text(
-                      Helper.loadTranslation(context, 'historyWelcome'),
+                      UIUtilities.loadTranslation(context, 'historyWelcome'),
                       style: TextStyle(color: Colors.white, fontSize: 20),
                       textAlign: TextAlign.center,
                     )),
@@ -61,7 +62,7 @@ class _HistoryState extends ConsumerState<History> {
   void readMoreAndUpdateUI() {
     CustomDatabase.instance.readWorkoutRecords().then((workoutRecords) {
       ref
-          .read(Helper.workoutRecordsProvider.notifier)
+          .read(Helper.instance.workoutRecordsProvider.notifier)
           .addWorkoutRecords(workoutRecords);
     }).catchError((error) {
       Fluttertoast.showToast(msg: 'history: ' + error.toString());
@@ -101,7 +102,7 @@ class _BodyState extends ConsumerState<Body> {
     return Column(
       children: [
         SearchBar(
-          hint: Helper.loadTranslation(context, 'filter'),
+          hint: UIUtilities.loadTranslation(context, 'filter'),
           textController: searchController,
           onTextChange: (change) {
             List<WorkoutRecord> temp = [];
@@ -170,7 +171,7 @@ class _BodyState extends ConsumerState<Body> {
                 if (await CustomDatabase.instance
                     .removeWorkoutRecord(workoutRecordCard.workoutRecord.id)) {
                   ref
-                      .read(Helper.workoutRecordsProvider.notifier)
+                      .read(Helper.instance.workoutRecordsProvider.notifier)
                       .removeWorkoutRecord(workoutRecordCard.workoutRecord.id);
                 }
                 await Navigator.maybePop(context);

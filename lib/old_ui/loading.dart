@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/classes/exercise.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/classes/workout.dart';
@@ -24,19 +25,19 @@ class _LoadingState extends ConsumerState<Loading> {
     super.initState();
     Future.delayed(Duration.zero, () {
       Helper.getExerciseData().then((value) async {
-        Helper.exerciseDataGlobal = value;
+        Helper.instance.exerciseDataGlobal = value;
         List<String> tempNames = [];
-        for (var e in Helper.exerciseDataGlobal) {
-          tempNames.add(Helper.loadTranslation(context, e.name));
+        for (var e in Helper.instance.exerciseDataGlobal) {
+          tempNames.add(UIUtilities.loadTranslation(context, e.name));
         }
         tempNames.sort();
         List<ExerciseData> temp = [];
         for (var name in tempNames) {
-          temp.add(Helper.exerciseDataGlobal.firstWhere((element) =>
-              Helper.loadTranslation(context, element.name) == name));
+          temp.add(Helper.instance.exerciseDataGlobal.firstWhere((element) =>
+              UIUtilities.loadTranslation(context, element.name) == name));
         }
-        Helper.exerciseDataGlobal.clear();
-        Helper.exerciseDataGlobal.addAll(temp);
+        Helper.instance.exerciseDataGlobal.clear();
+        Helper.instance.exerciseDataGlobal.addAll(temp);
         SharedPreferences sharedPreferences =
             await SharedPreferences.getInstance();
         if (sharedPreferences.getBool('firstAppRun') == null) {

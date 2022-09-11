@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/classes/workout.dart';
 
 import '../../data/helper.dart';
@@ -61,7 +62,7 @@ class _WorkoutCardState extends State<WorkoutCard> {
             children: [
               Expanded(
                 flex: 5,
-                child: Text(Helper.loadTranslation(context, name),
+                child: Text(UIUtilities.loadTranslation(context, name),
                     style: TextStyle(
                         color: colorScheme.onBackground, fontSize: 15)),
               ),
@@ -95,7 +96,7 @@ class _WorkoutCardState extends State<WorkoutCard> {
             setState(() {
               offstage = true;
             });
-            Helper.unfocusTextFields(context);
+            UIUtilities.unfocusTextFields(context);
             await widget.onLongPress.call(!isOpen);
             Future.delayed(const Duration(milliseconds: 150), () {
               setState(() {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/database/database.dart';
 import 'package:lift_tracker/data/classes/exercise.dart';
@@ -43,7 +44,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
       setsControllers[i].text = exercise.sets.toString();
       Future.delayed(Duration.zero, () {
         nameControllers[i].text =
-            Helper.loadTranslation(context, exercise.exerciseData.name);
+            UIUtilities.loadTranslation(context, exercise.exerciseData.name);
       });
     }
   }
@@ -73,7 +74,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
                 result == initialExercises[i]!.exerciseData) {
               exerciseList[i] = initialExercises[i]!;
               nameControllers[i].text =
-                  Helper.loadTranslation(context, result.name);
+                  UIUtilities.loadTranslation(context, result.name);
               setState(() {});
               return;
             }
@@ -84,7 +85,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
                 sets: -1,
                 reps: -1);
             nameControllers[i].text =
-                Helper.loadTranslation(context, result.name);
+                UIUtilities.loadTranslation(context, result.name);
             setState(() {});
           }
         },
@@ -113,25 +114,25 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
 
                 if (exercise.exerciseData.type == 'free') {
                   content =
-                      '${Helper.loadTranslation(context, 'bestReps')}: $bestReps';
+                      '${UIUtilities.loadTranslation(context, 'bestReps')}: $bestReps';
                 } else {
                   content =
-                      '${Helper.loadTranslation(context, 'bestWeight')}: $bestWeight kg\n${Helper.loadTranslation(context, 'bestVolume')}: $bestVolume kg';
+                      '${UIUtilities.loadTranslation(context, 'bestWeight')}: $bestWeight kg\n${UIUtilities.loadTranslation(context, 'bestVolume')}: $bestVolume kg';
                 }
 
                 await showDimmedBackgroundDialog(context,
-                    title: Helper.loadTranslation(context, 'resetStats'),
+                    title: UIUtilities.loadTranslation(context, 'resetStats'),
                     content: content,
-                    rightText: Helper.loadTranslation(context, 'cancel'),
-                    leftText: Helper.loadTranslation(context, 'yes'),
+                    rightText: UIUtilities.loadTranslation(context, 'cancel'),
+                    leftText: UIUtilities.loadTranslation(context, 'yes'),
                     rightOnPressed: () => Navigator.pop(context),
                     leftOnPressed: () async {
                       await CustomDatabase.instance
                           .resetStats(exerciseList[i]!.id);
                       Fluttertoast.showToast(
-                          msg: Helper.loadTranslation(
+                          msg: UIUtilities.loadTranslation(
                               context, 'resetSuccessful'));
-                      ref.refresh(Helper.workoutsProvider);
+                      ref.refresh(Helper.instance.workoutsProvider);
                       exerciseList[i]!.bestReps = null;
                       exerciseList[i]!.bestWeight = null;
                       exerciseList[i]!.bestVolume = null;
@@ -157,9 +158,9 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
     return WillPopScope(
       onWillPop: () async {
         await showDimmedBackgroundDialog(context,
-            title: Helper.loadTranslation(context, 'loseChanges'),
-            rightText: Helper.loadTranslation(context, 'cancel'),
-            leftText: Helper.loadTranslation(context, 'yes'),
+            title: UIUtilities.loadTranslation(context, 'loseChanges'),
+            rightText: UIUtilities.loadTranslation(context, 'cancel'),
+            leftText: UIUtilities.loadTranslation(context, 'yes'),
             rightOnPressed: () => Navigator.pop(context),
             leftOnPressed: () {
               Navigator.pop(context);
@@ -175,7 +176,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
                 children: [
                   CustomAppBar(
                       middleText:
-                          Helper.loadTranslation(context, 'editWorkout'),
+                          UIUtilities.loadTranslation(context, 'editWorkout'),
                       onBack: () {
                         Navigator.maybePop(context);
                       },
@@ -194,7 +195,8 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                Helper.loadTranslation(context, 'workoutName'),
+                                UIUtilities.loadTranslation(
+                                    context, 'workoutName'),
                                 style: TextStyle(
                                     fontSize: 20, color: Colors.white),
                               ),
@@ -214,7 +216,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
                                     decoration: InputDecoration(
                                         hintStyle:
                                             TextStyle(color: Colors.grey),
-                                        hintText: Helper.loadTranslation(
+                                        hintText: UIUtilities.loadTranslation(
                                             context,
                                             'workoutNameControllerControllerExample'),
                                         border: InputBorder.none),
@@ -225,7 +227,8 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
                               ),
                               const SizedBox(height: 24),
                               Text(
-                                Helper.loadTranslation(context, 'exercises'),
+                                UIUtilities.loadTranslation(
+                                    context, 'exercises'),
                                 style: TextStyle(
                                     fontSize: 20, color: Colors.white),
                               ),
@@ -284,7 +287,9 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
       Fluttertoast.showToast(msg: 'ediworkout: ' + error.toString());
     });
     if (didEdit) {
-      ref.read(Helper.workoutsProvider.notifier).replaceWorkout(workout);
+      ref
+          .read(Helper.instance.workoutsProvider.notifier)
+          .replaceWorkout(workout);
     }
     Navigator.pop(context);
   }

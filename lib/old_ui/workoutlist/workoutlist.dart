@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/classes/workouthistory.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/database/database.dart';
@@ -31,7 +32,7 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
   void initState() {
     super.initState();
     CustomDatabase.instance.readWorkouts().then((workouts) {
-      ref.read(Helper.workoutsProvider.notifier).addWorkouts(workouts);
+      ref.read(Helper.instance.workoutsProvider.notifier).addWorkouts(workouts);
     }).catchError((error) {
       Fluttertoast.showToast(msg: 'workoutlist: ' + error.toString());
     });
@@ -46,7 +47,7 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
           filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
           child: FloatingActionButton(
             onPressed: () async {
-              Helper.unfocusTextFields(context);
+              UIUtilities.unfocusTextFields(context);
               var route =
                   MaterialPageRoute(builder: (context) => const NewWorkout());
               await Navigator.push(context, route)
@@ -69,7 +70,7 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
 
   @override
   Widget build(BuildContext context) {
-    workouts = ref.watch(Helper.workoutsProvider);
+    workouts = ref.watch(Helper.instance.workoutsProvider);
     return Stack(
       children: [
         Column(
@@ -82,7 +83,8 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
                       padding: const EdgeInsets.all(16.0),
                       child: Center(
                           child: Text(
-                        Helper.loadTranslation(context, 'workoutListWelcome'),
+                        UIUtilities.loadTranslation(
+                            context, 'workoutListWelcome'),
                         style: TextStyle(color: colorScheme.onPrimary),
                         textAlign: TextAlign.center,
                       )),
@@ -96,7 +98,7 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
 
   void readMoreAndUpdateUI() {
     CustomDatabase.instance.readWorkouts().then((workouts) {
-      ref.read(Helper.workoutsProvider.notifier).addWorkouts(workouts);
+      ref.read(Helper.instance.workoutsProvider.notifier).addWorkouts(workouts);
     }).catchError((error) {
       Fluttertoast.showToast(msg: 'workoutlist: ' + error.toString());
     });
@@ -153,7 +155,7 @@ class _BodyState extends ConsumerState<Body> {
         child: Column(
       children: [
         SearchBar(
-            hint: Helper.loadTranslation(context, 'filter'),
+            hint: UIUtilities.loadTranslation(context, 'filter'),
             textController: searchController,
             onTextChange: (change) {
               List<Workout> temp = [];
@@ -210,7 +212,7 @@ class _BodyState extends ConsumerState<Body> {
                 });
                 if (didRemove) {
                   ref
-                      .read(Helper.workoutsProvider.notifier)
+                      .read(Helper.instance.workoutsProvider.notifier)
                       .removeWorkout(workoutCard.workout.id);
                 }
                 await Navigator.maybePop(context);

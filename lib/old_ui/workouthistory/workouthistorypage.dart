@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/classes/workouthistory.dart';
 import 'package:lift_tracker/data/classes/workoutrecord.dart';
 import 'package:lift_tracker/data/helper.dart';
@@ -32,7 +33,7 @@ class _WorkoutHistoryState extends State<WorkoutHistoryPage> {
     super.initState();
     Future.delayed(Duration.zero, () {
       Fluttertoast.showToast(
-          msg: Helper.loadTranslation(context, 'touchToSeeDetails'));
+          msg: UIUtilities.loadTranslation(context, 'touchToSeeDetails'));
     });
     workoutRecords = widget.workoutHistory.workoutRecords;
     if (workoutRecords.length > 15) {
@@ -54,10 +55,10 @@ class _WorkoutHistoryState extends State<WorkoutHistoryPage> {
   @override
   Widget build(BuildContext context) {
     if (volumes.length > 1) {
-      totalVolume = Helper.loadTranslation(context, 'totalVolumeOf');
+      totalVolume = UIUtilities.loadTranslation(context, 'totalVolumeOf');
       totalVolume = totalVolume.replaceFirst('#n', volumes.length.toString());
     } else {
-      totalVolume = Helper.loadTranslation(context, 'totalVolumeOne');
+      totalVolume = UIUtilities.loadTranslation(context, 'totalVolumeOne');
     }
     return SafeArea(
       child: Scaffold(
@@ -66,7 +67,7 @@ class _WorkoutHistoryState extends State<WorkoutHistoryPage> {
         body: Column(children: [
           CustomAppBar(
               middleText:
-                  '${Helper.loadTranslation(context, 'historyOf')} ${widget.workoutHistory.workout.name}',
+                  '${UIUtilities.loadTranslation(context, 'historyOf')} ${widget.workoutHistory.workout.name}',
               onBack: () {
                 Navigator.maybePop(context);
               },
@@ -95,7 +96,7 @@ class _WorkoutHistoryState extends State<WorkoutHistoryPage> {
                         workoutRecords[(item.x).toInt()];
                     var date = Helper.dateToString(workoutRecord.day);
                     String dateString =
-                        '${Helper.loadTranslation(context, date['month']!)} ${date['day']}, ${date['year']}';
+                        '${UIUtilities.loadTranslation(context, date['month']!)} ${date['day']}, ${date['year']}';
                     list.add(LineTooltipItem(
                         dateString + '\n${item.y.toStringAsFixed(0)} kg',
                         TextStyle(color: Colors.white)));

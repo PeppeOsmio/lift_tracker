@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/helper.dart';
 import '../styles.dart';
@@ -82,7 +83,7 @@ class _ExerciseListItemState extends State<ExerciseListItem> {
                                         color: Colors.white, fontSize: 16),
                                     decoration: InputDecoration(
                                       hintStyle: TextStyle(color: Colors.grey),
-                                      hintText: Helper.loadTranslation(
+                                      hintText: UIUtilities.loadTranslation(
                                           context, 'selectExercise'),
                                       border: InputBorder.none,
                                     ),
@@ -138,8 +139,8 @@ class _ExerciseListItemState extends State<ExerciseListItem> {
                                 color: Colors.white, fontSize: 16),
                             decoration: InputDecoration(
                               hintStyle: TextStyle(color: Colors.grey),
-                              hintText:
-                                  Helper.loadTranslation(context, 'setsField'),
+                              hintText: UIUtilities.loadTranslation(
+                                  context, 'setsField'),
                               border: InputBorder.none,
                             ),
                           )),
@@ -168,8 +169,8 @@ class _ExerciseListItemState extends State<ExerciseListItem> {
                               style: const TextStyle(color: Colors.white),
                               decoration: InputDecoration(
                                 hintStyle: TextStyle(color: Colors.grey),
-                                hintText:
-                                    Helper.loadTranslation(context, 'reps'),
+                                hintText: UIUtilities.loadTranslation(
+                                    context, 'reps'),
                                 border: InputBorder.none,
                               ))),
                     )

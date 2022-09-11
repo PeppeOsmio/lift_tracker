@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/classes/exercise.dart';
 import 'package:lift_tracker/data/classes/exerciserecord.dart';
 import 'package:lift_tracker/data/classes/workouthistory.dart';
@@ -48,10 +49,12 @@ class _ExerciseChartState extends State<ExerciseChart> {
     }
     Future.delayed(Duration.zero, () {
       if (volumes.length > 1) {
-        totalVolume = Helper.loadTranslation(context, 'totalVolumeExercise');
+        totalVolume =
+            UIUtilities.loadTranslation(context, 'totalVolumeExercise');
         totalVolume = totalVolume.replaceFirst('#n', volumes.length.toString());
       } else {
-        totalVolume = Helper.loadTranslation(context, 'totalVolumeExerciseOne');
+        totalVolume =
+            UIUtilities.loadTranslation(context, 'totalVolumeExerciseOne');
       }
     });
   }
@@ -63,7 +66,7 @@ class _ExerciseChartState extends State<ExerciseChart> {
         Row(
           children: [
             Text(
-              Helper.loadTranslation(
+              UIUtilities.loadTranslation(
                   context, widget.exercise.exerciseData.name),
               style: TextStyle(color: Colors.white, fontSize: 20),
             ),
@@ -117,7 +120,7 @@ class _ExerciseChartState extends State<ExerciseChart> {
                                           var date = Helper.dateToString(
                                               dates[(item.x).toInt()]);
                                           String dateString =
-                                              '${Helper.loadTranslation(context, date['month']!)} ${date['day']}, ${date['year']}';
+                                              '${UIUtilities.loadTranslation(context, date['month']!)} ${date['day']}, ${date['year']}';
                                           list.add(LineTooltipItem(
                                               dateString +
                                                   '\n${item.y.toStringAsFixed(0)} kg',
@@ -131,7 +134,7 @@ class _ExerciseChartState extends State<ExerciseChart> {
                               ],
                             )
                           : Text(
-                              Helper.loadTranslation(
+                              UIUtilities.loadTranslation(
                                   context, 'exerciseNotPerformed'),
                               style:
                                   TextStyle(color: Colors.white, fontSize: 16),

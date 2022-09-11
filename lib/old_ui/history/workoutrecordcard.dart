@@ -3,6 +3,7 @@ import 'package:fluttericon/font_awesome5_icons.dart';
 import 'package:fluttericon/font_awesome_icons.dart';
 import 'package:fluttericon/linearicons_free_icons.dart';
 import 'package:fluttericon/zocial_icons.dart';
+import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/classes/workoutrecord.dart';
 import 'package:lift_tracker/old_ui/styles.dart';
@@ -75,9 +76,9 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
                 children: [
                   Text(
                       '${exercises[i].sets.length}  ×  ' +
-                          Helper.loadTranslation(
+                          UIUtilities.loadTranslation(
                               context,
-                              Helper.exerciseDataGlobal
+                              Helper.instance.exerciseDataGlobal
                                   .firstWhere((element) =>
                                       exercises[i].jsonId == element.id)
                                   .name),
@@ -157,7 +158,7 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
                             color: Colors.blueGrey),
                         const SizedBox(width: 16),
                         Text(
-                          '${Helper.loadTranslation(context, date['month']!)} ${date['day']}, ${date['year']}',
+                          '${UIUtilities.loadTranslation(context, date['month']!)} ${date['day']}, ${date['year']}',
                           style: const TextStyle(
                               color: Colors.white, fontSize: 20),
                         ),

@@ -5,16 +5,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lift_tracker/android_ui/widgets/reactiveappbardata.dart';
+import 'package:lift_tracker/android_ui/workouts/newworkout.dart';
+import 'package:lift_tracker/android_ui/uiutilities.dart';
+import 'package:lift_tracker/android_ui/widgets/appbardata.dart';
+import 'package:lift_tracker/android_ui/widgets/customdrawer.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/database/database.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/localizations.dart';
 import 'package:lift_tracker/android_ui/workoutlist/workoutlist.dart';
 import 'package:lift_tracker/android_ui/loading.dart';
-import 'package:lift_tracker/android_ui/exercises.dart';
+import 'package:lift_tracker/android_ui/exercises/exercises.dart';
 import 'package:lift_tracker/android_ui/history.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+final GlobalKey<ScaffoldState> mainScaffoldKey = GlobalKey();
 
 class App extends ConsumerStatefulWidget {
   const App({Key? key, required this.useMaterial3}) : super(key: key);
@@ -28,79 +33,17 @@ class _AppState extends ConsumerState<App> {
   int pageIndex = 1;
   List<String> pageKeys = ['history', 'workouts', 'exercises'];
   List<Widget> actions = [];
-  String? appBarTitle;
-  Color? selectedColor;
-  Color? selectedTextColor;
-  Color? appBarColor;
-  bool isSomethingSelected = false;
-  ReactiveAppBarData appBarData =
-      ReactiveAppBarData(false, null, null, [], () {});
-
-  Widget drawer() {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-              decoration:
-                  BoxDecoration(color: Theme.of(context).colorScheme.secondary),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Lift Tracker',
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSecondary,
-                        fontSize: 24),
-                  ),
-                  //Image.asset('assets/icon/icon.png')
-                ],
-              )),
-          ListTile(
-            leading: Icon(Icons.exit_to_app),
-            title: Text(Helper.loadTranslation(context, 'exit')),
-            onTap: () {},
-          )
-        ],
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
-    selectedColor = Color.lerp(Theme.of(context).colorScheme.secondaryContainer,
-        Theme.of(context).colorScheme.surface, 0.5);
-    selectedTextColor = Color.lerp(
-        Theme.of(context).colorScheme.onSecondaryContainer,
-        Theme.of(context).colorScheme.onSurface,
-        0.5);
     return Scaffold(
-        appBar: AppBar(
-          leading: appBarData.isSelected ? appBarData.leading : null,
-          actions: [
-            AnimatedSize(
-              curve: Curves.decelerate,
-              duration: Duration(milliseconds: 150),
-              child: Row(
-                  children: appBarData.isSelected ? appBarData.actions : []),
-            )
-          ],
-          title: Text(!appBarData.isSelected
-              ? Helper.loadTranslation(context, pageKeys[pageIndex])
-              : appBarData.title!),
-          backgroundColor: appBarData.isSelected ? selectedColor : null,
-          foregroundColor: appBarData.isSelected ? selectedTextColor : null,
-        ),
-        drawer: appBarData.isSelected ? null : drawer(),
+        key: mainScaffoldKey,
+        drawer: CustomDrawer(),
         body: Stack(children: [
           Offstage(offstage: pageIndex != 0, child: History()),
           Offstage(
             offstage: pageIndex != 1,
             child: WorkoutList(
-              appBarData: appBarData,
-              canSelectThings: pageIndex == 1,
-              selectedCardColor: selectedColor,
-              selectedTextColor: selectedTextColor,
               onCardTap:
                   ((onDelete, onHistory, onEdit, onStart, workoutName) {}),
               onCardClose: () {},
@@ -111,7 +54,12 @@ class _AppState extends ConsumerState<App> {
         floatingActionButton: pageIndex == 1
             ? FloatingActionButton(
                 heroTag: -4,
-                onPressed: () {},
+                onPressed: () async {
+                  await Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (context) {
+                    return NewWorkout();
+                  }));
+                },
                 child: Icon(Icons.add),
               )
             : null,
@@ -121,13 +69,13 @@ class _AppState extends ConsumerState<App> {
           navigationItems: [
             NavigationItem(
                 icon: Icon(Icons.timer),
-                label: Helper.loadTranslation(context, 'history')),
+                label: UIUtilities.loadTranslation(context, 'history')),
             NavigationItem(
                 icon: Icon(Icons.create),
-                label: Helper.loadTranslation(context, 'workouts')),
+                label: UIUtilities.loadTranslation(context, 'workouts')),
             NavigationItem(
                 icon: Icon(Icons.fitness_center),
-                label: Helper.loadTranslation(context, 'exercises'))
+                label: UIUtilities.loadTranslation(context, 'exercises'))
           ],
           onItemSelected: (index) {
             if (index == pageIndex) {
@@ -136,7 +84,6 @@ class _AppState extends ConsumerState<App> {
             setState(() {
               actions = [];
               pageIndex = index;
-              appBarData.isSelected = false;
             });
           },
         ));
@@ -145,36 +92,29 @@ class _AppState extends ConsumerState<App> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration.zero, () {
-      setState(() {
-        appBarData.onUpdate = () {
-          setState(() {});
-        };
-      });
-    });
     Future.delayed(Duration.zero, () async {
       await Helper.getExerciseData().then((value) async {
-        Helper.exerciseDataGlobal = value;
+        Helper.instance.exerciseDataGlobal = value;
         List<String> tempNames = [];
-        for (var e in Helper.exerciseDataGlobal) {
-          tempNames.add(Helper.loadTranslation(context, e.name));
+        for (var e in Helper.instance.exerciseDataGlobal) {
+          tempNames.add(UIUtilities.loadTranslation(context, e.name));
         }
         tempNames.sort();
         List<ExerciseData> temp = [];
         for (var name in tempNames) {
-          temp.add(Helper.exerciseDataGlobal.firstWhere((element) =>
-              Helper.loadTranslation(context, element.name) == name));
+          temp.add(Helper.instance.exerciseDataGlobal.firstWhere((element) =>
+              UIUtilities.loadTranslation(context, element.name) == name));
         }
-        Helper.exerciseDataGlobal.clear();
-        Helper.exerciseDataGlobal.addAll(temp);
+        Helper.instance.exerciseDataGlobal.clear();
+        Helper.instance.exerciseDataGlobal.addAll(temp);
         SharedPreferences sharedPreferences =
             await SharedPreferences.getInstance();
         if (sharedPreferences.getBool('firstAppRun') == null) {
-          Helper.showSnackBar(
+          UIUtilities.showSnackBar(
               context: context,
               msg: "Added debug workouts: " +
                   (await Helper.addDebugWorkouts()).toString());
-          ref.read(Helper.workoutsProvider.notifier).addWorkouts(
+          ref.read(Helper.instance.workoutsProvider.notifier).addWorkouts(
               await CustomDatabase.instance.readWorkouts(readAll: true));
           sharedPreferences.setBool('firstAppRun', true);
         }

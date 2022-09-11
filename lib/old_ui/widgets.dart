@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:curved_animation_controller/curved_animation_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'styles.dart';
 
@@ -84,7 +85,7 @@ Future showDimmedBackgroundDialog(BuildContext context,
     required Function rightOnPressed,
     required Function leftOnPressed,
     Function? onDispose}) async {
-  Helper.unfocusTextFields(context);
+  UIUtilities.unfocusTextFields(context);
   await showDialog(
       barrierColor: Colors.transparent,
       context: context,

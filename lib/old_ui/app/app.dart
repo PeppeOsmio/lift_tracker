@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/database/database.dart';
 import 'package:lift_tracker/old_ui/app/menu.dart';
@@ -46,7 +47,7 @@ class _AppState extends ConsumerState<App> {
   late SharedPreferences pref;
 
   Widget _buildOffStage(int index, Widget child) {
-    int indexState = ref.read(Helper.pageIndexProvider.notifier).state;
+    int indexState = ref.read(Helper.instance.pageIndexProvider.notifier).state;
     switch (index) {
       case 0:
         return Offstage(offstage: index != indexState, child: child);
@@ -60,7 +61,7 @@ class _AppState extends ConsumerState<App> {
   }
 
   void _selectTab(int index, intCurrentIndex) {
-    ref.read(Helper.pageIndexProvider.notifier).setIndex(index);
+    ref.read(Helper.instance.pageIndexProvider.notifier).setIndex(index);
     Helper.pageStack.add(index);
     ref.read(pageNameProvider.notifier).setName(pageKeys[index]);
     Widget? temp;
@@ -83,7 +84,7 @@ class _AppState extends ConsumerState<App> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Helper.unfocusTextFields(context);
+        UIUtilities.unfocusTextFields(context);
       },
       child: Scaffold(
         appBar: AppBar(
@@ -96,11 +97,13 @@ class _AppState extends ConsumerState<App> {
                 padding: const EdgeInsets.only(top: 16),
                 child: IconButton(
                     onPressed: () {
-                      Helper.unfocusTextFields(context);
+                      UIUtilities.unfocusTextFields(context);
                       showDimmedBackgroundDialog(context,
-                          title: '${Helper.loadTranslation(context, 'exit')}?',
-                          rightText: Helper.loadTranslation(context, 'cancel'),
-                          leftText: Helper.loadTranslation(context, 'yes'),
+                          title:
+                              '${UIUtilities.loadTranslation(context, 'exit')}?',
+                          rightText:
+                              UIUtilities.loadTranslation(context, 'cancel'),
+                          leftText: UIUtilities.loadTranslation(context, 'yes'),
                           rightOnPressed: () => Navigator.maybePop(context),
                           leftOnPressed: () => SystemNavigator.pop());
                     },
@@ -110,7 +113,7 @@ class _AppState extends ConsumerState<App> {
                   padding: const EdgeInsets.only(left: 16, top: 16),
                   child: Consumer(builder: (context, textRef, child) {
                     String pageName = textRef.watch(pageNameProvider);
-                    return Text(Helper.loadTranslation(context, pageName));
+                    return Text(UIUtilities.loadTranslation(context, pageName));
                   })),
             ],
           ),
@@ -126,7 +129,7 @@ class _AppState extends ConsumerState<App> {
             for (int i = 0; i < temp.length; i++) {
               list.add(_buildOffStage(i, temp[i]));
             }
-            ref.watch(Helper.pageIndexProvider);
+            ref.watch(Helper.instance.pageIndexProvider);
             log('Building stack');
             return Stack(children: list);
           }),
@@ -135,44 +138,46 @@ class _AppState extends ConsumerState<App> {
               int index;
               Helper.pageStack.removeLast();
               index = Helper.pageStack.last;
-              ref.read(Helper.pageIndexProvider.notifier).setIndex(index);
+              ref
+                  .read(Helper.instance.pageIndexProvider.notifier)
+                  .setIndex(index);
               return false;
             }
             if (backPressedTime == null) {
               backPressedTime = DateTime.now();
               Fluttertoast.cancel();
               Fluttertoast.showToast(
-                  msg: Helper.loadTranslation(context, 'pressAgainQuit'));
+                  msg: UIUtilities.loadTranslation(context, 'pressAgainQuit'));
               return false;
             } else if (DateTime.now().difference(backPressedTime!) >
                 const Duration(milliseconds: 2000)) {
               backPressedTime = DateTime.now();
               Fluttertoast.cancel();
               Fluttertoast.showToast(
-                  msg: Helper.loadTranslation(context, 'pressAgainQuit'));
+                  msg: UIUtilities.loadTranslation(context, 'pressAgainQuit'));
               return false;
             }
             return true;
           },
         ),
         bottomNavigationBar: Consumer(builder: ((context, ref, child) {
-          var indexState = ref.read(Helper.pageIndexProvider.notifier).state;
+          var indexState =
+              ref.read(Helper.instance.pageIndexProvider.notifier).state;
           return BottomNavBar(
             [
-              NavBarItem(
-                  Helper.loadTranslation(context, 'history'), Icons.schedule,
-                  () {
+              NavBarItem(UIUtilities.loadTranslation(context, 'history'),
+                  Icons.schedule, () {
                 //if something notified that the history was updated
                 //we rebuild it in order to reload the content of the history
 
                 history ??= const History();
                 _selectTab(0, indexState);
               }),
-              NavBarItem(Helper.loadTranslation(context, 'workouts'),
+              NavBarItem(UIUtilities.loadTranslation(context, 'workouts'),
                   Icons.add_outlined, () {
                 _selectTab(1, indexState);
               }),
-              NavBarItem(Helper.loadTranslation(context, 'exercises'),
+              NavBarItem(UIUtilities.loadTranslation(context, 'exercises'),
                   Icons.fitness_center, () {
                 exercises ??= const Exercises();
                 _selectTab(2, indexState);
@@ -200,7 +205,7 @@ class _BottomNavBarState extends ConsumerState<BottomNavBar> {
   }
 
   List<Widget> buildAppBarRow() {
-    int indexState = ref.watch(Helper.pageIndexProvider);
+    int indexState = ref.watch(Helper.instance.pageIndexProvider);
     List<Widget> list = [];
     BoxDecoration? dec;
     for (int i = 0; i < widget.bottomNavItems.length; i++) {

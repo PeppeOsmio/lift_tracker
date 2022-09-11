@@ -149,8 +149,7 @@ class Backup {
       await CustomDatabase.instance.clearAll();
 
       for (var workout in workouts) {
-        await CustomDatabase.instance.createWorkout(
-            workout.name, workout.exercises,
+        await CustomDatabase.instance.saveWorkout(workout,
             backupMode: true,
             workoutId: workout.id,
             hasCache: workout.hasCache);

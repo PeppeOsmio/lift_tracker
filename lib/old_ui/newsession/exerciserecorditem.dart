@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/classes/exercise.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/classes/exerciserecord.dart';
@@ -176,7 +177,7 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
             ),
             Expanded(
               child: Text(
-                Helper.loadTranslation(context, widget.exerciseData.name),
+                UIUtilities.loadTranslation(context, widget.exerciseData.name),
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.white, fontSize: 20),
               ),
@@ -211,7 +212,7 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
               child: Padding(
                   padding: EdgeInsets.only(top: 24, bottom: 24),
                   child: Text(
-                    Helper.loadTranslation(context, 'set'),
+                    UIUtilities.loadTranslation(context, 'set'),
                     style: TextStyle(color: Colors.white),
                   )),
             ),
@@ -220,7 +221,7 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
               child: Padding(
                   padding: const EdgeInsets.only(top: 24, bottom: 24),
                   child: Text(
-                    '${Helper.loadTranslation(context, 'repsGoal')}: ${widget.exercise.reps}',
+                    '${UIUtilities.loadTranslation(context, 'repsGoal')}: ${widget.exercise.reps}',
                     style: const TextStyle(color: Colors.white),
                   )),
             ),
@@ -233,10 +234,10 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
                       : Text(
                           widget.exerciseData.type != 'free'
                               ? widget.exercise.bestWeight != null
-                                  ? '${Helper.loadTranslation(context, 'bestWeight')}: ${widget.exercise.bestWeight} kg'
+                                  ? '${UIUtilities.loadTranslation(context, 'bestWeight')}: ${widget.exercise.bestWeight} kg'
                                   : ''
                               : widget.exercise.bestReps != null
-                                  ? '${Helper.loadTranslation(context, 'bestReps')}: ${widget.exercise.bestReps}'
+                                  ? '${UIUtilities.loadTranslation(context, 'bestReps')}: ${widget.exercise.bestReps}'
                                   : '',
                           style: const TextStyle(color: Colors.white))),
             ),
