@@ -105,6 +105,7 @@
     "weight": "Carico",
     "volume": "Volume",
     "reps": "Ripetizioni",
+    "shortReps": "Reps",
     "newWorkout": "Nuovo allenamento",
     "noSetsError": "ha 0 serie!",
     "noRepsError": "ha 0 ripetizioni!",
@@ -144,5 +145,7 @@
     "discard": "Abbandona",
     "discardContent": "Vuoi abbandonare le modifiche?",
     "discardNo": "No, mantienile",
-    "discardYes": "Si, abbandonale"
+    "discardYes": "Si, abbandonale",
+    "addSet": "Aggiungi una serie",
+    "reset": "Reset"
 }

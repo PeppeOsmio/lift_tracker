@@ -6,11 +6,11 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:lift_tracker/android_ui/exercises/app/app.dart';
+import 'package:lift_tracker/android_ui/app/app.dart';
 import 'package:lift_tracker/android_ui/exercises/exercisedatacard.dart';
 import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/android_ui/widgets/customanimatedicon.dart';
-import 'package:lift_tracker/android_ui/exercises/app/customdrawer.dart';
+import 'package:lift_tracker/android_ui/app/customdrawer.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/gym_icons_icons.dart';
@@ -34,13 +34,9 @@ class _ExercisesState extends State<Exercises> {
     super.initState();
     log('Building Exercises...');
     Future.delayed(Duration.zero, () async {
-      while (exerciseDatas.isEmpty) {
-        exerciseDatas = Helper.instance.exerciseDataGlobal;
-        await Future.delayed(Duration(milliseconds: 100));
-      }
-      if (exerciseDatas.isNotEmpty) {
-        setState(() {});
-      }
+      exerciseDatas = Helper.instance.exerciseDataGlobal;
+      await Future.delayed(Duration(milliseconds: 100));
+      setState(() {});
     });
   }
 
@@ -119,12 +115,7 @@ class _ExercisesState extends State<Exercises> {
                       context, exerciseDatas[index].name)
                   .toLowerCase()
                   .contains(searchString.toLowerCase())) {
-                return GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context, exerciseDatas[index]);
-                    },
-                    child:
-                        ExerciseDataCard(exerciseData: exerciseDatas[index]));
+                return ExerciseDataCard(exerciseData: exerciseDatas[index]);
               } else {
                 return SizedBox();
               }

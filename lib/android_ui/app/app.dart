@@ -9,15 +9,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lift_tracker/android_ui/workouts/newworkout.dart';
 import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/android_ui/widgets/appbardata.dart';
-import 'package:lift_tracker/android_ui/exercises/app/customdrawer.dart';
+import 'package:lift_tracker/android_ui/app/customdrawer.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
+import 'package:lift_tracker/data/classes/exerciseset.dart';
 import 'package:lift_tracker/data/database/database.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/localizations.dart';
 import 'package:lift_tracker/android_ui/workoutlist/workoutlist.dart';
 import 'package:lift_tracker/android_ui/loading.dart';
 import 'package:lift_tracker/android_ui/exercises/exercises.dart';
-import 'package:lift_tracker/android_ui/history.dart';
+import 'package:lift_tracker/android_ui/history/history.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final GlobalKey<ScaffoldState> mainScaffoldKey = GlobalKey();
@@ -33,7 +34,7 @@ class App extends ConsumerStatefulWidget {
 class _AppState extends ConsumerState<App> {
   int pageIndex = 1;
   List<String> pageKeys = ['history', 'workouts', 'exercises'];
-  List<Widget> actions = [];
+  List<Widget?> pages = [null, WorkoutList(), null];
 
   @override
   Widget build(BuildContext context) {
@@ -54,18 +55,12 @@ class _AppState extends ConsumerState<App> {
       child: Scaffold(
           key: mainScaffoldKey,
           drawer: CustomDrawer(),
-          body: Stack(children: [
-            Offstage(offstage: pageIndex != 0, child: History()),
-            Offstage(
-              offstage: pageIndex != 1,
-              child: WorkoutList(
-                onCardTap:
-                    ((onDelete, onHistory, onEdit, onStart, workoutName) {}),
-                onCardClose: () {},
-              ),
-            ),
-            Offstage(offstage: pageIndex != 2, child: Exercises())
-          ]),
+          body: Stack(
+              children: pages.asMap().entries.map((mapEntry) {
+            int index = mapEntry.key;
+            Widget? page = mapEntry.value;
+            return Offstage(child: page, offstage: pageIndex != index);
+          }).toList()),
           bottomNavigationBar: BottomNavBar(
             index: pageIndex,
             useMaterial3: widget.useMaterial3,
@@ -81,12 +76,21 @@ class _AppState extends ConsumerState<App> {
                   label: UIUtilities.loadTranslation(context, 'exercises'))
             ],
             onItemSelected: (index) {
-              if (index == pageIndex) {
+              if (index == pageIndex ||
+                  Helper.instance.exerciseDataGlobal.isEmpty) {
                 return;
               }
               setState(() {
-                actions = [];
                 pageIndex = index;
+                if (pages[index] == null) {
+                  if (index == 0) {
+                    pages[index] = History();
+                  } else if (index == 1) {
+                    pages[index] == WorkoutList();
+                  } else if (index == 2) {
+                    pages[index] = Exercises();
+                  }
+                }
               });
             },
           )),

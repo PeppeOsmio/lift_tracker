@@ -59,10 +59,7 @@ class _NewSessionState extends ConsumerState<NewSession>
         }
         Exercise exercise = Exercise(
           workoutId: widget.workout.id,
-          exerciseData: Helper.instance.exerciseDataGlobal.firstWhere(
-              (element) =>
-                  element.id ==
-                  widget.resumedSession!.exerciseRecords[i].jsonId),
+          exerciseData: widget.resumedSession!.exerciseRecords[i].exerciseData,
           id: widget.resumedSession!.exerciseRecords[i].exerciseId,
           sets: widget.resumedSession!.exerciseRecords[i].sets.length,
           reps: i < widget.workout.exercises.length

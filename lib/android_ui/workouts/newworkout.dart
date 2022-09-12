@@ -22,12 +22,16 @@ class NewWorkout extends ConsumerStatefulWidget {
   ConsumerState<NewWorkout> createState() => _NewWorkoutState();
 }
 
+enum MoveOrRemoveMenuOption { remove, move_up, move_down }
+
 class _NewWorkoutState extends ConsumerState<NewWorkout> {
   TextEditingController workoutNameController = TextEditingController();
   List<ExerciseData?> exerciseDataList = [];
   List<TextEditingController> setsControllers = [];
   List<TextEditingController> repsControllers = [];
   bool canSave = false;
+  final GlobalKey<AnimatedListState> animatedListKey =
+      GlobalKey<AnimatedListState>();
 
   @override
   Widget build(BuildContext context) {
@@ -115,12 +119,17 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
           },
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: ListView.builder(
-                cacheExtent: 0,
-                itemCount: bodyWidgets.length,
-                itemBuilder: (context, index) {
-                  return bodyWidgets[index];
-                }),
+            child: AnimatedList(
+              key: animatedListKey,
+              initialItemCount: bodyWidgets.length,
+              itemBuilder: ((context, index, animation) {
+                return SizeTransition(
+                  sizeFactor: animation,
+                  child: FadeTransition(
+                      opacity: animation, child: bodyWidgets[index]),
+                );
+              }),
+            ),
           ),
         ),
       ),
@@ -130,23 +139,24 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
   List<Widget> body() {
     InputDecorationTheme inputDecorationTheme =
         Theme.of(context).inputDecorationTheme;
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
-    TextTheme textTheme = Theme.of(context).primaryTextTheme;
     return [
-      TextFormField(
-        controller: workoutNameController,
-        decoration: InputDecoration(
-            border: OutlineInputBorder(
-                borderSide: BorderSide(color: colorScheme.onBackground)),
-            floatingLabelBehavior: inputDecorationTheme.floatingLabelBehavior,
-            label: Text(UIUtilities.loadTranslation(context, 'workoutName'))),
+      Padding(
+        padding: EdgeInsets.only(top: 8),
+        child: TextField(
+          controller: workoutNameController,
+          decoration: UIUtilities.getTextFieldDecoration(
+              context, UIUtilities.loadTranslation(context, 'workoutName')),
+        ),
       ),
-      SizedBox(
-        height: 32,
-      ),
-      Text(
-        UIUtilities.loadTranslation(context, 'exercises'),
-        style: textTheme.titleMedium,
+      Padding(
+        padding: const EdgeInsets.only(top: 32),
+        child: Text(
+          UIUtilities.loadTranslation(context, 'exercises'),
+          style: Theme.of(context)
+              .textTheme
+              .titleMedium!
+              .copyWith(color: UIUtilities.getPrimaryColor(context)),
+        ),
       ),
       ...exerciseDataList.asMap().entries.map<Widget>((mapEntry) {
         int i = mapEntry.key;
@@ -188,35 +198,48 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
               }),
         );
       }).toList(),
-      const SizedBox(height: 16),
-      IconButton(
-        icon: ListTile(
-          contentPadding: EdgeInsets.only(left: 0),
-          leading: Icon(Icons.add),
-          title: Text(UIUtilities.loadTranslation(context, 'addExercise')),
+      Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: IconButton(
+          icon: ListTile(
+            contentPadding: EdgeInsets.only(left: 0),
+            leading: Icon(
+              Icons.add,
+              color: UIUtilities.getPrimaryColor(context),
+            ),
+            title: Text(
+              UIUtilities.loadTranslation(context, 'addExercise'),
+              style: TextStyle(color: UIUtilities.getPrimaryColor(context)),
+            ),
+          ),
+          onPressed: () {
+            if (exerciseDataList.last != null &&
+                setsControllers.last.text.isNotEmpty &&
+                repsControllers.last.text.isNotEmpty) {
+              setState(() {
+                exerciseDataList.add(null);
+                setsControllers.add(TextEditingController());
+                setsControllers.last.addListener(() {
+                  setState(() {
+                    canSave = getCanSave();
+                  });
+                });
+                repsControllers.add(TextEditingController());
+                repsControllers.last.addListener(() {
+                  setState(() {
+                    canSave = getCanSave();
+                  });
+                });
+                canSave = false;
+              });
+              // +2 because in the list items there are the initial TextField and
+              // the Exercises Text title
+              animatedListKey.currentState!.insertItem(
+                  exerciseDataList.length - 1 + 2,
+                  duration: Duration(milliseconds: 150));
+            }
+          },
         ),
-        onPressed: () {
-          if (exerciseDataList.last != null &&
-              setsControllers.last.text.isNotEmpty &&
-              repsControllers.last.text.isNotEmpty) {
-            setState(() {
-              exerciseDataList.add(null);
-              setsControllers.add(TextEditingController());
-              setsControllers.last.addListener(() {
-                setState(() {
-                  canSave = getCanSave();
-                });
-              });
-              repsControllers.add(TextEditingController());
-              repsControllers.last.addListener(() {
-                setState(() {
-                  canSave = getCanSave();
-                });
-              });
-              canSave = false;
-            });
-          }
-        },
       )
     ];
   }
@@ -327,12 +350,38 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
       });
       return;
     }
-    setsControllers.removeAt(index);
-    repsControllers.removeAt(index);
-    exerciseDataList.removeAt(index);
+    String? oldName = exerciseDataList.length - 1 >= index
+        ? exerciseDataList[index] != null
+            ? UIUtilities.loadTranslation(
+                context, exerciseDataList[index]!.name)
+            : ''
+        : null;
+    String oldSets = setsControllers[index].text;
+    String oldReps = repsControllers[index].text;
     setState(() {
-      canSave = getCanSave();
+      setsControllers.removeAt(index);
+      repsControllers.removeAt(index);
+      exerciseDataList.removeAt(index);
     });
+    TextEditingController tmpSets = TextEditingController();
+    TextEditingController tmpReps = TextEditingController();
+    tmpSets.text = oldSets;
+    tmpReps.text = oldReps;
+    animatedListKey.currentState!.removeItem(index + 2, (context, animation) {
+      print(index);
+      return FadeTransition(
+        opacity: animation,
+        child: SizeTransition(
+          sizeFactor: animation,
+          child: NewExerciseCard(
+              exerciseName: oldName,
+              setsController: tmpSets,
+              repsController: tmpReps,
+              onSelectExercise: () {},
+              exerciseNumber: index + 1),
+        ),
+      );
+    }, duration: Duration(milliseconds: 150));
   }
 
   Future saveWorkout() async {

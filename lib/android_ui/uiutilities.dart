@@ -12,12 +12,12 @@ class UIUtilities {
   }
 
   static Color getSelectedAppBarColor(BuildContext context) {
-    return Color.lerp(Theme.of(context).colorScheme.primaryContainer,
-        Theme.of(context).colorScheme.surface, 0.45)!;
+    return Color.lerp(Theme.of(context).colorScheme.secondaryContainer,
+        getAppBarColor(context), 0)!;
   }
 
   static Color getSelectedTextColor(BuildContext context) {
-    return Theme.of(context).colorScheme.onPrimaryContainer;
+    return Theme.of(context).colorScheme.onSecondaryContainer;
   }
 
   static Color getScaffoldBackgroundColor(BuildContext context) {
@@ -29,12 +29,50 @@ class UIUtilities {
   }
 
   static Color getSelectedWidgetColor(BuildContext context) {
-    return Color.lerp(getSelectedAppBarColor(context),
+    return Color.lerp(Theme.of(context).colorScheme.secondaryContainer,
         Theme.of(context).colorScheme.surface, 0.45)!;
   }
 
   static Color getDialogBackgroundColor(BuildContext context) {
     return Theme.of(context).colorScheme.background;
+  }
+
+  static Color getPrimaryColor(BuildContext context) {
+    if (MediaQuery.of(context).platformBrightness == Brightness.dark) {
+      return Theme.of(context).colorScheme.primary;
+    } else {
+      return Theme.of(context).colorScheme.secondary;
+    }
+  }
+
+  static Color getSecondaryColor(BuildContext context) {
+    if (MediaQuery.of(context).platformBrightness == Brightness.dark) {
+      return Theme.of(context).colorScheme.secondary;
+    } else {
+      return Theme.of(context).colorScheme.primary;
+    }
+  }
+
+  static Color getRecordsBackgroundColor(BuildContext context) {
+    return Color.lerp(UIUtilities.getSecondaryColor(context),
+        Theme.of(context).colorScheme.surface, 0.75)!;
+  }
+
+  static Color getVolumeBackgroundColor(BuildContext context) {
+    return Color.lerp(Theme.of(context).colorScheme.tertiary,
+        Theme.of(context).colorScheme.surface, 0.75)!;
+  }
+
+  static InputDecoration getTextFieldDecoration(
+      BuildContext context, String? label) {
+    return InputDecoration(
+        contentPadding: EdgeInsets.only(top: 0, bottom: 0, left: 8, right: 8),
+        border: OutlineInputBorder(
+            borderSide:
+                BorderSide(color: Theme.of(context).colorScheme.onBackground)),
+        floatingLabelBehavior:
+            Theme.of(context).inputDecorationTheme.floatingLabelBehavior,
+        label: Text(label ?? ''));
   }
 
   static void unfocusTextFields(BuildContext context) {
@@ -62,7 +100,7 @@ class UIUtilities {
       required Function rightOnPressed,
       required Function leftOnPressed,
       bool fullscreen = false,
-      bool blurred = true,
+      bool blurred = false,
       Function? onDispose}) async {
     UIUtilities.unfocusTextFields(context);
     if (fullscreen) {
@@ -99,12 +137,16 @@ class UIUtilities {
                       onPressed: () {
                         leftOnPressed();
                       },
-                      child: Text(leftText)),
+                      child: Text(
+                        leftText,
+                        style: TextStyle(color: getPrimaryColor(context)),
+                      )),
                   TextButton(
                       onPressed: () {
                         rightOnPressed();
                       },
-                      child: Text(rightText)),
+                      child: Text(rightText,
+                          style: TextStyle(color: getPrimaryColor(context)))),
                 ],
               ),
             ]),

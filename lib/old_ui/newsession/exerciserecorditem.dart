@@ -54,8 +54,11 @@ class ExerciseRecordItem extends StatefulWidget {
         setList.add(ExerciseSet(weight: numWeight, reps: numReps, rpe: numRpe));
       }
     }
-    return ExerciseRecord(exerciseData.id, setList,
-        exerciseId: exercise.id, type: exerciseData.type);
+    return ExerciseRecord(
+        exerciseData: exerciseData,
+        sets: setList,
+        exerciseId: exercise.id,
+        type: exerciseData.type);
   }
 
   ExerciseRecord get cacheExerciseRecord {
@@ -84,8 +87,11 @@ class ExerciseRecordItem extends StatefulWidget {
     if (name.isEmpty) {
       name = exercise.exerciseData.name;
     }
-    return ExerciseRecord(exerciseData.id, setList,
-        exerciseId: exercise.id, type: exerciseData.type);
+    return ExerciseRecord(
+        exerciseData: exerciseData,
+        sets: setList,
+        exerciseId: exercise.id,
+        type: exerciseData.type);
   }
 
   @override

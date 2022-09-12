@@ -1,9 +1,14 @@
+import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/classes/exerciseset.dart';
 
 class ExerciseRecord {
-  ExerciseRecord(this.jsonId, this.sets,
-      {required this.exerciseId, required this.type, this.temp = false});
-  final int jsonId;
+  ExerciseRecord(
+      {required this.exerciseData,
+      required this.sets,
+      required this.exerciseId,
+      required this.type,
+      this.temp = false});
+  final ExerciseData exerciseData;
   final List<ExerciseSet> sets;
   final int exerciseId;
   final String type;
@@ -25,7 +30,7 @@ class ExerciseRecord {
 
   Map<String, dynamic> toMap() {
     return {
-      'jsonId': jsonId,
+      'jsonId': exerciseData.id,
       'sets': sets.map((e) => e.toMap()).toList(),
       'exId': exerciseId,
       'type': type,

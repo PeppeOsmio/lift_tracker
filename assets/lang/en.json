@@ -105,6 +105,7 @@
     "weight": "Weight",
     "volume": "Volume",
     "reps": "Reps",
+    "shortReps": "Reps",
     "newWorkout": "New workout",
     "noSetsError": "has 0 sets!",
     "noRepsError": "has 0 reps!",
@@ -144,5 +145,7 @@
     "discard": "Discard",
     "discardContent": "Discard all changes?",
     "discardNo": "No, keep them",
-    "discardYes": "Yes, discard"
+    "discardYes": "Yes, discard",
+    "addSet": "Add a set",
+    "reset": "Reset"
 }

@@ -120,6 +120,7 @@ class CustomDatabase {
       int? workoutRecordId,
       bool readAll = false,
       int? workoutId}) async {
+    dev.log('Reading workout records from db...');
     final db = await instance.database;
 
     List<WorkoutRecord> workoutRecords = [];
@@ -140,9 +141,8 @@ class CustomDatabase {
             whereArgs: [1, workoutId],
             limit: 1);
         if (queryWorkoutRecords.isEmpty) {
-          int updated = await txn.update('workout', {'has_cache': 0},
+          await txn.update('workout', {'has_cache': 0},
               where: 'id=?', whereArgs: [workoutId]);
-          dev.log('Updated: ' + updated.toString());
           shouldContinue = false;
         }
       } else {
@@ -172,11 +172,11 @@ class CustomDatabase {
           List<ExerciseRecord> exerciseRecords = [];
           int woRecordId = queryWorkoutRecords[i]['id'] as int;
           List<Map<String, Object?>> queryExerciseRecords = await txn.query(
-            'exercise_record',
-            columns: ['id', 'json_id', 'fk_exercise_id', 'type'],
-            where: 'fk_workout_record_id=?',
-            whereArgs: [woRecordId],
-          );
+              'exercise_record',
+              columns: ['id', 'json_id', 'fk_exercise_id', 'type'],
+              where: 'fk_workout_record_id=?',
+              whereArgs: [woRecordId],
+              orderBy: 'position_in_workout_record');
 
           //we get all the exercise sets
           for (int j = 0; j < queryExerciseRecords.length; j++) {
@@ -220,8 +220,11 @@ class CustomDatabase {
             int exerciseId = queryExerciseRecords[j]['fk_exercise_id'] as int;
             String type = queryExerciseRecords[j]['type'] as String;
             ExerciseRecord exerciseRecord = ExerciseRecord(
-                jsonId, repsWeightRpes,
-                exerciseId: exerciseId, type: type);
+                exerciseData: Helper.instance.exerciseDataGlobal
+                    .firstWhere((element) => element.id == jsonId),
+                sets: repsWeightRpes,
+                exerciseId: exerciseId,
+                type: type);
             exerciseRecords.add(exerciseRecord);
           }
           //we get the information about the workout
@@ -371,8 +374,12 @@ class CustomDatabase {
           int jsonId = queryExerciseRecord[j]['json_id'] as int;
           int exerciseId = queryExerciseRecord[j]['fk_exercise_id'] as int;
           String type = queryExerciseRecord[j]['type'] as String;
-          exerciseRecords.add(
-              ExerciseRecord(jsonId, sets, exerciseId: exerciseId, type: type));
+          exerciseRecords.add(ExerciseRecord(
+              exerciseData: Helper.instance.exerciseDataGlobal
+                  .firstWhere((element) => element.id == jsonId),
+              sets: sets,
+              exerciseId: exerciseId,
+              type: type));
         }
         DateTime day = DateTime.fromMillisecondsSinceEpoch(
             queryWorkoutRecord[i]['day'] as int);
@@ -549,8 +556,7 @@ class CustomDatabase {
         values['is_cache'] = workoutRecord.isCache;
       }
       workoutRecordId = await txn.insert('workout_record', values);
-      var temp = await txn
-          .query('workout_record', columns: ['workout_name', 'is_cache']);
+      await txn.query('workout_record', columns: ['workout_name', 'is_cache']);
       if (!backupMode) {
         if (cacheMode) {
           await txn.update('workout', {'has_cache': 1},
@@ -567,9 +573,10 @@ class CustomDatabase {
 
         values = {
           'fk_workout_record_id': workoutRecordId,
-          'json_id': workoutRecord.exerciseRecords[i].jsonId,
+          'json_id': workoutRecord.exerciseRecords[i].exerciseData.id,
           'fk_exercise_id': workoutRecord.exerciseRecords[i].exerciseId,
-          'type': workoutRecord.exerciseRecords[i].type
+          'type': workoutRecord.exerciseRecords[i].type,
+          'position_in_workout_record': i
         };
         int exerciseRecordId = await txn.insert('exercise_record', values);
         values.clear();
@@ -646,6 +653,7 @@ class CustomDatabase {
 
   Future<List<Workout>> readWorkouts(
       {int? workoutId, bool readAll = false}) async {
+    dev.log('Reading workouts from db...');
     List<Workout> workoutList = [];
     final db = await instance.database;
     var queryWorkouts;
@@ -665,8 +673,6 @@ class CustomDatabase {
           offset: offset,
           limit: limit);
       workoutsOffset += 1;
-      dev.log('Reading workouts... (Limit: $limit, offset: ${offset})');
-      dev.log('Workout from database: ' + queryWorkouts.toString());
     } else {
       queryWorkouts = await db.query('workout',
           columns: ['id', 'name', 'has_cache'],

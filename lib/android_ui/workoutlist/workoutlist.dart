@@ -1,10 +1,10 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lift_tracker/android_ui/exercises/app/app.dart';
+import 'package:lift_tracker/android_ui/app/app.dart';
 import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/android_ui/widgets/customanimatedicon.dart';
-import 'package:lift_tracker/android_ui/exercises/app/customdrawer.dart';
+import 'package:lift_tracker/android_ui/app/customdrawer.dart';
 import 'package:lift_tracker/android_ui/workoutlist/workoutcard.dart';
 import 'package:lift_tracker/android_ui/workouts/newworkout.dart';
 import 'package:lift_tracker/data/classes/workout.dart';
@@ -15,12 +15,7 @@ import 'package:lift_tracker/android_ui/sessions/newsession.dart';
 class WorkoutList extends ConsumerStatefulWidget {
   const WorkoutList({
     Key? key,
-    this.onCardTap,
-    this.onCardClose,
   }) : super(key: key);
-  final Function(VoidCallback onDelete, VoidCallback onHistory,
-      VoidCallback onEdit, VoidCallback onStart, String workoutName)? onCardTap;
-  final Function? onCardClose;
 
   @override
   ConsumerState<WorkoutList> createState() => _WorkoutListState();
@@ -54,31 +49,18 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
     return Scaffold(
       backgroundColor: UIUtilities.getScaffoldBackgroundColor(context),
       appBar: AppBar(
-        leading: isSearchBarActivated
-            ? IconButton(
-                onPressed: () {
-                  if (isSearchBarActivated) {
-                    resetAppBarAndOpenCards();
-                  } else {
-                    mainScaffoldKey.currentState!.openDrawer();
-                  }
-                },
-                icon: CustomAnimatedIcon(
-                    animatedIconData: AnimatedIcons.arrow_menu,
-                    start: !isSearchBarActivated),
-              )
-            : IconButton(
-                onPressed: () {
-                  if (isAppBarSelected) {
-                    resetAppBarAndOpenCards();
-                  } else {
-                    mainScaffoldKey.currentState!.openDrawer();
-                  }
-                },
-                icon: CustomAnimatedIcon(
-                    animatedIconData: AnimatedIcons.arrow_menu,
-                    start: !isAppBarSelected),
-              ),
+        leading: IconButton(
+          onPressed: () {
+            if (isSearchBarActivated) {
+              resetAppBarAndOpenCards();
+            } else {
+              mainScaffoldKey.currentState!.openDrawer();
+            }
+          },
+          icon: CustomAnimatedIcon(
+              animatedIconData: AnimatedIcons.arrow_menu,
+              start: !isSearchBarActivated),
+        ),
         actions: [
           AnimatedSize(
             curve: Curves.decelerate,
@@ -107,11 +89,13 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
                         IconButton(
                             onPressed: () {
                               if (openIndex != null) {
+                                var newSessionPage =
+                                    NewSession(workout: workouts[openIndex!]);
                                 Navigator.push(context,
                                     MaterialPageRoute(builder: (context) {
-                                  return NewSession(
-                                      workout: workouts[openIndex!]);
+                                  return newSessionPage;
                                 }));
+                                resetAppBarAndOpenCards();
                               }
                             },
                             icon: Icon(Icons.play_arrow))

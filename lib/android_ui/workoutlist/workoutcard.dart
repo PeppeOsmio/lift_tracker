@@ -87,14 +87,19 @@ class _WorkoutCardState extends State<WorkoutCard> with WidgetsBindingObserver {
                 children: [
                   Text(
                     widget.workout.name,
-                    style: TextStyle(fontSize: 24, color: widget.textColor),
+                    style: TextStyle(
+                        fontSize: 24,
+                        color: UIUtilities.getPrimaryColor(context)),
                   ),
                   Spacer(),
                   AnimatedRotation(
                     curve: Curves.decelerate,
                     turns: widget.isOpen ? 0.5 : 0,
                     duration: Duration(milliseconds: 150),
-                    child: Icon(Icons.expand_more),
+                    child: Icon(
+                      Icons.expand_more,
+                      color: UIUtilities.getPrimaryColor(context),
+                    ),
                   )
                 ],
               ),

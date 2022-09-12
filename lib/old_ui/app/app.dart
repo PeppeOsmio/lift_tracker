@@ -130,7 +130,6 @@ class _AppState extends ConsumerState<App> {
               list.add(_buildOffStage(i, temp[i]));
             }
             ref.watch(Helper.instance.pageIndexProvider);
-            log('Building stack');
             return Stack(children: list);
           }),
           onWillPop: () async {

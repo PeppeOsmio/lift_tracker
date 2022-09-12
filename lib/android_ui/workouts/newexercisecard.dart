@@ -1,15 +1,6 @@
-import 'dart:developer';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:lift_tracker/android_ui/uiutilities.dart';
-import 'package:lift_tracker/data/classes/exercise.dart';
-import 'package:lift_tracker/data/classes/exercisedata.dart';
-import 'package:lift_tracker/data/helper.dart';
 
 class NewExerciseCard extends StatefulWidget {
   const NewExerciseCard(
@@ -40,6 +31,11 @@ class _NewExerciseCardState extends State<NewExerciseCard> {
   void initState() {
     super.initState();
     exerciseNumber = widget.exerciseNumber;
+    Future.delayed(Duration.zero, () {
+      exerciseNameController.text = widget.exerciseName != null
+          ? UIUtilities.loadTranslation(context, widget.exerciseName!)
+          : '';
+    });
   }
 
   @override
@@ -59,13 +55,11 @@ class _NewExerciseCardState extends State<NewExerciseCard> {
           },
           controller: exerciseNameController,
           readOnly: true,
-          decoration: InputDecoration(
-              suffixIcon: widget.popupMenuButton,
-              border: OutlineInputBorder(
-                  borderSide: BorderSide(color: colorScheme.onBackground)),
-              floatingLabelBehavior: inputDecorationTheme.floatingLabelBehavior,
-              label: Text(UIUtilities.loadTranslation(context, 'exercise') +
-                  ' $exerciseNumber')),
+          decoration: UIUtilities.getTextFieldDecoration(
+                  context,
+                  UIUtilities.loadTranslation(context, 'exercise') +
+                      ' $exerciseNumber')
+              .copyWith(suffixIcon: widget.popupMenuButton),
         ),
         Padding(
           padding: const EdgeInsets.only(top: 16),
@@ -78,14 +72,8 @@ class _NewExerciseCardState extends State<NewExerciseCard> {
                     FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
                   ],
                   keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                          borderSide:
-                              BorderSide(color: colorScheme.onBackground)),
-                      floatingLabelBehavior:
-                          inputDecorationTheme.floatingLabelBehavior,
-                      label: Text(
-                          UIUtilities.loadTranslation(context, 'setsField'))),
+                  decoration: UIUtilities.getTextFieldDecoration(context,
+                      UIUtilities.loadTranslation(context, 'setsField')),
                 ),
               ),
               Padding(
@@ -102,14 +90,8 @@ class _NewExerciseCardState extends State<NewExerciseCard> {
                     FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
                   ],
                   keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                          borderSide:
-                              BorderSide(color: colorScheme.onBackground)),
-                      floatingLabelBehavior:
-                          inputDecorationTheme.floatingLabelBehavior,
-                      label:
-                          Text(UIUtilities.loadTranslation(context, 'reps'))),
+                  decoration: UIUtilities.getTextFieldDecoration(
+                      context, UIUtilities.loadTranslation(context, 'reps')),
                 ),
               ),
             ],
@@ -129,5 +111,3 @@ class _NewExerciseCardState extends State<NewExerciseCard> {
     });
   }
 }
-
-enum MoveOrRemoveMenuOption { remove, move_up, move_down }

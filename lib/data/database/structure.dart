@@ -56,6 +56,7 @@ Future createDB(Database db, int version) async {
       json_id INTEGER NOT NULL,
       fk_workout_record_id INTEGER NOT NULL,
       fk_exercise_id INTEGER NOT NULL,
+      position_in_workout_record INTEGER NOT NULL,
       type VARCHAR(20) NOT NULL,
       FOREIGN KEY (fk_workout_record_id) REFERENCES workout_record(id),
       FOREIGN KEY (fk_exercise_id) REFERENCES exercise(id)
