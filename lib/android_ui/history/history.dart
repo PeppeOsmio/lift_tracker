@@ -27,15 +27,37 @@ class _HistoryState extends ConsumerState<History> {
   int? openIndex = null;
   TextEditingController searchController = TextEditingController();
   List<WorkoutRecord> workoutRecords = [];
-  GlobalKey<AnimatedListState> animatedListKey = GlobalKey<AnimatedListState>();
   bool isListReady = false;
+  GlobalKey<AnimatedListState> animatedListKey = GlobalKey<AnimatedListState>();
 
   @override
   void initState() {
     super.initState();
     log('Building History...');
-    CustomDatabase.instance.readWorkoutRecords(readAll: true).then((value) {
-      isListReady = true;
+    Future.delayed(Duration.zero, () {
+      // remove circular progress indicator
+      animatedListKey.currentState!.removeItem(
+          0,
+          (context, animation) => SizedBox(
+                height: 0,
+              ),
+          duration: Duration.zero);
+      ref
+          .read(Helper.instance.workoutRecordsProvider.notifier)
+          .addListener((state) {
+        if (state.length > workoutRecords.length) {
+          for (int i = workoutRecords.length; i < state.length; i++) {
+            animatedListKey.currentState!
+                .insertItem(i, duration: Duration(milliseconds: 150));
+          }
+        }
+      });
+      readWorkoutRecords();
+    });
+  }
+
+  void readWorkoutRecords() {
+    CustomDatabase.instance.readWorkoutRecords().then((value) {
       ref
           .read(Helper.instance.workoutRecordsProvider.notifier)
           .addWorkoutRecords(value);
@@ -47,22 +69,24 @@ class _HistoryState extends ConsumerState<History> {
       ...workoutRecords.asMap().entries.map((mapEntry) {
         int index = mapEntry.key;
         return WorkoutRecordCard(
+          key: ValueKey(workoutRecords[index].id),
           workoutRecord: workoutRecords[index],
           onCardTap: () {
             if (openIndex == index) {
               setState(() {
-                openIndex = null;
+                resetAppBarAndCards();
               });
             }
           },
           onCardLongPress: () {
             if (openIndex == index) {
               setState(() {
-                openIndex = null;
+                resetAppBarAndCards();
               });
             } else {
               setState(() {
                 openIndex = index;
+                isAppBarSelected = true;
               });
             }
           },
@@ -75,6 +99,36 @@ class _HistoryState extends ConsumerState<History> {
         );
       }).toList()
     ];
+  }
+
+  void resetAppBarAndCards() {
+    isAppBarSelected = false;
+    openIndex = null;
+  }
+
+  void removeWorkoutRecordCard(int index) async {
+    WorkoutRecord workoutRecord = workoutRecords[index];
+    bool success =
+        await CustomDatabase.instance.removeWorkoutRecord(workoutRecord.id);
+    if (!success) {
+      return;
+    }
+    resetAppBarAndCards();
+    animatedListKey.currentState!.removeItem(index, (context, animation) {
+      return SizeTransition(
+        sizeFactor: animation,
+        child: FadeTransition(
+            opacity: animation,
+            child: WorkoutRecordCard(
+                key: ValueKey(workoutRecord.id),
+                workoutRecord: workoutRecord,
+                onCardTap: () {},
+                onCardLongPress: () {})),
+      );
+    }, duration: Duration(milliseconds: 150));
+    ref
+        .read(Helper.instance.workoutRecordsProvider.notifier)
+        .removeWorkoutRecord(workoutRecord.id);
   }
 
   @override
@@ -103,7 +157,9 @@ class _HistoryState extends ConsumerState<History> {
                     ? [
                         IconButton(
                             onPressed: () {
-                              if (openIndex != null) {}
+                              if (openIndex != null) {
+                                removeWorkoutRecordCard(openIndex!);
+                              }
                             },
                             icon: Icon(Icons.delete))
                       ]
@@ -121,19 +177,31 @@ class _HistoryState extends ConsumerState<History> {
               : UIUtilities.loadTranslation(context, 'history')),
         ),
       ),
-      body: isListReady
-          ? AnimatedList(
-              key: animatedListKey,
-              initialItemCount: bodyItems.length,
-              itemBuilder: ((context, index, animation) {
-                return FadeTransition(
-                  opacity: animation,
-                  child: SizeTransition(
-                      sizeFactor: animation, child: bodyItems[index]),
+      body: GestureDetector(
+          onTap: () {
+            resetAppBarAndCards();
+            setState(() {});
+          },
+          child: AnimatedList(
+            key: animatedListKey,
+            // show circular progress indicator if we did not yet read workout records
+            initialItemCount:
+                CustomDatabase.instance.didReadWorkoutRecords ? 0 : 1,
+            itemBuilder: (context, index, animation) {
+              if (!CustomDatabase.instance.didReadWorkoutRecords) {
+                return Container(
+                  height: MediaQuery.of(context).size.height / 2,
+                  child: Center(child: CircularProgressIndicator.adaptive()),
                 );
-              }),
-            )
-          : Center(child: CircularProgressIndicator.adaptive()),
+              }
+              if ((index + 1) == CustomDatabase.instance.workoutRecordsCount &&
+                  !CustomDatabase.instance.didReadAllWorkoutRecords) {
+                readWorkoutRecords();
+              }
+              return FadeTransition(
+                  opacity: animation, child: bodyItems[index]);
+            },
+          )),
     );
   }
 }

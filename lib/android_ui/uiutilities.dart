@@ -55,12 +55,12 @@ class UIUtilities {
 
   static Color getRecordsBackgroundColor(BuildContext context) {
     return Color.lerp(UIUtilities.getSecondaryColor(context),
-        Theme.of(context).colorScheme.surface, 0.75)!;
+        Theme.of(context).colorScheme.surface, 0.85)!;
   }
 
   static Color getVolumeBackgroundColor(BuildContext context) {
     return Color.lerp(Theme.of(context).colorScheme.tertiary,
-        Theme.of(context).colorScheme.surface, 0.75)!;
+        Theme.of(context).colorScheme.surface, 0.85)!;
   }
 
   static InputDecoration getTextFieldDecoration(

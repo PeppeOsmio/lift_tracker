@@ -17,8 +17,12 @@ class CustomDatabase {
   static Database? _database;
 
   int workoutsOffset = 0;
-  int workoutRecordsOffset = 0;
-  final int searchLimit = 10;
+  int workoutRecordsCount = 0;
+  bool didReadWorkoutRecords = false;
+  bool didReadAllWorkoutRecords = false;
+  bool didReadWorkouts = false;
+
+  final int searchLimit = 2;
 
   CustomDatabase._init();
 
@@ -112,6 +116,9 @@ class CustomDatabase {
       id = await txn.delete('workout_record',
           where: 'id=?', whereArgs: [workoutRecordId]);
     });
+    if (id > 0) {
+      workoutRecordsCount -= 1;
+    }
     return id > 0;
   }
 
@@ -147,14 +154,18 @@ class CustomDatabase {
         }
       } else {
         if (workoutRecordId == null) {
-          workoutRecordsOffset += 1;
           queryWorkoutRecords = await txn.query('workout_record',
               columns: ['id', 'day', 'workout_name', 'fk_workout_id'],
-              offset: limit != null ? workoutRecordsOffset * limit : null,
+              offset: limit != null ? workoutRecordsCount : null,
               orderBy: 'day DESC',
               where: 'is_cache=?',
               whereArgs: [0],
               limit: limit);
+          workoutRecordsCount += queryWorkoutRecords.length;
+          didReadWorkoutRecords = true;
+          if (queryWorkoutRecords.isEmpty) {
+            didReadAllWorkoutRecords = true;
+          }
         } else {
           queryWorkoutRecords = await txn.query('workout_record',
               columns: ['id', 'day', 'workout_name', 'fk_workout_id'],
@@ -602,6 +613,11 @@ class CustomDatabase {
         }
       }
     });
+    // if we did not read yet the workout records, don't increment the count here. It will
+    // be incremented in the readWorkoutRecords function
+    if (!backupMode && !cacheMode && didReadWorkoutRecords) {
+      workoutRecordsCount += 1;
+    }
     return {
       'workoutRecordId': workoutRecordId,
       'didSetRecord': didSetWeightRecord ? 1 : 0
@@ -726,6 +742,7 @@ class CustomDatabase {
       }
       workoutList.add(Workout(id, name, exerciseList, hasCache: hasCache));
     }
+    didReadWorkouts = true;
     return workoutList;
   }
 

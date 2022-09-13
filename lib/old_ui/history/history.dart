@@ -128,7 +128,7 @@ class _BodyState extends ConsumerState<Body> {
                 if ((i + 1).remainder(CustomDatabase.instance.searchLimit) ==
                         0 &&
                     (i + 1) ~/ CustomDatabase.instance.searchLimit >
-                        (CustomDatabase.instance.workoutRecordsOffset - 1)) {
+                        (CustomDatabase.instance.workoutRecordsCount - 1)) {
                   widget.readMoreCallback();
                 }
                 WorkoutRecordCard workoutRecordCard =

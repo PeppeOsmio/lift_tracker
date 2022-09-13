@@ -52,18 +52,24 @@ class _NewSessionState extends ConsumerState<NewSession>
         weightControllersList[i].add(TextEditingController());
         rpeControllersList[i].add(TextEditingController());
         repsControllersList[i].last.addListener(() {
-          canSave = getCanSave();
-          setState(() {});
+          updateCanSave();
         });
         weightControllersList[i].last.addListener(() {
-          canSave = getCanSave();
-          setState(() {});
+          updateCanSave();
         });
         rpeControllersList[i].last.addListener(() {
-          canSave = getCanSave();
-          setState(() {});
+          updateCanSave();
         });
       }
+    }
+  }
+
+  void updateCanSave() {
+    var tmp = getCanSave();
+    if (tmp != canSave) {
+      setState(() {
+        canSave = tmp;
+      });
     }
   }
 
@@ -159,26 +165,27 @@ class _NewSessionState extends ConsumerState<NewSession>
               onSelected: (item) {
                 switch (item) {
                   case ExerciseRecordMenuOptions.add_set:
-                    setState(() {
-                      repsControllersList[index].add(TextEditingController());
-                      weightControllersList[index].add(TextEditingController());
-                      rpeControllersList[index].add(TextEditingController());
-                    });
+                    repsControllersList[index].add(TextEditingController());
+                    weightControllersList[index].add(TextEditingController());
+                    rpeControllersList[index].add(TextEditingController());
                     repsControllersList[index].last.addListener(() {
-                      canSave = getCanSave();
-                      setState(() {});
+                      updateCanSave();
                     });
                     weightControllersList[index].last.addListener(() {
-                      canSave = getCanSave();
-                      setState(() {});
+                      updateCanSave();
                     });
                     rpeControllersList[index].last.addListener(() {
-                      canSave = getCanSave();
-                      setState(() {});
+                      updateCanSave();
                     });
                     animatedListKeys[index].currentState!.insertItem(
                         repsControllersList[index].length - 1,
                         duration: Duration(milliseconds: 150));
+                    break;
+                  case ExerciseRecordMenuOptions.move_down:
+                    swapExerciseRecordCards(index, index + 1);
+                    break;
+                  case ExerciseRecordMenuOptions.move_up:
+                    swapExerciseRecordCards(index, index - 1);
                     break;
                   default:
                 }
@@ -188,6 +195,25 @@ class _NewSessionState extends ConsumerState<NewSession>
         );
       }).toList(),
     ];
+  }
+
+  void swapExerciseRecordCards(int index1, int index2) {
+    var tmpEx = exercises[index1];
+    exercises[index1] = exercises[index2];
+    exercises[index2] = tmpEx;
+    var tmpReps = repsControllersList[index1];
+    repsControllersList[index1] = repsControllersList[index2];
+    repsControllersList[index2] = tmpReps;
+    var tmpWeights = weightControllersList[index1];
+    weightControllersList[index1] = weightControllersList[index2];
+    weightControllersList[index2] = tmpWeights;
+    var tmpRpes = rpeControllersList[index1];
+    rpeControllersList[index1] = rpeControllersList[index2];
+    rpeControllersList[index2] = tmpRpes;
+    var tmpKey = animatedListKeys[index1];
+    animatedListKeys[index1] = animatedListKeys[index2];
+    animatedListKeys[index2] = tmpKey;
+    setState(() {});
   }
 
   List<PopupMenuItem<ExerciseRecordMenuOptions>> menuItems(int index) {
@@ -221,7 +247,7 @@ class _NewSessionState extends ConsumerState<NewSession>
     for (int i = 0; i < exercises.length; i++) {
       Exercise exercise = exercises[i];
       List<ExerciseSet> exerciseSets = [];
-      for (int j = 0; j < exercise.sets; j++) {
+      for (int j = 0; j < repsControllersList[i].length; j++) {
         int reps = int.tryParse(repsControllersList[i][j].text) ?? -1;
         if (reps == -1 && !cacheMode) {
           throw Exception();
@@ -238,7 +264,7 @@ class _NewSessionState extends ConsumerState<NewSession>
             sets: exerciseSets,
             exerciseId: exercise.id,
             type: exercise.exerciseData.type,
-            temp: false));
+            temp: cacheMode));
       }
     }
     workoutRecord = WorkoutRecord(
@@ -246,7 +272,7 @@ class _NewSessionState extends ConsumerState<NewSession>
         workoutId: widget.workout.id);
     try {
       var newWorkoutRecordInfo = await CustomDatabase.instance
-          .addWorkoutRecord(workoutRecord)
+          .addWorkoutRecord(workoutRecord, cacheMode: cacheMode)
           .catchError((error) {
         UIUtilities.showSnackBar(
             context: context, msg: 'newsession: ' + error.toString());
@@ -272,14 +298,15 @@ class _NewSessionState extends ConsumerState<NewSession>
       widget.workout.hasCache = 0;
       // if the workout sessions list was never loaded from the DB,
       // don't add the new session to the Provider
-      if (CustomDatabase.instance.workoutRecordsOffset > 0) {
+      if (CustomDatabase.instance.didReadWorkoutRecords) {
+        log('Adding newly created workout record to list');
         await CustomDatabase.instance
             .readWorkoutRecords(
                 workoutRecordId: newWorkoutRecordInfo['workoutRecordId'])
             .then((workoutRecords) {
           ref
               .read(Helper.instance.workoutRecordsProvider.notifier)
-              .addWorkoutRecord(workoutRecords[0]);
+              .addWorkoutRecord(workoutRecords.first);
         }).catchError((error) {
           UIUtilities.showSnackBar(
               context: context, msg: 'newsession: ' + error.toString());

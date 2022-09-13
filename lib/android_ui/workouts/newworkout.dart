@@ -220,15 +220,11 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
                 exerciseDataList.add(null);
                 setsControllers.add(TextEditingController());
                 setsControllers.last.addListener(() {
-                  setState(() {
-                    canSave = getCanSave();
-                  });
+                  updateCanSave();
                 });
                 repsControllers.add(TextEditingController());
                 repsControllers.last.addListener(() {
-                  setState(() {
-                    canSave = getCanSave();
-                  });
+                  updateCanSave();
                 });
                 canSave = false;
               });
@@ -249,20 +245,14 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
     super.initState();
     setsControllers.add(TextEditingController());
     setsControllers.first.addListener(() {
-      setState(() {
-        canSave = getCanSave();
-      });
+      updateCanSave();
     });
     repsControllers.add(TextEditingController());
     repsControllers.first.addListener(() {
-      setState(() {
-        canSave = getCanSave();
-      });
+      updateCanSave();
     });
     workoutNameController.addListener(() {
-      setState(() {
-        canSave = getCanSave();
-      });
+      updateCanSave();
     });
     exerciseDataList.add(null);
   }
@@ -292,6 +282,15 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
       ));
     }
     return menuItems;
+  }
+
+  void updateCanSave() {
+    var tmp = getCanSave();
+    if (tmp != canSave) {
+      setState(() {
+        canSave = tmp;
+      });
+    }
   }
 
   bool getCanSave() {
@@ -368,7 +367,6 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
     tmpSets.text = oldSets;
     tmpReps.text = oldReps;
     animatedListKey.currentState!.removeItem(index + 2, (context, animation) {
-      print(index);
       return FadeTransition(
         opacity: animation,
         child: SizeTransition(

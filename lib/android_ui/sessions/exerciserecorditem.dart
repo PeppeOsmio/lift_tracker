@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
@@ -30,12 +32,30 @@ class ExerciseRecordItem extends StatefulWidget {
 }
 
 class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
-  late final GlobalKey<AnimatedListState> animatedListKey;
+  late GlobalKey<AnimatedListState> animatedListKey;
+  late List<TextEditingController> repsControllers;
+  late List<TextEditingController> weightControllers;
+  late List<TextEditingController> rpeControllers;
+  late Exercise exercise;
 
   @override
   void initState() {
     super.initState();
     animatedListKey = widget.animatedListKey;
+    repsControllers = widget.repsControllers;
+    weightControllers = widget.weightControllers;
+    rpeControllers = widget.rpeControllers;
+    exercise = widget.exercise;
+  }
+
+  @override
+  void didUpdateWidget(covariant ExerciseRecordItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    animatedListKey = widget.animatedListKey;
+    repsControllers = widget.repsControllers;
+    weightControllers = widget.weightControllers;
+    rpeControllers = widget.rpeControllers;
+    exercise = widget.exercise;
   }
 
   @override
@@ -45,8 +65,7 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
         Row(
           children: [
             Text(
-              UIUtilities.loadTranslation(
-                  context, widget.exercise.exerciseData.name),
+              UIUtilities.loadTranslation(context, exercise.exerciseData.name),
               style: Theme.of(context)
                   .textTheme
                   .titleMedium!
@@ -59,7 +78,7 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
         AnimatedList(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
-            initialItemCount: widget.repsControllers.length,
+            initialItemCount: repsControllers.length,
             key: animatedListKey,
             itemBuilder: ((context, index, animation) {
               return FadeTransition(
@@ -83,7 +102,7 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
                               SizedBox(width: 16),
                               Expanded(
                                 child: TextField(
-                                  controller: widget.repsControllers[index],
+                                  controller: repsControllers[index],
                                   keyboardType: TextInputType.number,
                                   decoration:
                                       UIUtilities.getTextFieldDecoration(
@@ -95,7 +114,7 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
                               SizedBox(width: 16),
                               Expanded(
                                 child: TextField(
-                                  controller: widget.weightControllers[index],
+                                  controller: weightControllers[index],
                                   keyboardType: TextInputType.number,
                                   decoration:
                                       UIUtilities.getTextFieldDecoration(
@@ -107,7 +126,7 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
                               SizedBox(width: 16),
                               Expanded(
                                 child: TextField(
-                                  controller: widget.rpeControllers[index],
+                                  controller: rpeControllers[index],
                                   keyboardType: TextInputType.number,
                                   decoration:
                                       UIUtilities.getTextFieldDecoration(

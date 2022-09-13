@@ -32,16 +32,34 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
   TextEditingController searchController = TextEditingController();
   String searchString = '';
   FocusNode searchFocusNode = FocusNode();
+  GlobalKey<AnimatedListState> animatedListKey = GlobalKey<AnimatedListState>();
 
   @override
   void initState() {
     super.initState();
     log('Building WorkoutList...');
-    CustomDatabase.instance.readWorkouts().then((value) {
+    CustomDatabase.instance.readWorkouts(readAll: true).then((value) {
+      // remove circular progress indicator
+      animatedListKey.currentState!.removeItem(
+          0,
+          (context, animation) => SizedBox(
+                height: 0,
+              ),
+          duration: Duration.zero);
+      ref.read(Helper.instance.workoutsProvider.notifier).addListener((state) {
+        if (state.length > workouts.length) {
+          for (int i = workouts.length; i < state.length; i++) {
+            animatedListKey.currentState!
+                .insertItem(i, duration: Duration(milliseconds: 150));
+          }
+        }
+      });
       ref.read(Helper.instance.workoutsProvider.notifier).addWorkouts(value);
       log('Workouts from workout list: ' + value.toString());
     });
   }
+
+  void removeWorkoutCard(int index) {}
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +70,9 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
         leading: IconButton(
           onPressed: () {
             if (isSearchBarActivated) {
-              resetAppBarAndOpenCards();
+              setState(() {
+                resetAppBarAndOpenCards();
+              });
             } else {
               mainScaffoldKey.currentState!.openDrawer();
             }
@@ -95,7 +115,9 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
                                     MaterialPageRoute(builder: (context) {
                                   return newSessionPage;
                                 }));
-                                resetAppBarAndOpenCards();
+                                setState(() {
+                                  resetAppBarAndOpenCards();
+                                });
                               }
                             },
                             icon: Icon(Icons.play_arrow))
@@ -146,38 +168,57 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
       drawer: isAppBarSelected || isSearchBarActivated ? null : CustomDrawer(),
       body: GestureDetector(
         onTap: () {
-          resetAppBarAndOpenCards();
+          setState(() {
+            resetAppBarAndOpenCards();
+          });
         },
-        child: ListView.builder(
-            itemCount: workouts.length,
-            itemBuilder: (context, index) {
+        child: AnimatedList(
+            key: animatedListKey,
+            // show circular progress indicator if we did not yet read workouts
+            initialItemCount: CustomDatabase.instance.didReadWorkouts ? 0 : 1,
+            itemBuilder: (context, index, animation) {
+              if (!CustomDatabase.instance.didReadWorkouts) {
+                return Container(
+                  height: MediaQuery.of(context).size.height / 2,
+                  child: Center(
+                    child: CircularProgressIndicator.adaptive(),
+                  ),
+                );
+              }
               if (!workouts[index]
                   .name
                   .toLowerCase()
                   .contains(searchString.toLowerCase())) {
                 return SizedBox();
               }
-              return WorkoutCard(
-                  color: openIndex == index
-                      ? UIUtilities.getSelectedWidgetColor(context)
-                      : null,
-                  textColor: openIndex == index
-                      ? UIUtilities.getSelectedTextColor(context)
-                      : null,
-                  isOpen: openIndex == index,
-                  workout: workouts[index],
-                  onCardTap: () {
-                    if (openIndex != null && openIndex == index) {
-                      resetAppBarAndOpenCards();
-                    } else {
-                      selectWorkout(index);
-                    }
-                  });
+              return FadeTransition(
+                opacity: animation,
+                child: WorkoutCard(
+                    color: openIndex == index
+                        ? UIUtilities.getSelectedWidgetColor(context)
+                        : null,
+                    textColor: openIndex == index
+                        ? UIUtilities.getSelectedTextColor(context)
+                        : null,
+                    isOpen: openIndex == index,
+                    workout: workouts[index],
+                    onCardTap: () {
+                      if (openIndex != null && openIndex == index) {
+                        setState(() {
+                          resetAppBarAndOpenCards();
+                        });
+                      } else {
+                        selectWorkout(index);
+                      }
+                    }),
+              );
             }),
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: -4,
         onPressed: () async {
+          resetAppBarAndOpenCards();
+          setState(() {});
           await Navigator.of(context)
               .push(MaterialPageRoute(builder: (context) {
             return NewWorkout();
@@ -189,11 +230,9 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
   }
 
   void resetAppBarAndOpenCards() {
-    setState(() {
-      isAppBarSelected = false;
-      isSearchBarActivated = false;
-      openIndex = null;
-    });
+    isAppBarSelected = false;
+    isSearchBarActivated = false;
+    openIndex = null;
   }
 
   void openSearchBar() {
@@ -217,6 +256,18 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
     bool success = await CustomDatabase.instance.removeWorkout(workoutId);
     if (success) {
       resetAppBarAndOpenCards();
+      animatedListKey.currentState!
+          .removeItem(workouts.indexWhere((element) => element.id == workoutId),
+              (context, animation) {
+        return SizeTransition(
+          sizeFactor: animation,
+          child: FadeTransition(
+            opacity: animation,
+            child:
+                WorkoutCard(isOpen: true, workout: workout, onCardTap: () {}),
+          ),
+        );
+      }, duration: Duration(milliseconds: 150));
       ref
           .read(Helper.instance.workoutsProvider.notifier)
           .removeWorkout(workoutId);

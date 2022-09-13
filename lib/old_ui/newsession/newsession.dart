@@ -284,7 +284,7 @@ class _NewSessionState extends ConsumerState<NewSession>
       widget.workout.hasCache = 0;
       // if the workout sessions list was never loaded from the DB,
       // don't add the new session to the Provider
-      if (CustomDatabase.instance.workoutRecordsOffset > 0) {
+      if (CustomDatabase.instance.workoutRecordsCount > 0) {
         await CustomDatabase.instance
             .readWorkoutRecords(
                 workoutRecordId: newWorkoutRecordInfo['workoutRecordId'])
