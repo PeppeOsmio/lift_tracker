@@ -47,7 +47,6 @@ class _SelectExercisesState extends State<SelectExercise> {
     return Scaffold(
       backgroundColor: UIUtilities.getScaffoldBackgroundColor(context),
       appBar: AppBar(
-        backgroundColor: UIUtilities.getAppBarColor(context),
         leading: IconButton(
             onPressed: () {
               if (isSearchBarActivated) {

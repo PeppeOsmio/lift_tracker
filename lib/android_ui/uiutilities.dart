@@ -4,20 +4,13 @@ import 'package:lift_tracker/android_ui/widgets/dimmingbackground.dart';
 import 'package:lift_tracker/localizations.dart';
 
 class UIUtilities {
-  static Color getAppBarColor(BuildContext context) {
-    if (MediaQuery.of(context).platformBrightness == Brightness.dark) {
-      return Theme.of(context).colorScheme.background;
-    }
-    return Theme.of(context).colorScheme.secondaryContainer;
-  }
-
   static Color getSelectedAppBarColor(BuildContext context) {
-    return Color.lerp(Theme.of(context).colorScheme.secondaryContainer,
-        getAppBarColor(context), 0)!;
+    return Color.lerp(Theme.of(context).colorScheme.primaryContainer,
+        Theme.of(context).appBarTheme.backgroundColor, 0)!;
   }
 
-  static Color getSelectedTextColor(BuildContext context) {
-    return Theme.of(context).colorScheme.onSecondaryContainer;
+  static Color? getSelectedTextColor(BuildContext context) {
+    return Theme.of(context).colorScheme.onPrimaryContainer;
   }
 
   static Color getScaffoldBackgroundColor(BuildContext context) {
@@ -29,8 +22,8 @@ class UIUtilities {
   }
 
   static Color getSelectedWidgetColor(BuildContext context) {
-    return Color.lerp(Theme.of(context).colorScheme.secondaryContainer,
-        Theme.of(context).colorScheme.surface, 0.45)!;
+    return Color.lerp(Theme.of(context).colorScheme.primaryContainer,
+        Theme.of(context).colorScheme.surface, 0.9)!;
   }
 
   static Color getDialogBackgroundColor(BuildContext context) {
@@ -38,19 +31,11 @@ class UIUtilities {
   }
 
   static Color getPrimaryColor(BuildContext context) {
-    if (MediaQuery.of(context).platformBrightness == Brightness.dark) {
-      return Theme.of(context).colorScheme.primary;
-    } else {
-      return Theme.of(context).colorScheme.secondary;
-    }
+    return Theme.of(context).colorScheme.primary;
   }
 
   static Color getSecondaryColor(BuildContext context) {
-    if (MediaQuery.of(context).platformBrightness == Brightness.dark) {
-      return Theme.of(context).colorScheme.secondary;
-    } else {
-      return Theme.of(context).colorScheme.primary;
-    }
+    return Theme.of(context).colorScheme.secondary;
   }
 
   static Color getRecordsBackgroundColor(BuildContext context) {

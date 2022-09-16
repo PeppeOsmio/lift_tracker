@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lift_tracker/android_ui/sessions/exerciserecorditem.dart';
+import 'package:lift_tracker/android_ui/newsession/exerciserecorditem.dart';
 import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/classes/exercise.dart';
 import 'package:lift_tracker/data/classes/exerciserecord.dart';
@@ -81,7 +81,7 @@ class _NewSessionState extends ConsumerState<NewSession>
           int reps = int.parse(repsControllersList[i][j].text);
           double weight = double.parse(weightControllersList[i][j].text);
           int? rpe = int.tryParse(rpeControllersList[i][j].text);
-          if (reps <= 0 || weight <= 0 || (rpe != null && rpe <= 0)) {
+          if (reps < 0 || weight < 0 || (rpe != null && rpe <= 0)) {
             return false;
           }
         } catch (e) {
@@ -108,7 +108,6 @@ class _NewSessionState extends ConsumerState<NewSession>
       child: Scaffold(
         backgroundColor: UIUtilities.getScaffoldBackgroundColor(context),
         appBar: AppBar(
-          backgroundColor: UIUtilities.getAppBarColor(context),
           title: Text(UIUtilities.loadTranslation(context, 'newSessionOf') +
               ' ${widget.workout.name}'),
           actions: [

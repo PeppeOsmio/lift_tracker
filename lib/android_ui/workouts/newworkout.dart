@@ -54,7 +54,6 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
       child: Scaffold(
         backgroundColor: UIUtilities.getScaffoldBackgroundColor(context),
         appBar: AppBar(
-          backgroundColor: UIUtilities.getAppBarColor(context),
           leading: IconButton(
             icon: Icon(Icons.close),
             onPressed: () {

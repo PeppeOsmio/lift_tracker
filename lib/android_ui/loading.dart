@@ -37,6 +37,17 @@ class _LoadingState extends ConsumerState<Loading> {
       }
       bool useMaterial3 = lightDynamic != null && darkDynamic != null;
       useMaterial3 = true;
+      lightColorScheme = lightColorScheme;
+      ColorScheme colorScheme =
+          (MediaQuery.of(context).platformBrightness == Brightness.dark
+              ? darkColorScheme
+              : lightColorScheme);
+
+      ThemeData theme = ThemeData(
+          useMaterial3: useMaterial3,
+          colorScheme: colorScheme,
+          scaffoldBackgroundColor: colorScheme.background,
+          dialogBackgroundColor: colorScheme.background);
       return MaterialApp(
         supportedLocales: const [
           Locale('en', ''),
@@ -59,12 +70,7 @@ class _LoadingState extends ConsumerState<Loading> {
           }
           return supportedLocales.first;
         },
-        theme: ThemeData(
-            useMaterial3: useMaterial3,
-            colorScheme:
-                MediaQuery.of(context).platformBrightness == Brightness.dark
-                    ? darkColorScheme
-                    : lightColorScheme),
+        theme: theme,
         home: App(useMaterial3: true),
         debugShowCheckedModeBanner: false,
       );

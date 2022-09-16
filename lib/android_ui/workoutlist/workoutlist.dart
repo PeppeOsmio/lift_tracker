@@ -10,7 +10,7 @@ import 'package:lift_tracker/android_ui/workouts/newworkout.dart';
 import 'package:lift_tracker/data/classes/workout.dart';
 import 'package:lift_tracker/data/database/database.dart';
 import 'package:lift_tracker/data/helper.dart';
-import 'package:lift_tracker/android_ui/sessions/newsession.dart';
+import 'package:lift_tracker/android_ui/newsession/newsession.dart';
 
 class WorkoutList extends ConsumerStatefulWidget {
   const WorkoutList({
@@ -163,7 +163,7 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
         ),
         backgroundColor: isAppBarSelected
             ? UIUtilities.getSelectedAppBarColor(context)
-            : UIUtilities.getAppBarColor(context),
+            : null,
       ),
       drawer: isAppBarSelected || isSearchBarActivated ? null : CustomDrawer(),
       body: GestureDetector(

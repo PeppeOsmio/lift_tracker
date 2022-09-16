@@ -12,6 +12,7 @@ import 'package:lift_tracker/data/classes/workoutrecord.dart';
 import 'package:lift_tracker/data/database/database.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/android_ui/history/workoutrecordcard.dart';
+import 'package:lift_tracker/android_ui/session/session.dart';
 
 class History extends ConsumerStatefulWidget {
   const History({Key? key}) : super(key: key);
@@ -71,11 +72,16 @@ class _HistoryState extends ConsumerState<History> {
         return WorkoutRecordCard(
           key: ValueKey(workoutRecords[index].id),
           workoutRecord: workoutRecords[index],
-          onCardTap: () {
+          onCardTap: () async {
             if (openIndex == index) {
               setState(() {
                 resetAppBarAndCards();
               });
+            } else {
+              MaterialPageRoute route = MaterialPageRoute(builder: (context) {
+                return Session(workoutRecord: workoutRecords[index]);
+              });
+              await Navigator.push(context, route);
             }
           },
           onCardLongPress: () {
@@ -122,7 +128,7 @@ class _HistoryState extends ConsumerState<History> {
             child: WorkoutRecordCard(
                 key: ValueKey(workoutRecord.id),
                 workoutRecord: workoutRecord,
-                onCardTap: () {},
+                onCardTap: () async {},
                 onCardLongPress: () {})),
       );
     }, duration: Duration(milliseconds: 150));
@@ -140,7 +146,7 @@ class _HistoryState extends ConsumerState<History> {
       appBar: AppBar(
         backgroundColor: isAppBarSelected
             ? UIUtilities.getSelectedAppBarColor(context)
-            : UIUtilities.getAppBarColor(context),
+            : null,
         leading: IconButton(
           onPressed: () {
             mainScaffoldKey.currentState!.openDrawer();
