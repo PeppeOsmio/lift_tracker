@@ -11,6 +11,14 @@ class ExerciseRecordCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget recordIcon = Padding(
+      padding: const EdgeInsets.only(left: 4),
+      child: Icon(
+        FontAwesome5.trophy,
+        color: Theme.of(context).colorScheme.secondary,
+        size: Theme.of(context).textTheme.bodyText2!.fontSize,
+      ),
+    );
     return Column(
       children: [
         Row(
@@ -34,75 +42,83 @@ class ExerciseRecordCard extends StatelessWidget {
           ],
         ),
         Padding(
-          padding: const EdgeInsets.only(left: 16),
-          child: Table(
-            columnWidths: {
-              0: FlexColumnWidth(2),
-              1: FlexColumnWidth(2),
-              2: FlexColumnWidth(4),
-              3: FlexColumnWidth(3)
-            },
+          padding: const EdgeInsets.only(left: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              TableRow(children: [
-                Text(
-                  UIUtilities.loadTranslation(context, 'set'),
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.outline),
-                ),
-                Text(UIUtilities.loadTranslation(context, 'shortReps'),
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.outline)),
-                Text(UIUtilities.loadTranslation(context, 'weight') + ' (kg)',
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.outline)),
-                Text(UIUtilities.loadTranslation(context, 'volume') + ' (kg)',
-                    style:
-                        TextStyle(color: Theme.of(context).colorScheme.outline))
-              ]),
-              ...exerciseRecord.sets.asMap().entries.map((mapEntry) {
-                ExerciseSet set = mapEntry.value;
-                int index = mapEntry.key;
-                String weight = set.weight - set.weight.floor() > 0
-                    ? '${set.weight}'
-                    : '${set.weight.toStringAsFixed(0)}';
-                String weightString = '${weight}';
-                if (set.rpe != null) {
-                  weightString += ' @ ${set.rpe}';
-                }
-                Widget recordIcon = Padding(
-                  padding: const EdgeInsets.only(left: 4),
-                  child: Icon(
-                    FontAwesome5.trophy,
-                    color: Theme.of(context).colorScheme.secondary,
-                    size: Theme.of(context).textTheme.bodyText2!.fontSize,
-                  ),
-                );
-                return TableRow(children: [
+              Column(
+                children: [
                   Text(
-                    '${index + 1}',
+                    UIUtilities.loadTranslation(context, 'set'),
                     style:
                         TextStyle(color: Theme.of(context).colorScheme.outline),
                   ),
-                  set.hasRepsRecord == 1
-                      ? Row(
-                          children: [Text('${set.reps}'), recordIcon],
-                        )
-                      : Text('${set.reps}'),
-                  set.hasWeightRecord == 1
-                      ? Row(
-                          children: [Text(weightString), recordIcon],
-                        )
-                      : Text(weightString),
-                  set.hasVolumeRecord == 1
-                      ? Row(
-                          children: [Text('${set.volume()}'), recordIcon],
-                        )
-                      : Text('${set.volume()}'),
-                ]);
-              }).toList()
+                  ...exerciseRecord.sets.asMap().entries.map((mapEntry) {
+                    int index = mapEntry.key;
+                    return Text(
+                      '${index + 1}',
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.outline),
+                    );
+                  }).toList()
+                ],
+              ),
+              Column(
+                children: [
+                  Text(UIUtilities.loadTranslation(context, 'shortReps'),
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.outline)),
+                  ...exerciseRecord.sets.asMap().entries.map((mapEntry) {
+                    var set = mapEntry.value;
+                    return set.hasRepsRecord == 1
+                        ? Row(
+                            children: [Text('${set.reps}'), recordIcon],
+                          )
+                        : Text('${set.reps}');
+                  }).toList()
+                ],
+              ),
+              Column(
+                children: [
+                  Text(UIUtilities.loadTranslation(context, 'weight') + ' (kg)',
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.outline)),
+                  ...exerciseRecord.sets.asMap().entries.map((mapEntry) {
+                    var set = mapEntry.value;
+                    int index = mapEntry.key;
+                    String weight = set.weight - set.weight.floor() > 0
+                        ? '${set.weight}'
+                        : '${set.weight.toStringAsFixed(0)}';
+                    String weightString = '${weight}';
+                    if (set.rpe != null) {
+                      weightString += ' @ ${set.rpe}';
+                    }
+                    return set.hasWeightRecord == 1
+                        ? Row(
+                            children: [Text(weightString), recordIcon],
+                          )
+                        : Text(weightString);
+                  }).toList()
+                ],
+              ),
+              Column(
+                children: [
+                  Text(UIUtilities.loadTranslation(context, 'volume') + ' (kg)',
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.outline)),
+                  ...exerciseRecord.sets.asMap().entries.map((mapEntry) {
+                    var set = mapEntry.value;
+                    return set.hasVolumeRecord == 1
+                        ? Row(
+                            children: [Text('${set.volume()}'), recordIcon],
+                          )
+                        : Text('${set.volume()}');
+                  }).toList()
+                ],
+              )
             ],
           ),
-        )
+        ),
       ],
     );
   }

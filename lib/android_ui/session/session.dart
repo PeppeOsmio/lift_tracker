@@ -67,7 +67,7 @@ class _SessionState extends State<Session> {
                         width: 8 * 1.2,
                       ),
                       Text(
-                        '${UIUtilities.loadTranslation(context, 'volume')}: $recordNumber kg',
+                        '${UIUtilities.loadTranslation(context, 'volume')}: $totalVolume kg',
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.tertiary,
                           fontSize: 14 * 1.2,
