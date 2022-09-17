@@ -85,13 +85,12 @@ class ExerciseRecordCard extends StatelessWidget {
                           color: Theme.of(context).colorScheme.outline)),
                   ...exerciseRecord.sets.asMap().entries.map((mapEntry) {
                     var set = mapEntry.value;
-                    int index = mapEntry.key;
                     String weight = set.weight - set.weight.floor() > 0
                         ? '${set.weight}'
                         : '${set.weight.toStringAsFixed(0)}';
                     String weightString = '${weight}';
                     if (set.rpe != null) {
-                      weightString += ' @ ${set.rpe}';
+                      weightString += ' @RPE ${set.rpe}';
                     }
                     return set.hasWeightRecord == 1
                         ? Row(

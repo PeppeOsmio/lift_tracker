@@ -127,6 +127,14 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
                               Expanded(
                                 child: TextField(
                                   controller: rpeControllers[index],
+                                  onChanged: (value) {
+                                    try {
+                                      if (int.tryParse(value)! > 10) {
+                                        rpeControllers[index].text = '10';
+                                      }
+                                    } catch (e) {}
+                                    ;
+                                  },
                                   keyboardType: TextInputType.number,
                                   decoration:
                                       UIUtilities.getTextFieldDecoration(

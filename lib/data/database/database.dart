@@ -597,6 +597,9 @@ class CustomDatabase {
           int reps = repsWeightRpe.reps;
           double weight = repsWeightRpe.weight;
           int? rpe = repsWeightRpe.rpe;
+          if (rpe != null && rpe > 10) {
+            rpe = 10;
+          }
           int hasRepsRecord = repsWeightRpe.hasRepsRecord;
           int hasWeightRecord = repsWeightRpe.hasWeightRecord;
           int hasVolumeRecord = repsWeightRpe.hasVolumeRecord;
