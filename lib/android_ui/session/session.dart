@@ -83,7 +83,7 @@ class _SessionState extends State<Session> {
       ),
       ...widget.workoutRecord.exerciseRecords.map((exerciseRecord) {
         return Padding(
-          padding: const EdgeInsets.only(bottom: 8, left: 16, right: 16),
+          padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
           child: ExerciseRecordCard(exerciseRecord: exerciseRecord),
         );
       }).toList()

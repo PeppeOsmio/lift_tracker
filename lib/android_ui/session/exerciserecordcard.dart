@@ -72,9 +72,16 @@ class ExerciseRecordCard extends StatelessWidget {
                     var set = mapEntry.value;
                     return set.hasRepsRecord == 1
                         ? Row(
-                            children: [Text('${set.reps}'), recordIcon],
+                            children: [
+                              Text(
+                                '${set.reps}',
+                              ),
+                              recordIcon
+                            ],
                           )
-                        : Text('${set.reps}');
+                        : Text(
+                            '${set.reps}',
+                          );
                   }).toList()
                 ],
               ),

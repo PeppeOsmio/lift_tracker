@@ -69,7 +69,7 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
               style: Theme.of(context)
                   .textTheme
                   .titleMedium!
-                  .copyWith(color: UIUtilities.getPrimaryColor(context)),
+                  .copyWith(color: Theme.of(context).colorScheme.primary),
             ),
             Spacer(),
             widget.popupMenuButton
@@ -97,8 +97,9 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
                                       .textTheme
                                       .labelLarge!
                                       .copyWith(
-                                          color: UIUtilities.getPrimaryColor(
-                                              context))),
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary)),
                               SizedBox(width: 16),
                               Expanded(
                                 child: TextField(
