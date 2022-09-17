@@ -6,6 +6,7 @@ import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/android_ui/widgets/customanimatedicon.dart';
 import 'package:lift_tracker/android_ui/app/customdrawer.dart';
 import 'package:lift_tracker/android_ui/workoutlist/workoutcard.dart';
+import 'package:lift_tracker/android_ui/workouts/editworkout.dart';
 import 'package:lift_tracker/android_ui/workouts/newworkout.dart';
 import 'package:lift_tracker/data/classes/workout.dart';
 import 'package:lift_tracker/data/database/database.dart';
@@ -105,7 +106,21 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
                         IconButton(
                             onPressed: () {},
                             icon: Icon(Icons.history_rounded)),
-                        IconButton(onPressed: () {}, icon: Icon(Icons.edit)),
+                        IconButton(
+                            onPressed: () {
+                              if (openIndex != null) {
+                                var editWorkoutPage =
+                                    EditWorkout(workout: workouts[openIndex!]);
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) {
+                                  return editWorkoutPage;
+                                }));
+                                setState(() {
+                                  resetAppBarAndOpenCards();
+                                });
+                              }
+                            },
+                            icon: Icon(Icons.edit)),
                         IconButton(
                             onPressed: () {
                               if (openIndex != null) {
@@ -196,9 +211,6 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
                 child: WorkoutCard(
                     color: openIndex == index
                         ? UIUtilities.getSelectedWidgetColor(context)
-                        : null,
-                    textColor: openIndex == index
-                        ? UIUtilities.getSelectedTextColor(context)
                         : null,
                     isOpen: openIndex == index,
                     workout: workouts[index],

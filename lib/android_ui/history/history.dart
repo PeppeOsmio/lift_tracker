@@ -96,9 +96,6 @@ class _HistoryState extends ConsumerState<History> {
               });
             }
           },
-          textColor: openIndex == index
-              ? UIUtilities.getSelectedTextColor(context)
-              : null,
           color: openIndex == index
               ? UIUtilities.getSelectedWidgetColor(context)
               : null,
@@ -179,7 +176,9 @@ class _HistoryState extends ConsumerState<History> {
           curve: Curves.decelerate,
           duration: Duration(milliseconds: 150),
           child: Text(isAppBarSelected && openIndex != null
-              ? 'Delete session'
+              ? UIUtilities.loadTranslation(context, 'deleteSessionOf')
+                  .replaceFirst(
+                      RegExp('%s'), workoutRecords[openIndex!].workoutName)
               : UIUtilities.loadTranslation(context, 'history')),
         ),
       ),

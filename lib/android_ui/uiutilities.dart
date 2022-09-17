@@ -26,10 +26,6 @@ class UIUtilities {
         Theme.of(context).colorScheme.surface, 0.9)!;
   }
 
-  static Color getDialogBackgroundColor(BuildContext context) {
-    return Theme.of(context).colorScheme.background;
-  }
-
   static Color getPrimaryColor(BuildContext context) {
     return Theme.of(context).colorScheme.primary;
   }
@@ -39,7 +35,7 @@ class UIUtilities {
   }
 
   static Color getRecordsBackgroundColor(BuildContext context) {
-    return Color.lerp(UIUtilities.getSecondaryColor(context),
+    return Color.lerp(Theme.of(context).colorScheme.secondary,
         Theme.of(context).colorScheme.surface, 0.85)!;
   }
 
@@ -114,7 +110,7 @@ class UIUtilities {
                     maxAlpha: 138,
                   )),
               AlertDialog(
-                backgroundColor: getDialogBackgroundColor(context),
+                backgroundColor: Theme.of(context).colorScheme.background,
                 title: title != null ? Text(title) : null,
                 content: content != null ? Text(content) : null,
                 actions: [

@@ -117,9 +117,9 @@
     "selectExerciseTitle": "Seleziona un esercizio",
     "save": "Salva",
     "sessionCanceled": "Sessione annullata",
-    "totalVolumeOf": "Volume totale delle ultime #n sessioni",
+    "totalVolumeOf": "Volume totale delle ultime %s sessioni",
     "totalVolumeOne": "Volume totale dell'ultima sessione",
-    "totalVolumeExercise": "Volume nelle ultime #n sessioni",
+    "totalVolumeExercise": "Volume nelle ultime %s sessioni",
     "totalVolumeExerciseOne": "Volume nell'ultima sessione",
     "exerciseNotPerformed": "Questo esercizio non è ancora stato eseguito in questo allenamento",
     "touchToSeeDetails": "Tocca i punti dei grafici per vedere i dettagli",
@@ -147,5 +147,6 @@
     "discardNo": "No, mantienile",
     "discardYes": "Si, abbandonale",
     "addSet": "Aggiungi una serie",
-    "reset": "Reset"
+    "reset": "Reset",
+    "deleteSessionOf": "Rimuovi sessione di %s"
 }

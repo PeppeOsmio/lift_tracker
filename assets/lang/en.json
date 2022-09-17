@@ -147,5 +147,6 @@
     "discardNo": "No, keep them",
     "discardYes": "Yes, discard",
     "addSet": "Add a set",
-    "reset": "Reset"
+    "reset": "Reset",
+    "deleteSessionOf": "Delete %s session"
 }
