@@ -14,6 +14,7 @@ import 'package:lift_tracker/data/classes/workoutrecord.dart';
 import 'package:lift_tracker/data/database/database.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/old_ui/app/app.dart';
+import 'package:lift_tracker/android_ui/widgets/materialpopupmenu.dart';
 
 class NewSession extends ConsumerStatefulWidget {
   const NewSession({Key? key, required this.workout, this.resumedSession})
@@ -153,7 +154,7 @@ class _NewSessionState extends ConsumerState<NewSession>
             repsControllers: repsControllersList[index],
             weightControllers: weightControllersList[index],
             rpeControllers: rpeControllersList[index],
-            popupMenuButton: PopupMenuButton(
+            popupMenuButton: MaterialPopupMenuButton(
               icon: Icon(
                 Icons.more_vert,
                 color: UIUtilities.getPrimaryColor(context),

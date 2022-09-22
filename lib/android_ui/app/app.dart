@@ -1,22 +1,12 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lift_tracker/android_ui/workouts/newworkout.dart';
 import 'package:lift_tracker/android_ui/uiutilities.dart';
-import 'package:lift_tracker/android_ui/widgets/appbardata.dart';
 import 'package:lift_tracker/android_ui/app/customdrawer.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
-import 'package:lift_tracker/data/classes/exerciseset.dart';
 import 'package:lift_tracker/data/database/database.dart';
 import 'package:lift_tracker/data/helper.dart';
-import 'package:lift_tracker/localizations.dart';
 import 'package:lift_tracker/android_ui/workoutlist/workoutlist.dart';
-import 'package:lift_tracker/android_ui/loading.dart';
 import 'package:lift_tracker/android_ui/exercises/exercises.dart';
 import 'package:lift_tracker/android_ui/history/history.dart';
 import 'package:shared_preferences/shared_preferences.dart';

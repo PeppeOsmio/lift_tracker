@@ -5,8 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:lift_tracker/android_ui/newsession/newsession.dart';
 import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/classes/exercise.dart';
+import 'package:lift_tracker/android_ui/widgets/materialpopupmenu.dart'
+    as MaterialPopupMenu;
 
 class ExerciseRecordItem extends StatefulWidget {
   const ExerciseRecordItem(
@@ -23,7 +26,7 @@ class ExerciseRecordItem extends StatefulWidget {
   final List<TextEditingController> repsControllers;
   final List<TextEditingController> weightControllers;
   final List<TextEditingController> rpeControllers;
-  final PopupMenuButton popupMenuButton;
+  final MaterialPopupMenu.MaterialPopupMenuButton popupMenuButton;
   final GlobalKey<AnimatedListState> animatedListKey;
   final Function(Function insertItem, Function removeItem)? onSetAdded;
 

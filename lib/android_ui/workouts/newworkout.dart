@@ -1,19 +1,14 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lift_tracker/android_ui/workouts/newexercisecard.dart';
 import 'package:lift_tracker/android_ui/uiutilities.dart';
-import 'package:lift_tracker/android_ui/widgets/appbardata.dart';
 import 'package:lift_tracker/data/classes/exercise.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/classes/workout.dart';
 import 'package:lift_tracker/data/database/database.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/android_ui//exercises/selectexercise.dart';
+import 'package:lift_tracker/android_ui/widgets/materialpopupmenu.dart';
 
 class NewWorkout extends ConsumerStatefulWidget {
   const NewWorkout({Key? key}) : super(key: key);
@@ -168,7 +163,7 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
               repsController: repsControllers[i],
               popupMenuButton: items.isEmpty
                   ? null
-                  : PopupMenuButton<MoveOrRemoveMenuOption>(
+                  : MaterialPopupMenuButton<MoveOrRemoveMenuOption>(
                       onSelected: (option) {
                         switch (option) {
                           case MoveOrRemoveMenuOption.move_up:

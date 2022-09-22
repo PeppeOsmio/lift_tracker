@@ -5,6 +5,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lift_tracker/android_ui/exercises/selectexercise.dart';
 import 'package:lift_tracker/android_ui/uiutilities.dart';
+import 'package:lift_tracker/android_ui/widgets/materialpopupmenu.dart';
 import 'package:lift_tracker/android_ui/workouts/newexercisecard.dart';
 import 'package:lift_tracker/data/classes/exercise.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
@@ -134,8 +135,6 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
   }
 
   List<Widget> body() {
-    InputDecorationTheme inputDecorationTheme =
-        Theme.of(context).inputDecorationTheme;
     return [
       Padding(
         padding: EdgeInsets.only(top: 8),
@@ -146,7 +145,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
         ),
       ),
       Padding(
-        padding: const EdgeInsets.only(top: 32),
+        padding: const EdgeInsets.only(top: 24),
         child: Text(
           UIUtilities.loadTranslation(context, 'exercises'),
           style: Theme.of(context)
@@ -166,7 +165,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
               repsController: repsControllers[i],
               popupMenuButton: items.isEmpty
                   ? null
-                  : PopupMenuButton<MoveOrRemoveMenuOption>(
+                  : MaterialPopupMenuButton<MoveOrRemoveMenuOption>(
                       onSelected: (option) {
                         switch (option) {
                           case MoveOrRemoveMenuOption.move_up:
