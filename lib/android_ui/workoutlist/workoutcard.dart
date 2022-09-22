@@ -50,7 +50,8 @@ class _WorkoutCardState extends State<WorkoutCard> with WidgetsBindingObserver {
               Expanded(
                 flex: 5,
                 child: Text(UIUtilities.loadTranslation(context, name),
-                    style: Theme.of(context).textTheme.bodyMedium!),
+                    style: Theme.of(context).textTheme.bodyText2!.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface)),
               ),
               Expanded(
                 flex: 3,
@@ -58,7 +59,8 @@ class _WorkoutCardState extends State<WorkoutCard> with WidgetsBindingObserver {
                     exercises[i].sets.toString() +
                         '  ×  ' +
                         exercises[i].reps.toString(),
-                    style: Theme.of(context).textTheme.bodyMedium!),
+                    style: Theme.of(context).textTheme.bodyText2!.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface)),
               ),
             ],
           )));
@@ -66,12 +68,16 @@ class _WorkoutCardState extends State<WorkoutCard> with WidgetsBindingObserver {
     if (!widget.isOpen && exercises.length > 5) {
       exc.add(Padding(
         padding: EdgeInsets.only(top: 6, bottom: 6),
-        child: Text('...', style: Theme.of(context).textTheme.bodyMedium!),
+        child: Text('...',
+            style: Theme.of(context)
+                .textTheme
+                .bodyText2!
+                .copyWith(color: Theme.of(context).colorScheme.onSurface)),
       ));
     }
     return AnimatedSize(
       duration: Duration(milliseconds: 150),
-      curve: Curves.decelerate,
+      curve: Curves.linear,
       child: GestureDetector(
         onTap: () {
           widget.onCardTap();
@@ -89,7 +95,7 @@ class _WorkoutCardState extends State<WorkoutCard> with WidgetsBindingObserver {
                           color: Theme.of(context).colorScheme.primary)),
                   Spacer(),
                   AnimatedRotation(
-                    curve: Curves.decelerate,
+                    curve: Curves.linear,
                     turns: widget.isOpen ? 0.5 : 0,
                     duration: Duration(milliseconds: 150),
                     child: Icon(

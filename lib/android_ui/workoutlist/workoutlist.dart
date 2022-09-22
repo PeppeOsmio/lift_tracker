@@ -86,7 +86,7 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
         ),
         actions: [
           AnimatedSize(
-            curve: Curves.decelerate,
+            curve: Curves.linear,
             duration: Duration(milliseconds: 150),
             child: Row(
                 children: isAppBarSelected
@@ -158,7 +158,7 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
           )
         ],
         title: AnimatedSize(
-          curve: Curves.decelerate,
+          curve: Curves.linear,
           duration: Duration(milliseconds: 150),
           child: isSearchBarActivated && !isAppBarSelected
               ? TextField(

@@ -74,13 +74,14 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
                           '  ×  ' +
                           UIUtilities.loadTranslation(
                               context, exerciseRecords[i].exerciseData.name),
-                      style: Theme.of(context).textTheme.bodyMedium!)),
+                      style: Theme.of(context).textTheme.bodyText2!.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface))),
               recordExercisesIndexes.contains(i)
                   ? Padding(
                       padding: const EdgeInsets.only(left: 8),
                       child: Icon(
                         FontAwesome5.trophy,
-                        size: 14,
+                        size: Theme.of(context).textTheme.bodyText2!.fontSize,
                         color: UIUtilities.getSecondaryColor(context),
                       ),
                     )
@@ -91,7 +92,11 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
     if (exerciseRecords.length > 5) {
       exc.add(Padding(
           padding: EdgeInsets.only(top: 6, bottom: 6),
-          child: Text('...', style: Theme.of(context).textTheme.bodyMedium!)));
+          child: Text('...',
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyText2!
+                  .copyWith(color: Theme.of(context).colorScheme.onSurface))));
     }
     var date = Helper.dateToString(widget.workoutRecord.day);
     return GestureDetector(
@@ -150,18 +155,24 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
                               children: [
                                 Icon(
                                   FontAwesome5.trophy,
-                                  size: 18,
+                                  size: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium!
+                                      .fontSize,
                                   color: UIUtilities.getSecondaryColor(context),
                                 ),
                                 const SizedBox(
-                                  width: 8,
+                                  width: 4,
                                 ),
                                 Text(
                                   '$recordNumber',
                                   style: TextStyle(
                                       color: UIUtilities.getSecondaryColor(
                                           context),
-                                      fontSize: 14,
+                                      fontSize: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium!
+                                          .fontSize,
                                       fontWeight: FontWeight.w400),
                                 ),
                               ],
@@ -180,7 +191,10 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
                         children: [
                           Icon(
                             FontAwesome5.weight_hanging,
-                            size: 18,
+                            size: Theme.of(context)
+                                .textTheme
+                                .titleMedium!
+                                .fontSize,
                             color: Theme.of(context).colorScheme.tertiary,
                           ),
                           const SizedBox(
@@ -188,10 +202,12 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
                           ),
                           Text(
                             '$totalVolume kg',
-                            style: TextStyle(
-                                color: Theme.of(context).colorScheme.tertiary,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400),
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium!
+                                .copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary),
                           ),
                         ],
                       ),

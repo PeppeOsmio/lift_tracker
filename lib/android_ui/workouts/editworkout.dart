@@ -88,7 +88,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
           actions: [
             AnimatedSize(
               duration: Duration(milliseconds: 150),
-              curve: Curves.decelerate,
+              curve: Curves.linear,
               child: Row(children: [
                 canSave
                     ? IconButton(
@@ -299,7 +299,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
   bool getCanSave() {
     if (setsControllers.isEmpty ||
         repsControllers.isEmpty ||
-        workoutNameController.text.isEmpty ||
+        workoutNameController.text.replaceAll(' ', '').isEmpty ||
         exerciseDataList.isEmpty) {
       return false;
     }

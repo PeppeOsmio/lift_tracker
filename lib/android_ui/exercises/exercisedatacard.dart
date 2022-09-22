@@ -40,7 +40,7 @@ class ExerciseDataCard extends StatelessWidget {
                       Theme.of(context).colorScheme.secondaryContainer,
                   child: Icon(
                     icon,
-                    size: 26,
+                    size: Theme.of(context).iconTheme.size,
                   )),
               SizedBox(width: 16),
               Expanded(
@@ -51,31 +51,46 @@ class ExerciseDataCard extends StatelessWidget {
                       scrollDirection: Axis.horizontal,
                       child: Text(
                         UIUtilities.loadTranslation(context, exerciseData.name),
-                        style: TextStyle(fontSize: 20),
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium!
+                            .copyWith(
+                                color: Theme.of(context).colorScheme.onSurface),
                       ),
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Text(
-                          UIUtilities.loadTranslation(
-                              context, exerciseData.firstMuscle),
-                          style: TextStyle(
-                              color: Theme.of(context).colorScheme.primary),
-                        ),
+                            UIUtilities.loadTranslation(
+                                context, exerciseData.firstMuscle),
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge!
+                                .copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.primary)),
                         SizedBox(width: 16),
                         Text(
                             UIUtilities.loadTranslation(
                                 context, exerciseData.secondMuscle),
-                            style: TextStyle(
-                                color:
-                                    Theme.of(context).colorScheme.secondary)),
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge!
+                                .copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .secondary)),
                         SizedBox(width: 16),
                         Text(
                             UIUtilities.loadTranslation(
                                 context, exerciseData.thirdMuscle),
-                            style: TextStyle(
-                                color: Theme.of(context).colorScheme.tertiary))
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge!
+                                .copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary))
                       ],
                     )
                   ],

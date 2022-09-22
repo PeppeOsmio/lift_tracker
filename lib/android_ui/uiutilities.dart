@@ -46,7 +46,7 @@ class UIUtilities {
         prefixIconColor: Theme.of(context).colorScheme.surfaceVariant,
         labelStyle: Theme.of(context)
             .textTheme
-            .bodyLarge!
+            .bodyText2!
             .copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
         contentPadding: EdgeInsets.only(top: 0, bottom: 0, left: 8, right: 8),
         border: OutlineInputBorder(

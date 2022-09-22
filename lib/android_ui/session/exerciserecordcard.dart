@@ -11,7 +11,6 @@ class ExerciseRecordCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextStyle textStyle = Theme.of(context).textTheme.bodyLarge!;
     Widget recordIcon = Padding(
       padding: const EdgeInsets.only(left: 4),
       child: Icon(
@@ -56,7 +55,7 @@ class ExerciseRecordCard extends StatelessWidget {
                     padding: const EdgeInsets.only(bottom: 4),
                     child: Text(
                       UIUtilities.loadTranslation(context, 'set'),
-                      style: textStyle.copyWith(
+                      style: TextStyle(
                           color: Theme.of(context).colorScheme.outline),
                     ),
                   ),
@@ -65,7 +64,7 @@ class ExerciseRecordCard extends StatelessWidget {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 4),
                       child: Text('${index + 1}',
-                          style: textStyle.copyWith(
+                          style: TextStyle(
                               color: Theme.of(context).colorScheme.outline)),
                     );
                   }).toList()
@@ -77,7 +76,7 @@ class ExerciseRecordCard extends StatelessWidget {
                     padding: const EdgeInsets.only(bottom: 4),
                     child: Text(
                         UIUtilities.loadTranslation(context, 'shortReps'),
-                        style: textStyle.copyWith(
+                        style: TextStyle(
                             color: Theme.of(context).colorScheme.outline)),
                   ),
                   ...exerciseRecord.sets.asMap().entries.map((mapEntry) {
@@ -86,14 +85,10 @@ class ExerciseRecordCard extends StatelessWidget {
                       padding: const EdgeInsets.only(bottom: 4),
                       child: set.hasRepsRecord == 1
                           ? Row(
-                              children: [
-                                Text('${set.reps}', style: textStyle),
-                                recordIcon
-                              ],
+                              children: [Text('${set.reps}'), recordIcon],
                             )
                           : Text(
                               '${set.reps}',
-                              style: textStyle,
                             ),
                     );
                   }).toList()
@@ -106,7 +101,7 @@ class ExerciseRecordCard extends StatelessWidget {
                     child: Text(
                         UIUtilities.loadTranslation(context, 'weight') +
                             ' (kg)',
-                        style: textStyle.copyWith(
+                        style: TextStyle(
                             color: Theme.of(context).colorScheme.outline)),
                   ),
                   ...exerciseRecord.sets.asMap().entries.map((mapEntry) {
@@ -122,12 +117,9 @@ class ExerciseRecordCard extends StatelessWidget {
                       padding: const EdgeInsets.only(bottom: 4),
                       child: set.hasWeightRecord == 1
                           ? Row(
-                              children: [
-                                Text(weightString, style: textStyle),
-                                recordIcon
-                              ],
+                              children: [Text(weightString), recordIcon],
                             )
-                          : Text(weightString, style: textStyle),
+                          : Text(weightString),
                     );
                   }).toList()
                 ],
@@ -139,7 +131,7 @@ class ExerciseRecordCard extends StatelessWidget {
                     child: Text(
                         UIUtilities.loadTranslation(context, 'volume') +
                             ' (kg)',
-                        style: textStyle.copyWith(
+                        style: TextStyle(
                             color: Theme.of(context).colorScheme.outline)),
                   ),
                   ...exerciseRecord.sets.asMap().entries.map((mapEntry) {
@@ -148,14 +140,10 @@ class ExerciseRecordCard extends StatelessWidget {
                       padding: const EdgeInsets.only(bottom: 4),
                       child: set.hasVolumeRecord == 1
                           ? Row(
-                              children: [
-                                Text('${set.volume()}', style: textStyle),
-                                recordIcon
-                              ],
+                              children: [Text('${set.volume()}'), recordIcon],
                             )
                           : Text(
                               '${set.volume()}',
-                              style: textStyle,
                             ),
                     );
                   }).toList()

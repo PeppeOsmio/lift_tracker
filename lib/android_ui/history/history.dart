@@ -152,7 +152,7 @@ class _HistoryState extends ConsumerState<History> {
         ),
         actions: [
           AnimatedSize(
-            curve: Curves.decelerate,
+            curve: Curves.linear,
             duration: Duration(milliseconds: 150),
             child: Row(
                 children: isAppBarSelected
@@ -172,7 +172,7 @@ class _HistoryState extends ConsumerState<History> {
           )
         ],
         title: AnimatedSize(
-          curve: Curves.decelerate,
+          curve: Curves.linear,
           duration: Duration(milliseconds: 150),
           child: Text(isAppBarSelected && openIndex != null
               ? UIUtilities.loadTranslation(context, 'deleteSessionOf')

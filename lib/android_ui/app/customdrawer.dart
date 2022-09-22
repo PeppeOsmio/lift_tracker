@@ -31,8 +31,17 @@ class CustomDrawer extends Drawer {
                 ],
               )),
           ListTile(
-            leading: Icon(Icons.exit_to_app),
-            title: Text(UIUtilities.loadTranslation(context, 'exit')),
+            leading: Icon(
+              Icons.exit_to_app,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            title: Text(
+              UIUtilities.loadTranslation(context, 'exit'),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyText2!
+                  .copyWith(color: Theme.of(context).colorScheme.onSurface),
+            ),
             onTap: () {
               mainScaffoldKey.currentState!.closeDrawer();
               Navigator.maybePop(context);

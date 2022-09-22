@@ -34,18 +34,20 @@ class _SessionState extends State<Session> {
                     children: [
                       Icon(
                         FontAwesome5.trophy,
-                        size: 18 * 1.2,
+                        size: Theme.of(context).textTheme.titleMedium!.fontSize,
                         color: Theme.of(context).colorScheme.secondary,
                       ),
-                      const SizedBox(
-                        width: 8 * 1.2,
+                      SizedBox(
+                        width: 4,
                       ),
                       Text(
                         'Records: $recordNumber',
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.secondary,
-                          fontSize: 14 * 1.2,
-                        ),
+                            color: Theme.of(context).colorScheme.secondary,
+                            fontSize: Theme.of(context)
+                                .textTheme
+                                .titleMedium!
+                                .fontSize),
                       ),
                     ],
                   ),
@@ -60,17 +62,18 @@ class _SessionState extends State<Session> {
                     children: [
                       Icon(
                         FontAwesome5.weight_hanging,
-                        size: 18 * 1.2,
+                        size: Theme.of(context).textTheme.titleMedium!.fontSize,
                         color: Theme.of(context).colorScheme.tertiary,
                       ),
                       const SizedBox(
-                        width: 8 * 1.2,
+                        width: 4,
                       ),
                       Text(
                         '${UIUtilities.loadTranslation(context, 'volume')}: $totalVolume kg',
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.tertiary,
-                          fontSize: 14 * 1.2,
+                          fontSize:
+                              Theme.of(context).textTheme.titleMedium!.fontSize,
                         ),
                       ),
                     ],

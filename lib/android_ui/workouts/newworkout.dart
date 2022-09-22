@@ -84,25 +84,28 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
           actions: [
             AnimatedSize(
               duration: Duration(milliseconds: 150),
-              curve: Curves.decelerate,
-              child: Row(children: [
-                canSave
-                    ? IconButton(
-                        tooltip: 'Save',
-                        onPressed: () {
-                          saveWorkout().then((value) {
-                            Navigator.pop(context);
-                          }).catchError((error) {
-                            UIUtilities.showSnackBar(
-                                context: context,
-                                msg: UIUtilities.loadTranslation(
-                                        context, 'error') +
-                                    ': $error');
-                          });
-                        },
-                        icon: Icon(Icons.done))
-                    : SizedBox()
-              ]),
+              curve: Curves.linear,
+              reverseDuration: Duration(milliseconds: 150),
+              child: canSave
+                  ? IconButton(
+                      tooltip: 'Save',
+                      onPressed: () {
+                        saveWorkout().then((value) {
+                          Navigator.pop(context);
+                        }).catchError((error) {
+                          UIUtilities.showSnackBar(
+                              context: context,
+                              msg: UIUtilities.loadTranslation(
+                                      context, 'error') +
+                                  ': $error');
+                        });
+                      },
+                      icon: Icon(Icons.done))
+                  : Container(
+                      width: 10,
+                      height: 10,
+                      child: SizedBox(),
+                    ),
             )
           ],
         ),
@@ -203,7 +206,10 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
             ),
             title: Text(
               UIUtilities.loadTranslation(context, 'addExercise'),
-              style: TextStyle(color: UIUtilities.getPrimaryColor(context)),
+              style: Theme.of(context)
+                  .textTheme
+                  .button!
+                  .copyWith(color: Theme.of(context).colorScheme.primary),
             ),
           ),
           onPressed: () {
@@ -290,7 +296,7 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
   bool getCanSave() {
     if (setsControllers.isEmpty ||
         repsControllers.isEmpty ||
-        workoutNameController.text.isEmpty ||
+        workoutNameController.text.replaceAll(' ', '').isEmpty ||
         exerciseDataList.isEmpty) {
       return false;
     }
