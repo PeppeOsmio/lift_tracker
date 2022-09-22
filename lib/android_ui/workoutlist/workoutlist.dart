@@ -66,8 +66,10 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
   Widget build(BuildContext context) {
     workouts = ref.watch(Helper.instance.workoutsProvider);
     return Scaffold(
-      backgroundColor: UIUtilities.getScaffoldBackgroundColor(context),
       appBar: AppBar(
+        backgroundColor: isAppBarSelected
+            ? Theme.of(context).colorScheme.primaryContainer
+            : null,
         leading: IconButton(
           onPressed: () {
             if (isSearchBarActivated) {
@@ -165,6 +167,7 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
                       searchString = newValue;
                     });
                   },
+                  style: UIUtilities.getTextFieldTextStyle(context),
                   focusNode: searchFocusNode,
                   controller: searchController,
                   decoration: InputDecoration(
@@ -176,9 +179,6 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
                   ? workouts[openIndex!].name
                   : UIUtilities.loadTranslation(context, 'workouts')),
         ),
-        backgroundColor: isAppBarSelected
-            ? UIUtilities.getSelectedAppBarColor(context)
-            : null,
       ),
       drawer: isAppBarSelected || isSearchBarActivated ? null : CustomDrawer(),
       body: GestureDetector(
@@ -209,9 +209,6 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
               return FadeTransition(
                 opacity: animation,
                 child: WorkoutCard(
-                    color: openIndex == index
-                        ? UIUtilities.getSelectedWidgetColor(context)
-                        : null,
                     isOpen: openIndex == index,
                     workout: workouts[index],
                     onCardTap: () {
@@ -244,6 +241,8 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
   void resetAppBarAndOpenCards() {
     isAppBarSelected = false;
     isSearchBarActivated = false;
+    searchString = '';
+    searchController.text = '';
     openIndex = null;
   }
 

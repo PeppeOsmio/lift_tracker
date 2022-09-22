@@ -72,6 +72,7 @@ class _HistoryState extends ConsumerState<History> {
         return WorkoutRecordCard(
           key: ValueKey(workoutRecords[index].id),
           workoutRecord: workoutRecords[index],
+          isSelected: openIndex == index,
           onCardTap: () async {
             if (openIndex == index) {
               setState(() {
@@ -96,9 +97,6 @@ class _HistoryState extends ConsumerState<History> {
               });
             }
           },
-          color: openIndex == index
-              ? UIUtilities.getSelectedWidgetColor(context)
-              : null,
         );
       }).toList()
     ];
@@ -107,6 +105,8 @@ class _HistoryState extends ConsumerState<History> {
   void resetAppBarAndCards() {
     isAppBarSelected = false;
     openIndex = null;
+    searchString = '';
+    searchController.text = '';
   }
 
   void removeWorkoutRecordCard(int index) async {
@@ -139,10 +139,9 @@ class _HistoryState extends ConsumerState<History> {
     workoutRecords = ref.watch(Helper.instance.workoutRecordsProvider);
     List<Widget> bodyItems = body();
     return Scaffold(
-      backgroundColor: UIUtilities.getScaffoldBackgroundColor(context),
       appBar: AppBar(
         backgroundColor: isAppBarSelected
-            ? UIUtilities.getSelectedAppBarColor(context)
+            ? Theme.of(context).colorScheme.primaryContainer
             : null,
         leading: IconButton(
           onPressed: () {

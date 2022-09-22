@@ -107,7 +107,6 @@ class _NewSessionState extends ConsumerState<NewSession>
         UIUtilities.unfocusTextFields(context);
       },
       child: Scaffold(
-        backgroundColor: UIUtilities.getScaffoldBackgroundColor(context),
         appBar: AppBar(
           title: Text(UIUtilities.loadTranslation(context, 'newSessionOf') +
               ' ${widget.workout.name}'),

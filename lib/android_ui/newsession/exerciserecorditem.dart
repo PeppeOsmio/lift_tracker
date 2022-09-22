@@ -106,6 +106,8 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
                               SizedBox(width: 16),
                               Expanded(
                                 child: TextField(
+                                  style: UIUtilities.getTextFieldTextStyle(
+                                      context),
                                   controller: repsControllers[index],
                                   keyboardType: TextInputType.number,
                                   decoration:
@@ -118,6 +120,8 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
                               SizedBox(width: 16),
                               Expanded(
                                 child: TextField(
+                                  style: UIUtilities.getTextFieldTextStyle(
+                                      context),
                                   controller: weightControllers[index],
                                   keyboardType: TextInputType.number,
                                   decoration:
@@ -130,6 +134,8 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
                               SizedBox(width: 16),
                               Expanded(
                                 child: TextField(
+                                  style: UIUtilities.getTextFieldTextStyle(
+                                      context),
                                   controller: rpeControllers[index],
                                   onChanged: (value) {
                                     try {

@@ -45,13 +45,14 @@ class _SelectExercisesState extends State<SelectExercise> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: UIUtilities.getScaffoldBackgroundColor(context),
       appBar: AppBar(
         leading: IconButton(
             onPressed: () {
               if (isSearchBarActivated) {
                 setState(() {
                   isSearchBarActivated = false;
+                  searchString = '';
+                  searchController.text = '';
                 });
               } else {
                 Navigator.pop(context);
@@ -83,6 +84,7 @@ class _SelectExercisesState extends State<SelectExercise> {
           duration: Duration(milliseconds: 150),
           child: isSearchBarActivated
               ? TextField(
+                  style: UIUtilities.getTextFieldTextStyle(context),
                   onChanged: (newValue) {
                     setState(() {
                       searchString = newValue;
@@ -105,6 +107,8 @@ class _SelectExercisesState extends State<SelectExercise> {
           UIUtilities.unfocusTextFields(context);
           setState(() {
             isSearchBarActivated = false;
+            searchString = '';
+            searchController.text = '';
           });
         },
         child: ListView.builder(

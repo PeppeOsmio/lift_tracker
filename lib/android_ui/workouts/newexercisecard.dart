@@ -41,14 +41,11 @@ class _NewExerciseCardState extends State<NewExerciseCard> {
 
   @override
   Widget build(BuildContext context) {
-    InputDecorationTheme inputDecorationTheme =
-        Theme.of(context).inputDecorationTheme;
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
-    TextTheme textTheme = Theme.of(context).primaryTextTheme;
     FocusNode exerciseNameFocusNode = FocusNode();
     return Column(
       children: [
         TextField(
+          style: UIUtilities.getTextFieldTextStyle(context),
           focusNode: exerciseNameFocusNode,
           onTap: () {
             exerciseNameFocusNode.unfocus();
@@ -68,6 +65,7 @@ class _NewExerciseCardState extends State<NewExerciseCard> {
             children: [
               Expanded(
                 child: TextField(
+                  style: UIUtilities.getTextFieldTextStyle(context),
                   controller: widget.setsController,
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
@@ -86,6 +84,7 @@ class _NewExerciseCardState extends State<NewExerciseCard> {
               ),
               Expanded(
                 child: TextField(
+                  style: UIUtilities.getTextFieldTextStyle(context),
                   controller: widget.repsController,
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))

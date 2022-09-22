@@ -14,7 +14,7 @@ import 'package:flutter/rendering.dart';
 // void setState(VoidCallback fn) { }
 // enum Menu { itemOne, itemTwo, itemThree, itemFour }
 
-const Duration _kMenuDuration = Duration(milliseconds: 300);
+const Duration _kMenuDuration = Duration(milliseconds: 200);
 const double _kMenuCloseIntervalEnd = 2.0 / 3.0;
 const double _kMenuHorizontalPadding = 16.0;
 const double _kMenuDividerHeight = 16.0;
@@ -124,7 +124,7 @@ class MaterialPopupMenu<T> extends StatelessWidget {
       required this.route,
       required this.semanticLabel,
       this.constraints,
-      this.curve = Curves.decelerate});
+      this.curve = Curves.linear});
 
   final MaterialPopupMenuRoute<T> route;
   final String? semanticLabel;
@@ -381,7 +381,7 @@ class MaterialPopupMenuRoute<T> extends PopupRoute<T> {
       this.color,
       required this.capturedThemes,
       this.constraints,
-      this.menuCurve = Curves.decelerate})
+      this.menuCurve = Curves.linear})
       : itemSizes = List<Size?>.filled(items.length, null);
 
   final Curve menuCurve;
@@ -400,9 +400,8 @@ class MaterialPopupMenuRoute<T> extends PopupRoute<T> {
   Animation<double> createAnimation() {
     return CurvedAnimation(
       parent: super.createAnimation(),
-      curve: Curves.decelerate,
-      reverseCurve:
-          const Interval(0.0, _kMenuCloseIntervalEnd, curve: Curves.decelerate),
+      curve: Curves.linear,
+      reverseCurve: Curves.linear,
     );
   }
 
@@ -534,7 +533,7 @@ Future<T?> showMenu<T>(
     Color? color,
     bool useRootNavigator = false,
     BoxConstraints? constraints,
-    Curve curve = Curves.decelerate}) {
+    Curve curve = Curves.linear}) {
   assert(context != null);
   assert(position != null);
   assert(useRootNavigator != null);
@@ -636,7 +635,7 @@ class MaterialPopupMenuButton<T> extends StatefulWidget {
     this.enableFeedback,
     this.constraints,
     this.position = PopupMenuPosition.over,
-    this.curve = Curves.decelerate,
+    this.curve = Curves.linear,
   })  : assert(itemBuilder != null),
         assert(enabled != null),
         assert(

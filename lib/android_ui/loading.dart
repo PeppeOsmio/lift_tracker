@@ -47,7 +47,11 @@ class _LoadingState extends ConsumerState<Loading> {
           useMaterial3: useMaterial3,
           colorScheme: colorScheme,
           scaffoldBackgroundColor: colorScheme.background,
-          dialogBackgroundColor: colorScheme.background);
+          dialogBackgroundColor: colorScheme.surface,
+          cardColor: colorScheme.surface,
+          popupMenuTheme: Theme.of(context)
+              .popupMenuTheme
+              .copyWith(color: colorScheme.surfaceVariant));
       return MaterialApp(
         supportedLocales: const [
           Locale('en', ''),

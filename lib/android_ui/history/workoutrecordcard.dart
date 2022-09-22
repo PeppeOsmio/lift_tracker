@@ -12,9 +12,7 @@ import 'package:lift_tracker/data/helper.dart';
 class WorkoutRecordCard extends StatefulWidget {
   const WorkoutRecordCard(
       {Key? key,
-      this.color,
       this.isSelected = false,
-      this.textColor,
       required this.workoutRecord,
       required this.onCardTap,
       required this.onCardLongPress})
@@ -22,8 +20,6 @@ class WorkoutRecordCard extends StatefulWidget {
   final WorkoutRecord workoutRecord;
   final Function() onCardTap;
   final Function() onCardLongPress;
-  final Color? color;
-  final Color? textColor;
   final bool isSelected;
 
   @override
@@ -73,13 +69,12 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
           child: Row(
             children: [
               Expanded(
-                child: Text(
-                    exerciseRecords[i].sets.length.toString() +
-                        '  ×  ' +
-                        UIUtilities.loadTranslation(
-                            context, exerciseRecords[i].exerciseData.name),
-                    style: TextStyle(color: widget.textColor, fontSize: 15)),
-              ),
+                  child: Text(
+                      exerciseRecords[i].sets.length.toString() +
+                          '  ×  ' +
+                          UIUtilities.loadTranslation(
+                              context, exerciseRecords[i].exerciseData.name),
+                      style: Theme.of(context).textTheme.bodyMedium!)),
               recordExercisesIndexes.contains(i)
                   ? Padding(
                       padding: const EdgeInsets.only(left: 8),
@@ -95,10 +90,8 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
     }
     if (exerciseRecords.length > 5) {
       exc.add(Padding(
-        padding: EdgeInsets.only(top: 6, bottom: 6),
-        child: Text('...',
-            style: TextStyle(color: widget.textColor, fontSize: 15)),
-      ));
+          padding: EdgeInsets.only(top: 6, bottom: 6),
+          child: Text('...', style: Theme.of(context).textTheme.bodyMedium!)));
     }
     var date = Helper.dateToString(widget.workoutRecord.day);
     return GestureDetector(
@@ -109,7 +102,7 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
         widget.onCardLongPress();
       },
       child: Card(
-        color: widget.color,
+        elevation: widget.isSelected ? 10 : null,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(children: [
@@ -123,9 +116,10 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
                 const SizedBox(width: 16),
                 Text(
                   '${UIUtilities.loadTranslation(context, date['month']!)} ${date['day']}, ${date['year']}',
-                  style: TextStyle(
-                      color: UIUtilities.getPrimaryColor(context),
-                      fontSize: 20),
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge!
+                      .copyWith(color: Theme.of(context).colorScheme.primary),
                 ),
                 const Spacer(),
                 Icon(
@@ -141,9 +135,10 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
                 children: [
                   Text(
                     widget.workoutRecord.workoutName,
-                    style: TextStyle(
-                        fontSize: 24,
-                        color: UIUtilities.getPrimaryColor(context)),
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge!
+                        .copyWith(color: Theme.of(context).colorScheme.primary),
                   ),
                   const Spacer(),
                   recordNumber > 0

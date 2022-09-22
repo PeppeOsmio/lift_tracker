@@ -5,7 +5,7 @@ import 'package:lift_tracker/localizations.dart';
 
 class UIUtilities {
   static Color getSelectedAppBarColor(BuildContext context) {
-    return Color.lerp(Theme.of(context).colorScheme.primaryContainer,
+    return Color.lerp(Theme.of(context).colorScheme.surfaceVariant,
         Theme.of(context).appBarTheme.backgroundColor, 0)!;
   }
 
@@ -13,17 +13,13 @@ class UIUtilities {
     return Theme.of(context).colorScheme.onPrimaryContainer;
   }
 
-  static Color getScaffoldBackgroundColor(BuildContext context) {
-    return Theme.of(context).colorScheme.background;
-  }
-
   static Color getAppBarTextColor(BuildContext context) {
     return Theme.of(context).colorScheme.onSecondaryContainer;
   }
 
   static Color getSelectedWidgetColor(BuildContext context) {
-    return Color.lerp(Theme.of(context).colorScheme.primaryContainer,
-        Theme.of(context).colorScheme.surface, 0.9)!;
+    return Color.lerp(Theme.of(context).colorScheme.surfaceVariant,
+        Theme.of(context).colorScheme.surface, 0.7)!;
   }
 
   static Color getPrimaryColor(BuildContext context) {
@@ -47,6 +43,11 @@ class UIUtilities {
   static InputDecoration getTextFieldDecoration(
       BuildContext context, String? label) {
     return InputDecoration(
+        prefixIconColor: Theme.of(context).colorScheme.surfaceVariant,
+        labelStyle: Theme.of(context)
+            .textTheme
+            .bodyLarge!
+            .copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
         contentPadding: EdgeInsets.only(top: 0, bottom: 0, left: 8, right: 8),
         border: OutlineInputBorder(
             borderSide:
@@ -54,6 +55,13 @@ class UIUtilities {
         floatingLabelBehavior:
             Theme.of(context).inputDecorationTheme.floatingLabelBehavior,
         label: Text(label ?? ''));
+  }
+
+  static TextStyle getTextFieldTextStyle(BuildContext context) {
+    return Theme.of(context)
+        .textTheme
+        .bodyLarge!
+        .copyWith(color: Theme.of(context).colorScheme.onSurface);
   }
 
   static void unfocusTextFields(BuildContext context) {

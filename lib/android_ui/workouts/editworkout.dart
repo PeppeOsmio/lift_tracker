@@ -51,7 +51,6 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
         return false;
       },
       child: Scaffold(
-        backgroundColor: UIUtilities.getScaffoldBackgroundColor(context),
         appBar: AppBar(
           leading: IconButton(
             icon: Icon(Icons.close),
@@ -139,6 +138,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
       Padding(
         padding: EdgeInsets.only(top: 8),
         child: TextField(
+          style: UIUtilities.getTextFieldTextStyle(context),
           controller: workoutNameController,
           decoration: UIUtilities.getTextFieldDecoration(
               context, UIUtilities.loadTranslation(context, 'workoutName')),
