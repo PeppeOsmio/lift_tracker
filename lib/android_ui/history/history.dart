@@ -75,16 +75,13 @@ class _HistoryState extends ConsumerState<History> {
           workoutRecord: workoutRecords[index],
           isSelected: openIndex == index,
           onCardTap: () async {
-            if (openIndex == index) {
-              setState(() {
-                resetAppBarAndCards();
-              });
-            } else {
-              MaterialPageRoute route = MaterialPageRoute(builder: (context) {
-                return Session(workoutRecord: workoutRecords[index]);
-              });
-              await Navigator.push(context, route);
-            }
+            MaterialPageRoute route = MaterialPageRoute(builder: (context) {
+              return Session(workoutRecord: workoutRecords[index]);
+            });
+            await Navigator.push(context, route);
+            setState(() {
+              resetAppBarAndCards();
+            });
           },
           onCardLongPress: () {
             if (openIndex == index) {
@@ -156,7 +153,7 @@ class _HistoryState extends ConsumerState<History> {
           onPressed: () {
             if (toggleMenuAnimation) {
               setState(() {
-                toggleMenuAnimation = false;
+                resetAppBarAndCards();
               });
             } else {
               mainScaffoldKey.currentState!.openDrawer();
