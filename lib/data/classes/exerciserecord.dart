@@ -1,17 +1,20 @@
+import 'package:lift_tracker/data/classes/exercise.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/classes/exerciseset.dart';
 
 class ExerciseRecord {
   ExerciseRecord(
-      {required this.exerciseData,
-      required this.sets,
+      {required this.sets,
+      this.exercise,
       required this.exerciseId,
+      required this.exerciseData,
       required this.type,
       this.temp = false});
-  final ExerciseData exerciseData;
   final List<ExerciseSet> sets;
+  final Exercise? exercise;
   final int exerciseId;
   final String type;
+  final ExerciseData exerciseData;
   bool temp;
 
   int volume() {

@@ -10,11 +10,12 @@ import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/classes/exercise.dart';
 import 'package:lift_tracker/android_ui/widgets/materialpopupmenu.dart'
     as MaterialPopupMenu;
+import 'package:lift_tracker/data/classes/exercisedata.dart';
 
 class ExerciseRecordItem extends StatefulWidget {
   const ExerciseRecordItem(
       {Key? key,
-      required this.exercise,
+      this.exerciseData,
       required this.repsControllers,
       required this.weightControllers,
       required this.rpeControllers,
@@ -22,7 +23,7 @@ class ExerciseRecordItem extends StatefulWidget {
       required this.animatedListKey,
       this.onSetAdded})
       : super(key: key);
-  final Exercise exercise;
+  final ExerciseData? exerciseData;
   final List<TextEditingController> repsControllers;
   final List<TextEditingController> weightControllers;
   final List<TextEditingController> rpeControllers;
@@ -39,7 +40,7 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
   late List<TextEditingController> repsControllers;
   late List<TextEditingController> weightControllers;
   late List<TextEditingController> rpeControllers;
-  late Exercise exercise;
+  late ExerciseData? exerciseData;
 
   @override
   void initState() {
@@ -48,7 +49,7 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
     repsControllers = widget.repsControllers;
     weightControllers = widget.weightControllers;
     rpeControllers = widget.rpeControllers;
-    exercise = widget.exercise;
+    exerciseData = widget.exerciseData;
   }
 
   @override
@@ -58,7 +59,7 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
     repsControllers = widget.repsControllers;
     weightControllers = widget.weightControllers;
     rpeControllers = widget.rpeControllers;
-    exercise = widget.exercise;
+    exerciseData = widget.exerciseData;
   }
 
   @override
@@ -68,7 +69,8 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
         Row(
           children: [
             Text(
-              UIUtilities.loadTranslation(context, exercise.exerciseData.name),
+              UIUtilities.loadTranslation(
+                  context, exerciseData != null ? exerciseData!.name : ''),
               style: Theme.of(context)
                   .textTheme
                   .titleMedium!

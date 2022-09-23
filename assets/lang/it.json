@@ -83,6 +83,7 @@
     "start": "Inizia",
     "resume": "Riprendi",
     "profile": "Profilo",
+    "menu": "Menu",
     "settings": "Impostazioni",
     "exit": "Esci",
     "exitContent": "Uscire dall'app?",
@@ -147,6 +148,12 @@
     "discardNo": "No, mantienile",
     "discardYes": "Si, abbandonale",
     "addSet": "Aggiungi una serie",
-    "reset": "Reset",
-    "deleteSessionOf": "Rimuovi sessione di %s"
+    "notPerformed": "Non eseguito",
+    "deleteSessionOf": "Rimuovi sessione di %s",
+    "sessionQuitTitle": "Abbadona",
+    "sessionQuitContent": "Vuoi salvare e riprendere questa sessione più tardi?",
+    "resumeNo": "No, annulla questa sessione",
+    "resumeYes": "Sì, salvala per dopo",
+    "back": "Indietro",
+    "changeExercise": "Cambia esercizio"
 }

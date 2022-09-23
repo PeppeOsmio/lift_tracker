@@ -77,7 +77,7 @@ class _WorkoutCardState extends State<WorkoutCard> with WidgetsBindingObserver {
     }
     return AnimatedSize(
       duration: Duration(milliseconds: 150),
-      curve: Curves.linear,
+      curve: Curves.decelerate,
       child: GestureDetector(
         onTap: () {
           widget.onCardTap();
@@ -95,7 +95,7 @@ class _WorkoutCardState extends State<WorkoutCard> with WidgetsBindingObserver {
                           color: Theme.of(context).colorScheme.primary)),
                   Spacer(),
                   AnimatedRotation(
-                    curve: Curves.linear,
+                    curve: Curves.decelerate,
                     turns: widget.isOpen ? 0.5 : 0,
                     duration: Duration(milliseconds: 150),
                     child: Icon(

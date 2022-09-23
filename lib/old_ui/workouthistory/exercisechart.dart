@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/classes/exercise.dart';
 import 'package:lift_tracker/data/classes/exerciserecord.dart';
@@ -43,7 +42,8 @@ class _ExerciseChartState extends State<ExerciseChart> {
         volumes.add(foundRecord.volume().toDouble());
         dates.add(widget.workoutHistory.workoutRecords[i].day);
       } catch (e) {
-        Fluttertoast.showToast(msg: 'exercisechart: ' + e.toString());
+        UIUtilities.showSnackBar(
+            context: context, msg: 'exercisechart: ' + e.toString());
         log(e.toString());
       }
     }
@@ -51,7 +51,7 @@ class _ExerciseChartState extends State<ExerciseChart> {
       if (volumes.length > 1) {
         totalVolume =
             UIUtilities.loadTranslation(context, 'totalVolumeExercise');
-        totalVolume = totalVolume.replaceFirst('#n', volumes.length.toString());
+        totalVolume = totalVolume.replaceFirst('%s', volumes.length.toString());
       } else {
         totalVolume =
             UIUtilities.loadTranslation(context, 'totalVolumeExerciseOne');
@@ -68,28 +68,32 @@ class _ExerciseChartState extends State<ExerciseChart> {
             Text(
               UIUtilities.loadTranslation(
                   context, widget.exercise.exerciseData.name),
-              style: TextStyle(color: Colors.white, fontSize: 20),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium!
+                  .copyWith(color: Theme.of(context).colorScheme.primary),
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.only(left: 16, right: 16),
+                padding: const EdgeInsets.only(left: 16, right: 0),
                 child: Divider(
-                  thickness: 2,
-                  color: Palette.elementsDark,
+                  thickness: 1,
                 ),
               ),
             ),
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  isOpen = !isOpen;
-                });
-              },
-              child: Icon(
-                isOpen ? Icons.expand_less : Icons.expand_more,
-                color: Colors.white,
-              ),
-            ),
+            IconButton(
+                padding: EdgeInsets.zero,
+                onPressed: () {
+                  setState(() {
+                    isOpen = !isOpen;
+                  });
+                },
+                icon: AnimatedRotation(
+                  child: Icon(Icons.expand_more,
+                      color: Theme.of(context).colorScheme.primary),
+                  turns: isOpen ? 0.5 : 0,
+                  duration: Duration(milliseconds: 150),
+                ))
           ],
         ),
         AnimatedSize(
@@ -105,14 +109,21 @@ class _ExerciseChartState extends State<ExerciseChart> {
                               children: [
                                 Text(
                                   totalVolume,
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 18),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium!
+                                      .copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .tertiary),
                                 ),
                                 Expanded(
                                   child: Padding(
                                     padding: const EdgeInsets.only(top: 16),
                                     child: Chart(
-                                      color: Colors.blueGrey,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .tertiary,
                                       values: volumes,
                                       getTooltips: (lineBarSpotList) {
                                         List<LineTooltipItem> list = [];
@@ -124,7 +135,13 @@ class _ExerciseChartState extends State<ExerciseChart> {
                                           list.add(LineTooltipItem(
                                               dateString +
                                                   '\n${item.y.toStringAsFixed(0)} kg',
-                                              TextStyle(color: Colors.white)));
+                                              Theme.of(context)
+                                                  .textTheme
+                                                  .bodyText2!
+                                                  .copyWith(
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .tertiary)));
                                         }
                                         return list;
                                       },
@@ -136,14 +153,17 @@ class _ExerciseChartState extends State<ExerciseChart> {
                           : Text(
                               UIUtilities.loadTranslation(
                                   context, 'exerciseNotPerformed'),
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 16),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyText2!
+                                  .copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onBackground),
                             ),
                     ),
                   )
-                : SizedBox(
-                    height: 0,
-                  ))
+                : SizedBox())
       ],
     );
   }

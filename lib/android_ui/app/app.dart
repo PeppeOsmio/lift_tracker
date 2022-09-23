@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lift_tracker/android_ui/loading.dart';
 import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/android_ui/app/customdrawer.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
@@ -44,7 +45,13 @@ class _AppState extends ConsumerState<App> {
       },
       child: Scaffold(
           key: mainScaffoldKey,
-          drawer: CustomDrawer(),
+          drawer: CustomDrawer(toggleMaterialCallback: () {
+            UIUtilities.useMaterial3 = !UIUtilities.useMaterial3;
+            Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (context) {
+              return Loading();
+            }));
+          }),
           body: Stack(
               children: pages.asMap().entries.map((mapEntry) {
             int index = mapEntry.key;

@@ -36,6 +36,14 @@ class WorkoutsNotifier extends StateNotifier<List<Workout>> {
     state = [...state, ...workouts];
   }
 
+  Workout? getWorkoutdById(int workoutId) {
+    try {
+      return state.firstWhere((workout) => workout.id == workoutId);
+    } catch (e) {
+      return null;
+    }
+  }
+
   void addWorkout(Workout workout) {
     state = [workout, ...state];
   }

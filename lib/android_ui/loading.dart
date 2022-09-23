@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lift_tracker/android_ui/app/app.dart';
+import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/localizations.dart';
 
 class Loading extends ConsumerStatefulWidget {
@@ -36,7 +37,6 @@ class _LoadingState extends ConsumerState<Loading> {
             seedColor: Colors.orange, brightness: Brightness.dark);
       }
       bool useMaterial3 = lightDynamic != null && darkDynamic != null;
-      useMaterial3 = true;
       lightColorScheme = lightColorScheme;
       ColorScheme colorScheme =
           (MediaQuery.of(context).platformBrightness == Brightness.dark
@@ -44,7 +44,7 @@ class _LoadingState extends ConsumerState<Loading> {
               : lightColorScheme);
 
       ThemeData theme = ThemeData(
-        useMaterial3: useMaterial3,
+        useMaterial3: UIUtilities.useMaterial3,
         colorScheme: colorScheme,
         scaffoldBackgroundColor: colorScheme.background,
         dialogBackgroundColor: colorScheme.surface,

@@ -7,7 +7,8 @@ import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/helper.dart';
 
 class CustomDrawer extends Drawer {
-  const CustomDrawer({Key? key}) : super(key: key);
+  const CustomDrawer({Key? key, this.toggleMaterialCallback}) : super(key: key);
+  final VoidCallback? toggleMaterialCallback;
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +46,23 @@ class CustomDrawer extends Drawer {
             onTap: () {
               mainScaffoldKey.currentState!.closeDrawer();
               Navigator.maybePop(context);
+            },
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.palette,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            title: Text(
+              'Toggle Material 3',
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyText2!
+                  .copyWith(color: Theme.of(context).colorScheme.onSurface),
+            ),
+            onTap: () {
+              mainScaffoldKey.currentState!.closeDrawer();
+              toggleMaterialCallback?.call();
             },
           )
         ],

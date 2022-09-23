@@ -116,6 +116,12 @@ class _HistoryState extends ConsumerState<History> {
     if (!success) {
       return;
     }
+    ref
+            .read(Helper.instance.workoutsProvider.notifier)
+            .getWorkoutdById(workoutRecord.workoutId)
+            ?.hasHistory =
+        await CustomDatabase.instance.hasHistory(workoutRecord.workoutId);
+
     resetAppBarAndCards();
     animatedListKey.currentState!.removeItem(index, (context, animation) {
       return SizeTransition(
@@ -152,7 +158,7 @@ class _HistoryState extends ConsumerState<History> {
         ),
         actions: [
           AnimatedSize(
-            curve: Curves.linear,
+            curve: Curves.decelerate,
             duration: Duration(milliseconds: 150),
             child: Row(
                 children: isAppBarSelected
@@ -172,7 +178,7 @@ class _HistoryState extends ConsumerState<History> {
           )
         ],
         title: AnimatedSize(
-          curve: Curves.linear,
+          curve: Curves.decelerate,
           duration: Duration(milliseconds: 150),
           child: Text(isAppBarSelected && openIndex != null
               ? UIUtilities.loadTranslation(context, 'deleteSessionOf')

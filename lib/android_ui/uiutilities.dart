@@ -40,6 +40,8 @@ class UIUtilities {
         Theme.of(context).colorScheme.surface, 0.85)!;
   }
 
+  static bool useMaterial3 = true;
+
   static InputDecoration getTextFieldDecoration(
       BuildContext context, String? label) {
     return InputDecoration(
@@ -77,8 +79,13 @@ class UIUtilities {
 
   static void showSnackBar(
       {required BuildContext context, required dynamic msg}) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(msg.toString())));
+    return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(
+        msg.toString(),
+      ),
+      behavior: SnackBarBehavior.floating,
+    ));
   }
 
   static Future showDimmedBackgroundDialog(BuildContext context,

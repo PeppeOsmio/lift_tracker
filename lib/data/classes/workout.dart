@@ -5,8 +5,10 @@ class Workout {
   String name;
   int id;
   int hasCache;
+  bool hasHistory;
 
-  Workout(this.id, this.name, this.exercises, {this.hasCache = 0});
+  Workout(this.id, this.name, this.exercises,
+      {this.hasCache = 0, this.hasHistory = false});
 
   Map<String, dynamic> toMap() {
     return {

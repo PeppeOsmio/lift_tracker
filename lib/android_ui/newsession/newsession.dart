@@ -1,19 +1,21 @@
 import 'dart:developer';
+import 'dart:math' as Math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lift_tracker/android_ui/exercises/selectexercise.dart';
 import 'package:lift_tracker/android_ui/newsession/exerciserecorditem.dart';
 import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/classes/exercise.dart';
+import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/classes/exerciserecord.dart';
 import 'package:lift_tracker/data/classes/exerciseset.dart';
 import 'package:lift_tracker/data/classes/workout.dart';
 import 'package:lift_tracker/data/classes/workoutrecord.dart';
 import 'package:lift_tracker/data/database/database.dart';
 import 'package:lift_tracker/data/helper.dart';
-import 'package:lift_tracker/old_ui/app/app.dart';
 import 'package:lift_tracker/android_ui/widgets/materialpopupmenu.dart';
 
 class NewSession extends ConsumerStatefulWidget {
@@ -26,15 +28,23 @@ class NewSession extends ConsumerStatefulWidget {
   ConsumerState<NewSession> createState() => _NewSessionState();
 }
 
-enum ExerciseRecordMenuOptions { edit, add_set, reset, move_up, move_down }
+enum ExerciseRecordMenuOptions {
+  edit,
+  add_set,
+  not_performed,
+  move_up,
+  move_down
+}
 
 class _NewSessionState extends ConsumerState<NewSession>
     with WidgetsBindingObserver {
   List<Exercise> exercises = [];
+  Map<int, bool> tmpList = {};
   List<List<TextEditingController>> repsControllersList = [];
   List<List<TextEditingController>> weightControllersList = [];
   List<List<TextEditingController>> rpeControllersList = [];
   List<GlobalKey<AnimatedListState>> animatedListKeys = [];
+  List<Exercise> originalExercises = [];
   GlobalKey<AnimatedListState> animatedListKey = GlobalKey<AnimatedListState>();
   bool canSave = false;
 
@@ -42,26 +52,81 @@ class _NewSessionState extends ConsumerState<NewSession>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    exercises = [...widget.workout.exercises];
-    for (int i = 0; i < exercises.length; i++) {
-      repsControllersList.add([]);
-      weightControllersList.add([]);
-      rpeControllersList.add([]);
-      animatedListKeys.add(GlobalKey<AnimatedListState>());
-      for (int j = 0; j < exercises[i].sets; j++) {
-        repsControllersList[i].add(TextEditingController());
-        weightControllersList[i].add(TextEditingController());
-        rpeControllersList[i].add(TextEditingController());
-        repsControllersList[i].last.addListener(() {
-          updateCanSave();
-        });
-        weightControllersList[i].last.addListener(() {
-          updateCanSave();
-        });
-        rpeControllersList[i].last.addListener(() {
-          updateCanSave();
-        });
+    originalExercises.addAll(widget.workout.exercises);
+
+    if (widget.resumedSession == null) {
+      exercises = [...widget.workout.exercises];
+      for (int i = 0; i < widget.workout.exercises.length; i++) {
+        repsControllersList.add([]);
+        weightControllersList.add([]);
+        rpeControllersList.add([]);
+        animatedListKeys.add(GlobalKey<AnimatedListState>());
+        for (int j = 0; j < widget.workout.exercises[i].sets; j++) {
+          repsControllersList[i].add(TextEditingController());
+          weightControllersList[i].add(TextEditingController());
+          rpeControllersList[i].add(TextEditingController());
+          repsControllersList[i].last.addListener(() {
+            updateCanSave();
+          });
+          weightControllersList[i].last.addListener(() {
+            updateCanSave();
+          });
+          rpeControllersList[i].last.addListener(() {
+            updateCanSave();
+          });
+        }
       }
+    } else {
+      exercises = widget.resumedSession!.exerciseRecords.map((exerciseRecord) {
+        return Exercise(
+            exerciseData: exerciseRecord.exerciseData,
+            id: exerciseRecord.exerciseId,
+            sets: exerciseRecord.exercise != null
+                ? exerciseRecord.exercise!.sets
+                : exerciseRecord.sets.length,
+            reps: exerciseRecord.exercise != null
+                ? exerciseRecord.exercise!.reps
+                : 10,
+            workoutId: widget.resumedSession!.workoutId);
+      }).toList();
+      for (int i = 0; i < exercises.length; i++) {
+        repsControllersList.add([]);
+        weightControllersList.add([]);
+        rpeControllersList.add([]);
+        animatedListKeys.add(GlobalKey<AnimatedListState>());
+        ExerciseRecord exerciseRecord =
+            widget.resumedSession!.exerciseRecords[i];
+        int stop = Math.max(exercises[i].sets, exerciseRecord.sets.length);
+        for (int j = 0; j < stop; j++) {
+          String repsText = exerciseRecord.sets[j].reps > -1
+              ? exerciseRecord.sets[j].reps.toString()
+              : '';
+          String weightText = exerciseRecord.sets[j].weight > -1
+              ? exerciseRecord.sets[j].weight.toString()
+              : '';
+          String rpeText = exerciseRecord.sets[j].rpe != null
+              ? exerciseRecord.sets[j].rpe.toString()
+              : '';
+          repsControllersList[i].add(TextEditingController());
+          repsControllersList[i][j].text = repsText;
+          weightControllersList[i].add(TextEditingController());
+          weightControllersList[i][j].text = weightText;
+          rpeControllersList[i].add(TextEditingController());
+          rpeControllersList[i][j].text = rpeText;
+          repsControllersList[i].last.addListener(() {
+            updateCanSave();
+          });
+          weightControllersList[i].last.addListener(() {
+            updateCanSave();
+          });
+          rpeControllersList[i].last.addListener(() {
+            updateCanSave();
+          });
+        }
+      }
+    }
+    for (int i = 0; i < exercises.length; i++) {
+      tmpList.addAll({exercises[i].id: false});
     }
   }
 
@@ -74,10 +139,50 @@ class _NewSessionState extends ConsumerState<NewSession>
     }
   }
 
-  bool getCanSave() {
+  void addExercise() async {
+    ExerciseData? newExerciseData =
+        await Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return SelectExercise();
+    }));
+    if (newExerciseData == null) {
+      return;
+    }
+    int newId = -1;
     for (int i = 0; i < exercises.length; i++) {
-      Exercise exercise = exercises[i];
-      for (int j = 0; j < exercise.sets; j++) {
+      if (exercises[i].id < 0) {
+        if (exercises[i].id <= newId) {
+          newId = exercises[i].id - 1;
+        }
+      }
+    }
+    exercises.add(Exercise(
+        workoutId: widget.workout.id,
+        id: newId,
+        sets: 1,
+        reps: 10,
+        exerciseData: newExerciseData));
+    tmpList.addAll({newId: true});
+    repsControllersList.add([TextEditingController()]);
+    repsControllersList.last.last.addListener(() {
+      updateCanSave();
+    });
+    weightControllersList.add([TextEditingController()]);
+    weightControllersList.last.last.addListener(() {
+      updateCanSave();
+    });
+    rpeControllersList.add([TextEditingController()]);
+    rpeControllersList.last.last.addListener(() {
+      updateCanSave();
+    });
+    setState(() {});
+    animatedListKeys.add(GlobalKey<AnimatedListState>());
+    animatedListKey.currentState!
+        .insertItem(exercises.length - 1, duration: Duration(milliseconds: 0));
+  }
+
+  bool getCanSave() {
+    for (int i = 0; i < repsControllersList.length; i++) {
+      for (int j = 0; j < repsControllersList[i].length; j++) {
         try {
           int reps = int.parse(repsControllersList[i][j].text);
           double weight = double.parse(weightControllersList[i][j].text);
@@ -86,6 +191,7 @@ class _NewSessionState extends ConsumerState<NewSession>
             return false;
           }
         } catch (e) {
+          log('getCanSave: ' + e.toString());
           return false;
         }
       }
@@ -96,47 +202,66 @@ class _NewSessionState extends ConsumerState<NewSession>
   @override
   Widget build(BuildContext context) {
     List<Widget> items = body();
-    for (int i = 0; i < items.length; i++) {
-      items[i] = Padding(
-        padding: const EdgeInsets.only(left: 16),
-        child: items[i],
-      );
-    }
-    return GestureDetector(
-      onTap: () {
-        UIUtilities.unfocusTextFields(context);
+    return WillPopScope(
+      onWillPop: () async {
+        UIUtilities.showDimmedBackgroundDialog(context,
+            title: UIUtilities.loadTranslation(context, 'sessionQuitTitle'),
+            content: UIUtilities.loadTranslation(context, 'sessionQuitContent'),
+            leftText: UIUtilities.loadTranslation(context, 'resumeNo'),
+            rightText: UIUtilities.loadTranslation(context, 'resumeYes'),
+            leftOnPressed: () async {
+          await CustomDatabase.instance.removeCachedSession(widget.workout.id);
+          // this will update ui too
+          widget.workout.hasCache = 0;
+          Navigator.pop(context);
+          Navigator.pop(context);
+        }, rightOnPressed: () async {
+          await createWorkoutRecord(cacheMode: true);
+          // this will update ui too
+          widget.workout.hasCache = 1;
+          Navigator.pop(context);
+          Navigator.pop(context);
+        });
+        return false;
       },
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(UIUtilities.loadTranslation(context, 'newSessionOf') +
-              ' ${widget.workout.name}'),
-          actions: [
-            AnimatedSize(
-                duration: Duration(milliseconds: 150),
-                child: Row(
-                  children: [
-                    canSave
-                        ? IconButton(
-                            icon: Icon(Icons.done),
-                            onPressed: () async {
-                              await createWorkoutRecord();
-                              Navigator.pop(context);
-                            },
-                          )
-                        : SizedBox()
-                  ],
-                ))
-          ],
+      child: GestureDetector(
+        onTap: () {
+          UIUtilities.unfocusTextFields(context);
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text(UIUtilities.loadTranslation(context, 'newSessionOf') +
+                ' ${widget.workout.name}'),
+            actions: [
+              AnimatedSize(
+                  duration: Duration(milliseconds: 150),
+                  child: Row(
+                    children: [
+                      canSave
+                          ? IconButton(
+                              icon: Icon(Icons.done),
+                              onPressed: () async {
+                                await createWorkoutRecord();
+                                // this will update ui too
+                                widget.workout.hasHistory = true;
+                                Navigator.pop(context);
+                              },
+                            )
+                          : SizedBox()
+                    ],
+                  ))
+            ],
+          ),
+          body: AnimatedList(
+              key: animatedListKey,
+              initialItemCount: items.length,
+              itemBuilder: (context, index, animation) {
+                return FadeTransition(
+                    opacity: animation,
+                    child: SizeTransition(
+                        sizeFactor: animation, child: items[index]));
+              }),
         ),
-        body: AnimatedList(
-            key: animatedListKey,
-            initialItemCount: items.length,
-            itemBuilder: (context, index, animation) {
-              return FadeTransition(
-                  opacity: animation,
-                  child: SizeTransition(
-                      sizeFactor: animation, child: items[index]));
-            }),
       ),
     );
   }
@@ -146,10 +271,10 @@ class _NewSessionState extends ConsumerState<NewSession>
       ...exercises.asMap().entries.map((mapEntry) {
         int index = mapEntry.key;
         return Padding(
-          padding: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.only(bottom: 16, left: 16),
           child: ExerciseRecordItem(
             animatedListKey: animatedListKeys[index],
-            exercise: exercises[index],
+            exerciseData: exercises[index].exerciseData,
             repsControllers: repsControllersList[index],
             weightControllers: weightControllersList[index],
             rpeControllers: rpeControllersList[index],
@@ -161,7 +286,7 @@ class _NewSessionState extends ConsumerState<NewSession>
               itemBuilder: (context) {
                 return menuItems(index);
               },
-              onSelected: (item) {
+              onSelected: (item) async {
                 switch (item) {
                   case ExerciseRecordMenuOptions.add_set:
                     repsControllersList[index].add(TextEditingController());
@@ -186,6 +311,28 @@ class _NewSessionState extends ConsumerState<NewSession>
                   case ExerciseRecordMenuOptions.move_up:
                     swapExerciseRecordCards(index, index - 1);
                     break;
+                  case ExerciseRecordMenuOptions.not_performed:
+                    repsControllersList[index].forEach((controller) {
+                      controller.text = '0';
+                    });
+                    weightControllersList[index].forEach((controller) {
+                      controller.text = '0';
+                    });
+                    break;
+                  case ExerciseRecordMenuOptions.edit:
+                    ExerciseData? newExerciseData = await Navigator.push(
+                        context, MaterialPageRoute(builder: (context) {
+                      return SelectExercise();
+                    }));
+                    if (newExerciseData != null) {
+                      exercises[index].exerciseData = newExerciseData;
+                      tmpList[exercises[index].id] = !originalExercises.any(
+                          (originalExercise) =>
+                              newExerciseData.id ==
+                              originalExercise.exerciseData.id);
+                      setState(() {});
+                    }
+                    break;
                   default:
                 }
               },
@@ -193,6 +340,29 @@ class _NewSessionState extends ConsumerState<NewSession>
           ),
         );
       }).toList(),
+      Padding(
+        padding: const EdgeInsets.only(left: 16, right: 16),
+        child: InkWell(
+          borderRadius:
+              BorderRadius.circular(Theme.of(context).useMaterial3 ? 1000 : 0),
+          onTap: () {},
+          child: ListTile(
+              onTap: () {
+                addExercise();
+              },
+              leading: Icon(
+                Icons.add,
+                color: UIUtilities.getPrimaryColor(context),
+              ),
+              title: Text(
+                UIUtilities.loadTranslation(context, 'addExercise'),
+                style: Theme.of(context)
+                    .textTheme
+                    .button!
+                    .copyWith(color: Theme.of(context).colorScheme.primary),
+              )),
+        ),
+      )
     ];
   }
 
@@ -222,8 +392,12 @@ class _NewSessionState extends ConsumerState<NewSession>
       child: Text(UIUtilities.loadTranslation(context, 'addSet')),
     ));
     menuItems.add(PopupMenuItem<ExerciseRecordMenuOptions>(
-      value: ExerciseRecordMenuOptions.reset,
-      child: Text(UIUtilities.loadTranslation(context, 'reset')),
+      value: ExerciseRecordMenuOptions.not_performed,
+      child: Text(UIUtilities.loadTranslation(context, 'notPerformed')),
+    ));
+    menuItems.add(PopupMenuItem<ExerciseRecordMenuOptions>(
+      value: ExerciseRecordMenuOptions.edit,
+      child: Text(UIUtilities.loadTranslation(context, 'changeExercise')),
     ));
     if (index > 0) {
       menuItems.add(PopupMenuItem<ExerciseRecordMenuOptions>(
@@ -243,6 +417,7 @@ class _NewSessionState extends ConsumerState<NewSession>
   Future createWorkoutRecord({bool cacheMode = false}) async {
     WorkoutRecord workoutRecord;
     List<ExerciseRecord> exerciseRecords = [];
+
     for (int i = 0; i < exercises.length; i++) {
       Exercise exercise = exercises[i];
       List<ExerciseSet> exerciseSets = [];
@@ -259,10 +434,10 @@ class _NewSessionState extends ConsumerState<NewSession>
       }
       if (exerciseSets.isNotEmpty) {
         exerciseRecords.add(ExerciseRecord(
-            exerciseData: exercise.exerciseData,
+            exerciseData: exercises[i].exerciseData,
             sets: exerciseSets,
             exerciseId: exercise.id,
-            type: exercise.exerciseData.type,
+            type: exercises[i].exerciseData.type,
             temp: cacheMode));
       }
     }

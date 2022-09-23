@@ -14,7 +14,7 @@ import 'package:flutter/rendering.dart';
 // void setState(VoidCallback fn) { }
 // enum Menu { itemOne, itemTwo, itemThree, itemFour }
 
-const Duration _kMenuDuration = Duration(milliseconds: 200);
+const Duration _kMenuDuration = Duration(milliseconds: 300);
 const double _kMenuCloseIntervalEnd = 2.0 / 3.0;
 const double _kMenuHorizontalPadding = 16.0;
 const double _kMenuDividerHeight = 16.0;
@@ -124,7 +124,7 @@ class MaterialPopupMenu<T> extends StatelessWidget {
       required this.route,
       required this.semanticLabel,
       this.constraints,
-      this.curve = Curves.linear});
+      this.curve = Curves.decelerate});
 
   final MaterialPopupMenuRoute<T> route;
   final String? semanticLabel;
@@ -145,7 +145,7 @@ class MaterialPopupMenu<T> extends StatelessWidget {
       // opacity animation for the items
       final CurvedAnimation opacity = CurvedAnimation(
         parent: route.animation!,
-        curve: Curves.easeOutCubic,
+        curve: curve,
       );
       Widget item = route.items[i];
       if (route.initialValue != null &&
@@ -160,18 +160,15 @@ class MaterialPopupMenu<T> extends StatelessWidget {
           onLayout: (Size size) {
             route.itemSizes[i] = size;
           },
-          child: FadeTransition(
-            opacity: opacity,
-            child: item,
-          ),
+          child: FadeTransition(opacity: opacity, child: item),
         ),
       );
     }
 
     // animations for the menu
-    final CurveTween opacity = CurveTween(curve: Curves.easeOutCubic);
-    final CurveTween width = CurveTween(curve: Curves.easeOutCubic);
-    final CurveTween height = CurveTween(curve: Curves.easeOutCubic);
+    final CurveTween opacity = CurveTween(curve: curve);
+    final CurveTween width = CurveTween(curve: curve);
+    final CurveTween height = CurveTween(curve: curve);
 
     final Widget child = ConstrainedBox(
       constraints: constraints ??
@@ -199,8 +196,14 @@ class MaterialPopupMenu<T> extends StatelessWidget {
     return AnimatedBuilder(
       animation: route.animation!,
       builder: (BuildContext context, Widget? child) {
-        return FadeTransition(
-          opacity: opacity.animate(route.animation!),
+        return
+            // converted animated transition to opacity because the true material popup menu
+            // only fades when dismissed
+            Opacity(
+          opacity: route.animation!.status == AnimationStatus.forward ||
+                  route.animation!.status == AnimationStatus.completed
+              ? 1
+              : opacity.evaluate(route.animation!),
           child: Material(
             shape: route.shape ?? popupMenuTheme.shape,
             color: route.color ?? popupMenuTheme.color,
@@ -381,7 +384,7 @@ class MaterialPopupMenuRoute<T> extends PopupRoute<T> {
       this.color,
       required this.capturedThemes,
       this.constraints,
-      this.menuCurve = Curves.linear})
+      this.menuCurve = Curves.decelerate})
       : itemSizes = List<Size?>.filled(items.length, null);
 
   final Curve menuCurve;
@@ -400,8 +403,8 @@ class MaterialPopupMenuRoute<T> extends PopupRoute<T> {
   Animation<double> createAnimation() {
     return CurvedAnimation(
       parent: super.createAnimation(),
-      curve: Curves.linear,
-      reverseCurve: Curves.linear,
+      curve: Curves.decelerate,
+      reverseCurve: Curves.decelerate,
     );
   }
 
@@ -533,7 +536,7 @@ Future<T?> showMenu<T>(
     Color? color,
     bool useRootNavigator = false,
     BoxConstraints? constraints,
-    Curve curve = Curves.linear}) {
+    Curve curve = Curves.decelerate}) {
   assert(context != null);
   assert(position != null);
   assert(useRootNavigator != null);
@@ -635,7 +638,7 @@ class MaterialPopupMenuButton<T> extends StatefulWidget {
     this.enableFeedback,
     this.constraints,
     this.position = PopupMenuPosition.over,
-    this.curve = Curves.linear,
+    this.curve = Curves.decelerate,
   })  : assert(itemBuilder != null),
         assert(enabled != null),
         assert(

@@ -83,6 +83,7 @@
     "start": "Start",
     "resume": "Resume",
     "profile": "Profile",
+    "menu": "Menu",
     "settings": "Settings",
     "help": "Help",
     "exit": "Quit",
@@ -147,6 +148,12 @@
     "discardNo": "No, keep them",
     "discardYes": "Yes, discard",
     "addSet": "Add a set",
-    "reset": "Reset",
-    "deleteSessionOf": "Delete %s session"
+    "notPerformed": "Not performed",
+    "deleteSessionOf": "Delete %s session",
+    "sessionQuitTitle": "Discard",
+    "sessionQuitContent": "Do you want to save and resume this session later?",
+    "resumeNo": "No, delete this session",
+    "resumeYes": "Yes, save it for later",
+    "back": "Indietro",
+    "changeExercise": "Change exercise"
 }

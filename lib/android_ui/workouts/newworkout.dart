@@ -84,13 +84,13 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
           actions: [
             AnimatedSize(
               duration: Duration(milliseconds: 150),
-              curve: Curves.linear,
+              curve: Curves.decelerate,
               reverseDuration: Duration(milliseconds: 150),
               child: canSave
                   ? IconButton(
                       tooltip: 'Save',
                       onPressed: () {
-                        saveWorkout().then((value) {
+                        createWorkout().then((value) {
                           Navigator.pop(context);
                         }).catchError((error) {
                           UIUtilities.showSnackBar(
@@ -197,22 +197,10 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
       }).toList(),
       Padding(
         padding: const EdgeInsets.only(top: 8),
-        child: IconButton(
-          icon: ListTile(
-            contentPadding: EdgeInsets.only(left: 0),
-            leading: Icon(
-              Icons.add,
-              color: UIUtilities.getPrimaryColor(context),
-            ),
-            title: Text(
-              UIUtilities.loadTranslation(context, 'addExercise'),
-              style: Theme.of(context)
-                  .textTheme
-                  .button!
-                  .copyWith(color: Theme.of(context).colorScheme.primary),
-            ),
-          ),
-          onPressed: () {
+        child: InkWell(
+          borderRadius:
+              BorderRadius.circular(Theme.of(context).useMaterial3 ? 1000 : 0),
+          onTap: () {
             if (exerciseDataList.last != null &&
                 setsControllers.last.text.isNotEmpty &&
                 repsControllers.last.text.isNotEmpty) {
@@ -235,6 +223,18 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
                   duration: Duration(milliseconds: 150));
             }
           },
+          child: ListTile(
+              leading: Icon(
+                Icons.add,
+                color: UIUtilities.getPrimaryColor(context),
+              ),
+              title: Text(
+                UIUtilities.loadTranslation(context, 'addExercise'),
+                style: Theme.of(context)
+                    .textTheme
+                    .button!
+                    .copyWith(color: Theme.of(context).colorScheme.primary),
+              )),
         ),
       )
     ];
@@ -382,7 +382,7 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
     }, duration: Duration(milliseconds: 150));
   }
 
-  Future saveWorkout() async {
+  Future createWorkout() async {
     if (!canSave) {
       return;
     }

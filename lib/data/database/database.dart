@@ -230,11 +230,25 @@ class CustomDatabase {
             int jsonId = queryExerciseRecords[j]['json_id'] as int;
             int exerciseId = queryExerciseRecords[j]['fk_exercise_id'] as int;
             String type = queryExerciseRecords[j]['type'] as String;
+            var exerciseQuery = await txn.query('exercise',
+                columns: ['id', 'sets', 'reps'],
+                where: 'id=?',
+                whereArgs: [exerciseId]);
+            ExerciseData exerciseData = Helper.instance.exerciseDataGlobal
+                .firstWhere((element) => element.id == jsonId);
+            Exercise? exercise = exerciseQuery.isEmpty
+                ? null
+                : Exercise(
+                    workoutId: queryWorkoutRecords[i]['fk_workout_id'] as int,
+                    id: exerciseQuery.first['id'] as int,
+                    sets: exerciseQuery.first['sets'] as int,
+                    reps: exerciseQuery.first['reps'] as int,
+                    exerciseData: exerciseData);
             ExerciseRecord exerciseRecord = ExerciseRecord(
-                exerciseData: Helper.instance.exerciseDataGlobal
-                    .firstWhere((element) => element.id == jsonId),
-                sets: repsWeightRpes,
                 exerciseId: exerciseId,
+                exerciseData: exerciseData,
+                sets: repsWeightRpes,
+                exercise: exercise,
                 type: type);
             exerciseRecords.add(exerciseRecord);
           }
@@ -253,7 +267,12 @@ class CustomDatabase {
         }
       }
     });
-
+    for (var wr in workoutRecords) {
+      dev.log(wr.workoutName + '\n');
+      for (var er in wr.exerciseRecords) {
+        dev.log(er.exerciseId.toString());
+      }
+    }
     return workoutRecords;
   }
 
@@ -330,7 +349,9 @@ class CustomDatabase {
   Future<bool> hasHistory(int workoutId) async {
     final db = await instance.database;
     var query = await db.query('workout_record',
-        where: 'fk_workout_id=?', whereArgs: [workoutId], limit: 1);
+        where: 'fk_workout_id=? AND is_cache=?',
+        whereArgs: [workoutId, 0],
+        limit: 1);
     return query.isNotEmpty;
   }
 
@@ -340,8 +361,8 @@ class CustomDatabase {
     await db.transaction((txn) async {
       var queryWorkoutRecord = await txn.query('workout_record',
           columns: ['id', 'day'],
-          where: 'fk_workout_id=?',
-          whereArgs: [workout.id]);
+          where: 'fk_workout_id=? AND is_cache=?',
+          whereArgs: [workout.id, 0]);
 
       for (int i = 0; i < queryWorkoutRecord.length; i++) {
         int workoutRecordId = queryWorkoutRecord[i]['id'] as int;
@@ -384,13 +405,30 @@ class CustomDatabase {
           }
           int jsonId = queryExerciseRecord[j]['json_id'] as int;
           int exerciseId = queryExerciseRecord[j]['fk_exercise_id'] as int;
+          var exerciseQuery = await txn.query('exercise',
+              columns: ['id', 'sets', 'reps'],
+              where: 'id=?',
+              whereArgs: [exerciseId]);
+          ExerciseData exerciseData = Helper.instance.exerciseDataGlobal
+              .firstWhere((element) => element.id == jsonId);
+          Exercise? exercise = exerciseQuery.isEmpty
+              ? null
+              : Exercise(
+                  workoutId: workout.id,
+                  id: exerciseQuery.first['id'] as int,
+                  sets: exerciseQuery.first['sets'] as int,
+                  reps: exerciseQuery.first['reps'] as int,
+                  exerciseData: exerciseData);
           String type = queryExerciseRecord[j]['type'] as String;
-          exerciseRecords.add(ExerciseRecord(
-              exerciseData: Helper.instance.exerciseDataGlobal
-                  .firstWhere((element) => element.id == jsonId),
-              sets: sets,
+          ExerciseRecord exerciseRecord = ExerciseRecord(
               exerciseId: exerciseId,
-              type: type));
+              exerciseData: exerciseData,
+              sets: sets,
+              exercise: exercise,
+              type: type);
+          exerciseRecords.add(exerciseRecord);
+
+          exerciseRecords.add(exerciseRecord);
         }
         DateTime day = DateTime.fromMillisecondsSinceEpoch(
             queryWorkoutRecord[i]['day'] as int);
@@ -401,6 +439,19 @@ class CustomDatabase {
       }
     });
     return WorkoutHistory(workout: workout, workoutRecords: workoutRecords);
+  }
+
+  Future<WorkoutRecord?> getCachedSession({required int workoutId}) async {
+    WorkoutRecord? cachedSession;
+    await CustomDatabase.instance
+        .readWorkoutRecords(cacheMode: true, workoutId: workoutId)
+        .then((workoutRecords) {
+      if (workoutRecords.isEmpty) {
+        return;
+      }
+      cachedSession = workoutRecords.first;
+    });
+    return cachedSession;
   }
 
   Future<Map<String, int>> addWorkoutRecord(WorkoutRecord workoutRecord,
@@ -746,6 +797,9 @@ class CustomDatabase {
       workoutList.add(Workout(id, name, exerciseList, hasCache: hasCache));
     }
     didReadWorkouts = true;
+    for (Workout workout in workoutList) {
+      workout.hasHistory = await hasHistory(workout.id);
+    }
     return workoutList;
   }
 

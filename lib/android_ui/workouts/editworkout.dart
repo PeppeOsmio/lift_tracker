@@ -88,7 +88,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
           actions: [
             AnimatedSize(
               duration: Duration(milliseconds: 150),
-              curve: Curves.linear,
+              curve: Curves.decelerate,
               child: Row(children: [
                 canSave
                     ? IconButton(

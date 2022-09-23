@@ -62,7 +62,7 @@ class _ExercisesState extends State<Exercises> {
             )),
         actions: [
           AnimatedSize(
-            curve: Curves.linear,
+            curve: Curves.decelerate,
             duration: Duration(milliseconds: 150),
             child: Row(children: [
               IconButton(
@@ -81,7 +81,7 @@ class _ExercisesState extends State<Exercises> {
           )
         ],
         title: AnimatedSize(
-          curve: Curves.linear,
+          curve: Curves.decelerate,
           duration: Duration(milliseconds: 150),
           child: isSearchBarActivated
               ? TextField(

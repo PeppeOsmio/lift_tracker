@@ -12,6 +12,7 @@ import 'package:lift_tracker/data/classes/workout.dart';
 import 'package:lift_tracker/data/database/database.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/android_ui/newsession/newsession.dart';
+import 'package:lift_tracker/android_ui/workouthistory/workouthistorypage.dart';
 
 class WorkoutList extends ConsumerStatefulWidget {
   const WorkoutList({
@@ -71,6 +72,7 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
             ? Theme.of(context).colorScheme.primaryContainer
             : null,
         leading: IconButton(
+          tooltip: UIUtilities.loadTranslation(context, 'menu'),
           onPressed: () {
             if (isSearchBarActivated) {
               setState(() {
@@ -86,12 +88,14 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
         ),
         actions: [
           AnimatedSize(
-            curve: Curves.linear,
+            curve: Curves.decelerate,
             duration: Duration(milliseconds: 150),
             child: Row(
                 children: isAppBarSelected
                     ? [
                         IconButton(
+                            tooltip:
+                                UIUtilities.loadTranslation(context, 'delete'),
                             onPressed: () {
                               if (openIndex != null) {
                                 deleteWorkout(workouts[openIndex!].id)
@@ -105,10 +109,24 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
                               }
                             },
                             icon: Icon(Icons.delete)),
+                        openIndex != null && workouts[openIndex!].hasHistory
+                            ? IconButton(
+                                tooltip: UIUtilities.loadTranslation(
+                                    context, 'history'),
+                                onPressed: () async {
+                                  var history = await CustomDatabase.instance
+                                      .getWorkoutHistory(workouts[openIndex!]);
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) {
+                                    return WorkoutHistoryPage(
+                                        workoutHistory: history);
+                                  }));
+                                },
+                                icon: Icon(Icons.timer))
+                            : SizedBox(),
                         IconButton(
-                            onPressed: () {},
-                            icon: Icon(Icons.history_rounded)),
-                        IconButton(
+                            tooltip:
+                                UIUtilities.loadTranslation(context, 'edit'),
                             onPressed: () {
                               if (openIndex != null) {
                                 var editWorkoutPage =
@@ -124,10 +142,20 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
                             },
                             icon: Icon(Icons.edit)),
                         IconButton(
-                            onPressed: () {
+                            tooltip: workouts[openIndex!].hasCache == 1
+                                ? UIUtilities.loadTranslation(context, 'resume')
+                                : UIUtilities.loadTranslation(context, 'start'),
+                            onPressed: () async {
                               if (openIndex != null) {
-                                var newSessionPage =
-                                    NewSession(workout: workouts[openIndex!]);
+                                var newSessionPage = NewSession(
+                                    workout: workouts[openIndex!],
+                                    resumedSession:
+                                        workouts[openIndex!].hasCache == 1
+                                            ? await CustomDatabase.instance
+                                                .getCachedSession(
+                                                    workoutId:
+                                                        workouts[openIndex!].id)
+                                            : null);
                                 Navigator.push(context,
                                     MaterialPageRoute(builder: (context) {
                                   return newSessionPage;
@@ -137,7 +165,10 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
                                 });
                               }
                             },
-                            icon: Icon(Icons.play_arrow))
+                            icon: Icon(openIndex != null &&
+                                    workouts[openIndex!].hasCache == 1
+                                ? Icons.history_outlined
+                                : Icons.play_arrow))
                       ]
                     : [
                         IconButton(
@@ -158,7 +189,7 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
           )
         ],
         title: AnimatedSize(
-          curve: Curves.linear,
+          curve: Curves.decelerate,
           duration: Duration(milliseconds: 150),
           child: isSearchBarActivated && !isAppBarSelected
               ? TextField(
