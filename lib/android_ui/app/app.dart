@@ -54,7 +54,6 @@ class _AppState extends ConsumerState<App> {
           }).toList()),
           bottomNavigationBar: BottomNavBar(
             index: pageIndex,
-            useMaterial3: UIUtilities.useMaterial3,
             navigationItems: [
               NavigationItem(
                   icon: Icon(Icons.timer),
@@ -133,12 +132,10 @@ class NavigationItem {
 class BottomNavBar extends StatefulWidget {
   const BottomNavBar(
       {Key? key,
-      this.useMaterial3 = true,
       required this.navigationItems,
       required this.index,
       required this.onItemSelected})
       : super(key: key);
-  final bool useMaterial3;
   final List<NavigationItem> navigationItems;
   final int index;
   final Function(int) onItemSelected;
@@ -150,7 +147,7 @@ class BottomNavBar extends StatefulWidget {
 class _BottomNavBarState extends State<BottomNavBar> {
   @override
   Widget build(BuildContext context) {
-    return widget.useMaterial3
+    return Theme.of(context).useMaterial3
         ? NavigationBar(
             selectedIndex: widget.index,
             destinations: widget.navigationItems
