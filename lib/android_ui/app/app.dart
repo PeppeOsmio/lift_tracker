@@ -45,13 +45,7 @@ class _AppState extends ConsumerState<App> {
       },
       child: Scaffold(
           key: mainScaffoldKey,
-          drawer: CustomDrawer(toggleMaterialCallback: () {
-            UIUtilities.useMaterial3 = !UIUtilities.useMaterial3;
-            Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context) {
-              return Loading();
-            }));
-          }),
+          drawer: CustomDrawer(),
           body: Stack(
               children: pages.asMap().entries.map((mapEntry) {
             int index = mapEntry.key;
@@ -60,7 +54,7 @@ class _AppState extends ConsumerState<App> {
           }).toList()),
           bottomNavigationBar: BottomNavBar(
             index: pageIndex,
-            useMaterial3: widget.useMaterial3,
+            useMaterial3: UIUtilities.useMaterial3,
             navigationItems: [
               NavigationItem(
                   icon: Icon(Icons.timer),

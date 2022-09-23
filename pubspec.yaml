@@ -48,6 +48,8 @@ dependencies:
   file_picker: ^5.0.1
   restart_app: ^1.1.0+1
   dynamic_color: ^1.5.4
+  flutter_colorpicker: ^1.0.3
+  settings_ui: ^2.0.2
 
 dev_dependencies:
 

@@ -226,7 +226,7 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
           child: ListTile(
               leading: Icon(
                 Icons.add,
-                color: UIUtilities.getPrimaryColor(context),
+                color: Theme.of(context).colorScheme.primary,
               ),
               title: Text(
                 UIUtilities.loadTranslation(context, 'addExercise'),

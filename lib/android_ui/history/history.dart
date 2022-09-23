@@ -30,6 +30,7 @@ class _HistoryState extends ConsumerState<History> {
   List<WorkoutRecord> workoutRecords = [];
   bool isListReady = false;
   GlobalKey<AnimatedListState> animatedListKey = GlobalKey<AnimatedListState>();
+  bool toggleMenuAnimation = false;
 
   @override
   void initState() {
@@ -94,6 +95,7 @@ class _HistoryState extends ConsumerState<History> {
               setState(() {
                 openIndex = index;
                 isAppBarSelected = true;
+                toggleMenuAnimation = true;
               });
             }
           },
@@ -107,6 +109,7 @@ class _HistoryState extends ConsumerState<History> {
     openIndex = null;
     searchString = '';
     searchController.text = '';
+    toggleMenuAnimation = false;
   }
 
   void removeWorkoutRecordCard(int index) async {
@@ -151,10 +154,17 @@ class _HistoryState extends ConsumerState<History> {
             : null,
         leading: IconButton(
           onPressed: () {
-            mainScaffoldKey.currentState!.openDrawer();
+            if (toggleMenuAnimation) {
+              setState(() {
+                toggleMenuAnimation = false;
+              });
+            } else {
+              mainScaffoldKey.currentState!.openDrawer();
+            }
           },
           icon: CustomAnimatedIcon(
-              animatedIconData: AnimatedIcons.menu_arrow, start: false),
+              animatedIconData: AnimatedIcons.menu_arrow,
+              start: toggleMenuAnimation),
         ),
         actions: [
           AnimatedSize(

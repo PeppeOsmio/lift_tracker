@@ -35,6 +35,7 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
   String searchString = '';
   FocusNode searchFocusNode = FocusNode();
   GlobalKey<AnimatedListState> animatedListKey = GlobalKey<AnimatedListState>();
+  bool toggleMenuAnimation = false;
 
   @override
   void initState() {
@@ -79,12 +80,17 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
                 resetAppBarAndOpenCards();
               });
             } else {
-              mainScaffoldKey.currentState!.openDrawer();
+              if (!isAppBarSelected) {
+                mainScaffoldKey.currentState!.openDrawer();
+              }
+              setState(() {
+                resetAppBarAndOpenCards();
+              });
             }
           },
           icon: CustomAnimatedIcon(
-              animatedIconData: AnimatedIcons.arrow_menu,
-              start: !isSearchBarActivated),
+              animatedIconData: AnimatedIcons.menu_arrow,
+              start: toggleMenuAnimation),
         ),
         actions: [
           AnimatedSize(
@@ -271,6 +277,7 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
 
   void resetAppBarAndOpenCards() {
     isAppBarSelected = false;
+    toggleMenuAnimation = false;
     isSearchBarActivated = false;
     searchString = '';
     searchController.text = '';
@@ -280,12 +287,14 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
   void openSearchBar() {
     setState(() {
       isSearchBarActivated = true;
+      toggleMenuAnimation = true;
       searchFocusNode.requestFocus();
     });
   }
 
   void selectWorkout(int index) {
     setState(() {
+      toggleMenuAnimation = true;
       openIndex = index;
       isAppBarSelected = true;
       isSearchBarActivated = false;

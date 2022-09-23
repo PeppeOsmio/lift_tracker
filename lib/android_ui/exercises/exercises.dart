@@ -28,6 +28,7 @@ class _ExercisesState extends State<Exercises> {
   TextEditingController searchController = TextEditingController();
   FocusNode searchFocusNode = FocusNode();
   String searchString = '';
+  bool toggleMenuAnimation = false;
 
   @override
   void initState() {
@@ -48,6 +49,7 @@ class _ExercisesState extends State<Exercises> {
             onPressed: () {
               if (isSearchBarActivated) {
                 setState(() {
+                  toggleMenuAnimation = false;
                   isSearchBarActivated = false;
                   searchString = '';
                   searchController.text = '';
@@ -57,8 +59,8 @@ class _ExercisesState extends State<Exercises> {
               }
             },
             icon: CustomAnimatedIcon(
-              animatedIconData: AnimatedIcons.arrow_menu,
-              start: !isSearchBarActivated,
+              animatedIconData: AnimatedIcons.menu_arrow,
+              start: toggleMenuAnimation,
             )),
         actions: [
           AnimatedSize(
@@ -107,6 +109,7 @@ class _ExercisesState extends State<Exercises> {
           UIUtilities.unfocusTextFields(context);
           setState(() {
             isSearchBarActivated = false;
+            toggleMenuAnimation = false;
             searchString = '';
             searchController.text = '';
           });
@@ -129,6 +132,7 @@ class _ExercisesState extends State<Exercises> {
 
   void openSearchBar() {
     setState(() {
+      toggleMenuAnimation = true;
       isSearchBarActivated = true;
       searchFocusNode.requestFocus();
     });

@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:lift_tracker/android_ui/app/app.dart';
+import 'package:lift_tracker/android_ui/settings/settingspage.dart';
 import 'package:lift_tracker/android_ui/uiutilities.dart';
-import 'package:lift_tracker/data/helper.dart';
 
 class CustomDrawer extends Drawer {
-  const CustomDrawer({Key? key, this.toggleMaterialCallback}) : super(key: key);
-  final VoidCallback? toggleMaterialCallback;
+  const CustomDrawer({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +29,25 @@ class CustomDrawer extends Drawer {
               )),
           ListTile(
             leading: Icon(
+              Icons.settings,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            title: Text(
+              UIUtilities.loadTranslation(context, 'settings'),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyText2!
+                  .copyWith(color: Theme.of(context).colorScheme.onSurface),
+            ),
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return SettingsPage();
+              }));
+              mainScaffoldKey.currentState!.closeDrawer();
+            },
+          ),
+          ListTile(
+            leading: Icon(
               Icons.exit_to_app,
               color: Theme.of(context).colorScheme.onSurface,
             ),
@@ -48,23 +63,6 @@ class CustomDrawer extends Drawer {
               Navigator.maybePop(context);
             },
           ),
-          ListTile(
-            leading: Icon(
-              Icons.palette,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-            title: Text(
-              'Toggle Material 3',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyText2!
-                  .copyWith(color: Theme.of(context).colorScheme.onSurface),
-            ),
-            onTap: () {
-              mainScaffoldKey.currentState!.closeDrawer();
-              toggleMaterialCallback?.call();
-            },
-          )
         ],
       ),
     );
