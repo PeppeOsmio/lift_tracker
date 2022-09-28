@@ -36,6 +36,8 @@ enum ExerciseRecordMenuOptions {
   move_down
 }
 
+bool shouldRunCacheLoop = true;
+
 class _NewSessionState extends ConsumerState<NewSession>
     with WidgetsBindingObserver {
   List<Exercise> exercises = [];
@@ -47,13 +49,13 @@ class _NewSessionState extends ConsumerState<NewSession>
   List<Exercise> originalExercises = [];
   GlobalKey<AnimatedListState> animatedListKey = GlobalKey<AnimatedListState>();
   bool canSave = false;
-  bool shouldRunCacheLoop = true;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     originalExercises.addAll(widget.workout.exercises);
+    bool shouldRunCacheLoop = true;
 
     if (widget.resumedSession == null) {
       exercises = [...widget.workout.exercises];

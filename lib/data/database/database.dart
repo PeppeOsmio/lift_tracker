@@ -267,6 +267,14 @@ class CustomDatabase {
         }
       }
     });
+    for (var workoutRecord in workoutRecords) {
+      for (var exerciseRecord in workoutRecord.exerciseRecords) {
+        if (exerciseRecord.exerciseId == 0) {
+          dev.log(
+              'DB: ${exerciseRecord.exerciseData.name} from workout ${workoutRecord.workoutName} has exerciseId == 0');
+        }
+      }
+    }
     return workoutRecords;
   }
 
@@ -797,6 +805,12 @@ class CustomDatabase {
     didReadWorkouts = true;
     for (Workout workout in workoutList) {
       workout.hasHistory = await hasHistory(workout.id);
+      for (var exercise in workout.exercises) {
+        if (exercise.id == 0) {
+          dev.log(
+              'DB: Exercise ${exercise.exerciseData.name} from workout ${workout.name} has id == 0');
+        }
+      }
     }
     return workoutList;
   }

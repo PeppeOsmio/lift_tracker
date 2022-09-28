@@ -421,6 +421,8 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
     workout = Workout(0, workoutNameController.text, exercises);
     int id = await CustomDatabase.instance.saveWorkout(workout);
     workout.id = id;
+    // get the saved workout with the correct exercise ids etc
+    workout = (await CustomDatabase.instance.readWorkouts(workoutId: id)).first;
     ref.read(Helper.instance.workoutsProvider.notifier).addWorkout(workout);
   }
 }

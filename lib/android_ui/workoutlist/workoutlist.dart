@@ -155,14 +155,14 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
                                 : UIUtilities.loadTranslation(context, 'start'),
                             onPressed: () async {
                               if (openIndex != null) {
+                                var workout = workouts[openIndex!];
                                 var newSessionPage = NewSession(
-                                    workout: workouts[openIndex!],
+                                    workout: workout,
                                     resumedSession:
                                         workouts[openIndex!].hasCache == 1
                                             ? await CustomDatabase.instance
                                                 .getCachedSession(
-                                                    workoutId:
-                                                        workouts[openIndex!].id)
+                                                    workoutId: workout.id)
                                             : null);
                                 Navigator.push(context,
                                     MaterialPageRoute(builder: (context) {

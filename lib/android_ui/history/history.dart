@@ -48,8 +48,8 @@ class _HistoryState extends ConsumerState<History> {
           .read(Helper.instance.workoutRecordsProvider.notifier)
           .addListener((state) {
         if (state.length > workoutRecords.length) {
-          isOpenList.add(false);
           for (int i = workoutRecords.length; i < state.length; i++) {
+            isOpenList.add(false);
             animatedListKey.currentState!
                 .insertItem(i, duration: Duration(milliseconds: 150));
           }
@@ -64,9 +64,6 @@ class _HistoryState extends ConsumerState<History> {
       ref
           .read(Helper.instance.workoutRecordsProvider.notifier)
           .addWorkoutRecords(value);
-      for (int i = 0; i < value.length; i++) {
-        isOpenList.add(false);
-      }
     });
   }
 
@@ -140,20 +137,18 @@ class _HistoryState extends ConsumerState<History> {
             ?.hasHistory =
         await CustomDatabase.instance.hasHistory(workoutRecord.workoutId);
 
-    try {
-      animatedListKey.currentState!.removeItem(index, (context, animation) {
-        return SizeTransition(
-          sizeFactor: animation,
-          child: FadeTransition(
-              opacity: animation,
-              child: WorkoutRecordCard(
-                  key: ValueKey(workoutRecord.id),
-                  workoutRecord: workoutRecord,
-                  onCardTap: () async {},
-                  onCardLongPress: () {})),
-        );
-      }, duration: Duration(milliseconds: 150));
-    } catch (e) {}
+    animatedListKey.currentState!.removeItem(index, (context, animation) {
+      return SizeTransition(
+        sizeFactor: animation,
+        child: FadeTransition(
+            opacity: animation,
+            child: WorkoutRecordCard(
+                key: ValueKey(workoutRecord.id),
+                workoutRecord: workoutRecord,
+                onCardTap: () async {},
+                onCardLongPress: () {})),
+      );
+    }, duration: Duration(milliseconds: 150));
   }
 
   @override
@@ -195,21 +190,21 @@ class _HistoryState extends ConsumerState<History> {
                         IconButton(
                             onPressed: () async {
                               List<int> ids = [];
-                              for (int i = 0; i < isOpenList.length; i++) {
-                                if (isOpenList[i]) {
-                                  ids.add(workoutRecords[i].id);
-                                  await removeWorkoutRecordCard(i);
+                              List<bool> tmp = [...isOpenList];
+                              for (int i = 0; i < tmp.length; i++) {
+                                if (tmp[i]) {
+                                  int index =
+                                      i + isOpenList.length - tmp.length;
+                                  ids.add(workoutRecords[index].id);
+
+                                  await removeWorkoutRecordCard(index);
+                                  // ref.read doesn't work well with animated list idkk
+                                  workoutRecords.removeAt(index);
+                                  isOpenList.removeAt(index);
+                                  setState(() {});
                                 }
                               }
 
-                              for (int i = 0; i < ids.length; i++) {
-                                await Future.delayed(
-                                    Duration(milliseconds: 100));
-                                ref
-                                    .read(Helper.instance.workoutRecordsProvider
-                                        .notifier)
-                                    .removeWorkoutRecord(ids[i]);
-                              }
                               resetAppBarAndCards();
                             },
                             icon: Icon(Icons.delete))
