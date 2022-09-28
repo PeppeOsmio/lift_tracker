@@ -25,7 +25,7 @@ class _HistoryState extends ConsumerState<History> {
   bool isAppBarSelected = false;
   String searchString = '';
   FocusNode searchFocusNode = FocusNode();
-  int? openIndex = null;
+  List<bool> isOpenList = [];
   TextEditingController searchController = TextEditingController();
   List<WorkoutRecord> workoutRecords = [];
   bool isListReady = false;
@@ -48,6 +48,7 @@ class _HistoryState extends ConsumerState<History> {
           .read(Helper.instance.workoutRecordsProvider.notifier)
           .addListener((state) {
         if (state.length > workoutRecords.length) {
+          isOpenList.add(false);
           for (int i = workoutRecords.length; i < state.length; i++) {
             animatedListKey.currentState!
                 .insertItem(i, duration: Duration(milliseconds: 150));
@@ -63,6 +64,9 @@ class _HistoryState extends ConsumerState<History> {
       ref
           .read(Helper.instance.workoutRecordsProvider.notifier)
           .addWorkoutRecords(value);
+      for (int i = 0; i < value.length; i++) {
+        isOpenList.add(false);
+      }
     });
   }
 
@@ -73,8 +77,22 @@ class _HistoryState extends ConsumerState<History> {
         return WorkoutRecordCard(
           key: ValueKey(workoutRecords[index].id),
           workoutRecord: workoutRecords[index],
-          isSelected: openIndex == index,
+          isSelected: isOpenList[index],
           onCardTap: () async {
+            if (isAppBarSelected) {
+              if (isOpenList[index]) {
+                setState(() {
+                  resetAppBarAndCards();
+                });
+              } else {
+                setState(() {
+                  isOpenList[index] = true;
+                  isAppBarSelected = true;
+                  toggleMenuAnimation = true;
+                });
+              }
+              return;
+            }
             MaterialPageRoute route = MaterialPageRoute(builder: (context) {
               return Session(workoutRecord: workoutRecords[index]);
             });
@@ -84,13 +102,13 @@ class _HistoryState extends ConsumerState<History> {
             });
           },
           onCardLongPress: () {
-            if (openIndex == index) {
+            if (isOpenList[index]) {
               setState(() {
                 resetAppBarAndCards();
               });
             } else {
               setState(() {
-                openIndex = index;
+                isOpenList[index] = true;
                 isAppBarSelected = true;
                 toggleMenuAnimation = true;
               });
@@ -103,13 +121,13 @@ class _HistoryState extends ConsumerState<History> {
 
   void resetAppBarAndCards() {
     isAppBarSelected = false;
-    openIndex = null;
+    isOpenList = isOpenList.map((e) => false).toList();
     searchString = '';
     searchController.text = '';
     toggleMenuAnimation = false;
   }
 
-  void removeWorkoutRecordCard(int index) async {
+  Future removeWorkoutRecordCard(int index) async {
     WorkoutRecord workoutRecord = workoutRecords[index];
     bool success =
         await CustomDatabase.instance.removeWorkoutRecord(workoutRecord.id);
@@ -122,28 +140,32 @@ class _HistoryState extends ConsumerState<History> {
             ?.hasHistory =
         await CustomDatabase.instance.hasHistory(workoutRecord.workoutId);
 
-    resetAppBarAndCards();
-    animatedListKey.currentState!.removeItem(index, (context, animation) {
-      return SizeTransition(
-        sizeFactor: animation,
-        child: FadeTransition(
-            opacity: animation,
-            child: WorkoutRecordCard(
-                key: ValueKey(workoutRecord.id),
-                workoutRecord: workoutRecord,
-                onCardTap: () async {},
-                onCardLongPress: () {})),
-      );
-    }, duration: Duration(milliseconds: 150));
-    ref
-        .read(Helper.instance.workoutRecordsProvider.notifier)
-        .removeWorkoutRecord(workoutRecord.id);
+    try {
+      animatedListKey.currentState!.removeItem(index, (context, animation) {
+        return SizeTransition(
+          sizeFactor: animation,
+          child: FadeTransition(
+              opacity: animation,
+              child: WorkoutRecordCard(
+                  key: ValueKey(workoutRecord.id),
+                  workoutRecord: workoutRecord,
+                  onCardTap: () async {},
+                  onCardLongPress: () {})),
+        );
+      }, duration: Duration(milliseconds: 150));
+    } catch (e) {}
   }
 
   @override
   Widget build(BuildContext context) {
     workoutRecords = ref.watch(Helper.instance.workoutRecordsProvider);
     List<Widget> bodyItems = body();
+    int openCards = 0;
+    for (int i = 0; i < isOpenList.length; i++) {
+      if (isOpenList[i]) {
+        openCards++;
+      }
+    }
     return Scaffold(
       appBar: AppBar(
         backgroundColor: isAppBarSelected
@@ -171,10 +193,24 @@ class _HistoryState extends ConsumerState<History> {
                 children: isAppBarSelected
                     ? [
                         IconButton(
-                            onPressed: () {
-                              if (openIndex != null) {
-                                removeWorkoutRecordCard(openIndex!);
+                            onPressed: () async {
+                              List<int> ids = [];
+                              for (int i = 0; i < isOpenList.length; i++) {
+                                if (isOpenList[i]) {
+                                  ids.add(workoutRecords[i].id);
+                                  await removeWorkoutRecordCard(i);
+                                }
                               }
+
+                              for (int i = 0; i < ids.length; i++) {
+                                await Future.delayed(
+                                    Duration(milliseconds: 100));
+                                ref
+                                    .read(Helper.instance.workoutRecordsProvider
+                                        .notifier)
+                                    .removeWorkoutRecord(ids[i]);
+                              }
+                              resetAppBarAndCards();
                             },
                             icon: Icon(Icons.delete))
                       ]
@@ -187,10 +223,9 @@ class _HistoryState extends ConsumerState<History> {
         title: AnimatedSize(
           curve: Curves.decelerate,
           duration: Duration(milliseconds: 150),
-          child: Text(isAppBarSelected && openIndex != null
-              ? UIUtilities.loadTranslation(context, 'deleteSessionOf')
-                  .replaceFirst(
-                      RegExp('%s'), workoutRecords[openIndex!].workoutName)
+          child: Text(isAppBarSelected
+              ? UIUtilities.loadTranslation(context, 'nSelected')
+                  .replaceFirst(RegExp('%s'), openCards.toString())
               : UIUtilities.loadTranslation(context, 'history')),
         ),
       ),

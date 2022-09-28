@@ -83,7 +83,7 @@ class _WorkoutCardState extends State<WorkoutCard> with WidgetsBindingObserver {
           widget.onCardTap();
         },
         child: Card(
-          elevation: widget.isOpen ? 10 : null,
+          elevation: widget.isOpen ? 5 : null,
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(children: [

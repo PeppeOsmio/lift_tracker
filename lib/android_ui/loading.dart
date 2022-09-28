@@ -22,6 +22,8 @@ class _LoadingState extends ConsumerState<Loading> {
   bool isFirstRun = true;
   ThemeData? theme;
   bool didSettingsChange = false;
+  bool mustRebuildForPalette = false;
+  bool didAlreadyUsePalette = false;
 
   @override
   void initState() {
@@ -32,22 +34,21 @@ class _LoadingState extends ConsumerState<Loading> {
   Widget build(BuildContext context) {
     return DynamicColorBuilder(builder: ((lightDynamic, darkDynamic) {
       Future.delayed(Duration.zero, () async {
-        if (Settings.instance.onSettingsUpdateListener == null) {
+        if (Settings.instance.onSettingsUpdateListener == null && isFirstRun) {
           Settings.instance.onSettingsUpdateListener = (oldSettings) {
             setState(() {
               didSettingsChange = true;
             });
           };
         }
+
         await Settings.instance.getSettings();
         ColorScheme lightColorScheme;
         ColorScheme darkColorScheme;
-
         if (lightDynamic != null &&
             darkDynamic != null &&
-            Settings.instance.sharedPreferences!.getBool('useSystemPalette') !=
-                null &&
-            Settings.instance.sharedPreferences!.getBool('useSystemPalette')!) {
+            Settings.instance.useSystemPalette) {
+          mustRebuildForPalette = true;
           lightColorScheme = lightDynamic.harmonized().copyWith();
           darkColorScheme = darkDynamic.harmonized().copyWith();
         } else if (Settings.instance.sharedPreferences!.getInt('mainColor') ==
@@ -58,12 +59,10 @@ class _LoadingState extends ConsumerState<Loading> {
               seedColor: Colors.orange, brightness: Brightness.dark);
         } else {
           lightColorScheme = ColorScheme.fromSeed(
-              seedColor: Color(
-                  Settings.instance.sharedPreferences!.getInt('mainColor')!),
+              seedColor: Settings.instance.mainColor,
               brightness: Brightness.light);
           darkColorScheme = ColorScheme.fromSeed(
-              seedColor: Color(
-                  Settings.instance.sharedPreferences!.getInt('mainColor')!),
+              seedColor: Settings.instance.mainColor,
               brightness: Brightness.dark);
         }
         lightColorScheme = lightColorScheme;
@@ -73,8 +72,7 @@ class _LoadingState extends ConsumerState<Loading> {
                 : lightColorScheme);
 
         theme = ThemeData(
-          useMaterial3:
-              Settings.instance.sharedPreferences!.getBool('useMaterial3'),
+          useMaterial3: Settings.instance.useMaterial3,
           colorScheme: colorScheme,
           scaffoldBackgroundColor: colorScheme.background,
           dialogBackgroundColor: colorScheme.surface,
@@ -83,8 +81,14 @@ class _LoadingState extends ConsumerState<Loading> {
               .popupMenuTheme
               .copyWith(color: colorScheme.surfaceVariant),
         );
-        if (isFirstRun || didSettingsChange) {
+        if (isFirstRun ||
+            didSettingsChange ||
+            (mustRebuildForPalette && !didAlreadyUsePalette)) {
           setState(() {
+            if (mustRebuildForPalette) {
+              mustRebuildForPalette = false;
+              didAlreadyUsePalette = true;
+            }
             isThemeReady = true;
             isFirstRun = false;
             didSettingsChange = false;

@@ -237,8 +237,8 @@ class _AnimatedMenuState extends State<AnimatedMenu> {
                                   UIUtilities.loadTranslation(context, 'yes'),
                               rightOnPressed: () => Navigator.maybePop(context),
                               leftOnPressed: () async {
-                                bool created = await Backup.createBackup()
-                                    .catchError((error) {
+                                bool created = false;
+                                await Backup.createBackup().catchError((error) {
                                   Fluttertoast.showToast(
                                       msg: 'menu: ' + error.toString());
                                 });

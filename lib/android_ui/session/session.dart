@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
 import 'package:lift_tracker/android_ui/session/exerciserecordcard.dart';
@@ -114,6 +116,9 @@ class _SessionState extends State<Session> {
       }
     }
     recordNumber = recordExercisesIndexes.length;
+    widget.workoutRecord.exerciseRecords.forEach((element) {
+      log('${element.exerciseData.name} has id ${element.exerciseId}');
+    });
   }
 
   @override

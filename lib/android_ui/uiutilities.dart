@@ -78,13 +78,15 @@ class UIUtilities {
   }
 
   static void showSnackBar(
-      {required BuildContext context, required dynamic msg}) {
-    return;
+      {required BuildContext context,
+      required dynamic msg,
+      Duration? duration}) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(
         msg.toString(),
       ),
       behavior: SnackBarBehavior.floating,
+      duration: duration ?? Duration(seconds: 4),
     ));
   }
 
@@ -104,7 +106,6 @@ class UIUtilities {
     }
     await showDialog(
         useRootNavigator: false,
-        barrierColor: Colors.transparent,
         context: context,
         builder: (ctx) {
           return WillPopScope(
@@ -114,38 +115,29 @@ class UIUtilities {
               }
               return true;
             },
-            child: Stack(children: [
-              GestureDetector(
-                  onTap: () {
-                    Navigator.maybePop(context);
-                  },
-                  child: DimmingBackground(
-                    blurred: blurred,
-                    duration: Duration(milliseconds: 150),
-                    maxAlpha: 138,
-                  )),
-              AlertDialog(
-                backgroundColor: Theme.of(context).colorScheme.background,
-                title: title != null ? Text(title) : null,
-                content: content != null ? Text(content) : null,
-                actions: [
-                  TextButton(
-                      onPressed: () {
-                        leftOnPressed();
-                      },
-                      child: Text(
-                        leftText,
-                        style: TextStyle(color: getPrimaryColor(context)),
-                      )),
-                  TextButton(
-                      onPressed: () {
-                        rightOnPressed();
-                      },
-                      child: Text(rightText,
-                          style: TextStyle(color: getPrimaryColor(context)))),
-                ],
-              ),
-            ]),
+            child: AlertDialog(
+              backgroundColor: Theme.of(context).colorScheme.background,
+              title: title != null ? Text(title) : null,
+              content: content != null ? Text(content) : null,
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      leftOnPressed();
+                    },
+                    child: Text(
+                      leftText,
+                      style: Theme.of(context).textTheme.button!.copyWith(
+                          color: Theme.of(context).colorScheme.primary),
+                    )),
+                TextButton(
+                    onPressed: () {
+                      rightOnPressed();
+                    },
+                    child: Text(rightText,
+                        style: Theme.of(context).textTheme.button!.copyWith(
+                            color: Theme.of(context).colorScheme.primary))),
+              ],
+            ),
           );
         });
     if (fullscreen) {

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -90,6 +92,7 @@ class _AppState extends ConsumerState<App> {
   @override
   void initState() {
     super.initState();
+    CustomDatabase.instance.printBuggedExerciseRecords();
     Future.delayed(Duration.zero, () async {
       await Helper.getExerciseData().then((value) async {
         Helper.instance.exerciseDataGlobal = value;

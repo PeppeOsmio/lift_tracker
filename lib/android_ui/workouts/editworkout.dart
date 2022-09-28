@@ -5,7 +5,6 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lift_tracker/android_ui/exercises/selectexercise.dart';
 import 'package:lift_tracker/android_ui/uiutilities.dart';
-import 'package:lift_tracker/android_ui/widgets/materialpopupmenu.dart';
 import 'package:lift_tracker/android_ui/workouts/newexercisecard.dart';
 import 'package:lift_tracker/data/classes/exercise.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
@@ -26,6 +25,7 @@ enum MoveOrRemoveMenuOption { remove, move_up, move_down }
 class _EditWorkoutState extends ConsumerState<EditWorkout> {
   TextEditingController workoutNameController = TextEditingController();
   List<ExerciseData?> exerciseDataList = [];
+  List<Exercise?> exercises = [];
   List<TextEditingController> setsControllers = [];
   List<TextEditingController> repsControllers = [];
   bool canSave = false;
@@ -165,7 +165,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
               repsController: repsControllers[i],
               popupMenuButton: items.isEmpty
                   ? null
-                  : MaterialPopupMenuButton<MoveOrRemoveMenuOption>(
+                  : PopupMenuButton<MoveOrRemoveMenuOption>(
                       onSelected: (option) {
                         switch (option) {
                           case MoveOrRemoveMenuOption.move_up:
@@ -214,6 +214,16 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
                 repsControllers.last.text.isNotEmpty) {
               setState(() {
                 exerciseDataList.add(null);
+                exercises.add(Exercise(
+                    workoutId: widget.workout.id,
+                    id: -1,
+                    sets: 0,
+                    reps: 0,
+                    exerciseData: ExerciseData(
+                      id: 0,
+                      name: '',
+                      type: '',
+                    )));
                 setsControllers.add(TextEditingController());
                 setsControllers.last.addListener(() {
                   updateCanSave();
@@ -256,6 +266,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
         updateCanSave();
       });
       exerciseDataList.add(exercise.exerciseData);
+      exercises.add(exercise);
     }
     canSave = getCanSave();
   }
@@ -304,7 +315,12 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
       return false;
     }
     for (int i = 0; i < setsControllers.length; i++) {
-      if (setsControllers[i].text.isEmpty || repsControllers[i].text.isEmpty) {
+      if (setsControllers[i].text.isEmpty ||
+          int.tryParse(setsControllers[i].text) == 0) {
+        return false;
+      }
+      if (repsControllers[i].text.isEmpty ||
+          int.tryParse(repsControllers[i].text) == 0) {
         return false;
       }
     }
@@ -324,6 +340,9 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
     ExerciseData? tmpExerciseData = exerciseDataList[index];
     exerciseDataList[index] = exerciseDataList[index - 1];
     exerciseDataList[index - 1] = tmpExerciseData;
+    Exercise? tmpExercise = exercises[index];
+    exercises[index] = exercises[index - 1];
+    exercises[index - 1] = tmpExercise;
     setState(() {});
   }
 
@@ -340,6 +359,9 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
     ExerciseData? tmpExerciseData = exerciseDataList[index];
     exerciseDataList[index] = exerciseDataList[index + 1];
     exerciseDataList[index + 1] = tmpExerciseData;
+    Exercise? tmpExercise = exercises[index];
+    exercises[index] = exercises[index + 1];
+    exercises[index + 1] = tmpExercise;
     setState(() {});
   }
 
@@ -349,6 +371,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
         setsControllers[index].text = '';
         repsControllers[index].text = '';
         exerciseDataList[index] = null;
+        exercises[index] = null;
       });
       return;
     }
@@ -364,7 +387,9 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
       setsControllers.removeAt(index);
       repsControllers.removeAt(index);
       exerciseDataList.removeAt(index);
+      exercises.removeAt(index);
     });
+    updateCanSave();
     TextEditingController tmpSets = TextEditingController();
     TextEditingController tmpReps = TextEditingController();
     tmpSets.text = oldSets;
@@ -389,19 +414,19 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
     if (!canSave) {
       return;
     }
-    List<Exercise> exercises = [];
+    List<Exercise> tmp = [];
     Workout workout;
-    for (int i = 0; i < exerciseDataList.length; i++) {
+    for (int i = 0; i < exercises.length; i++) {
       int sets = int.parse(setsControllers[i].text);
       int reps = int.parse(repsControllers[i].text);
-      exercises.add(Exercise(
-          workoutId: 0,
-          id: 0,
+      tmp.add(Exercise(
+          workoutId: widget.workout.id,
+          id: exercises[i]!.id,
           sets: sets,
           reps: reps,
           exerciseData: exerciseDataList[i]!));
     }
-    workout = Workout(widget.workout.id, workoutNameController.text, exercises);
+    workout = Workout(widget.workout.id, workoutNameController.text, tmp);
     bool success = await CustomDatabase.instance.editWorkout(workout);
     if (success) {
       ref

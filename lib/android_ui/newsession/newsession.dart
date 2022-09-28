@@ -16,7 +16,7 @@ import 'package:lift_tracker/data/classes/workout.dart';
 import 'package:lift_tracker/data/classes/workoutrecord.dart';
 import 'package:lift_tracker/data/database/database.dart';
 import 'package:lift_tracker/data/helper.dart';
-import 'package:lift_tracker/android_ui/widgets/materialpopupmenu.dart';
+import 'package:lift_tracker/old_ui/app/app.dart';
 
 class NewSession extends ConsumerStatefulWidget {
   const NewSession({Key? key, required this.workout, this.resumedSession})
@@ -47,6 +47,7 @@ class _NewSessionState extends ConsumerState<NewSession>
   List<Exercise> originalExercises = [];
   GlobalKey<AnimatedListState> animatedListKey = GlobalKey<AnimatedListState>();
   bool canSave = false;
+  bool shouldRunCacheLoop = true;
 
   @override
   void initState() {
@@ -128,6 +129,19 @@ class _NewSessionState extends ConsumerState<NewSession>
     for (int i = 0; i < exercises.length; i++) {
       tmpList.addAll({exercises[i].id: false});
     }
+
+    Future.delayed(Duration.zero, () async {
+      if (widget.resumedSession != null) {
+        setState(() {
+          updateCanSave();
+        });
+      }
+      while (shouldRunCacheLoop) {
+        await Future.delayed(Duration(seconds: 30), () async {
+          await createWorkoutRecord(cacheMode: true);
+        });
+      }
+    });
   }
 
   void updateCanSave() {
@@ -174,7 +188,9 @@ class _NewSessionState extends ConsumerState<NewSession>
     rpeControllersList.last.last.addListener(() {
       updateCanSave();
     });
-    setState(() {});
+    setState(() {
+      canSave = false;
+    });
     animatedListKeys.add(GlobalKey<AnimatedListState>());
     animatedListKey.currentState!
         .insertItem(exercises.length - 1, duration: Duration(milliseconds: 0));
@@ -184,10 +200,17 @@ class _NewSessionState extends ConsumerState<NewSession>
     for (int i = 0; i < repsControllersList.length; i++) {
       for (int j = 0; j < repsControllersList[i].length; j++) {
         try {
-          int reps = int.parse(repsControllersList[i][j].text);
-          double weight = double.parse(weightControllersList[i][j].text);
+          int? reps = int.tryParse(repsControllersList[i][j].text);
+          double? weight = double.tryParse(weightControllersList[i][j].text);
+          if (exercises[i].exerciseData.type == 'free') {
+            weight = 1;
+          }
           int? rpe = int.tryParse(rpeControllersList[i][j].text);
-          if (reps < 0 || weight < 0 || (rpe != null && rpe <= 0)) {
+          if (reps == null ||
+              reps < 0 ||
+              weight == null ||
+              weight < 0 ||
+              (rpe != null && rpe <= 0)) {
             return false;
           }
         } catch (e) {
@@ -204,24 +227,40 @@ class _NewSessionState extends ConsumerState<NewSession>
     List<Widget> items = body();
     return WillPopScope(
       onWillPop: () async {
-        UIUtilities.showDimmedBackgroundDialog(context,
-            title: UIUtilities.loadTranslation(context, 'sessionQuitTitle'),
-            content: UIUtilities.loadTranslation(context, 'sessionQuitContent'),
-            leftText: UIUtilities.loadTranslation(context, 'resumeNo'),
-            rightText: UIUtilities.loadTranslation(context, 'resumeYes'),
-            leftOnPressed: () async {
-          await CustomDatabase.instance.removeCachedSession(widget.workout.id);
-          // this will update ui too
-          widget.workout.hasCache = 0;
-          Navigator.pop(context);
-          Navigator.pop(context);
-        }, rightOnPressed: () async {
-          await createWorkoutRecord(cacheMode: true);
-          // this will update ui too
-          widget.workout.hasCache = 1;
-          Navigator.pop(context);
-          Navigator.pop(context);
-        });
+        showDialog(
+            useRootNavigator: false,
+            context: context,
+            builder: (_) {
+              return AlertDialog(
+                title: Text(
+                    UIUtilities.loadTranslation(context, 'sessionQuitTitle')),
+                content: Text(
+                    UIUtilities.loadTranslation(context, 'sessionQuitContent')),
+                actions: [
+                  TextButton(
+                      onPressed: () async {
+                        await CustomDatabase.instance
+                            .removeCachedSession(widget.workout.id);
+                        // this will update ui too
+                        widget.workout.hasCache = 0;
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                          UIUtilities.loadTranslation(context, 'resumeNo'))),
+                  TextButton(
+                      onPressed: () async {
+                        await createWorkoutRecord(cacheMode: true);
+                        // this will update ui too
+                        widget.workout.hasCache = 1;
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                          UIUtilities.loadTranslation(context, 'resumeYes')))
+                ],
+              );
+            });
         return false;
       },
       child: GestureDetector(
@@ -241,10 +280,12 @@ class _NewSessionState extends ConsumerState<NewSession>
                           ? IconButton(
                               icon: Icon(Icons.done),
                               onPressed: () async {
-                                await createWorkoutRecord();
-                                // this will update ui too
-                                widget.workout.hasHistory = true;
-                                Navigator.pop(context);
+                                try {
+                                  await createWorkoutRecord();
+                                  // this will update ui too
+                                  widget.workout.hasHistory = true;
+                                  Navigator.pop(context);
+                                } catch (e) {}
                               },
                             )
                           : SizedBox()
@@ -278,7 +319,7 @@ class _NewSessionState extends ConsumerState<NewSession>
             repsControllers: repsControllersList[index],
             weightControllers: weightControllersList[index],
             rpeControllers: rpeControllersList[index],
-            popupMenuButton: MaterialPopupMenuButton(
+            popupMenuButton: PopupMenuButton(
               icon: Icon(
                 Icons.more_vert,
                 color: UIUtilities.getPrimaryColor(context),
@@ -345,11 +386,10 @@ class _NewSessionState extends ConsumerState<NewSession>
         child: InkWell(
           borderRadius:
               BorderRadius.circular(Theme.of(context).useMaterial3 ? 1000 : 0),
-          onTap: () {},
+          onTap: () {
+            addExercise();
+          },
           child: ListTile(
-              onTap: () {
-                addExercise();
-              },
               leading: Icon(
                 Icons.add,
                 color: UIUtilities.getPrimaryColor(context),
@@ -446,11 +486,8 @@ class _NewSessionState extends ConsumerState<NewSession>
         workoutId: widget.workout.id);
     try {
       var newWorkoutRecordInfo = await CustomDatabase.instance
-          .addWorkoutRecord(workoutRecord, cacheMode: cacheMode)
-          .catchError((error) {
-        UIUtilities.showSnackBar(
-            context: context, msg: 'newsession: ' + error.toString());
-      });
+          .addWorkoutRecord(workoutRecord, cacheMode: cacheMode);
+
       if (cacheMode) {
         return;
       }
@@ -490,9 +527,14 @@ class _NewSessionState extends ConsumerState<NewSession>
         await CustomDatabase.instance.removeCachedSession(newId);
       }
     } catch (error) {
+      if (error.toString() == 'Exception: empty_exercises') {
+        UIUtilities.showSnackBar(
+            context: context,
+            msg: UIUtilities.loadTranslation(context, 'emptySession'));
+        throw error;
+      }
       UIUtilities.showSnackBar(
           context: context, msg: 'newsession: ' + error.toString());
-      Navigator.maybePop(context);
       return;
     }
   }
@@ -500,6 +542,7 @@ class _NewSessionState extends ConsumerState<NewSession>
   @override
   void dispose() async {
     WidgetsBinding.instance.removeObserver(this);
+    shouldRunCacheLoop = false;
     super.dispose();
   }
 
@@ -507,8 +550,11 @@ class _NewSessionState extends ConsumerState<NewSession>
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.paused) {
+      shouldRunCacheLoop = false;
       //create a cached session
       await createWorkoutRecord(cacheMode: true);
+    } else if (state == AppLifecycleState.resumed) {
+      shouldRunCacheLoop = true;
     }
   }
 }

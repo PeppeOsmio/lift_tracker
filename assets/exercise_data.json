@@ -342,5 +342,45 @@
         "secondMuscle": "triceps",
         "thirdMuscle": "rearDelts",
         "type": "machine"
+    },
+    {
+        "id": 44,
+        "name": "benchPressBarebellIncline",
+        "firstMuscle": "chest",
+        "secondMuscle": "triceps",
+        "thirdMuscle": "antDelts",
+        "type": "barebell"
+    },
+    {
+        "id": 45,
+        "name": "benchPressDumbbellIncline",
+        "firstMuscle": "chest",
+        "secondMuscle": "triceps",
+        "thirdMuscle": "antDelts",
+        "type": "dumbbell"
+    },
+    {
+        "id": 46,
+        "name": "frenchPressCable",
+        "firstMuscle": "triceps",
+        "secondMuscle": "",
+        "thirdMuscle": "",
+        "type": "machine"
+    },
+    {
+        "id": 47,
+        "name": "frenchPressDumbbell",
+        "firstMuscle": "triceps",
+        "secondMuscle": "",
+        "thirdMuscle": "",
+        "type": "dumbbell"
+    },
+    {
+        "id": 48,
+        "name": "shoulderPressDumbbell",
+        "firstMuscle": "antDelts",
+        "secondMuscle": "latDelts",
+        "thirdMuscle": "triceps",
+        "type": "machine"
     }
 ]

@@ -267,12 +267,6 @@ class CustomDatabase {
         }
       }
     });
-    for (var wr in workoutRecords) {
-      dev.log(wr.workoutName + '\n');
-      for (var er in wr.exerciseRecords) {
-        dev.log(er.exerciseId.toString());
-      }
-    }
     return workoutRecords;
   }
 
@@ -518,6 +512,9 @@ class CustomDatabase {
 
         for (int i = 0; i < workoutRecord.exerciseRecords.length; i++) {
           ExerciseRecord exerciseRecord = workoutRecord.exerciseRecords[i];
+          if (exerciseRecord.exerciseId == 0) {
+            throw Exception('Exercise record has exerciseId = 0');
+          }
           if (!workoutRecord.exerciseRecords[i].temp) {
             var sets = workoutRecord.exerciseRecords[i].sets;
             var previousRecords =
@@ -640,6 +637,7 @@ class CustomDatabase {
           'type': workoutRecord.exerciseRecords[i].type,
           'position_in_workout_record': i
         };
+
         int exerciseRecordId = await txn.insert('exercise_record', values);
         values.clear();
 
@@ -801,6 +799,18 @@ class CustomDatabase {
       workout.hasHistory = await hasHistory(workout.id);
     }
     return workoutList;
+  }
+
+  Future printBuggedExerciseRecords() async {
+    final db = await instance.database;
+    var result = await db.query('exercise_record',
+        columns: ['fk_exercise_id, json_id'], where: 'fk_exercise_id <= 0');
+    result.forEach((element) {
+      dev.log(element.toString());
+      dev.log(Helper.instance.exerciseDataGlobal
+          .firstWhere((a) => a.id == element['json_id'] as int)
+          .name);
+    });
   }
 
   Future<int> saveWorkout(Workout workout,

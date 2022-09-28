@@ -8,7 +8,6 @@ import 'package:lift_tracker/data/classes/workout.dart';
 import 'package:lift_tracker/data/database/database.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/android_ui//exercises/selectexercise.dart';
-import 'package:lift_tracker/android_ui/widgets/materialpopupmenu.dart';
 
 class NewWorkout extends ConsumerStatefulWidget {
   const NewWorkout({Key? key}) : super(key: key);
@@ -33,17 +32,31 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
     List<Widget> bodyWidgets = body();
     return WillPopScope(
       onWillPop: () async {
-        UIUtilities.showDimmedBackgroundDialog(context,
-            title: UIUtilities.loadTranslation(context, 'discard'),
-            content: UIUtilities.loadTranslation(context, 'discardContent'),
-            leftText: UIUtilities.loadTranslation(context, 'discardNo'),
-            rightText: UIUtilities.loadTranslation(context, 'discardYes'),
-            leftOnPressed: () {
-          Navigator.maybePop(context);
-        }, rightOnPressed: () {
-          Navigator.pop(context);
-          Navigator.pop(context);
-        });
+        showDialog(
+            useRootNavigator: false,
+            context: context,
+            builder: (_) {
+              return AlertDialog(
+                title: Text(UIUtilities.loadTranslation(context, 'discard')),
+                content: Text(
+                    UIUtilities.loadTranslation(context, 'discardContent')),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.maybePop(context);
+                      },
+                      child: Text(
+                          UIUtilities.loadTranslation(context, 'discardNo'))),
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                          UIUtilities.loadTranslation(context, 'discardYes')))
+                ],
+              );
+            });
         return false;
       },
       child: Scaffold(
@@ -166,7 +179,7 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
               repsController: repsControllers[i],
               popupMenuButton: items.isEmpty
                   ? null
-                  : MaterialPopupMenuButton<MoveOrRemoveMenuOption>(
+                  : PopupMenuButton<MoveOrRemoveMenuOption>(
                       onSelected: (option) {
                         switch (option) {
                           case MoveOrRemoveMenuOption.move_up:
@@ -301,7 +314,12 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
       return false;
     }
     for (int i = 0; i < setsControllers.length; i++) {
-      if (setsControllers[i].text.isEmpty || repsControllers[i].text.isEmpty) {
+      if (setsControllers[i].text.isEmpty ||
+          int.tryParse(setsControllers[i].text) == 0) {
+        return false;
+      }
+      if (repsControllers[i].text.isEmpty ||
+          int.tryParse(repsControllers[i].text) == 0) {
         return false;
       }
     }
@@ -347,6 +365,7 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
         repsControllers[index].text = '';
         exerciseDataList[index] = null;
       });
+      updateCanSave();
       return;
     }
     String? oldName = exerciseDataList.length - 1 >= index
@@ -380,6 +399,7 @@ class _NewWorkoutState extends ConsumerState<NewWorkout> {
         ),
       );
     }, duration: Duration(milliseconds: 150));
+    updateCanSave();
   }
 
   Future createWorkout() async {

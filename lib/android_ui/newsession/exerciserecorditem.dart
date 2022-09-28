@@ -8,14 +8,12 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:lift_tracker/android_ui/newsession/newsession.dart';
 import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/classes/exercise.dart';
-import 'package:lift_tracker/android_ui/widgets/materialpopupmenu.dart'
-    as MaterialPopupMenu;
 import 'package:lift_tracker/data/classes/exercisedata.dart';
 
 class ExerciseRecordItem extends StatefulWidget {
   const ExerciseRecordItem(
       {Key? key,
-      this.exerciseData,
+      required this.exerciseData,
       required this.repsControllers,
       required this.weightControllers,
       required this.rpeControllers,
@@ -23,11 +21,11 @@ class ExerciseRecordItem extends StatefulWidget {
       required this.animatedListKey,
       this.onSetAdded})
       : super(key: key);
-  final ExerciseData? exerciseData;
+  final ExerciseData exerciseData;
   final List<TextEditingController> repsControllers;
   final List<TextEditingController> weightControllers;
   final List<TextEditingController> rpeControllers;
-  final MaterialPopupMenu.MaterialPopupMenuButton popupMenuButton;
+  final PopupMenuButton popupMenuButton;
   final GlobalKey<AnimatedListState> animatedListKey;
   final Function(Function insertItem, Function removeItem)? onSetAdded;
 
@@ -122,16 +120,34 @@ class _ExerciseRecordItemState extends State<ExerciseRecordItem> {
                               SizedBox(width: 16),
                               Expanded(
                                 child: TextField(
-                                  style: UIUtilities.getTextFieldTextStyle(
-                                      context),
-                                  controller: weightControllers[index],
-                                  keyboardType: TextInputType.number,
-                                  decoration:
-                                      UIUtilities.getTextFieldDecoration(
-                                          context,
-                                          UIUtilities.loadTranslation(
-                                              context, 'weight')),
-                                ),
+                                    enabled: widget.exerciseData.type != 'free',
+                                    style: UIUtilities.getTextFieldTextStyle(
+                                        context),
+                                    controller: weightControllers[index],
+                                    keyboardType: TextInputType.number,
+                                    decoration: widget.exerciseData.type !=
+                                            'free'
+                                        ? UIUtilities.getTextFieldDecoration(
+                                            context,
+                                            UIUtilities.loadTranslation(
+                                                context, 'weight'))
+                                        : UIUtilities.getTextFieldDecoration(
+                                                context,
+                                                UIUtilities.loadTranslation(
+                                                    context, 'weight'))
+                                            .copyWith(
+                                            labelStyle: UIUtilities
+                                                    .getTextFieldDecoration(
+                                                        context,
+                                                        UIUtilities
+                                                            .loadTranslation(
+                                                                context,
+                                                                'weight'))
+                                                .labelStyle!
+                                                .copyWith(
+                                                    decoration: TextDecoration
+                                                        .lineThrough),
+                                          )),
                               ),
                               SizedBox(width: 16),
                               Expanded(

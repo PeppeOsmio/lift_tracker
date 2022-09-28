@@ -14,25 +14,29 @@ import 'package:file_picker/file_picker.dart';
 import 'classes/workout.dart';
 
 class Backup {
-  static Future<bool> createBackup() async {
+  static Future<String?> createBackup() async {
     if (Platform.isAndroid) {
       var status = await Permission.storage.status;
       if (!status.isGranted) {
-        await Permission.storage.request();
+        status = await Permission.storage.request();
+      }
+      if (!status.isGranted) {
+        throw Exception('permission_denied');
       }
       File file;
+      String? path;
       try {
         String date = DateTime.now().toString().replaceAll(' ', '');
         date = date.replaceAll(':', '');
-        String? path = await FilePicker.platform.getDirectoryPath();
+        path = await FilePicker.platform.getDirectoryPath();
         if (path == null) {
-          return false;
+          return null;
         }
         file = File('$path/${date}.ltbackup');
       } catch (e) {
         Fluttertoast.showToast(msg: 'backup: ' + e.toString());
         log(e.toString());
-        return false;
+        return null;
       }
 
       List<Workout> workouts =
@@ -48,11 +52,11 @@ class Backup {
       } catch (e) {
         Fluttertoast.showToast(msg: 'backup: ' + e.toString());
         log(e.toString());
-        return false;
+        return null;
       }
-      return true;
+      return path;
     }
-    return false;
+    return null;
   }
 
   static bool validateBackup(
@@ -79,7 +83,10 @@ class Backup {
     if (Platform.isAndroid) {
       var status = await Permission.storage.status;
       if (!status.isGranted) {
-        await Permission.storage.request();
+        status = await Permission.storage.request();
+      }
+      if (!status.isGranted) {
+        throw Exception('permission_denied');
       }
       FilePickerResult? result = await FilePicker.platform.pickFiles();
       File file;
@@ -87,7 +94,7 @@ class Backup {
         file = File(result.files.single.path!);
       } else {
         // User canceled the picker
-        return {};
+        throw Exception('backup_canceled');
       }
       var decode = jsonDecode(await file.readAsString());
       List<Workout> workouts = [];
@@ -148,7 +155,7 @@ class Backup {
 
       bool isValid = validateBackup(workouts, workoutRecords);
       if (!isValid) {
-        return Future.error('Invalid backup.');
+        throw Exception('Invalid backup');
       }
       await CustomDatabase.instance.clearAll();
 

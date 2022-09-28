@@ -68,14 +68,13 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
           padding: const EdgeInsets.only(top: 6, bottom: 6),
           child: Row(
             children: [
-              Expanded(
-                  child: Text(
-                      exerciseRecords[i].sets.length.toString() +
-                          '  ×  ' +
-                          UIUtilities.loadTranslation(
-                              context, exerciseRecords[i].exerciseData.name),
-                      style: Theme.of(context).textTheme.bodyText2!.copyWith(
-                          color: Theme.of(context).colorScheme.onSurface))),
+              Text(
+                  exerciseRecords[i].sets.length.toString() +
+                      '  ×  ' +
+                      UIUtilities.loadTranslation(
+                          context, exerciseRecords[i].exerciseData.name),
+                  style: Theme.of(context).textTheme.bodyText2!.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface)),
               recordExercisesIndexes.contains(i)
                   ? Padding(
                       padding: const EdgeInsets.only(left: 8),

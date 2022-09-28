@@ -59,6 +59,11 @@
     "legCurl": "Leg curl",
     "lowCableCrossover": "Croci ai cavi bassi",
     "ropePulldown": "Pulldown corda",
+    "benchPressBarebellIncline": "Panca inclinata (bilancere)",
+    "benchPressDumbbellIncline": "Panca inclinata (manubri)",
+    "frenchPressCable": "French press ai cavi",
+    "frenchPressDumbbell": "French press manubri",
+    "shoulderPressDumbbell": "Shoulder press manubri",
 
     "january": "Gennaio",
     "february": "Febbraio",
@@ -149,11 +154,12 @@
     "discardYes": "Si, abbandonale",
     "addSet": "Aggiungi una serie",
     "notPerformed": "Non eseguito",
-    "deleteSessionOf": "Rimuovi sessione di %s",
+    "nSelected": "%s selected",
     "sessionQuitTitle": "Abbadona",
     "sessionQuitContent": "Vuoi salvare e riprendere questa sessione più tardi?",
     "resumeNo": "No, annulla questa sessione",
     "resumeYes": "Sì, salvala per dopo",
     "back": "Indietro",
-    "changeExercise": "Cambia esercizio"
+    "changeExercise": "Cambia esercizio",
+    "emptySession": "Tutti gli esercizi tutte le serie con hanno 0 reps o 0 carico!"
 }

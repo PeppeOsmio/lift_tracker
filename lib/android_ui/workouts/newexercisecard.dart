@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lift_tracker/android_ui/uiutilities.dart';
-import 'package:lift_tracker/android_ui/widgets/materialpopupmenu.dart';
 
 class NewExerciseCard extends StatefulWidget {
   const NewExerciseCard(
@@ -18,7 +17,7 @@ class NewExerciseCard extends StatefulWidget {
   final TextEditingController repsController;
   final VoidCallback onSelectExercise;
   final int exerciseNumber;
-  final MaterialPopupMenuButton? popupMenuButton;
+  final PopupMenuButton? popupMenuButton;
 
   @override
   State<NewExerciseCard> createState() => _NewExerciseCardState();

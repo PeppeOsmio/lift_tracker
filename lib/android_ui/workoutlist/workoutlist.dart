@@ -59,6 +59,8 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
       });
       ref.read(Helper.instance.workoutsProvider.notifier).addWorkouts(value);
       log('Workouts from workout list: ' + value.toString());
+    }).catchError((error) {
+      UIUtilities.showSnackBar(context: context, msg: 'WorkoutList: $error');
     });
   }
 
