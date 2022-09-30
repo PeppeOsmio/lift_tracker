@@ -48,10 +48,12 @@ class _SettingsPageState extends State<SettingsPage> {
           darkTheme: settingsThemeData,
           sections: [
             SettingsSection(
-              title: Text('Backup and restore'),
+              title: Text(
+                  UIUtilities.loadTranslation(context, 'backupAndRestore')),
               tiles: [
                 SettingsTile.navigation(
-                  title: Text('Create a backup'),
+                  title: Text(
+                      UIUtilities.loadTranslation(context, 'createBackup')),
                   leading: Icon(Icons.save),
                   description: settings.backupPath != null
                       ? Text(settings.backupPath!)
@@ -81,8 +83,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     } catch (error) {
                       UIUtilities.showSnackBar(
                           context: context,
-                          msg:
-                              'App needs storage permission to create backups');
+                          msg: UIUtilities.loadTranslation(
+                              context, 'noStoragePermissions'));
                     }
                     setState(() {
                       canPop = true;
@@ -91,7 +93,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                 ),
                 SettingsTile.navigation(
-                  title: Text('Restore a backup'),
+                  title: Text(
+                      UIUtilities.loadTranslation(context, 'restoreBackup')),
                   leading: Icon(Icons.restore),
                   onPressed: (context) async {
                     setState(() {
@@ -120,13 +123,15 @@ class _SettingsPageState extends State<SettingsPage> {
                       if (error.toString() == 'Exception: permission_denied') {
                         UIUtilities.showSnackBar(
                             context: context,
-                            msg:
-                                'App needs storage permission to create backups');
+                            msg: UIUtilities.loadTranslation(
+                                context, 'noStoragePermissions'));
                       } else if (error.toString() ==
                           'Exception: backup_canceled') {
                       } else {
                         UIUtilities.showSnackBar(
-                            context: context, msg: 'Invalid backup');
+                            context: context,
+                            msg: UIUtilities.loadTranslation(
+                                context, 'invalidBackup'));
                       }
                     }
                     setState(() {
@@ -138,7 +143,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ],
             ),
             SettingsSection(
-              title: Text('Theming'),
+              title: Text(UIUtilities.loadTranslation(context, 'theming')),
               tiles: [
                 SettingsTile.switchTile(
                   activeSwitchColor: Theme.of(context).colorScheme.primary,
@@ -147,7 +152,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                   initialValue: settings.useMaterial3,
                   leading: Icon(Icons.brush),
-                  title: Text('Material 3 theme'),
+                  title: Text(
+                      UIUtilities.loadTranslation(context, 'useMaterial3')),
                 ),
                 SettingsTile.switchTile(
                   activeSwitchColor: Theme.of(context).colorScheme.primary,
@@ -156,11 +162,13 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                   initialValue: settings.useSystemPalette,
                   leading: Icon(Icons.palette),
-                  title: Text('Use system color palette'),
+                  title: Text(
+                      UIUtilities.loadTranslation(context, 'useSystemPalette')),
                 ),
                 SettingsTile.navigation(
                   enabled: !settings.useSystemPalette,
-                  title: Text('Main color'),
+                  title:
+                      Text(UIUtilities.loadTranslation(context, 'mainColor')),
                   leading: Icon(Icons.colorize),
                   description: Row(
                     children: [
@@ -182,10 +190,11 @@ class _SettingsPageState extends State<SettingsPage> {
                     Color tmpColor = settings.mainColor;
                     showDialog(
                         context: context,
-                        builder: (context) {
+                        builder: (dialogContext) {
                           return AlertDialog(
                             title: Text(
-                              'Pick a color',
+                              UIUtilities.loadTranslation(
+                                  context, 'pickAColor'),
                               style: Theme.of(context)
                                   .textTheme
                                   .titleLarge!
@@ -209,9 +218,10 @@ class _SettingsPageState extends State<SettingsPage> {
                               TextButton(
                                   onPressed: () {
                                     Settings.instance.setMainColor(tmpColor);
-                                    Navigator.pop(context);
+                                    Navigator.pop(dialogContext);
                                   },
-                                  child: Text('Done'))
+                                  child: Text(UIUtilities.loadTranslation(
+                                      context, 'done')))
                             ],
                           );
                         });

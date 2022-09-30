@@ -39,7 +39,7 @@ class CustomDatabase {
   Future<Database> _initDB(String filename) async {
     final dbPath = await getDatabasesPath();
     final path = dbPath + '/' + filename;
-    this.dbPath = dbPath;
+    this.dbPath = path;
     return await openDatabase(path, version: 1, onCreate: createDB);
   }
 
