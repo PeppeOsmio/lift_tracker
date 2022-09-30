@@ -196,9 +196,9 @@ class _AnimatedMenuState extends State<AnimatedMenu> {
                             }
                             isRestoring = true;
                             var back;
-                            await (Backup.readBackup().then((value) {
-                              back = value;
-                            }).catchError((error) {
+                            await (Backup.readBackup()
+                                .then((value) {})
+                                .catchError((error) {
                               log('menu: $error');
                               Fluttertoast.showToast(
                                   msg: 'menu: ' + error.toString());

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 import 'dart:math' as Math;
 
@@ -49,13 +50,13 @@ class _NewSessionState extends ConsumerState<NewSession>
   List<Exercise> originalExercises = [];
   GlobalKey<AnimatedListState> animatedListKey = GlobalKey<AnimatedListState>();
   bool canSave = false;
+  late Timer cacheLoopTimer;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     originalExercises.addAll(widget.workout.exercises);
-    bool shouldRunCacheLoop = true;
 
     if (widget.resumedSession == null) {
       exercises = [...widget.workout.exercises];
@@ -138,10 +139,10 @@ class _NewSessionState extends ConsumerState<NewSession>
           updateCanSave();
         });
       }
-      while (shouldRunCacheLoop) {
-        await Future.delayed(Duration(seconds: 30), () async {
-          await createWorkoutRecord(cacheMode: true);
-        });
+    });
+    cacheLoopTimer = Timer.periodic(Duration(seconds: 20), (timer) async {
+      if (shouldRunCacheLoop) {
+        await createWorkoutRecord(cacheMode: true);
       }
     });
   }
@@ -544,7 +545,7 @@ class _NewSessionState extends ConsumerState<NewSession>
   @override
   void dispose() async {
     WidgetsBinding.instance.removeObserver(this);
-    shouldRunCacheLoop = false;
+    cacheLoopTimer.cancel();
     super.dispose();
   }
 
@@ -552,11 +553,15 @@ class _NewSessionState extends ConsumerState<NewSession>
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.paused) {
-      shouldRunCacheLoop = false;
+      setState(() {
+        shouldRunCacheLoop = false;
+      });
       //create a cached session
       await createWorkoutRecord(cacheMode: true);
     } else if (state == AppLifecycleState.resumed) {
-      shouldRunCacheLoop = true;
+      setState(() {
+        shouldRunCacheLoop = true;
+      });
     }
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lift_tracker/data/classes/exercise.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
@@ -39,16 +40,22 @@ class Backup {
         return null;
       }
 
-      List<Workout> workouts =
-          await CustomDatabase.instance.readWorkouts(readAll: true);
-      List<WorkoutRecord> workoutRecords =
-          await CustomDatabase.instance.readWorkoutRecords(readAll: true);
-      Map<String, dynamic> map = {
-        'workouts': workouts.map((e) => e.toMap()).toList(),
-        'workoutRecords': workoutRecords.map((e) => e.toMap()).toList()
-      };
+      //List<Workout> workouts =
+      //    await CustomDatabase.instance.readWorkouts(readAll: true);
+      //List<WorkoutRecord> workoutRecords =
+      //    await CustomDatabase.instance.readWorkoutRecords(readAll: true);
+      //Map<String, dynamic> map = {
+      //  'workouts': workouts.map((e) => e.toMap()).toList(),
+      //  'workoutRecords': workoutRecords.map((e) => e.toMap()).toList()
+      //};
       try {
-        await file.writeAsString(jsonEncode(map), flush: true);
+        if (CustomDatabase.instance.dbPath == null) {
+          return null;
+        }
+        File dbFile;
+        dbFile = File(CustomDatabase.instance.dbPath!);
+        Uint8List dbContent = await dbFile.readAsBytes();
+        await file.writeAsBytes(dbContent, flush: true);
       } catch (e) {
         Fluttertoast.showToast(msg: 'backup: ' + e.toString());
         log(e.toString());
@@ -79,7 +86,7 @@ class Backup {
     return true;
   }
 
-  static Future<Map<String, dynamic>> readBackup() async {
+  static Future<void> readBackup() async {
     if (Platform.isAndroid) {
       var status = await Permission.storage.status;
       if (!status.isGranted) {
@@ -96,82 +103,86 @@ class Backup {
         // User canceled the picker
         throw Exception('backup_canceled');
       }
-      var decode = jsonDecode(await file.readAsString());
-      List<Workout> workouts = [];
-      List<WorkoutRecord> workoutRecords = [];
+      Uint8List backupContent = await file.readAsBytes();
+      File dbFile = File(CustomDatabase.instance.dbPath!);
+      await dbFile.writeAsBytes(backupContent);
+      //  var decode = jsonDecode(await file.readAsString());
+      //  List<Workout> workouts = [];
+      //  List<WorkoutRecord> workoutRecords = [];
 
-      for (var workout in decode['workouts']) {
-        List<Exercise> exercises = [];
-        for (var exercise in workout['ex']) {
-          var exerciseData = exercise['exD'];
-          ExerciseData exData = ExerciseData(
-              id: exerciseData['id'],
-              name: exerciseData['n'],
-              type: exerciseData['type']);
-          exercises.add(Exercise(
-              id: exercise['id'],
-              exerciseData: exData,
-              workoutId: 0,
-              sets: exercise['sets'],
-              reps: exercise['reps'],
-              bestWeight: exercise['bestW'],
-              bestReps: exercise['bestR'],
-              bestVolume: exercise['bestV'],
-              notes: exercise['notes']));
-        }
-        workouts.add(Workout(workout['id'], workout['n'], exercises,
-            hasCache: workout['has_cache']));
-      }
+      //  for (var workout in decode['workouts']) {
+      //    List<Exercise> exercises = [];
+      //    for (var exercise in workout['ex']) {
+      //      var exerciseData = exercise['exD'];
+      //      ExerciseData exData = ExerciseData(
+      //          id: exerciseData['id'],
+      //          name: exerciseData['n'],
+      //          type: exerciseData['type']);
+      //      exercises.add(Exercise(
+      //          id: exercise['id'],
+      //          exerciseData: exData,
+      //          workoutId: 0,
+      //          sets: exercise['sets'],
+      //          reps: exercise['reps'],
+      //          bestWeight: exercise['bestW'],
+      //          bestReps: exercise['bestR'],
+      //          bestVolume: exercise['bestV'],
+      //          notes: exercise['notes']));
+      //    }
+      //    workouts.add(Workout(workout['id'], workout['n'], exercises,
+      //        hasCache: workout['has_cache']));
+      //  }
 
-      for (var workoutRecord in decode['workoutRecords']) {
-        List<ExerciseRecord> exerciseRecords = [];
-        for (var exerciseRecord in workoutRecord['exRecs']) {
-          List<ExerciseSet> sets = [];
-          for (var set in exerciseRecord['sets']) {
-            sets.add(ExerciseSet(
-                weight: double.parse(set['w']),
-                reps: int.parse(set['reps']),
-                rpe: int.tryParse(set['rpe']),
-                hasRepsRecord: set['hasRR'],
-                hasVolumeRecord: set['hasVR'],
-                hasWeightRecord: set['hasWR']));
-          }
-          exerciseRecords.add(ExerciseRecord(
-              exerciseData: Helper.instance.exerciseDataGlobal.firstWhere(
-                  (element) => element.id == exerciseRecord['jsonId']),
-              sets: sets,
-              exerciseId: exerciseRecord['exId'],
-              type: exerciseRecord['type']));
-        }
+      //  for (var workoutRecord in decode['workoutRecords']) {
+      //    List<ExerciseRecord> exerciseRecords = [];
+      //    for (var exerciseRecord in workoutRecord['exRecs']) {
+      //      List<ExerciseSet> sets = [];
+      //      for (var set in exerciseRecord['sets']) {
+      //        sets.add(ExerciseSet(
+      //            weight: double.parse(set['w']),
+      //            reps: int.parse(set['reps']),
+      //            rpe: int.tryParse(set['rpe']),
+      //            hasRepsRecord: set['hasRR'],
+      //            hasVolumeRecord: set['hasVR'],
+      //            hasWeightRecord: set['hasWR']));
+      //      }
+      //      exerciseRecords.add(ExerciseRecord(
+      //          exerciseData: Helper.instance.exerciseDataGlobal.firstWhere(
+      //              (element) => element.id == exerciseRecord['jsonId']),
+      //          sets: sets,
+      //          exerciseId: exerciseRecord['exId'],
+      //          type: exerciseRecord['type']));
+      //    }
 
-        workoutRecords.add(WorkoutRecord(
-            0,
-            DateTime.parse(workoutRecord['day']),
-            workoutRecord['woN'],
-            exerciseRecords,
-            workoutId: workoutRecord['woId'],
-            isCache: workoutRecord['is_cache']));
-      }
+      //    workoutRecords.add(WorkoutRecord(
+      //        0,
+      //        DateTime.parse(workoutRecord['day']),
+      //        workoutRecord['woN'],
+      //        exerciseRecords,
+      //        workoutId: workoutRecord['woId'],
+      //        isCache: workoutRecord['is_cache']));
+      //  }
 
-      bool isValid = validateBackup(workouts, workoutRecords);
-      if (!isValid) {
-        throw Exception('Invalid backup');
-      }
-      await CustomDatabase.instance.clearAll();
+      //  bool isValid = validateBackup(workouts, workoutRecords);
+      //  if (!isValid) {
+      //    throw Exception('Invalid backup');
+      //  }
+      //  await CustomDatabase.instance.clearAll();
 
-      for (var workout in workouts) {
-        await CustomDatabase.instance.saveWorkout(workout,
-            backupMode: true,
-            workoutId: workout.id,
-            hasCache: workout.hasCache);
-      }
+      //  for (var workout in workouts) {
+      //    await CustomDatabase.instance.saveWorkout(workout,
+      //        backupMode: true,
+      //        workoutId: workout.id,
+      //        hasCache: workout.hasCache);
+      //  }
 
-      for (var workoutRecord in workoutRecords) {
-        await CustomDatabase.instance
-            .addWorkoutRecord(workoutRecord, backupMode: true);
-      }
-      return decode;
+      //  for (var workoutRecord in workoutRecords) {
+      //    await CustomDatabase.instance
+      //        .addWorkoutRecord(workoutRecord, backupMode: true);
+      //  }
+      //  return decode;
+      //}
+      //return {};
     }
-    return {};
   }
 }

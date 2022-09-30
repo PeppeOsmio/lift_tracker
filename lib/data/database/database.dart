@@ -21,6 +21,7 @@ class CustomDatabase {
   bool didReadWorkoutRecords = false;
   bool didReadAllWorkoutRecords = false;
   bool didReadWorkouts = false;
+  String? dbPath = null;
 
   final int searchLimit = 2;
 
@@ -38,6 +39,7 @@ class CustomDatabase {
   Future<Database> _initDB(String filename) async {
     final dbPath = await getDatabasesPath();
     final path = dbPath + '/' + filename;
+    this.dbPath = dbPath;
     return await openDatabase(path, version: 1, onCreate: createDB);
   }
 
