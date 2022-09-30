@@ -37,8 +37,6 @@ enum ExerciseRecordMenuOptions {
   move_down
 }
 
-bool shouldRunCacheLoop = true;
-
 class _NewSessionState extends ConsumerState<NewSession>
     with WidgetsBindingObserver {
   List<Exercise> exercises = [];
@@ -51,6 +49,12 @@ class _NewSessionState extends ConsumerState<NewSession>
   GlobalKey<AnimatedListState> animatedListKey = GlobalKey<AnimatedListState>();
   bool canSave = false;
   late Timer cacheLoopTimer;
+
+  Timer createCacheTimer() {
+    return Timer.periodic(Duration(seconds: 20), (timer) async {
+      await createWorkoutRecord(cacheMode: true);
+    });
+  }
 
   @override
   void initState() {
@@ -140,11 +144,7 @@ class _NewSessionState extends ConsumerState<NewSession>
         });
       }
     });
-    cacheLoopTimer = Timer.periodic(Duration(seconds: 20), (timer) async {
-      if (shouldRunCacheLoop) {
-        await createWorkoutRecord(cacheMode: true);
-      }
-    });
+    cacheLoopTimer = createCacheTimer();
   }
 
   void updateCanSave() {
@@ -554,13 +554,13 @@ class _NewSessionState extends ConsumerState<NewSession>
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.paused) {
       setState(() {
-        shouldRunCacheLoop = false;
+        cacheLoopTimer.cancel();
       });
       //create a cached session
       await createWorkoutRecord(cacheMode: true);
     } else if (state == AppLifecycleState.resumed) {
       setState(() {
-        shouldRunCacheLoop = true;
+        cacheLoopTimer = createCacheTimer();
       });
     }
   }
