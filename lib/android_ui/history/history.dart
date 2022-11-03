@@ -79,7 +79,10 @@ class _HistoryState extends ConsumerState<History> {
             if (isAppBarSelected) {
               if (isOpenList[index]) {
                 setState(() {
-                  resetAppBarAndCards();
+                  isOpenList[index] = false;
+                  if (!isOpenList.any((element) => element)) {
+                    resetAppBarAndCards();
+                  }
                 });
               } else {
                 setState(() {

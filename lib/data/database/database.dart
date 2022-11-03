@@ -1,11 +1,14 @@
+import 'dart:io';
 import 'dart:math';
 import 'dart:developer' as dev;
+import 'package:flutter/foundation.dart';
 import 'package:lift_tracker/data/classes/exercisedata.dart';
 import 'package:lift_tracker/data/classes/exerciseset.dart';
 import 'package:lift_tracker/data/classes/workouthistory.dart';
 import 'package:lift_tracker/data/helper.dart';
 import 'package:lift_tracker/data/classes/exerciserecord.dart';
 import 'package:lift_tracker/data/classes/workoutrecord.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import '../classes/exercise.dart';
 import '../classes/workout.dart';
@@ -40,7 +43,54 @@ class CustomDatabase {
     final dbPath = await getDatabasesPath();
     final path = dbPath + '/' + filename;
     this.dbPath = path;
-    return await openDatabase(path, version: 1, onCreate: createDB);
+    print(path);
+    return await openDatabase(path,
+        version: 1,
+        onCreate: Structure.instance.createDB,
+        singleInstance: true);
+  }
+
+  Future<bool> verifyDBBackup(String filepath) async {
+    try {
+      if (!filepath.endsWith('.ltbackup')) {
+        return false;
+      }
+      Uint8List oldDBContent = Uint8List(0);
+      if (dbPath != null) {
+        final dbFile = File(dbPath!);
+        oldDBContent = await dbFile.readAsBytes();
+        final tmpFile = File('${await getDatabasesPath()}/backup.db');
+        await tmpFile.writeAsBytes(oldDBContent);
+      }
+      final dbToVerify = await openDatabase(filepath,
+          version: 1, onCreate: Structure.instance.createDB);
+      for (String tableName in Structure.instance.tables) {
+        var result = await dbToVerify.rawQuery(
+            'SELECT sql FROM sqlite_master WHERE type=\'table\' AND name=\'$tableName\';');
+        // a table does not exist, db invalid
+        if (result.isEmpty) {
+          dev.log('$tableName doesnt exist');
+          return false;
+        }
+
+        String tableSql = result.first['sql'] as String;
+        tableSql = tableSql.replaceAll(' ', '');
+        tableSql = tableSql.replaceAll('\n', '');
+        String testSql =
+            Structure.instance.queries[tableName]!.replaceAll(' ', '');
+        testSql = testSql.replaceAll(';', '');
+        testSql = testSql.replaceAll('\n', '');
+        if (tableSql != testSql) {
+          return false;
+        }
+      }
+    } catch (e) {
+      // an error occurred, db invalid
+      dev.log(e.toString());
+      return false;
+    }
+    // all tables exists, db valid
+    return true;
   }
 
   Future<bool> editWorkout(Workout workout) async {

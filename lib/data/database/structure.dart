@@ -1,16 +1,21 @@
+import 'dart:developer';
+
 import 'package:sqflite/sqflite.dart';
 
-Future createDB(Database db, int version) async {
-  String sql = '''
+class Structure {
+  static final instance = Structure._init();
+
+  Structure._init();
+
+  final Map<String, String> queries = {
+    'workout': '''
     CREATE TABLE workout(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name VARCHAR(33) NOT NULL,
       has_cache BIT DEFAULT 0
     );
-    ''';
-  await db.execute(sql);
-
-  sql = '''
+    ''',
+    'exercise': '''
     CREATE TABLE exercise(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       json_id INTEGER NOT NULL,
@@ -25,20 +30,16 @@ Future createDB(Database db, int version) async {
       fk_workout_id INTEGER NOT NULL,
       FOREIGN KEY (fk_workout_id) REFERENCES workout(id)
     );
-    ''';
-  await db.execute(sql);
-
-  sql = '''
+    ''',
+    'best_weight_volume_reps': '''
     CREATE TABLE best_weight_volume_reps(
       json_id INTEGER PRIMARY KEY,
       best_weight DOUBLE(5,2),
       best_volume INTEGER,
       best_reps INTEGER
     );
-    ''';
-  await db.execute(sql);
-
-  sql = '''
+    ''',
+    'workout_record': '''
     CREATE TABLE workout_record(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       day INTEGER NOT NULL,
@@ -47,10 +48,8 @@ Future createDB(Database db, int version) async {
       is_cache BIT DEFAULT 0,
       FOREIGN KEY (fk_workout_id) REFERENCES workout(id)
     );
-    ''';
-  await db.execute(sql);
-
-  sql = '''
+    ''',
+    'exercise_record': '''
     CREATE TABLE exercise_record(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       json_id INTEGER NOT NULL,
@@ -61,10 +60,8 @@ Future createDB(Database db, int version) async {
       FOREIGN KEY (fk_workout_record_id) REFERENCES workout_record(id),
       FOREIGN KEY (fk_exercise_id) REFERENCES exercise(id)
     );
-    ''';
-  await db.execute(sql);
-
-  sql = '''
+    ''',
+    'exercise_set': '''
     CREATE TABLE exercise_set(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       reps INTEGER NOT NULL,
@@ -76,6 +73,29 @@ Future createDB(Database db, int version) async {
       has_reps_record BIT NOT NULL DEFAULT 0,
       FOREIGN KEY (fk_exercise_record_id) REFERENCES exercise_record(id)
     );
-    ''';
-  await db.execute(sql);
+    '''
+  };
+
+  final List<String> tables = [
+    'workout',
+    'exercise',
+    'best_weight_volume_reps',
+    'workout_record',
+    'exercise_record',
+    'exercise_set'
+  ];
+
+  Future createDB(Database db, int version) async {
+    await db.execute(queries['workout']!);
+
+    await db.execute(queries['exercise']!);
+
+    await db.execute(queries['best_weight_volume_reps']!);
+
+    await db.execute(queries['workout_record']!);
+
+    await db.execute(queries['exercise_record']!);
+
+    await db.execute(queries['exercise_set']!);
+  }
 }

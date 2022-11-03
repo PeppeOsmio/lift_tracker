@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
@@ -102,6 +101,9 @@ class Backup {
       } else {
         // User canceled the picker
         throw Exception('backup_canceled');
+      }
+      if (!(await CustomDatabase.instance.verifyDBBackup(file.path))) {
+        throw Exception('invalid_backup');
       }
       Uint8List backupContent = await file.readAsBytes();
       File dbFile = File(CustomDatabase.instance.dbPath!);
