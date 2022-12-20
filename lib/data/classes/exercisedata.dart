@@ -17,11 +17,11 @@ class ExerciseData {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'n': name,
+      'name': name,
       'type': type,
-      'fM': firstMuscle,
-      'sM': secondMuscle,
-      'tM': thirdMuscle
+      'firstMuscle': firstMuscle,
+      'secondMuscle': secondMuscle,
+      'thirdMuscle': thirdMuscle
     };
   }
 }

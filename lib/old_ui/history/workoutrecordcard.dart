@@ -46,7 +46,7 @@ class _WorkoutRecordCardState extends State<WorkoutRecordCard> {
 
         if (set[j].hasRepsRecord == 1 ||
             set[j].hasWeightRecord == 1 ||
-            set[j].hasVolumeRecord == 1) {
+            set[j].has1RMRecord == 1) {
           hasRecord = true;
         }
       }

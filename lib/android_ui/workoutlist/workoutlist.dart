@@ -26,9 +26,6 @@ class WorkoutList extends ConsumerStatefulWidget {
 class _WorkoutListState extends ConsumerState<WorkoutList> {
   List<Workout> workouts = [];
   int? openIndex;
-  Color? selectedColor;
-  Color? selectedTextColor;
-  Color? selectedAppBarColor;
   bool isAppBarSelected = false;
   bool isSearchBarActivated = false;
   TextEditingController searchController = TextEditingController();
@@ -59,12 +56,8 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
       });
       ref.read(Helper.instance.workoutsProvider.notifier).addWorkouts(value);
       log('Workouts from workout list: ' + value.toString());
-    }).catchError((error) {
-      UIUtilities.showSnackBar(context: context, msg: 'WorkoutList: $error');
     });
   }
-
-  void removeWorkoutCard(int index) {}
 
   @override
   Widget build(BuildContext context) {
@@ -98,102 +91,107 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
           AnimatedSize(
             curve: Curves.decelerate,
             duration: Duration(milliseconds: 150),
-            child: Row(
-                children: isAppBarSelected
-                    ? [
-                        IconButton(
-                            tooltip:
-                                UIUtilities.loadTranslation(context, 'delete'),
-                            onPressed: () {
-                              if (openIndex != null) {
-                                deleteWorkout(workouts[openIndex!].id)
-                                    .catchError((error) {
-                                  UIUtilities.showSnackBar(
-                                      context: context,
-                                      msg: UIUtilities.loadTranslation(
-                                              context, 'error') +
-                                          ': $error');
-                                });
-                              }
-                            },
-                            icon: Icon(Icons.delete)),
-                        openIndex != null && workouts[openIndex!].hasHistory
-                            ? IconButton(
-                                tooltip: UIUtilities.loadTranslation(
-                                    context, 'history'),
-                                onPressed: () async {
-                                  var history = await CustomDatabase.instance
-                                      .getWorkoutHistory(workouts[openIndex!]);
+            child: SingleChildScrollView(
+              child: Row(
+                  children: isAppBarSelected
+                      ? [
+                          IconButton(
+                              tooltip: UIUtilities.loadTranslation(
+                                  context, 'delete'),
+                              onPressed: () {
+                                if (openIndex != null) {
+                                  deleteWorkout(workouts[openIndex!].id)
+                                      .catchError((error) {
+                                    UIUtilities.showSnackBar(
+                                        context: context,
+                                        msg: UIUtilities.loadTranslation(
+                                                context, 'error') +
+                                            ': $error');
+                                  });
+                                }
+                              },
+                              icon: Icon(Icons.delete)),
+                          openIndex != null && workouts[openIndex!].hasHistory
+                              ? IconButton(
+                                  tooltip: UIUtilities.loadTranslation(
+                                      context, 'history'),
+                                  onPressed: () async {
+                                    var history = await CustomDatabase.instance
+                                        .getWorkoutHistory(
+                                            workouts[openIndex!]);
+                                    Navigator.push(context,
+                                        MaterialPageRoute(builder: (context) {
+                                      return WorkoutHistoryPage(
+                                          workoutHistory: history);
+                                    }));
+                                  },
+                                  icon: Icon(Icons.timer))
+                              : SizedBox(),
+                          IconButton(
+                              tooltip:
+                                  UIUtilities.loadTranslation(context, 'edit'),
+                              onPressed: () {
+                                if (openIndex != null) {
+                                  var editWorkoutPage = EditWorkout(
+                                      workout: workouts[openIndex!]);
                                   Navigator.push(context,
                                       MaterialPageRoute(builder: (context) {
-                                    return WorkoutHistoryPage(
-                                        workoutHistory: history);
+                                    return editWorkoutPage;
                                   }));
-                                },
-                                icon: Icon(Icons.timer))
-                            : SizedBox(),
-                        IconButton(
-                            tooltip:
-                                UIUtilities.loadTranslation(context, 'edit'),
-                            onPressed: () {
-                              if (openIndex != null) {
-                                var editWorkoutPage =
-                                    EditWorkout(workout: workouts[openIndex!]);
-                                Navigator.push(context,
-                                    MaterialPageRoute(builder: (context) {
-                                  return editWorkoutPage;
-                                }));
-                                setState(() {
-                                  resetAppBarAndOpenCards();
-                                });
-                              }
-                            },
-                            icon: Icon(Icons.edit)),
-                        IconButton(
-                            tooltip: workouts[openIndex!].hasCache == 1
-                                ? UIUtilities.loadTranslation(context, 'resume')
-                                : UIUtilities.loadTranslation(context, 'start'),
-                            onPressed: () async {
-                              if (openIndex != null) {
-                                var workout = workouts[openIndex!];
-                                var newSessionPage = NewSession(
-                                    workout: workout,
-                                    resumedSession:
-                                        workouts[openIndex!].hasCache == 1
-                                            ? await CustomDatabase.instance
-                                                .getCachedSession(
-                                                    workoutId: workout.id)
-                                            : null);
-                                Navigator.push(context,
-                                    MaterialPageRoute(builder: (context) {
-                                  return newSessionPage;
-                                }));
-                                setState(() {
-                                  resetAppBarAndOpenCards();
-                                });
-                              }
-                            },
-                            icon: Icon(openIndex != null &&
-                                    workouts[openIndex!].hasCache == 1
-                                ? Icons.history_outlined
-                                : Icons.play_arrow))
-                      ]
-                    : [
-                        IconButton(
-                            onPressed: () {
-                              if (isSearchBarActivated) {
-                                setState(() {
-                                  searchController.text = '';
-                                  searchString = '';
-                                });
-                              } else {
-                                openSearchBar();
-                              }
-                            },
-                            icon: Icon(isSearchBarActivated
-                                ? Icons.close
-                                : Icons.search))
-                      ]),
+                                  setState(() {
+                                    resetAppBarAndOpenCards();
+                                  });
+                                }
+                              },
+                              icon: Icon(Icons.edit)),
+                          IconButton(
+                              tooltip: workouts[openIndex!].hasCache == 1
+                                  ? UIUtilities.loadTranslation(
+                                      context, 'resume')
+                                  : UIUtilities.loadTranslation(
+                                      context, 'start'),
+                              onPressed: () async {
+                                if (openIndex != null) {
+                                  var workout = workouts[openIndex!];
+                                  var newSessionPage = NewSession(
+                                      workout: workout,
+                                      resumedSession:
+                                          workouts[openIndex!].hasCache == 1
+                                              ? await CustomDatabase.instance
+                                                  .getCachedSession(
+                                                      workoutId: workout.id)
+                                              : null);
+                                  await Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) {
+                                    return newSessionPage;
+                                  }));
+                                  setState(() {
+                                    resetAppBarAndOpenCards();
+                                  });
+                                }
+                              },
+                              icon: Icon(openIndex != null &&
+                                      workouts[openIndex!].hasCache == 1
+                                  ? Icons.history_outlined
+                                  : Icons.play_arrow)),
+                        ]
+                      : [
+                          IconButton(
+                              onPressed: () {
+                                if (isSearchBarActivated) {
+                                  setState(() {
+                                    searchController.text = '';
+                                    searchString = '';
+                                  });
+                                } else {
+                                  openSearchBar();
+                                }
+                              },
+                              icon: Icon(isSearchBarActivated
+                                  ? Icons.close
+                                  : Icons.search))
+                        ]),
+            ),
           )
         ],
         title: AnimatedSize(
@@ -214,9 +212,12 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
                           context, 'searchWorkouts'),
                       border: InputBorder.none),
                 )
-              : Text(isAppBarSelected && openIndex != null
-                  ? workouts[openIndex!].name
-                  : UIUtilities.loadTranslation(context, 'workouts')),
+              : SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Text(isAppBarSelected && openIndex != null
+                      ? workouts[openIndex!].name
+                      : UIUtilities.loadTranslation(context, 'workouts')),
+                ),
         ),
       ),
       drawer: isAppBarSelected || isSearchBarActivated ? null : CustomDrawer(),
@@ -248,7 +249,8 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
               return FadeTransition(
                 opacity: animation,
                 child: WorkoutCard(
-                    isOpen: openIndex == index,
+                    openOnSelect: true,
+                    isSelected: openIndex != null && openIndex == index,
                     workout: workouts[index],
                     onCardTap: () {
                       if (openIndex != null && openIndex == index) {
@@ -316,8 +318,11 @@ class _WorkoutListState extends ConsumerState<WorkoutList> {
           sizeFactor: animation,
           child: FadeTransition(
             opacity: animation,
-            child:
-                WorkoutCard(isOpen: true, workout: workout, onCardTap: () {}),
+            child: WorkoutCard(
+                openOnSelect: true,
+                isSelected: false,
+                workout: workout,
+                onCardTap: () {}),
           ),
         );
       }, duration: Duration(milliseconds: 150));

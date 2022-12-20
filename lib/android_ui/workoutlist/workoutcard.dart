@@ -1,3 +1,6 @@
+import 'dart:developer';
+import 'dart:isolate';
+
 import 'package:flutter/material.dart';
 import 'package:lift_tracker/android_ui/uiutilities.dart';
 import 'package:lift_tracker/data/classes/workout.dart';
@@ -8,24 +11,39 @@ class WorkoutCard extends StatefulWidget {
       {Key? key,
       this.color,
       this.textColor,
-      required this.isOpen,
       required this.workout,
-      required this.onCardTap})
+      required this.onCardTap,
+      required this.isSelected,
+      this.openOnSelect = false})
       : super(key: key);
-  final bool isOpen;
   final Workout workout;
   final Function() onCardTap;
   final Color? color;
   final Color? textColor;
+  final bool isSelected;
+  final bool openOnSelect;
 
   @override
   State<WorkoutCard> createState() => _WorkoutCardState();
 }
 
 class _WorkoutCardState extends State<WorkoutCard> with WidgetsBindingObserver {
+  bool isOpen = false;
+
   @override
   void initState() {
     super.initState();
+    isOpen = widget.isSelected;
+  }
+
+  @override
+  void didUpdateWidget(covariant WorkoutCard oldWidget) {
+    if (widget.openOnSelect) {
+      setState(() {
+        isOpen = widget.isSelected;
+      });
+    }
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -33,7 +51,7 @@ class _WorkoutCardState extends State<WorkoutCard> with WidgetsBindingObserver {
     var exercises = widget.workout.exercises;
     List<Widget> exc = [];
     int stop;
-    if (widget.isOpen) {
+    if (isOpen) {
       stop = exercises.length;
     } else {
       stop = 4;
@@ -65,7 +83,7 @@ class _WorkoutCardState extends State<WorkoutCard> with WidgetsBindingObserver {
             ],
           )));
     }
-    if (!widget.isOpen && exercises.length > 5) {
+    if (!isOpen && exercises.length > 5) {
       exc.add(Padding(
         padding: EdgeInsets.only(top: 6, bottom: 6),
         child: Text('...',
@@ -82,10 +100,14 @@ class _WorkoutCardState extends State<WorkoutCard> with WidgetsBindingObserver {
         onTap: () {
           widget.onCardTap();
         },
+        onLongPress: () {
+          widget.onCardTap();
+        },
         child: Card(
-          elevation: widget.isOpen ? 5 : null,
+          elevation: widget.isSelected ? 10 : null,
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding:
+                const EdgeInsets.only(left: 16, top: 8, bottom: 16, right: 8),
             child: Column(children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -96,11 +118,17 @@ class _WorkoutCardState extends State<WorkoutCard> with WidgetsBindingObserver {
                   Spacer(),
                   AnimatedRotation(
                     curve: Curves.decelerate,
-                    turns: widget.isOpen ? 0.5 : 0,
+                    turns: isOpen ? 0.5 : 0,
                     duration: Duration(milliseconds: 150),
-                    child: Icon(
-                      Icons.expand_more,
-                      color: Theme.of(context).colorScheme.primary,
+                    child: IconButton(
+                      onPressed: () {
+                        isOpen = !isOpen;
+                        setState(() {});
+                      },
+                      icon: Icon(
+                        Icons.expand_more,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                     ),
                   )
                 ],

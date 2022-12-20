@@ -31,11 +31,19 @@ class ExerciseRecord {
     return volume;
   }
 
+  double mean1RM() {
+    double sum = 0;
+    for (ExerciseSet set in sets) {
+      sum += set.oneRM();
+    }
+    return double.parse((sum / sets.length).toStringAsFixed(2));
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'jsonId': exerciseData.id,
       'sets': sets.map((e) => e.toMap()).toList(),
-      'exId': exerciseId,
+      'exerciseId': exerciseId,
       'type': type,
     };
   }

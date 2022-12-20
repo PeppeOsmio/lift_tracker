@@ -25,7 +25,7 @@ class Structure {
       order_number INTEGER NOT NULL,
       notes VARCHAR(300),
       best_weight DOUBLE(5,2),
-      best_volume INTEGER,
+      best_1rm DOUBLE(5,2),
       best_reps INTEGER,
       fk_workout_id INTEGER NOT NULL,
       FOREIGN KEY (fk_workout_id) REFERENCES workout(id)
@@ -69,7 +69,7 @@ class Structure {
       rpe INTEGER,
       fk_exercise_record_id INTEGER NOT NULL,
       has_weight_record BIT NOT NULL DEFAULT 0,
-      has_volume_record BIT NOT NULL DEFAULT 0,
+      has_1RM_record BIT NOT NULL DEFAULT 0,
       has_reps_record BIT NOT NULL DEFAULT 0,
       FOREIGN KEY (fk_exercise_record_id) REFERENCES exercise_record(id)
     );

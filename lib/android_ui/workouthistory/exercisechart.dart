@@ -25,7 +25,7 @@ class ExerciseChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<double> volumes = [];
+    List<double> oneRMs = [];
     List<DateTime> dates = [];
     late String totalVolume;
 
@@ -37,16 +37,15 @@ class ExerciseChart extends StatelessWidget {
         var foundRecord = exerciseRecords
             .firstWhere((element) => element.exerciseId == exercise.id);
         exerciseRecords.add(foundRecord);
-        volumes.add(foundRecord.volume().toDouble());
+        oneRMs.add(foundRecord.mean1RM());
         dates.add(workoutHistory.workoutRecords[i].day);
       } catch (e) {}
     }
-    if (volumes.length > 1) {
-      totalVolume = UIUtilities.loadTranslation(context, 'totalVolumeExercise');
-      totalVolume = totalVolume.replaceFirst('%s', volumes.length.toString());
+    if (oneRMs.length > 1) {
+      totalVolume = UIUtilities.loadTranslation(context, 'mean1RMExercise');
+      totalVolume = totalVolume.replaceFirst('%s', oneRMs.length.toString());
     } else {
-      totalVolume =
-          UIUtilities.loadTranslation(context, 'totalVolumeExerciseOne');
+      totalVolume = UIUtilities.loadTranslation(context, 'mean1RMExerciseOne');
     }
 
     return Column(
@@ -75,7 +74,7 @@ class ExerciseChart extends StatelessWidget {
               icon: AnimatedRotation(
                 duration: Duration(milliseconds: 150),
                 child: Icon(
-                  isOpen ? Icons.expand_less : Icons.expand_more,
+                  Icons.expand_more,
                   color: Theme.of(context).colorScheme.primary,
                 ),
                 turns: isOpen ? 0.5 : 0,
@@ -87,7 +86,7 @@ class ExerciseChart extends StatelessWidget {
             curve: Curves.decelerate,
             duration: const Duration(milliseconds: 150),
             child: isOpen
-                ? volumes.isNotEmpty
+                ? oneRMs.isNotEmpty
                     ? SizedBox(
                         height: 200,
                         child: Column(
@@ -107,7 +106,7 @@ class ExerciseChart extends StatelessWidget {
                                 padding: const EdgeInsets.only(top: 16),
                                 child: Chart(
                                   color: Theme.of(context).colorScheme.tertiary,
-                                  values: volumes,
+                                  values: oneRMs,
                                   getTooltips: (lineBarSpotList) {
                                     List<LineTooltipItem> list = [];
                                     for (var item in lineBarSpotList) {

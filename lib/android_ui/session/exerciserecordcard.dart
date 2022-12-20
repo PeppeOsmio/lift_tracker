@@ -129,8 +129,7 @@ class ExerciseRecordCard extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 4),
                     child: Text(
-                        UIUtilities.loadTranslation(context, 'volume') +
-                            ' (kg)',
+                        UIUtilities.loadTranslation(context, '1RM') + ' (kg)',
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.outline)),
                   ),
@@ -138,12 +137,12 @@ class ExerciseRecordCard extends StatelessWidget {
                     var set = mapEntry.value;
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 4),
-                      child: set.hasVolumeRecord == 1
+                      child: set.has1RMRecord == 1
                           ? Row(
-                              children: [Text('${set.volume()}'), recordIcon],
+                              children: [Text('${set.oneRM()}'), recordIcon],
                             )
                           : Text(
-                              '${set.volume()}',
+                              '${set.oneRM()}',
                             ),
                     );
                   }).toList()

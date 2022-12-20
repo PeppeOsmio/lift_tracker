@@ -3,14 +3,14 @@ class ExerciseSet {
       {required this.weight,
       required this.reps,
       this.rpe,
-      this.hasVolumeRecord = 0,
+      this.has1RMRecord = 0,
       this.hasWeightRecord = 0,
       this.hasRepsRecord = 0});
 
   double weight;
   int reps;
   int? rpe;
-  int hasVolumeRecord;
+  int has1RMRecord;
   int hasWeightRecord;
   int hasRepsRecord;
 
@@ -18,14 +18,23 @@ class ExerciseSet {
     return (reps * weight).round();
   }
 
+  double oneRM() {
+    if (rpe != null) {
+      return double.parse((weight / (1.0278 - (0.0278 * (reps + 10 - rpe!))))
+          .toStringAsFixed(2));
+    }
+    return double.parse(
+        (weight / (1.0278 - (0.0278 * reps))).toStringAsFixed(2));
+  }
+
   Map<String, dynamic> toMap() {
     return {
-      'w': weight.toString(),
+      'weight': weight.toString(),
       'reps': reps.toString(),
       'rpe': rpe.toString(),
-      'hasVR': hasVolumeRecord,
-      'hasWR': hasWeightRecord,
-      'hasRR': hasRepsRecord
+      'has1RMRecord': has1RMRecord,
+      'hasWeightRecord': hasWeightRecord,
+      'hasRepsRecord': hasRepsRecord
     };
   }
 }

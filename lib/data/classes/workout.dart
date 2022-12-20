@@ -13,9 +13,9 @@ class Workout {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'n': name,
-      'has_cache': hasCache,
-      'ex': exercises.map((e) => e.toMap()).toList()
+      'name': name,
+      'hasCache': hasCache,
+      'exercises': exercises.map((e) => e.toMap()).toList()
     };
   }
 }

@@ -33,7 +33,7 @@ class _SessionState extends State<Session> {
 
         if (set[j].hasRepsRecord == 1 ||
             set[j].hasWeightRecord == 1 ||
-            set[j].hasVolumeRecord == 1) {
+            set[j].has1RMRecord == 1) {
           hasRecord = true;
         }
       }
@@ -167,7 +167,7 @@ class ExerciseRecordCard extends StatelessWidget {
             .round()
             .toString();
     int hasWeightRecord = exerciseRecord.sets[index].hasWeightRecord;
-    int hasVolumeRecord = exerciseRecord.sets[index].hasVolumeRecord;
+    int hasVolumeRecord = exerciseRecord.sets[index].has1RMRecord;
     int hasRepsRecord = exerciseRecord.sets[index].hasRepsRecord;
     double width = MediaQuery.of(context).size.width;
     return TableRow(children: [

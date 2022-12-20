@@ -44,10 +44,12 @@ class CustomDatabase {
     final path = dbPath + '/' + filename;
     this.dbPath = path;
     print(path);
-    return await openDatabase(path,
+
+    final db = await openDatabase(path,
         version: 1,
         onCreate: Structure.instance.createDB,
         singleInstance: true);
+    return db;
   }
 
   Future<bool> verifyDBBackup(String filepath) async {
@@ -251,7 +253,7 @@ class CustomDatabase {
                 'reps',
                 'weight',
                 'rpe',
-                'has_volume_record',
+                'has_1RM_record',
                 'has_weight_record',
                 'has_reps_record'
               ],
@@ -264,8 +266,7 @@ class CustomDatabase {
               int reps = queryExerciseSets[k]['reps'] as int;
               double weight = queryExerciseSets[k]['weight'] as double;
               int? rpe = queryExerciseSets[k]['rpe'] as int?;
-              int hasVolumeRecord =
-                  queryExerciseSets[k]['has_volume_record'] as int;
+              int has1RMRecord = queryExerciseSets[k]['has_1RM_record'] as int;
               int hasWeightRecord =
                   queryExerciseSets[k]['has_weight_record'] as int;
               int hasRepsRecord =
@@ -274,7 +275,7 @@ class CustomDatabase {
                   weight: weight,
                   reps: reps,
                   rpe: rpe,
-                  hasVolumeRecord: hasVolumeRecord,
+                  has1RMRecord: has1RMRecord,
                   hasWeightRecord: hasWeightRecord,
                   hasRepsRecord: hasRepsRecord));
             }
@@ -362,17 +363,17 @@ class CustomDatabase {
   Future<Map<String, dynamic>> getBestWeightVolumeReps(
       int exerciseId, Transaction txn) async {
     var queryRecords = await txn.query('exercise',
-        columns: ['best_weight', 'best_volume', 'best_reps'],
+        columns: ['best_weight', 'best_1rm', 'best_reps'],
         where: 'id=?',
         whereArgs: [exerciseId]);
 
     if (queryRecords.isEmpty) {
-      return {'best_weight': null, 'best_volume': null, 'best_reps': null};
+      return {'best_weight': null, 'best_1rm': null, 'best_reps': null};
     }
 
     return {
       'best_weight': queryRecords[0]['best_weight'],
-      'best_volume': queryRecords[0]['best_volume'],
+      'best_1rm': queryRecords[0]['best_1rm'],
       'best_reps': queryRecords[0]['best_reps']
     };
   }
@@ -380,18 +381,12 @@ class CustomDatabase {
   Future setBestWeightVolumeReps(
       int exerciseId, Map<String, dynamic> data, Transaction txn) async {
     double? bestWeight = data['best_weight'];
-    int? bestVolume = data['best_volume'];
+    double? best1RM = data['best_1rm'];
     int? bestReps = data['best_reps'];
 
-    await txn.update(
-        'exercise',
-        {
-          'best_weight': bestWeight,
-          'best_volume': bestVolume,
-          'best_reps': bestReps
-        },
-        where: 'id=?',
-        whereArgs: [exerciseId]);
+    await txn.update('exercise',
+        {'best_weight': bestWeight, 'best_1rm': best1RM, 'best_reps': bestReps},
+        where: 'id=?', whereArgs: [exerciseId]);
   }
 
   Future setWeightRecord(
@@ -434,7 +429,7 @@ class CustomDatabase {
                 'reps',
                 'rpe',
                 'has_weight_record',
-                'has_volume_record',
+                'has_1RM_record',
                 'has_reps_record'
               ],
               where: 'fk_exercise_record_id=?',
@@ -447,14 +442,13 @@ class CustomDatabase {
             int hasRepsRecord = queryExerciseSet[k]['has_reps_record'] as int;
             int hasWeightRecord =
                 queryExerciseSet[k]['has_weight_record'] as int;
-            int hasVolumeRecord =
-                queryExerciseSet[k]['has_volume_record'] as int;
+            int has1RMRecord = queryExerciseSet[k]['has_1RM_record'] as int;
             sets.add(ExerciseSet(
                 reps: reps,
                 rpe: rpe,
                 weight: weight,
                 hasRepsRecord: hasRepsRecord,
-                hasVolumeRecord: hasVolumeRecord,
+                has1RMRecord: has1RMRecord,
                 hasWeightRecord: hasWeightRecord));
           }
           int jsonId = queryExerciseRecord[j]['json_id'] as int;
@@ -600,7 +594,7 @@ class CustomDatabase {
                     exerciseRecord.exerciseId,
                     {
                       'best_weight': null,
-                      'best_volume': null,
+                      'best_1rm': null,
                       'best_reps': currentMaxReps
                     },
                     txn);
@@ -615,23 +609,22 @@ class CustomDatabase {
                 }
                 currentMaxWeight = maxWeight;
               }
-              int currentMaxVolume = (sets[0].weight * sets[0].reps).round();
+              double currentmax1RM = sets[0].oneRM();
               for (int j = 0; j < sets.length - 1; j++) {
-                int nextVolume =
-                    (sets[j + 1].weight * sets[j + 1].reps).round();
-                int maxVolume = max(currentMaxVolume, nextVolume);
-                if (maxVolume > currentMaxVolume) {
+                double next1RM = sets[j + 1].oneRM();
+                double max1RM = max(currentmax1RM, next1RM);
+                if (max1RM > currentmax1RM) {
                   recordIndex = j;
                 }
-                currentMaxVolume = maxVolume;
+                currentmax1RM = max1RM;
               }
               double maxWeight = -1;
               if (previousRecords['best_weight'] != null) {
                 maxWeight = previousRecords['best_weight'] as double;
               }
-              int maxVolume = -1;
-              if (previousRecords['best_volume'] != null) {
-                maxVolume = previousRecords['best_volume'] as int;
+              double max1RM = -1;
+              if (previousRecords['best_1rm'] != null) {
+                max1RM = previousRecords['best_1rm'] as double;
               }
               recordIndex = sets
                   .indexWhere((element) => element.weight == currentMaxWeight);
@@ -641,20 +634,19 @@ class CustomDatabase {
                 sets[recordIndex].hasWeightRecord = 1;
               }
               recordIndex = sets.indexWhere((element) {
-                return (element.reps * element.weight).round() ==
-                    currentMaxVolume;
+                return element.oneRM() == currentmax1RM;
               });
-              if (currentMaxVolume > maxVolume) {
+              if (currentmax1RM > max1RM) {
                 didSetWeightRecord = true;
-                maxVolume = currentMaxVolume;
-                sets[recordIndex].hasVolumeRecord = 1;
+                max1RM = currentmax1RM;
+                sets[recordIndex].has1RMRecord = 1;
               }
               if (didSetWeightRecord) {
                 await setBestWeightVolumeReps(
                     exerciseRecord.exerciseId,
                     {
                       'best_weight': maxWeight,
-                      'best_volume': maxVolume,
+                      'best_1rm': max1RM,
                       'best_reps': null
                     },
                     txn);
@@ -711,14 +703,14 @@ class CustomDatabase {
           }
           int hasRepsRecord = repsWeightRpe.hasRepsRecord;
           int hasWeightRecord = repsWeightRpe.hasWeightRecord;
-          int hasVolumeRecord = repsWeightRpe.hasVolumeRecord;
+          int has1RMRecord = repsWeightRpe.has1RMRecord;
           values = {
             'reps': reps,
             'weight': weight,
             'rpe': rpe,
             'has_weight_record': hasWeightRecord,
             'has_reps_record': hasRepsRecord,
-            'has_volume_record': hasVolumeRecord,
+            'has_1RM_record': has1RMRecord,
             'fk_exercise_record_id': exerciseRecordId
           };
           await txn.insert('exercise_set', values);
@@ -823,7 +815,7 @@ class CustomDatabase {
             'type',
             'reps',
             'best_weight',
-            'best_volume',
+            'best_1rm',
             'best_reps',
             'fk_workout_id'
           ],
@@ -838,7 +830,7 @@ class CustomDatabase {
         int jsonId = queryExercise[j]['json_id'] as int;
         var exerciseDataList = Helper.instance.exerciseDataGlobal;
         double? bestWeight = queryExercise[j]['best_weight'] as double?;
-        int? bestVolume = queryExercise[j]['best_volume'] as int?;
+        double? best1RM = queryExercise[j]['best_1rm'] as double?;
         int? bestReps = queryExercise[j]['best_reps'] as int?;
         ExerciseData exerciseData =
             exerciseDataList.where((element) => element.id == jsonId).first;
@@ -849,7 +841,7 @@ class CustomDatabase {
             reps: reps,
             bestReps: bestReps,
             bestWeight: bestWeight,
-            bestVolume: bestVolume,
+            best1RM: best1RM,
             workoutId: workoutId));
       }
       workoutList.add(Workout(id, name, exerciseList, hasCache: hasCache));
@@ -915,7 +907,7 @@ class CustomDatabase {
     final db = await instance.database;
     await db.transaction((txn) async {
       await txn.update('exercise',
-          {'best_weight': null, 'best_reps': null, 'best_volume': null},
+          {'best_weight': null, 'best_reps': null, 'best_1rm': null},
           where: 'id=?', whereArgs: [exerciseId]);
     });
   }

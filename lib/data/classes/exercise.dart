@@ -7,7 +7,7 @@ class Exercise {
   int reps;
   int sets;
   double? bestWeight;
-  int? bestVolume;
+  double? best1RM;
   int? bestReps;
   String? notes;
 
@@ -18,20 +18,20 @@ class Exercise {
       required this.reps,
       required this.exerciseData,
       this.bestWeight,
-      this.bestVolume,
+      this.best1RM,
       this.bestReps,
       this.notes});
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'wId': workoutId,
-      'exD': exerciseData.toMap(),
+      'workoutId': workoutId,
+      'exerciseData': exerciseData.toMap(),
       'reps': reps,
       'sets': sets,
-      'bestW': bestWeight,
-      'bestV': bestVolume,
-      'bestR': bestReps,
+      'bestWeight': bestWeight,
+      'best1RM': best1RM,
+      'bestReps': bestReps,
       'notes': notes
     };
   }

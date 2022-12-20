@@ -126,8 +126,8 @@
     "sessionCanceled": "Session canceled",
     "totalVolumeOf": "Total volume of the last %s sessions",
     "totalVolumeOne": "Total volume of the last session",
-    "totalVolumeExercise": "Volume in the last %s sessions",
-    "totalVolumeExerciseOne": "Volume in the last session",
+    "mean1RMExercise": "Mean 1RM in the last %s sessions",
+    "mean1RMExerciseOne": "Mean 1RM in the last session",
     "exerciseNotPerformed": "This exercise has not been performed yet in this workout",
     "touchToSeeDetails": "Touch the charts points to see details",
     "backupAndRestore": "Backup and restore",
@@ -168,5 +168,6 @@
     "useSystemPalette": "Use system color palette",
     "mainColor": "Main color",
     "pickAColor": "Pick a color",
-    "done": "Done"
+    "done": "Done",
+    "1RM": "1RM"
 }

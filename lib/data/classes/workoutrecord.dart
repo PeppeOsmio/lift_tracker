@@ -21,10 +21,10 @@ class WorkoutRecord {
   Map<String, dynamic> toMap() {
     return {
       'day': day.toString(),
-      'woN': workoutName,
-      'woId': workoutId,
-      'is_cache': isCache,
-      'exRecs': exerciseRecords.map((e) => e.toMap()).toList()
+      'workoutName': workoutName,
+      'workoutId': workoutId,
+      'isCache': isCache,
+      'exerciseRecords': exerciseRecords.map((e) => e.toMap()).toList()
     };
   }
 }

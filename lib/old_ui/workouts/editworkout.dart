@@ -58,7 +58,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
         resetIcon = false;
       } else if (exerciseList[i]!.bestReps == null &&
           exerciseList[i]!.bestWeight == null &&
-          exerciseList[i]!.bestVolume == null) {
+          exerciseList[i]!.best1RM == null) {
         resetIcon = false;
       }
       exerciseWidgets.add(ExerciseListItem(
@@ -92,7 +92,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
         onReset: resetIcon
             ? () async {
                 Exercise exercise = exerciseList[i]!;
-                String bestVolume;
+                String best1RM;
                 String bestReps;
                 String bestWeight;
                 String content;
@@ -106,10 +106,10 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
                 } else {
                   bestWeight = exercise.bestWeight.toString();
                 }
-                if (exercise.bestVolume == null) {
-                  bestVolume = 'no record';
+                if (exercise.best1RM == null) {
+                  best1RM = 'no record';
                 } else {
-                  bestVolume = exercise.bestVolume.toString();
+                  best1RM = exercise.best1RM.toString();
                 }
 
                 if (exercise.exerciseData.type == 'free') {
@@ -117,7 +117,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
                       '${UIUtilities.loadTranslation(context, 'bestReps')}: $bestReps';
                 } else {
                   content =
-                      '${UIUtilities.loadTranslation(context, 'bestWeight')}: $bestWeight kg\n${UIUtilities.loadTranslation(context, 'bestVolume')}: $bestVolume kg';
+                      '${UIUtilities.loadTranslation(context, 'bestWeight')}: $bestWeight kg\n${UIUtilities.loadTranslation(context, 'best1RM')}: $best1RM kg';
                 }
 
                 await showDimmedBackgroundDialog(context,
@@ -135,7 +135,7 @@ class _EditWorkoutState extends ConsumerState<EditWorkout> {
                       ref.refresh(Helper.instance.workoutsProvider);
                       exerciseList[i]!.bestReps = null;
                       exerciseList[i]!.bestWeight = null;
-                      exerciseList[i]!.bestVolume = null;
+                      exerciseList[i]!.best1RM = null;
                       Navigator.pop(context);
                     });
               }
